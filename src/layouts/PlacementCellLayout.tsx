@@ -1,0 +1,2 @@
+import { Outlet } from 'react-router-dom';
+export const PlacementCellLayout = () => { return (<div className='flex min-h-screen'><aside className='hidden md:flex w-64 border-r bg-sidebar'>Sidebar</aside><div className='flex flex-1 flex-col'><header className='h-16 border-b bg-navbar flex items-center justify-between px-6'><span>Top Navbar</span><span>Quick Actions</span></header><main className='flex-1 p-6'><Outlet /></main></div><aside className='hidden xl:flex w-64 border-l bg-surface'>Notification Panel</aside></div>); };

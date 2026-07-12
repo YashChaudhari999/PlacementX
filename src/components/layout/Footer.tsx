@@ -1,0 +1,1 @@
+export const Footer = () => { return (<footer className='py-6 text-center text-sm text-muted-foreground border-t mt-auto'>&copy; {new Date().getFullYear()} NMIMS PlacementX. All rights reserved.</footer>); };
