@@ -25,25 +25,36 @@ const steps = [
 
 export const WorkflowTimeline = () => {
   return (
-    <section className="py-24 bg-muted/10 border-y border-border/40 overflow-hidden">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-4">
-            How PlacementX Works
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            A seamless, end-to-end workflow designed specifically for modern campus recruitment.
-          </p>
+    <section className="py-24 bg-white border-y border-slate-100 overflow-hidden relative">
+      <div className="absolute inset-0 z-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.02]" />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <h2 className="text-sm font-bold tracking-widest text-primary uppercase mb-3">
+              Workflow
+            </h2>
+            <h3 className="text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl mb-4">
+              How PlacementX Works
+            </h3>
+            <p className="text-lg text-slate-500 leading-relaxed">
+              A seamless, end-to-end workflow designed specifically for modern campus recruitment.
+            </p>
+          </motion.div>
         </div>
 
         <div className="relative max-w-5xl mx-auto">
           {/* Connecting line */}
-          <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-0.5 bg-border z-0">
+          <div className="hidden md:block absolute top-12 left-[10%] right-[10%] h-1 bg-slate-100 rounded-full z-0 overflow-hidden">
             <motion.div 
-              className="absolute inset-0 bg-primary origin-left"
+              className="absolute inset-0 bg-gradient-to-r from-primary to-accent origin-left"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1.5, delay: 0.2, ease: "easeInOut" }}
             />
           </div>
@@ -52,17 +63,19 @@ export const WorkflowTimeline = () => {
             {steps.map((step, index) => (
               <motion.div 
                 key={step.number}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: index * 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="flex flex-col items-center text-center group"
               >
-                <div className="h-24 w-24 rounded-full bg-background border-4 border-muted flex items-center justify-center mb-6 shadow-sm transition-colors group-hover:border-primary/50 relative">
-                  <span className="text-2xl font-bold text-foreground">{step.number}</span>
+                <div className="h-24 w-24 rounded-2xl bg-white border-2 border-slate-100 flex items-center justify-center mb-6 shadow-sm transition-all duration-300 group-hover:border-primary group-hover:shadow-md group-hover:-translate-y-1 relative">
+                  <span className="text-2xl font-black text-slate-300 group-hover:text-primary transition-colors duration-300">{step.number}</span>
+                  {/* Decorative dot */}
+                  <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-sm" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">{step.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed px-2">
+                <h3 className="text-xl font-bold mb-3 text-slate-900">{step.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed px-2">
                   {step.description}
                 </p>
               </motion.div>

@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "concurrently \"npm run dev --workspace=@placementx/api\" \"npm run dev --workspace=@placementx/web\"",
     "build": "npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
@@ -16,6 +16,7 @@
     "type-check": "npm run type-check --workspaces --if-present"
   },
   "devDependencies": {
+    "concurrently": "^10.0.3",
     "prettier": "^3.9.5",
     "typescript": "~6.0.2"
   }

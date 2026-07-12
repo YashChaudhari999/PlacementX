@@ -1,5 +1,5 @@
 import { createContext, ReactNode } from 'react';
-import { Session } from '../types';
+import type { Session } from '../types';
 
 export const SessionContext = createContext<{ session: Session | null; refreshSession: () => void } | undefined>(undefined);
 

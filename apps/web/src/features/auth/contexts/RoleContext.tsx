@@ -1,5 +1,5 @@
 import { createContext, ReactNode } from 'react';
-import { RoleState } from '../types';
+import type { RoleState } from '../types';
 
 export const RoleContext = createContext<RoleState | undefined>(undefined);
 

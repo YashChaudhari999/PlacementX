@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      String   @default("STUDENT")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  studentProfile StudentProfile?
+  coordinatorProfile CoordinatorProfile?
+  adminProfile AdminProfile?
+  notifications Notification[]
+}
+
+model StudentProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  firstName String?
+  lastName  String?
+  phone     String?
+  branch    String?
+  cgpa      Float?
+  passingYear Int?
+  activeBacklogs Int @default(0)
+  yearGap   Int @default(0)
+  nationality String?
+  gender    String?
+  
+  resumeUrl String?
+  photoUrl  String?
+  portfolioUrl String?
+  githubUrl String?
+  
+  skills    String? // JSON string
+  projects  String? // JSON string
+  educationDetails String? // JSON string
+  
+  isProfileComplete Boolean @default(false)
+  
+  applications DriveApplication[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CoordinatorProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  firstName String?
+  lastName  String?
+  department String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AdminProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  firstName String?
+  lastName  String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  logoUrl   String?
+  website   String?
+  industry  String?
+  profile   String?
+  
+  hrName    String?
+  hrEmail   String?
+  hrContact String?
+  address   String?
+  
+  drives    PlacementDrive[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PlacementDrive {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  status    String @default("DRAFT") // DRAFT, PUBLISHED, CLOSED
+  
+  // Job Details
+  jobRole   String
+  jobDescription String
+  fixedSalary Float?
+  variableSalary Float?
+  internshipStipend Float?
+  employmentType String
+  ppoAvailable Boolean @default(false)
+  bondDetails String?
+  vacancies Int?
+  location String?
+  workMode String
+  
+  // Eligibility
+  eligibleBranches String // Changed from String[] to String (JSON or comma-separated) for SQLite
+  passingYear Int?
+  minimumCgpa Float?
+  activeBacklogsAllowed Int @default(0)
+  yearGapAllowed Int @default(0)
+  maximumLiveOffers Int @default(1)
+  genderRestriction String?
+  
+  // Registration Timeline
+  registrationStart DateTime?
+  registrationEnd DateTime?
+  nominationLink String?
+  maximumApplicants Int?
+  
+  resumeMandatory Boolean @default(true)
+  portfolioRequired Boolean @default(false)
+  githubRequired Boolean @default(false)
+  
+  // Attachments (JSON array or relation)
+  attachments String?
+  
+  applications DriveApplication[]
+  selectionRounds SelectionRound[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SelectionRound {
+  id        String   @id @default(uuid())
+  driveId   String
+  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  
+  roundNumber Int
+  title       String // e.g., "Online Assessment", "Technical Interview"
+  date        DateTime?
+  time        String?
+  duration    String?
+  venue       String? // Could be virtual link
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DriveApplication {
+  id        String   @id @default(uuid())
+  driveId   String
+  studentId String
+  
+  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  // APPLIED, RESUME_VERIFIED, ASSESSMENT_SCHEDULED, ASSESSMENT_CLEARED, TECHNICAL_INTERVIEW, HR_INTERVIEW, SELECTED, REJECTED
+  status    String @default("APPLIED")
+  appliedAt DateTime @default(now())
+  
+  offerLetter OfferLetter?
+  
+  @@unique([driveId, studentId])
+}
+
+model OfferLetter {
+  id            String   @id @default(uuid())
+  applicationId String   @unique
+  application   DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  
+  offerLetterUrl String?
+  joiningLetterUrl String?
+  internshipLetterUrl String?
+  
+  uploadedAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  title     String
+  message   String
+  type      String   @default("INFO")
+  isRead    Boolean  @default(false)
+  
+  link      String?
+  
+  createdAt DateTime @default(now())
+}

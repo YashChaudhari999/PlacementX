@@ -3,6 +3,7 @@ import { StatisticsSection } from '../components/StatisticsSection';
 import { FeaturesGrid } from '../components/FeaturesGrid';
 import { WorkflowTimeline } from '../components/WorkflowTimeline';
 import { PlatformModules } from '../components/PlatformModules';
+import { TestimonialsSection } from '../components/TestimonialsSection';
 import { CTASection } from '../components/CTASection';
 
 export default function LandingPage() {
@@ -13,6 +14,7 @@ export default function LandingPage() {
       <FeaturesGrid />
       <WorkflowTimeline />
       <PlatformModules />
+      <TestimonialsSection />
       <CTASection />
     </div>
   );

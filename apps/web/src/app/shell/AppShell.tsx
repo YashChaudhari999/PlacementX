@@ -6,7 +6,7 @@ import { NotificationDrawer } from './components/NotificationDrawer';
 export const AppShell = ({ children }: { children: ReactNode }) => {
   return (
     <ErrorBoundary>
-      <div className="app-shell-root relative flex min-h-screen w-full bg-background text-foreground">
+      <div className="app-shell-root relative flex flex-col min-h-screen w-full bg-background text-foreground">
         <GlobalLoader />
         {children}
         <NotificationDrawer />

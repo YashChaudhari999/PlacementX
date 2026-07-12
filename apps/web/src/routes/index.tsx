@@ -24,6 +24,34 @@ import { RecruiterEventLayout } from '@/layouts/RecruiterEventLayout';
 const LazyPage = lazy(() => Promise.resolve({ default: () => <div>Page Content</div> }));
 
 const LandingPage = lazy(() => import('@/features/public/pages/LandingPage'));
+const AboutPage = lazy(() => import('@/features/public/pages/AboutPage'));
+const FeaturesPage = lazy(() => import('@/features/public/pages/FeaturesPage'));
+const ModulesPage = lazy(() => import('@/features/public/pages/ModulesPage'));
+const HowItWorksPage = lazy(() => import('@/features/public/pages/HowItWorksPage'));
+const FAQPage = lazy(() => import('@/features/public/pages/FAQPage'));
+const ContactPage = lazy(() => import('@/features/public/pages/ContactPage'));
+
+const StudentLogin = lazy(() => import('@/features/auth/pages/StudentLogin'));
+const AdminLogin = lazy(() => import('@/features/auth/pages/AdminLogin'));
+const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
+const AnalyticsDashboard = lazy(() => import('@/features/admin/pages/AnalyticsDashboard'));
+const DriveList = lazy(() => import('@/features/admin/pages/DriveList'));
+const CreateDriveWizard = lazy(() => import('@/features/admin/pages/CreateDriveWizard'));
+const AdminEventDetails = lazy(() => import('@/features/admin/pages/AdminEventDetails'));
+const AdminStudents = lazy(() => import('@/features/admin/pages/AdminStudents'));
+const AdminCoordinators = lazy(() => import('@/features/admin/pages/AdminCoordinators'));
+const AdminReports = lazy(() => import('@/features/admin/pages/AdminReports'));
+const AdminNotifications = lazy(() => import('@/features/admin/pages/AdminNotifications'));
+const AdminCalendar = lazy(() => import('@/features/admin/pages/AdminCalendar'));
+const AdminSettings = lazy(() => import('@/features/admin/pages/AdminSettings'));
+const StudentDashboard = lazy(() => import('@/features/student/pages/StudentDashboard'));
+const StudentDriveDetails = lazy(() => import('@/features/student/pages/StudentDriveDetails'));
+const StudentProfile = lazy(() => import('@/features/student/pages/StudentProfile'));
+const StudentApplications = lazy(() => import('@/features/student/pages/StudentApplications'));
+const StudentInterviews = lazy(() => import('@/features/student/pages/StudentInterviews'));
+const StudentDocuments = lazy(() => import('@/features/student/pages/StudentDocuments'));
+const StudentNotifications = lazy(() => import('@/features/student/pages/StudentNotifications'));
+const StudentSettings = lazy(() => import('@/features/student/pages/StudentSettings'));
 
 export const router = createBrowserRouter([
   // PUBLIC ROUTES
@@ -33,18 +61,28 @@ export const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       { index: true, element: <Suspense fallback={<Loading />}><LandingPage /></Suspense> },
-      { path: 'about', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'features', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'contact', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { path: 'about', element: <Suspense fallback={<Loading />}><AboutPage /></Suspense> },
+      { path: 'features', element: <Suspense fallback={<Loading />}><FeaturesPage /></Suspense> },
+      { path: 'modules', element: <Suspense fallback={<Loading />}><ModulesPage /></Suspense> },
+      { path: 'how-it-works', element: <Suspense fallback={<Loading />}><HowItWorksPage /></Suspense> },
+      { path: 'faq', element: <Suspense fallback={<Loading />}><FAQPage /></Suspense> },
+      { path: 'contact', element: <Suspense fallback={<Loading />}><ContactPage /></Suspense> },
     ],
   },
   
   // AUTH ROUTES (Guest only)
   {
+    path: '/student/login',
     element: <GuestRoute><AuthLayout /></GuestRoute>,
     children: [
-      { path: 'student/login', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'admin/login', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { index: true, element: <Suspense fallback={<Loading />}><StudentLogin /></Suspense> },
+    ],
+  },
+  {
+    path: '/admin/login',
+    element: <GuestRoute><AuthLayout /></GuestRoute>,
+    children: [
+      { index: true, element: <Suspense fallback={<Loading />}><AdminLogin /></Suspense> },
     ],
   },
 
@@ -54,31 +92,38 @@ export const router = createBrowserRouter([
     element: <ProtectedStudentRoute><StudentLayout /></ProtectedStudentRoute>,
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
-      { path: 'dashboard', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'profile', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { path: 'dashboard', element: <Suspense fallback={<Loading />}><StudentDashboard /></Suspense> },
+      { path: 'drives/:id', element: <Suspense fallback={<Loading />}><StudentDriveDetails /></Suspense> },
+      { path: 'profile', element: <Suspense fallback={<Loading />}><StudentProfile /></Suspense> },
       { path: 'placements', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'applications', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'notifications', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'settings', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      // Future AI module placeholder for Student
-      { path: 'ai-assistant', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { path: 'applications', element: <Suspense fallback={<Loading />}><StudentApplications /></Suspense> },
+      { path: 'notifications', element: <Suspense fallback={<Loading />}><StudentNotifications /></Suspense> },
+      { path: 'interviews', element: <Suspense fallback={<Loading />}><StudentInterviews /></Suspense> },
+      { path: 'documents', element: <Suspense fallback={<Loading />}><StudentDocuments /></Suspense> },
+      { path: 'settings', element: <Suspense fallback={<Loading />}><StudentSettings /></Suspense> },
+      // Future AI module placeholder
+      { path: 'ai-mock-interview', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { path: 'ai-resume-builder', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
     ],
   },
 
-  // PLACEMENT CELL (ADMIN) ROUTES
+// PLACEMENT CELL (ADMIN) ROUTES
   {
     path: '/admin',
     element: <ProtectedAdminRoute><PlacementCellLayout /></ProtectedAdminRoute>,
     children: [
       { index: true, element: <Navigate to="dashboard" replace /> },
-      { path: 'dashboard', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'students', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'placement-events', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'event/:id', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'recruiter-submissions', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'notifications', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'reports', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
-      { path: 'settings', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { path: 'dashboard', element: <Suspense fallback={<Loading />}><AdminDashboard /></Suspense> },
+      { path: 'analytics', element: <Suspense fallback={<Loading />}><AnalyticsDashboard /></Suspense> },
+      { path: 'students', element: <Suspense fallback={<Loading />}><AdminStudents /></Suspense> },
+      { path: 'coordinators', element: <Suspense fallback={<Loading />}><AdminCoordinators /></Suspense> },
+      { path: 'placement-events', element: <Suspense fallback={<Loading />}><DriveList /></Suspense> },
+      { path: 'placement-events/create', element: <Suspense fallback={<Loading />}><CreateDriveWizard /></Suspense> },
+      { path: 'event/:id', element: <Suspense fallback={<Loading />}><AdminEventDetails /></Suspense> },
+      { path: 'calendar', element: <Suspense fallback={<Loading />}><AdminCalendar /></Suspense> },
+      { path: 'notifications', element: <Suspense fallback={<Loading />}><AdminNotifications /></Suspense> },
+      { path: 'reports', element: <Suspense fallback={<Loading />}><AdminReports /></Suspense> },
+      { path: 'settings', element: <Suspense fallback={<Loading />}><AdminSettings /></Suspense> },
       // Future AI module placeholder for Admin
       { path: 'ai-analytics', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
     ],
