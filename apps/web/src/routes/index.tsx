@@ -23,6 +23,8 @@ import { RecruiterEventLayout } from '@/layouts/RecruiterEventLayout';
 // In a real implementation, these would point to actual feature pages
 const LazyPage = lazy(() => Promise.resolve({ default: () => <div>Page Content</div> }));
 
+const LandingPage = lazy(() => import('@/features/public/pages/LandingPage'));
+
 export const router = createBrowserRouter([
   // PUBLIC ROUTES
   {
@@ -30,7 +32,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { index: true, element: <Suspense fallback={<Loading />}><LandingPage /></Suspense> },
       { path: 'about', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
       { path: 'features', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
       { path: 'contact', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
