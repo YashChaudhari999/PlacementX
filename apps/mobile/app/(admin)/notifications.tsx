@@ -119,7 +119,7 @@ export default function AdminNotifications() {
           />
 
           {/* Preview */}
-          <Card style={[styles.preview, { backgroundColor: selectedType.bg, borderColor: selectedType.color, borderWidth: 1.5 }]}>
+          <Card style={StyleSheet.flatten([styles.preview, { backgroundColor: selectedType.bg, borderColor: selectedType.color, borderWidth: 1.5 }])}>
             <View style={styles.previewHeader}>
               <Ionicons name={selectedType.icon as any} size={18} color={selectedType.color} />
               <Text style={[styles.previewTitle, { color: selectedType.color }]}>

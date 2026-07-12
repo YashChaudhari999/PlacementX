@@ -112,7 +112,7 @@ export default function LoginScreen() {
               title="Sign In"
               onPress={handleLogin}
               loading={loading}
-              style={[styles.loginBtn, isAdmin ? styles.adminBtn : {}]}
+              style={StyleSheet.flatten([styles.loginBtn, isAdmin ? styles.adminBtn : undefined])}
             />
           </View>
         </ScrollView>
