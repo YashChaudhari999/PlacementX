@@ -52,3 +52,29 @@ export const markAsRead = async (req: any, res: any) => {
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+export const registerDeviceToken = async (req: any, res: any) => {
+  try {
+    const { token } = req.body;
+    const userId = req.user?.id || req.headers['x-user-id'];
+
+    if (!userId || !token) {
+      return res.status(400).json({ message: 'User ID and Token are required' });
+    }
+
+    // Upsert the token for this user
+    await prisma.deviceToken.upsert({
+      where: { token },
+      update: { userId }, // update if the same token is somehow associated with another user (e.g., shared device)
+      create: {
+        userId,
+        token
+      }
+    });
+
+    return res.status(200).json({ success: true, message: 'Device token registered successfully' });
+  } catch (error: any) {
+    console.error('Register device token error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};

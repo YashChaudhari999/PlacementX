@@ -2,6 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getDatabase, Database } from 'firebase/database';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getMessaging, Messaging } from 'firebase/messaging';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,3 +18,4 @@ export const firebaseApp: FirebaseApp = getApps().length === 0 ? initializeApp(f
 export const auth: Auth = getAuth(firebaseApp);
 export const database: Database = getDatabase(firebaseApp);
 export const storage: FirebaseStorage = getStorage(firebaseApp);
+export const messaging: Messaging | null = typeof window !== 'undefined' ? getMessaging(firebaseApp) : null;

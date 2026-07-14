@@ -7,8 +7,12 @@ import notificationRoutes from './routes/notification.routes';
 import studentRoutes from './routes/student.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import adminRoutes from './routes/admin.routes';
+import hrRoutes from './routes/hr.routes';
+import { initFirebaseAdmin } from './config/firebase-admin';
 
 dotenv.config();
+
+initFirebaseAdmin();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,6 +25,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin/drives', driveRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/hr', hrRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
 

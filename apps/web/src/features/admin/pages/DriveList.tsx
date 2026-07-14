@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, MapPin, Users, Briefcase } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, MapPin, Users, Briefcase, Link as LinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
 import axios from 'axios';
+import { GenerateHrInviteModal } from '../components/GenerateHrInviteModal';
 
 interface Drive {
   id: string;
@@ -22,6 +23,7 @@ export default function DriveList() {
   const [drives, setDrives] = useState<Drive[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isHrModalOpen, setIsHrModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDrives = async () => {
@@ -48,12 +50,22 @@ export default function DriveList() {
           <p className="text-slate-500 text-sm mt-1">Manage company visits and recruitment events.</p>
         </div>
         
-        <Link to="/admin/placement-events/create">
-          <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Drive
+        <div className="flex gap-3">
+          <Button 
+            onClick={() => setIsHrModalOpen(true)}
+            variant="outline" 
+            className="border-primary text-primary hover:bg-primary/5"
+          >
+            <LinkIcon className="w-4 h-4 mr-2" />
+            Invite HR
           </Button>
-        </Link>
+          <Link to="/admin/placement-events/create">
+            <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Manual Entry
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters Bar */}
@@ -124,14 +136,20 @@ export default function DriveList() {
               }`}>
                 {drive.status}
               </span>
-              <Button variant="outline" size="sm" className="text-xs h-8">
-                View Details
-              </Button>
+              <Link to={`/admin/placement-events/${drive.id}`}>
+                <Button variant="outline" size="sm" className="text-xs h-8">
+                  View Details
+                </Button>
+              </Link>
             </div>
           </Card>
         ))}
       </div>
 
+      <GenerateHrInviteModal 
+        isOpen={isHrModalOpen} 
+        onClose={() => setIsHrModalOpen(false)} 
+      />
     </div>
   );
 }

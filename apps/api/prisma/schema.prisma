@@ -20,6 +20,15 @@ model User {
   coordinatorProfile CoordinatorProfile?
   adminProfile AdminProfile?
   notifications Notification[]
+  deviceTokens DeviceToken[]
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  createdAt DateTime @default(now())
 }
 
 model StudentProfile {
@@ -86,12 +95,15 @@ model Company {
   logoUrl   String?
   website   String?
   industry  String?
-  profile   String?
+  profile   String? // Short profile
+  description String? // Detailed description
+  linkedInUrl String?
   
   hrName    String?
   hrEmail   String?
   hrContact String?
-  address   String?
+  location   String?
+  workMode  String? // On Campus, Off Campus, Hybrid, Remote
   
   drives    PlacementDrive[]
   
@@ -104,45 +116,71 @@ model PlacementDrive {
   companyId String
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
   
-  status    String @default("DRAFT") // DRAFT, PUBLISHED, CLOSED
+  status    String @default("WAITING_FOR_HR") // WAITING_FOR_HR, DRAFT, SUBMITTED, UNDER_REVIEW, CHANGES_REQUESTED, APPROVED, PUBLISHED, CLOSED
+  
+  // Placement Cell Basic Details
+  driveTitle String?
+  placementSeason String?
+  campus String?
+  academicYear String?
+  driveType String? // On Campus, Off Campus, Virtual, Hybrid
+  expectedDriveDate DateTime?
+  remarks String?
   
   // Job Details
-  jobRole   String
-  jobDescription String
+  jobRole   String?
+  jobDescription String?
+  department String?
   fixedSalary Float?
   variableSalary Float?
+  joiningBonus Float?
   internshipStipend Float?
-  employmentType String
+  employmentType String?
   ppoAvailable Boolean @default(false)
   bondDetails String?
   vacancies Int?
   location String?
-  workMode String
+  workMode String?
+  requiredSkills String?
+  preferredSkills String?
+  technologyStack String?
+  trainingPeriod String?
+  benefits String?
   
   // Eligibility
-  eligibleBranches String // Changed from String[] to String (JSON or comma-separated) for SQLite
+  eligibleBranches String? // JSON or comma-separated
   passingYear Int?
+  semester Int?
   minimumCgpa Float?
   activeBacklogsAllowed Int @default(0)
+  historyOfBacklogsAllowed Int @default(0)
   yearGapAllowed Int @default(0)
+  maximumGapYears Int @default(0)
   maximumLiveOffers Int @default(1)
   genderRestriction String?
+  minimumAttendance Float?
   
   // Registration Timeline
   registrationStart DateTime?
   registrationEnd DateTime?
+  applicationDeadline DateTime?
   nominationLink String?
   maximumApplicants Int?
   
   resumeMandatory Boolean @default(true)
   portfolioRequired Boolean @default(false)
   githubRequired Boolean @default(false)
+  linkedinRequired Boolean @default(false)
+  consentGiven Boolean @default(false)
+  specialInstructions String?
   
   // Attachments (JSON array or relation)
   attachments String?
   
   applications DriveApplication[]
   selectionRounds SelectionRound[]
+  hrInvitations HrInvitationLink[]
+  auditLogs DriveAuditLog[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -155,10 +193,17 @@ model SelectionRound {
   
   roundNumber Int
   title       String // e.g., "Online Assessment", "Technical Interview"
+  roundType   String?
   date        DateTime?
   time        String?
   duration    String?
   venue       String? // Could be virtual link
+  platform    String?
+  instructions String?
+  evaluationCriteria String?
+  interviewer String?
+  weightage   Float?
+  order       Int @default(0)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -207,3 +252,29 @@ model Notification {
   
   createdAt DateTime @default(now())
 }
+
+model HrInvitationLink {
+  id        String   @id @default(uuid())
+  driveId   String
+  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  
+  token     String   @unique
+  hrEmail   String
+  isUsed    Boolean  @default(false)
+  expiresAt DateTime
+  
+  createdAt DateTime @default(now())
+}
+
+model DriveAuditLog {
+  id        String   @id @default(uuid())
+  driveId   String
+  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  
+  action    String // CREATED, HR_LINK_GENERATED, SUBMITTED, APPROVED, REJECTED, CHANGES_REQUESTED
+  performedBy String // "System", "Admin: id", "HR"
+  comments  String?
+  
+  createdAt DateTime @default(now())
+}
+

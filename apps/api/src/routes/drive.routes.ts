@@ -5,7 +5,10 @@ import {
   checkEligibilityStatus, 
   getDriveById,
   getDriveApplications,
-  updateApplicationStatus
+  updateApplicationStatus,
+  approveHrDrive,
+  rejectHrDrive,
+  requestChangesHrDrive
 } from '../controllers/drive.controller';
 
 const router = Router();
@@ -16,5 +19,10 @@ router.get('/:id/eligibility', checkEligibilityStatus);
 router.get('/:id', getDriveById);
 router.get('/:id/applications', getDriveApplications);
 router.put('/applications/:id/status', updateApplicationStatus);
+
+// HR Drive Review Routes
+router.post('/:id/approve', approveHrDrive);
+router.post('/:id/reject', rejectHrDrive);
+router.post('/:id/request-changes', requestChangesHrDrive);
 
 export default router;

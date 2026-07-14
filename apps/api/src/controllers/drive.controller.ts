@@ -202,3 +202,59 @@ export const updateApplicationStatus = async (req: any, res: any) => {
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+export const approveHrDrive = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const drive = await prisma.placementDrive.update({
+      where: { id },
+      data: { status: 'PUBLISHED' }
+    });
+    
+    await prisma.driveAuditLog.create({
+      data: { driveId: id, action: 'APPROVED', performedBy: 'Admin' }
+    });
+
+    return res.status(200).json({ message: 'Drive approved', drive });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const rejectHrDrive = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const drive = await prisma.placementDrive.update({
+      where: { id },
+      data: { status: 'REJECTED' }
+    });
+    
+    await prisma.driveAuditLog.create({
+      data: { driveId: id, action: 'REJECTED', performedBy: 'Admin' }
+    });
+
+    return res.status(200).json({ message: 'Drive rejected', drive });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const requestChangesHrDrive = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { comments } = req.body;
+    
+    const drive = await prisma.placementDrive.update({
+      where: { id },
+      data: { status: 'CHANGES_REQUESTED' }
+    });
+    
+    await prisma.driveAuditLog.create({
+      data: { driveId: id, action: 'CHANGES_REQUESTED', performedBy: 'Admin', comments }
+    });
+
+    return res.status(200).json({ message: 'Changes requested', drive });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
