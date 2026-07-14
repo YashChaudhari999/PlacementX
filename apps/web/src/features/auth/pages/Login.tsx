@@ -57,38 +57,8 @@ export default function Login() {
         >
           {/* Logo card */}
           <div className="bg-white rounded-3xl px-6 py-5 inline-flex items-center gap-6 shadow-2xl mb-10">
-            {/* CSS Replica of NMIMS Logo */}
-            <div className="flex flex-col items-center justify-center p-3 border-[1.5px] border-slate-800 rounded-[2rem] w-36 bg-white relative">
-              <div className="text-[8px] font-bold text-slate-800 tracking-[0.2em] uppercase leading-none mb-1">SVKM'S</div>
-              <div className="text-2xl font-serif font-black text-slate-900 tracking-tight leading-none mb-2">NMIMS</div>
-              
-              <div className="w-16 h-16 border-[1.5px] border-slate-800 rounded-b-[2rem] rounded-t-sm flex overflow-hidden mb-3 relative bg-white">
-                {/* Left side black */}
-                <div className="w-1/2 h-full bg-[#333333] relative">
-                   <div className="absolute bottom-0 w-full h-5 flex flex-col justify-evenly px-1 pb-1">
-                     <div className="w-full h-1 bg-white"></div>
-                     <div className="w-full h-1 bg-white"></div>
-                   </div>
-                </div>
-                {/* Right side split */}
-                <div className="w-1/2 h-full flex flex-col bg-white">
-                   <div className="h-1/2 w-full border-b-[1.5px] border-slate-800 relative">
-                      <div className="absolute -left-3 bottom-0 w-6 h-8 bg-white rounded-r-full"></div>
-                   </div>
-                   <div className="h-1/2 w-full bg-[#A32020]"></div>
-                </div>
-              </div>
-
-              {/* Decorative Leaves/Wreath approx */}
-              <div className="absolute bottom-[22px] flex w-full justify-between px-3 opacity-60">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-800 -rotate-45"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 12L2 12"/><path d="M12 12L12 2"/></svg>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-800 rotate-45 scale-x-[-1]"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 12L2 12"/><path d="M12 12L12 2"/></svg>
-              </div>
-
-              <div className="text-[6px] font-bold text-slate-800 uppercase tracking-widest text-center leading-tight">
-                Deemed-to-be <br/><span className="text-[7.5px]">University</span>
-              </div>
-            </div>
+            {/* NMIMS Logo */}
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-32 object-contain" />
             <div className="border-l border-gray-200 pl-4">
               <div className="text-[11px] font-bold text-gray-800 uppercase leading-tight">
                 PLACEMENT<br />CELL PORTAL

@@ -61,7 +61,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <Suspense fallback={<Loading />}><LandingPage /></Suspense> },
+      { index: true, element: <Navigate to="/login" replace /> },
       { path: 'about', element: <Suspense fallback={<Loading />}><AboutPage /></Suspense> },
       { path: 'features', element: <Suspense fallback={<Loading />}><FeaturesPage /></Suspense> },
       { path: 'modules', element: <Suspense fallback={<Loading />}><ModulesPage /></Suspense> },
