@@ -11,6 +11,9 @@ import {
   AreaChart, Area
 } from 'recharts';
 
+import { useAnalytics } from '@/hooks/queries/useAnalytics';
+import { AnalyticsSkeleton } from '@/components/common/Skeletons';
+
 const placementTrends = [
   { month: 'Aug', offers: 45, applications: 120 },
   { month: 'Sep', offers: 120, applications: 350 },
@@ -30,25 +33,9 @@ const selectionRates = [
 ];
 
 export default function AnalyticsDashboard() {
-  const [data, setData] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isPending } = useAnalytics();
 
-  useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/admin/analytics');
-        setData(res.data);
-      } catch (error) {
-        console.error(error);
-        toast.error('Failed to load analytics');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAnalytics();
-  }, []);
-
-  if (loading || !data) return <div className="p-8 text-center">Loading Analytics...</div>;
+  if (isPending || !data) return <AnalyticsSkeleton />;
 
   const summary = data.summary;
   const charts = data.charts;

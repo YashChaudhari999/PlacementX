@@ -6,50 +6,21 @@ import { toast } from 'sonner';
 import { Bell, Check, ExternalLink, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
+import { ListSkeleton } from '@/components/common/Skeletons';
+
 export default function StudentNotifications() {
   const { user } = useAuthStore();
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'all' | 'unread'>('all');
+  
+  const { data: notifications = [], isPending } = useNotifications(user?.id);
+  const markAsReadMutation = useMarkNotificationRead();
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const fetchNotifications = async () => {
-    try {
-      if (!user) return;
-      const res = await axios.get('http://localhost:5000/api/notifications', {
-        headers: { 'x-user-id': user.id }
-      });
-      // Sort newest first
-      const sorted = res.data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setNotifications(sorted);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load notifications');
-    } finally {
-      setLoading(false);
-    }
+  const markAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
   };
 
-  const markAsRead = async (id: string) => {
-    try {
-      await axios.put(`http://localhost:5000/api/notifications/${id}/read`, {}, {
-        headers: { 'x-user-id': user?.id }
-      });
-      // Optimistically update
-      if (id === 'all') {
-        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
-      } else {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (isPending) return <ListSkeleton />;
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
   const filteredNotifications = activeTab === 'unread' ? notifications.filter(n => !n.isRead) : notifications;

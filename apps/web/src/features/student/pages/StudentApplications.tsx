@@ -6,20 +6,24 @@ import { toast } from 'sonner';
 import { Building2, Calendar, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { ListSkeleton } from '@/components/common/Skeletons';
+
 export default function StudentApplications() {
   const { user } = useAuthStore();
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApplications();
-  }, []);
+    if (user?.id) {
+      fetchApplications();
+    }
+  }, [user?.id]);
 
   const fetchApplications = async () => {
     try {
-      if (!user) return;
+      setLoading(true);
       const res = await axios.get('http://localhost:5000/api/student/applications', {
-        headers: { 'x-user-id': user.id }
+        headers: { 'x-user-id': user?.id }
       });
       setApplications(res.data);
     } catch (error) {
@@ -30,7 +34,7 @@ export default function StudentApplications() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <ListSkeleton />;
 
   const getStatusColor = (status: string) => {
     switch (status) {

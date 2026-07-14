@@ -5,20 +5,24 @@ import { Card } from '@/components/ui';
 import { toast } from 'sonner';
 import { Calendar, Building2, Clock, MapPin, Video } from 'lucide-react';
 
+import { ListSkeleton } from '@/components/common/Skeletons';
+
 export default function StudentInterviews() {
   const { user } = useAuthStore();
   const [interviews, setInterviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchInterviews();
-  }, []);
+    if (user?.id) {
+      fetchInterviews();
+    }
+  }, [user?.id]);
 
   const fetchInterviews = async () => {
     try {
-      if (!user) return;
+      setLoading(true);
       const res = await axios.get('http://localhost:5000/api/student/interviews', {
-        headers: { 'x-user-id': user.id }
+        headers: { 'x-user-id': user?.id }
       });
       setInterviews(res.data);
     } catch (error) {
@@ -29,7 +33,7 @@ export default function StudentInterviews() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <ListSkeleton />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

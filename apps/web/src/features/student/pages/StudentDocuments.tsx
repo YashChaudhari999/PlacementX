@@ -5,20 +5,24 @@ import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { FileText, Download, Building2, CheckCircle2 } from 'lucide-react';
 
+import { ListSkeleton } from '@/components/common/Skeletons';
+
 export default function StudentDocuments() {
   const { user } = useAuthStore();
   const [data, setData] = useState<any>({ resumeUrl: '', offers: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDocuments();
-  }, []);
+    if (user?.id) {
+      fetchDocuments();
+    }
+  }, [user?.id]);
 
   const fetchDocuments = async () => {
     try {
-      if (!user) return;
+      setLoading(true);
       const res = await axios.get('http://localhost:5000/api/student/documents', {
-        headers: { 'x-user-id': user.id }
+        headers: { 'x-user-id': user?.id }
       });
       setData(res.data);
     } catch (error) {
@@ -29,7 +33,7 @@ export default function StudentDocuments() {
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (loading) return <ListSkeleton />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

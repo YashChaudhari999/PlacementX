@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
 import { Button, Input } from '@/components/ui';
-import { toast } from 'sonner';
 import { User, FileText, GraduationCap } from 'lucide-react';
+import { useStudentProfile, useUpdateStudentProfile } from '@/hooks/queries/useStudent';
+import { ProfileSkeleton } from '@/components/common/Skeletons';
+import { toast } from 'sonner';
 
 export default function StudentProfile() {
-  const { user } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [profile, setProfile] = useState<any>({
+  const { user, updateUser } = useAuthStore();
+  const { data: serverProfile, isPending } = useStudentProfile(user?.id);
+  const updateProfileMutation = useUpdateStudentProfile();
+  const [activeTab, setActiveTab] = useState('personal');
+
+  const [profile, setProfile] = useState({
     firstName: '',
     lastName: '',
     phone: '',
@@ -19,73 +22,38 @@ export default function StudentProfile() {
     activeBacklogs: '0',
     yearGap: '0',
     nationality: 'Indian',
-    gender: '',
+    gender: 'Male',
     resumeUrl: '',
     portfolioUrl: '',
     githubUrl: '',
-    skills: '[]',
-    projects: '[]',
-    educationDetails: '[]'
   });
 
-  const [activeTab, setActiveTab] = useState('personal');
-
   useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
-    try {
-      if (!user) return;
-      const res = await axios.get('http://localhost:5000/api/student/profile', {
-        headers: { 'x-user-id': user.id }
+    if (serverProfile) {
+      setProfile({
+        ...serverProfile,
+        cgpa: serverProfile.cgpa?.toString() || '',
+        passingYear: serverProfile.passingYear?.toString() || '',
+        activeBacklogs: serverProfile.activeBacklogs?.toString() || '0',
+        yearGap: serverProfile.yearGap?.toString() || '0',
       });
-      if (res.data) {
-        setProfile({
-          ...res.data,
-          cgpa: res.data.cgpa || '',
-          passingYear: res.data.passingYear || '',
-          activeBacklogs: res.data.activeBacklogs?.toString() || '0',
-          yearGap: res.data.yearGap?.toString() || '0',
+    }
+  }, [serverProfile]);
+
+  const handleSave = () => {
+    if (!user) return;
+    updateProfileMutation.mutate({ userId: user.id, data: profile }, {
+      onSuccess: () => {
+        updateUser({ 
+          firstName: profile.firstName, 
+          lastName: profile.lastName,
+          isProfileComplete: true 
         });
       }
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load profile');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const payload = {
-        ...profile,
-        cgpa: parseFloat(profile.cgpa),
-        passingYear: parseInt(profile.passingYear),
-        activeBacklogs: parseInt(profile.activeBacklogs),
-        yearGap: parseInt(profile.yearGap)
-      };
-
-      await axios.put('http://localhost:5000/api/student/profile', payload, {
-        headers: { 'x-user-id': user?.id }
-      });
-      toast.success('Profile updated successfully');
-      fetchProfile();
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to update profile');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
-  };
-
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  if (isPending) return <ProfileSkeleton />;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -94,57 +62,59 @@ export default function StudentProfile() {
           <h1 className="text-2xl font-bold text-slate-800">My Profile</h1>
           <p className="text-slate-500">Manage your personal and academic information.</p>
         </div>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save Changes'}
+        <Button 
+          onClick={handleSave} 
+          className="shadow-sm" 
+          disabled={updateProfileMutation.isPending}
+        >
+          {updateProfileMutation.isPending ? 'Saving...' : 'Save Profile'}
         </Button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="flex border-b border-slate-200 bg-slate-50">
-          <button 
-            className={`px-6 py-3 text-sm font-medium border-b-2 flex items-center gap-2 ${activeTab === 'personal' ? 'border-primary text-primary bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            onClick={() => setActiveTab('personal')}
-          >
-            <User className="w-4 h-4" /> Personal Details
-          </button>
-          <button 
-            className={`px-6 py-3 text-sm font-medium border-b-2 flex items-center gap-2 ${activeTab === 'academic' ? 'border-primary text-primary bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            onClick={() => setActiveTab('academic')}
-          >
-            <GraduationCap className="w-4 h-4" /> Academic Info
-          </button>
-          <button 
-            className={`px-6 py-3 text-sm font-medium border-b-2 flex items-center gap-2 ${activeTab === 'documents' ? 'border-primary text-primary bg-white' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-            onClick={() => setActiveTab('documents')}
-          >
-            <FileText className="w-4 h-4" /> Documents & Links
-          </button>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="flex border-b border-slate-100 px-2 pt-2 bg-slate-50">
+          {[
+            { id: 'personal', label: 'Personal Info', icon: User },
+            { id: 'academic', label: 'Academic Details', icon: GraduationCap },
+            { id: 'documents', label: 'Links & Resumes', icon: FileText }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-3.5 text-sm font-semibold rounded-t-xl transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-white text-primary border-t-2 border-t-primary shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.02)]'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100/50'
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div className="p-6">
+        <div className="p-8">
           {activeTab === 'personal' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">First Name</label>
-                <Input name="firstName" value={profile.firstName || ''} onChange={handleChange} placeholder="John" />
+                <label className="text-sm font-semibold text-slate-700">First Name</label>
+                <Input value={profile.firstName} onChange={e => setProfile({...profile, firstName: e.target.value})} placeholder="John" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Last Name</label>
-                <Input name="lastName" value={profile.lastName || ''} onChange={handleChange} placeholder="Doe" />
+                <label className="text-sm font-semibold text-slate-700">Last Name</label>
+                <Input value={profile.lastName} onChange={e => setProfile({...profile, lastName: e.target.value})} placeholder="Doe" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Phone</label>
-                <Input name="phone" value={profile.phone || ''} onChange={handleChange} placeholder="+91 9876543210" />
+                <label className="text-sm font-semibold text-slate-700">Phone Number</label>
+                <Input value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} placeholder="+91 9876543210" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Gender</label>
+                <label className="text-sm font-semibold text-slate-700">Gender</label>
                 <select 
-                  name="gender" 
-                  value={profile.gender || ''} 
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  value={profile.gender}
+                  onChange={e => setProfile({...profile, gender: e.target.value})}
                 >
-                  <option value="">Select Gender</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
@@ -154,57 +124,40 @@ export default function StudentProfile() {
           )}
 
           {activeTab === 'academic' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Branch / Major</label>
-                <select 
-                  name="branch" 
-                  value={profile.branch || ''} 
-                  onChange={handleChange}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                >
-                  <option value="">Select Branch</option>
-                  <option value="B.Tech Computer Science">B.Tech Computer Science</option>
-                  <option value="B.Tech Information Technology">B.Tech Information Technology</option>
-                  <option value="MBA Marketing">MBA Marketing</option>
-                  <option value="MBA Finance">MBA Finance</option>
-                </select>
+                <label className="text-sm font-semibold text-slate-700">Branch / Specialization</label>
+                <Input value={profile.branch} onChange={e => setProfile({...profile, branch: e.target.value})} placeholder="Computer Science" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">CGPA</label>
-                <Input name="cgpa" type="number" step="0.01" value={profile.cgpa || ''} onChange={handleChange} placeholder="e.g. 8.5" />
+                <label className="text-sm font-semibold text-slate-700">CGPA</label>
+                <Input type="number" step="0.01" value={profile.cgpa} onChange={e => setProfile({...profile, cgpa: e.target.value})} placeholder="8.5" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Passing Year</label>
-                <Input name="passingYear" type="number" value={profile.passingYear || ''} onChange={handleChange} placeholder="e.g. 2026" />
+                <label className="text-sm font-semibold text-slate-700">Passing Year</label>
+                <Input type="number" value={profile.passingYear} onChange={e => setProfile({...profile, passingYear: e.target.value})} placeholder="2025" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Active Backlogs</label>
-                <Input name="activeBacklogs" type="number" value={profile.activeBacklogs || '0'} onChange={handleChange} />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Year Gap (if any)</label>
-                <Input name="yearGap" type="number" value={profile.yearGap || '0'} onChange={handleChange} />
+                <label className="text-sm font-semibold text-slate-700">Active Backlogs</label>
+                <Input type="number" value={profile.activeBacklogs} onChange={e => setProfile({...profile, activeBacklogs: e.target.value})} />
               </div>
             </div>
           )}
 
           {activeTab === 'documents' && (
-            <div className="space-y-6">
-              <div className="p-4 bg-blue-50 border border-blue-100 rounded-lg text-sm text-blue-800">
-                Provide public URLs for your documents and profiles. Ensure they are accessible by recruiters.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <div className="col-span-full space-y-2">
+                <label className="text-sm font-semibold text-slate-700">Resume Link (Google Drive / DropBox)</label>
+                <Input value={profile.resumeUrl} onChange={e => setProfile({...profile, resumeUrl: e.target.value})} placeholder="https://drive.google.com/..." />
+                <p className="text-xs text-slate-500 mt-1">Make sure the link is set to "Anyone with the link can view".</p>
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Resume URL (Google Drive / PDF Link)</label>
-                <Input name="resumeUrl" value={profile.resumeUrl || ''} onChange={handleChange} placeholder="https://..." />
+                <label className="text-sm font-semibold text-slate-700">GitHub Profile</label>
+                <Input value={profile.githubUrl} onChange={e => setProfile({...profile, githubUrl: e.target.value})} placeholder="https://github.com/username" />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Portfolio URL (Optional)</label>
-                <Input name="portfolioUrl" value={profile.portfolioUrl || ''} onChange={handleChange} placeholder="https://myportfolio.com" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">GitHub Profile URL (Optional)</label>
-                <Input name="githubUrl" value={profile.githubUrl || ''} onChange={handleChange} placeholder="https://github.com/username" />
+                <label className="text-sm font-semibold text-slate-700">Portfolio Website</label>
+                <Input value={profile.portfolioUrl} onChange={e => setProfile({...profile, portfolioUrl: e.target.value})} placeholder="https://myportfolio.com" />
               </div>
             </div>
           )}

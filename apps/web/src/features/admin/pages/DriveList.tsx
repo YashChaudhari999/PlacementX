@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, Users, Briefcase, Link as LinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
-import axios from 'axios';
+import { useDrives } from '@/hooks/queries/useDrives';
+import { ListSkeleton } from '@/components/common/Skeletons';
 import { GenerateHrInviteModal } from '../components/GenerateHrInviteModal';
 
 interface Drive {
@@ -20,25 +21,8 @@ interface Drive {
 }
 
 export default function DriveList() {
-  const [drives, setDrives] = useState<Drive[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: drives = [], isPending, error } = useDrives();
   const [isHrModalOpen, setIsHrModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchDrives = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/admin/drives');
-        setDrives(res.data);
-      } catch (err: any) {
-        console.error("Fetch drives error:", err);
-        setError(err.response?.data?.message || "Failed to load drives");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDrives();
-  }, []);
 
   return (
     <div className="space-y-6">
@@ -89,62 +73,64 @@ export default function DriveList() {
       </Card>
 
       {/* Drives Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {loading ? (
-          <div className="col-span-full py-12 text-center text-slate-500">Loading drives...</div>
-        ) : error ? (
-          <div className="col-span-full py-12 text-center text-red-500">{error}</div>
-        ) : drives.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-slate-500">No drives created yet.</div>
-        ) : drives.map(drive => (
-          <Card key={drive.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
-                  <Building2 className="w-6 h-6" />
+      {isPending ? (
+        <ListSkeleton />
+      ) : error ? (
+        <div className="py-12 text-center text-red-500">Failed to load drives</div>
+      ) : drives.length === 0 ? (
+        <div className="py-12 text-center text-slate-500">No drives created yet.</div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {drives.map((drive: Drive) => (
+            <Card key={drive.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                    <Building2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-800 line-clamp-1">{drive.company.name}</h3>
+                    <p className="text-sm text-primary font-medium">{drive.fixedSalary ? `${drive.fixedSalary} LPA` : "N/A"}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-slate-800 line-clamp-1">{drive.company.name}</h3>
-                  <p className="text-sm text-primary font-medium">{drive.fixedSalary ? `${drive.fixedSalary} LPA` : "N/A"}</p>
+                <button className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
+              </div>
+              
+              <div className="space-y-3 mb-6 flex-1">
+                <div className="flex items-center text-sm text-slate-600">
+                  <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
+                  {drive.jobRole} • {drive.employmentType}
+                </div>
+                <div className="flex items-center text-sm text-slate-600">
+                  <Calendar className="w-4 h-4 mr-2 text-slate-400" />
+                  {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : "N/A"}
+                </div>
+                <div className="flex items-center text-sm text-slate-600">
+                  <Users className="w-4 h-4 mr-2 text-slate-400" />
+                  {drive.applications?.length || 0} Applicants
                 </div>
               </div>
-              <button className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="space-y-3 mb-6 flex-1">
-              <div className="flex items-center text-sm text-slate-600">
-                <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
-                {drive.jobRole} • {drive.employmentType}
-              </div>
-              <div className="flex items-center text-sm text-slate-600">
-                <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-                {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : "N/A"}
-              </div>
-              <div className="flex items-center text-sm text-slate-600">
-                <Users className="w-4 h-4 mr-2 text-slate-400" />
-                {drive.applications?.length || 0} Applicants
-              </div>
-            </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-              <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${
-                drive.status === 'OPEN' || drive.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' :
-                drive.status === 'UPCOMING' ? 'bg-amber-100 text-amber-700' :
-                'bg-slate-100 text-slate-600'
-              }`}>
-                {drive.status}
-              </span>
-              <Link to={`/admin/placement-events/${drive.id}`}>
-                <Button variant="outline" size="sm" className="text-xs h-8">
-                  View Details
-                </Button>
-              </Link>
-            </div>
-          </Card>
-        ))}
-      </div>
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${
+                  drive.status === 'OPEN' || drive.status === 'PUBLISHED' ? 'bg-emerald-100 text-emerald-700' :
+                  drive.status === 'UPCOMING' ? 'bg-amber-100 text-amber-700' :
+                  'bg-slate-100 text-slate-600'
+                }`}>
+                  {drive.status}
+                </span>
+                <Link to={`/admin/placement-events/${drive.id}`}>
+                  <Button variant="outline" size="sm" className="text-xs h-8">
+                    View Details
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <GenerateHrInviteModal 
         isOpen={isHrModalOpen} 

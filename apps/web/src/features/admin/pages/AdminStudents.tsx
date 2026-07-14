@@ -5,6 +5,8 @@ import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { Search, GraduationCap, FileText, CheckCircle, XCircle } from 'lucide-react';
 
+import { ListSkeleton } from '@/components/common/Skeletons';
+
 export default function AdminStudents() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +18,7 @@ export default function AdminStudents() {
 
   const fetchStudents = async () => {
     try {
+      setLoading(true);
       const res = await axios.get('http://localhost:5000/api/admin/students');
       setStudents(res.data);
     } catch (error) {
@@ -51,7 +54,7 @@ export default function AdminStudents() {
 
       <Card className="overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-slate-500">Loading...</div>
+          <div className="p-6"><ListSkeleton /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">

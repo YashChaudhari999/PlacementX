@@ -1,62 +1,23 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import { Card, Button } from '@/components/ui';
 import { Bell, Briefcase, ExternalLink, Check } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
-import { toast } from 'sonner';
-
-interface Notification {
-  id: string;
-  title: string;
-  message: string;
-  type: string;
-  isRead: boolean;
-  link: string;
-  createdAt: string;
-}
+import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
+import { usePublishedDrives } from '@/hooks/queries/useDrives';
+import { DashboardSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentDashboard() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const user = useAuthStore(state => state.user);
+  
+  const { data: notifications = [], isPending: notificationsLoading } = useNotifications(user?.id);
+  const { data: drives = [], isPending: drivesLoading } = usePublishedDrives();
+  const markAsReadMutation = useMarkNotificationRead();
 
-  const [drives, setDrives] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetchNotifications();
-    fetchDrives();
-  }, [user]);
-
-  const fetchDrives = async () => {
-    try {
-      const res = await axios.get('http://localhost:5000/api/admin/drives');
-      // Filter only published ones for student
-      setDrives(res.data.filter((d: any) => d.status === 'PUBLISHED'));
-    } catch (error) {
-      console.error('Failed to fetch drives', error);
-    }
+  const markAsRead = (id: string) => {
+    markAsReadMutation.mutate(id);
   };
 
-  const fetchNotifications = async () => {
-    try {
-      if (!user?.id) return;
-      const res = await axios.get('http://localhost:5000/api/notifications', {
-        headers: { 'x-user-id': user.id }
-      });
-      setNotifications(res.data);
-    } catch (error) {
-      console.error('Failed to fetch notifications', error);
-    }
-  };
-
-  const markAsRead = async (id: string) => {
-    try {
-      await axios.patch(`http://localhost:5000/api/notifications/${id}/read`);
-      setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
-      toast.success('Marked as read');
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  if (notificationsLoading || drivesLoading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto p-6">
@@ -79,7 +40,7 @@ export default function StudentDashboard() {
                   No active drives available right now.
                 </div>
               ) : (
-                drives.map(drive => (
+                drives.map((drive: any) => (
                   <div key={drive.id} className="p-4 border border-slate-200 rounded-xl hover:shadow-md transition-all">
                     <div className="flex justify-between items-start">
                       <div>
@@ -113,9 +74,9 @@ export default function StudentDashboard() {
             <h2 className="text-lg font-semibold mb-4 flex items-center">
               <Bell className="w-5 h-5 mr-2 text-primary" />
               Notifications
-              {notifications.filter(n => !n.isRead).length > 0 && (
+              {notifications.filter((n: any) => !n.isRead).length > 0 && (
                 <span className="ml-2 bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full">
-                  {notifications.filter(n => !n.isRead).length} New
+                  {notifications.filter((n: any) => !n.isRead).length} New
                 </span>
               )}
             </h2>
@@ -124,7 +85,7 @@ export default function StudentDashboard() {
               {notifications.length === 0 ? (
                 <p className="text-sm text-slate-500 text-center py-4">You have no notifications.</p>
               ) : (
-                notifications.map(notification => (
+                notifications.map((notification: any) => (
                   <div 
                     key={notification.id} 
                     className={`p-4 rounded-lg border ${notification.isRead ? 'bg-slate-50 border-slate-100' : 'bg-blue-50/50 border-blue-100'}`}

@@ -5,6 +5,8 @@ import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { Users, ChevronLeft, Building2, Calendar, MapPin, IndianRupee, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
 
+import { DashboardSkeleton } from '@/components/common/Skeletons';
+
 export default function AdminEventDetails() {
   const { id } = useParams();
   const [drive, setDrive] = useState<any>(null);
@@ -12,17 +14,25 @@ export default function AdminEventDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDriveDetails();
-    fetchApplications();
+    if (id) {
+      fetchData();
+    }
   }, [id]);
 
-  const fetchDriveDetails = async () => {
+  const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/drives/${id}`);
-      setDrive(res.data);
+      setLoading(true);
+      const [driveRes, appsRes] = await Promise.all([
+        axios.get(`http://localhost:5000/api/admin/drives/${id}`),
+        axios.get(`http://localhost:5000/api/admin/drives/${id}/applications`)
+      ]);
+      setDrive(driveRes.data);
+      setApplications(appsRes.data);
     } catch (error) {
       console.error(error);
       toast.error('Failed to load drive details');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -33,8 +43,6 @@ export default function AdminEventDetails() {
     } catch (error) {
       console.error(error);
       toast.error('Failed to load applications');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -62,7 +70,7 @@ export default function AdminEventDetails() {
     }
   };
 
-  if (loading || !drive) return <div className="p-8 text-center">Loading...</div>;
+  if (loading || !drive) return <DashboardSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
