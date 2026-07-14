@@ -15,13 +15,15 @@ export default function RootLayout() {
   useEffect(() => {
     if (!isLoading) {
       if (user) {
+        // Enforce student only access
         if (user.role === 'STUDENT') {
           router.replace('/(student)/dashboard');
         } else {
-          router.replace('/(admin)/dashboard');
+          // If a non-student somehow logs in, log them out or redirect to login
+          router.replace('/auth/login');
         }
       } else {
-        router.replace('/auth/role-select');
+        router.replace('/auth/login');
       }
     }
   }, [user, isLoading]);
@@ -30,10 +32,8 @@ export default function RootLayout() {
     <>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="auth/role-select" />
         <Stack.Screen name="auth/login" />
         <Stack.Screen name="(student)" />
-        <Stack.Screen name="(admin)" />
       </Stack>
     </>
   );
