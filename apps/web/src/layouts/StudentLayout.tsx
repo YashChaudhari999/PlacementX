@@ -42,11 +42,8 @@ export const StudentLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
-            <GraduationCap className="h-6 w-6 text-white" />
-          </div>
-          <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-700">NMIMS</span>
+        <div className="flex items-center gap-3 justify-center w-full h-full py-4">
+          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain" />
         </div>
       </div>
       

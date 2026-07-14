@@ -38,11 +38,10 @@ export const PlacementCellLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-slate-950 text-slate-300">
       <div className="h-20 flex items-center px-6 border-b border-slate-800">
-        <div className="flex items-center gap-3 text-white">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Briefcase className="h-5 w-5 text-white" />
+        <div className="flex items-center gap-3 justify-center w-full h-full py-3">
+          <div className="bg-white/95 backdrop-blur-sm px-6 py-1.5 rounded-xl h-full w-full flex items-center justify-center shadow-sm">
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain mix-blend-multiply" />
           </div>
-          <span className="text-xl font-bold tracking-tight">PlacementX</span>
         </div>
       </div>
       
