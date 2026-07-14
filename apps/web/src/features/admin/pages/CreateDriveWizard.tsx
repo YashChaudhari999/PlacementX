@@ -149,7 +149,7 @@ export default function CreateDriveWizard() {
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)} className="flex-1 flex flex-col relative overflow-hidden">
             
-            <div className="flex-1 relative">
+            <div className="flex-1">
               <AnimatePresence custom={direction} mode="wait">
                 <motion.div
                   key={currentStep}
@@ -159,7 +159,7 @@ export default function CreateDriveWizard() {
                   animate="center"
                   exit="exit"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className="absolute inset-0"
+                  className="w-full"
                 >
                   {currentStep === 1 && <Step1Company />}
                   {currentStep === 2 && <Step2Job />}
