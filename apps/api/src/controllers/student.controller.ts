@@ -209,7 +209,7 @@ export const getInterviews = async (req: any, res: any) => {
     });
 
     // Extract rounds
-    const upcomingInterviews = applications.map(app => {
+    const upcomingInterviews = applications.map((app: any) => {
       return {
         applicationId: app.id,
         status: app.status,
@@ -247,7 +247,7 @@ export const getDocuments = async (req: any, res: any) => {
       }
     });
 
-    const documents = applications.map(app => ({
+    const documents = applications.map((app: any) => ({
       id: app.offerLetter?.id,
       company: app.drive.company?.name,
       role: app.drive.jobRole,

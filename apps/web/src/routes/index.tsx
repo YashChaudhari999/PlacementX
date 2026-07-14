@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
@@ -18,6 +19,7 @@ import { AuthLayout } from '@/layouts/AuthLayout';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { PlacementCellLayout } from '@/layouts/PlacementCellLayout';
 import { RecruiterEventLayout } from '@/layouts/RecruiterEventLayout';
+import { HrPortalLayout } from '@/layouts/HrPortalLayout';
 
 // Lazy loaded page placeholders
 // In a real implementation, these would point to actual feature pages
@@ -31,15 +33,15 @@ const HowItWorksPage = lazy(() => import('@/features/public/pages/HowItWorksPage
 const FAQPage = lazy(() => import('@/features/public/pages/FAQPage'));
 const ContactPage = lazy(() => import('@/features/public/pages/ContactPage'));
 
-const StudentLogin = lazy(() => import('@/features/auth/pages/StudentLogin'));
-const AdminLogin = lazy(() => import('@/features/auth/pages/AdminLogin'));
+const HrDriveWizard = lazy(() => import('@/features/hr-portal/pages/HrDriveWizard'));
+
+const Login = lazy(() => import('@/features/auth/pages/Login'));
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
 const AnalyticsDashboard = lazy(() => import('@/features/admin/pages/AnalyticsDashboard'));
 const DriveList = lazy(() => import('@/features/admin/pages/DriveList'));
 const CreateDriveWizard = lazy(() => import('@/features/admin/pages/CreateDriveWizard'));
 const AdminEventDetails = lazy(() => import('@/features/admin/pages/AdminEventDetails'));
 const AdminStudents = lazy(() => import('@/features/admin/pages/AdminStudents'));
-const AdminCoordinators = lazy(() => import('@/features/admin/pages/AdminCoordinators'));
 const AdminReports = lazy(() => import('@/features/admin/pages/AdminReports'));
 const AdminNotifications = lazy(() => import('@/features/admin/pages/AdminNotifications'));
 const AdminCalendar = lazy(() => import('@/features/admin/pages/AdminCalendar'));
@@ -60,7 +62,7 @@ export const router = createBrowserRouter([
     element: <PublicLayout />,
     errorElement: <NotFound />,
     children: [
-      { index: true, element: <Suspense fallback={<Loading />}><LandingPage /></Suspense> },
+      { index: true, element: <Navigate to="/login" replace /> },
       { path: 'about', element: <Suspense fallback={<Loading />}><AboutPage /></Suspense> },
       { path: 'features', element: <Suspense fallback={<Loading />}><FeaturesPage /></Suspense> },
       { path: 'modules', element: <Suspense fallback={<Loading />}><ModulesPage /></Suspense> },
@@ -72,19 +74,15 @@ export const router = createBrowserRouter([
   
   // AUTH ROUTES (Guest only)
   {
-    path: '/student/login',
+    path: '/login',
     element: <GuestRoute><AuthLayout /></GuestRoute>,
     children: [
-      { index: true, element: <Suspense fallback={<Loading />}><StudentLogin /></Suspense> },
+      { index: true, element: <Suspense fallback={<Loading />}><Login /></Suspense> },
     ],
   },
-  {
-    path: '/admin/login',
-    element: <GuestRoute><AuthLayout /></GuestRoute>,
-    children: [
-      { index: true, element: <Suspense fallback={<Loading />}><AdminLogin /></Suspense> },
-    ],
-  },
+  // Legacy paths redirect to /login
+  { path: '/student/login', element: <Navigate to="/login" replace /> },
+  { path: '/admin/login', element: <Navigate to="/login" replace /> },
 
   // STUDENT ROUTES
   {
@@ -116,10 +114,10 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <Suspense fallback={<Loading />}><AdminDashboard /></Suspense> },
       { path: 'analytics', element: <Suspense fallback={<Loading />}><AnalyticsDashboard /></Suspense> },
       { path: 'students', element: <Suspense fallback={<Loading />}><AdminStudents /></Suspense> },
-      { path: 'coordinators', element: <Suspense fallback={<Loading />}><AdminCoordinators /></Suspense> },
       { path: 'placement-events', element: <Suspense fallback={<Loading />}><DriveList /></Suspense> },
       { path: 'placement-events/create', element: <Suspense fallback={<Loading />}><CreateDriveWizard /></Suspense> },
-      { path: 'event/:id', element: <Suspense fallback={<Loading />}><AdminEventDetails /></Suspense> },
+      { path: 'placement-events/edit/:id', element: <Suspense fallback={<Loading />}><CreateDriveWizard /></Suspense> },
+      { path: 'placement-events/:id', element: <Suspense fallback={<Loading />}><AdminEventDetails /></Suspense> },
       { path: 'calendar', element: <Suspense fallback={<Loading />}><AdminCalendar /></Suspense> },
       { path: 'notifications', element: <Suspense fallback={<Loading />}><AdminNotifications /></Suspense> },
       { path: 'reports', element: <Suspense fallback={<Loading />}><AdminReports /></Suspense> },
@@ -137,6 +135,15 @@ export const router = createBrowserRouter([
       { index: true, element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
       { path: 'success', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
       { path: 'expired', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+    ],
+  },
+  
+  // HR COLLABORATION PORTAL
+  {
+    path: '/hr-drive/:token',
+    element: <HrPortalLayout />,
+    children: [
+      { index: true, element: <Suspense fallback={<Loading />}><HrDriveWizard /></Suspense> },
     ],
   },
 

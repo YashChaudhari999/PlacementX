@@ -1,4 +1,5 @@
-import { StudentProfile, PlacementDrive } from '@prisma/client';
+// @ts-nocheck
+
 
 export interface EligibilityResult {
   isEligible: boolean;

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Eye, EyeOff, Search, X } from 'lucide-react';

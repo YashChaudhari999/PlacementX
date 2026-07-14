@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { Card, Button, Input } from '@/components/ui';
 import { toast } from 'sonner';
-import { Settings, Shield, Key } from 'lucide-react';
+import { Shield, Key } from 'lucide-react';
 
 export default function StudentSettings() {
   const { user } = useAuthStore();

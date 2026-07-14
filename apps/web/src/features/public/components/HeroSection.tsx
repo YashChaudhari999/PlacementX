@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { buttonVariants } from '@/components/ui';
-import { ArrowRight, BarChart3, Building2, GraduationCap, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, BarChart3, Building2, GraduationCap, } from 'lucide-react';
 import { Link as RouterLink } from 'react-router-dom';
 
 export const HeroSection = () => {

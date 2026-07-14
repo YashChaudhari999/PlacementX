@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { Users, ChevronLeft, Building2, Calendar, MapPin, IndianRupee, Briefcase, FileText } from 'lucide-react';
+import { Users, ChevronLeft, Building2, Calendar, MapPin, IndianRupee, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AdminEventDetails() {
   const { id } = useParams();
@@ -51,6 +51,17 @@ export default function AdminEventDetails() {
     }
   };
 
+  const handleDriveReview = async (action: 'approve' | 'reject' | 'request-changes') => {
+    try {
+      await axios.post(`http://localhost:5000/api/admin/drives/${id}/${action}`, action === 'request-changes' ? { comments: 'Please revise criteria.' } : {});
+      toast.success(`Drive ${action}d successfully`);
+      fetchDriveDetails();
+    } catch (error) {
+      console.error(error);
+      toast.error(`Failed to ${action} drive`);
+    }
+  };
+
   if (loading || !drive) return <div className="p-8 text-center">Loading...</div>;
 
   return (
@@ -64,6 +75,44 @@ export default function AdminEventDetails() {
           <p className="text-slate-500">Manage applications and track selection progress.</p>
         </div>
       </div>
+
+      {drive.status === 'SUBMITTED' && (
+        <Card className="p-6 bg-blue-50 border-blue-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-blue-900">HR Submission Pending Review</h3>
+              <p className="text-sm text-blue-700 mt-1">Review the details submitted by {drive.company?.hrName || 'HR'} before publishing to students.</p>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={() => handleDriveReview('reject')} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
+                <XCircle className="w-4 h-4 mr-2" /> Reject
+              </Button>
+              <Button onClick={() => handleDriveReview('request-changes')} variant="outline" className="border-amber-200 text-amber-600 hover:bg-amber-50">
+                Request Changes
+              </Button>
+              <Button onClick={() => handleDriveReview('approve')} className="bg-green-600 hover:bg-green-700 text-white">
+                <CheckCircle className="w-4 h-4 mr-2" /> Approve & Publish
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {drive.status === 'DRAFT' && (
+        <Card className="p-6 bg-slate-50 border-slate-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Draft Drive</h3>
+              <p className="text-sm text-slate-700 mt-1">This drive is currently a draft and is not visible to students. Publish it to start accepting applications.</p>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={() => handleDriveReview('approve')} className="bg-primary hover:bg-primary/90 text-white">
+                <CheckCircle className="w-4 h-4 mr-2" /> Publish Drive
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Drive Info Sidebar */}
@@ -95,11 +144,21 @@ export default function AdminEventDetails() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-600">Eligible Students</span>
+                  <span className="font-bold">{drive.eligibleStudentsCount || 0}</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className="bg-slate-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-600">Total Applied</span>
                   <span className="font-bold">{applications.length}</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: drive.eligibleStudentsCount ? `${(applications.length / drive.eligibleStudentsCount) * 100}%` : '100%' }}></div>
                 </div>
               </div>
               

@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Plus, Trash2, Building2, Briefcase, GraduationCap, CalendarDays, ClipboardCheck, Paperclip, Eye } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useEffect, useState as useState2 } from 'react';
 import { toast } from 'sonner';
 import { Card, Input, Button } from '@/components/ui';
 
@@ -21,7 +22,10 @@ const STEPS = [
 export default function CreateDriveWizard() {
   const [currentStep, setCurrentStep] = useState(1);
   const [direction, setDirection] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = !!id;
 
   const methods = useForm({
     defaultValues: {
@@ -73,6 +77,63 @@ export default function CreateDriveWizard() {
     }
   };
 
+  useEffect(() => {
+    if (isEditMode && id) {
+      setIsLoading(true);
+      axios.get(`http://localhost:5000/api/admin/drives/${id}`)
+        .then(res => {
+          const d = res.data;
+          let branches = [];
+          try { branches = JSON.parse(d.eligibleBranches || '[]'); } catch(e) {}
+          
+          methods.reset({
+            companyName: d.company?.name || '',
+            industry: d.company?.industry || '',
+            hrName: d.company?.hrName || '',
+            hrEmail: d.company?.hrEmail || '',
+            workMode: d.workMode || 'On Campus',
+            jobRole: d.jobRole || '',
+            jobDescription: d.jobDescription || '',
+            employmentType: d.employmentType || 'Full Time',
+            package: d.fixedSalary ? String(d.fixedSalary) : '', 
+            ctc: d.fixedSalary ? String(d.fixedSalary) : '',
+            variablePay: '', // Usually not stored unless we add to schema
+            internshipStipend: '',
+            ppoAvailable: d.ppoAvailable || false,
+            bondDetails: d.bondDetails || '',
+            vacancies: d.vacancies ? String(d.vacancies) : '',
+            location: '', // Not in schema directly
+            eligibleBranches: branches,
+            minimumCgpa: d.minimumCgpa ? String(d.minimumCgpa) : '',
+            passingYear: d.passingYear ? String(d.passingYear) : '',
+            activeBacklogs: d.activeBacklogsAllowed ? String(d.activeBacklogsAllowed) : '0',
+            yearGap: d.yearGapAllowed ? String(d.yearGapAllowed) : '0',
+            genderRestriction: d.genderRestriction || 'ANY',
+            maxOffers: d.maximumLiveOffers ? String(d.maximumLiveOffers) : '1',
+            registrationStart: d.registrationStart ? d.registrationStart.split('T')[0] : '',
+            registrationEnd: d.registrationEnd ? d.registrationEnd.split('T')[0] : '',
+            nominationLink: d.nominationLink || '',
+            maximumApplicants: d.maximumApplicants ? String(d.maximumApplicants) : '',
+            resumeMandatory: d.resumeMandatory !== false,
+            portfolioRequired: false,
+            githubRequired: false,
+            selectionRounds: d.selectionRounds?.length ? d.selectionRounds.map((r: any) => ({
+              title: r.title || '',
+              date: r.date ? r.date.split('T')[0] : '',
+              time: r.time || '',
+              duration: r.duration || '',
+              venue: r.venue || ''
+            })) : [{ title: 'Online Assessment', date: '', time: '', duration: '', venue: '' }]
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          toast.error("Failed to load drive details");
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [id, isEditMode, methods]);
+
   const onSubmit = async (data: any) => {
     try {
       const payload = {
@@ -83,12 +144,17 @@ export default function CreateDriveWizard() {
         backlogs: data.activeBacklogs,
       };
       
-      await axios.post('http://localhost:5000/api/admin/drives', payload);
-      toast.success('Drive Published Successfully!');
+      if (isEditMode) {
+        await axios.put(`http://localhost:5000/api/admin/drives/${id}`, payload);
+        toast.success('Drive Updated Successfully!');
+      } else {
+        await axios.post('http://localhost:5000/api/admin/drives', payload);
+        toast.success('Drive Published Successfully!');
+      }
       navigate('/admin/placement-events');
     } catch (error) {
       console.error(error);
-      toast.error('Failed to create drive. Check console.');
+      toast.error('Failed to save drive. Check console.');
     }
   };
 
@@ -110,11 +176,17 @@ export default function CreateDriveWizard() {
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Create Placement Drive</h1>
-        <p className="text-slate-500 mt-1">Configure a new company visit and recruitment process.</p>
+        <h1 className="text-2xl font-bold text-slate-800">{isEditMode ? 'Edit Placement Drive' : 'Create Placement Drive'}</h1>
+        <p className="text-slate-500 mt-1">{isEditMode ? 'Update company visit details.' : 'Configure a new company visit and recruitment process.'}</p>
       </div>
 
-      {/* Stepper Header */}
+      {isLoading && (
+        <div className="text-center py-12 text-slate-500">Loading drive details...</div>
+      )}
+
+      {!isLoading && (
+        <>
+          {/* Stepper Header */}
       <div className="mb-12 relative">
         <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-200 -z-10" />
         <div className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500 -z-10" 
@@ -149,7 +221,7 @@ export default function CreateDriveWizard() {
         <FormProvider {...methods}>
           <form onSubmit={methods.handleSubmit(onSubmit)} className="flex-1 flex flex-col relative overflow-hidden">
             
-            <div className="flex-1 relative">
+            <div className="flex-1">
               <AnimatePresence custom={direction} mode="wait">
                 <motion.div
                   key={currentStep}
@@ -159,7 +231,7 @@ export default function CreateDriveWizard() {
                   animate="center"
                   exit="exit"
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className="absolute inset-0"
+                  className="w-full"
                 >
                   {currentStep === 1 && <Step1Company />}
                   {currentStep === 2 && <Step2Job />}
@@ -200,6 +272,8 @@ export default function CreateDriveWizard() {
           </form>
         </FormProvider>
       </Card>
+      </>
+      )}
     </div>
   );
 }

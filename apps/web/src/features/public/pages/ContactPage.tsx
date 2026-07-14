@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { PageContainer, Input, Textarea, Button } from '@/components/ui';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 
 export default function ContactPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);

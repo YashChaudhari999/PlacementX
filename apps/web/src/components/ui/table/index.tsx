@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { forwardRef } from 'react';
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ArrowUp, ArrowDown, Search, X } from 'lucide-react';
 

@@ -9,19 +9,22 @@ export const getStudents = async (req: any, res: any) => {
     const students = await prisma.user.findMany({
       where: { role: 'STUDENT' },
       include: {
-        studentProfile: true,
-        applications: {
-          select: { status: true }
+        studentProfile: {
+          include: {
+            applications: {
+              select: { status: true }
+            }
+          }
         }
       }
     });
 
     // Compute basic status for frontend
-    const formattedStudents = students.map(s => {
-      const isPlaced = s.applications.some(app => app.status === 'SELECTED');
+    const formattedStudents = students.map((s: any) => {
+      const isPlaced = s.studentProfile?.applications?.some((app: any) => app.status === 'SELECTED') || false;
       return {
         id: s.id,
-        name: `${s.firstName} ${s.lastName}`,
+        name: `${s.studentProfile?.firstName || ''} ${s.studentProfile?.lastName || ''}`.trim(),
         email: s.email,
         branch: s.studentProfile?.branch || 'N/A',
         cgpa: s.studentProfile?.cgpa || 0,
@@ -59,11 +62,15 @@ export const addCoordinator = async (req: any, res: any) => {
 
     const coordinator = await prisma.user.create({
       data: {
-        firstName,
-        lastName,
         email,
         password, // In a real app, hash this!
-        role: 'PLACEMENT_COORDINATOR'
+        role: 'PLACEMENT_COORDINATOR',
+        coordinatorProfile: {
+          create: {
+            firstName,
+            lastName
+          }
+        }
       }
     });
 
@@ -88,8 +95,8 @@ export const getReportsData = async (req: any, res: any) => {
       }
     });
 
-    const reportData = applications.map(app => ({
-      Student_Name: `${app.student.user.firstName} ${app.student.user.lastName}`,
+    const reportData = applications.map((app: any) => ({
+      Student_Name: `${app.student.firstName || ''} ${app.student.lastName || ''}`.trim(),
       Email: app.student.user.email,
       Branch: app.student.branch,
       Company: app.drive.company?.name,
@@ -133,7 +140,7 @@ export const broadcastNotification = async (req: any, res: any) => {
     }
 
     // Create notifications in bulk
-    const notifications = students.map(student => ({
+    const notifications = students.map((student: any) => ({
       userId: student.id,
       title,
       message,
@@ -163,7 +170,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
       }
     });
 
-    const events = rounds.map(r => ({
+    const events = rounds.map((r: any) => ({
       id: r.id,
       title: `${r.drive.company?.name} - ${r.title}`,
       date: r.date,
@@ -177,7 +184,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
       include: { company: true }
     });
 
-    const deadlineEvents = deadlines.map(d => ({
+    const deadlineEvents = deadlines.map((d: any) => ({
       id: `deadline-${d.id}`,
       title: `${d.company?.name} - Application Deadline`,
       date: d.applicationDeadline,
