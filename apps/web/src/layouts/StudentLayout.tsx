@@ -4,11 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import { 
   LayoutDashboard, Briefcase, FileText, Bell, Calendar, Settings, 
-<<<<<<< HEAD
-  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download
-=======
-  LogOut, Menu, Search, ChevronDown, User, GraduationCap, Award
->>>>>>> 8e4ce7231c49b42a22ae2047c7a2aaed7487577c
+  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download, GraduationCap, Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
@@ -174,7 +170,6 @@ export const StudentLayout = () => {
               />
             </div>
             
-<<<<<<< HEAD
             {/* Download App Button */}
             <a
               href="/placementx-student-app.apk"
@@ -187,20 +182,15 @@ export const StudentLayout = () => {
 
             <button 
               onClick={() => navigate('/student/notifications')}
-              className="relative p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors"
               title="Notifications"
+              className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group"
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-5 w-5 group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
               {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
-=======
-            <button className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group">
-              <Bell className="h-5 w-5 group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
-              <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
->>>>>>> 8e4ce7231c49b42a22ae2047c7a2aaed7487577c
             </button>
 
             <div className="relative">
