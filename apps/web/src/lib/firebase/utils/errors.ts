@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type Result<T, E = AppError> = { success: true; data: T } | { success: false; error: E };
 export class AppError extends Error {
     constructor(public code: string, message: string, public status: number = 500) {

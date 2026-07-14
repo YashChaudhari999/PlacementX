@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
-import { Card, Button, Input } from '@/components/ui';
+import { Button, Input } from '@/components/ui';
 import { toast } from 'sonner';
-import { User, FileText, Code, GraduationCap } from 'lucide-react';
+import { User, FileText, GraduationCap } from 'lucide-react';
 
 export default function StudentProfile() {
   const { user } = useAuthStore();

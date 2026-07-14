@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, MapPin, Users, Briefcase, Link as LinkIcon } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, Users, Briefcase, Link as LinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
 import axios from 'axios';

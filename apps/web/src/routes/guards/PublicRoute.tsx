@@ -1,2 +1,2 @@
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 export const PublicRoute = ({ children }: { children: ReactNode }) => { return <>{children}</>; };

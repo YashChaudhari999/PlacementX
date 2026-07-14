@@ -17,8 +17,8 @@ export const getStudents = async (req: any, res: any) => {
     });
 
     // Compute basic status for frontend
-    const formattedStudents = students.map(s => {
-      const isPlaced = s.applications.some(app => app.status === 'SELECTED');
+    const formattedStudents = students.map((s: any) => {
+      const isPlaced = s.applications.some((app: any) => app.status === 'SELECTED');
       return {
         id: s.id,
         name: `${s.firstName} ${s.lastName}`,
@@ -88,7 +88,7 @@ export const getReportsData = async (req: any, res: any) => {
       }
     });
 
-    const reportData = applications.map(app => ({
+    const reportData = applications.map((app: any) => ({
       Student_Name: `${app.student.user.firstName} ${app.student.user.lastName}`,
       Email: app.student.user.email,
       Branch: app.student.branch,
@@ -133,7 +133,7 @@ export const broadcastNotification = async (req: any, res: any) => {
     }
 
     // Create notifications in bulk
-    const notifications = students.map(student => ({
+    const notifications = students.map((student: any) => ({
       userId: student.id,
       title,
       message,
@@ -163,7 +163,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
       }
     });
 
-    const events = rounds.map(r => ({
+    const events = rounds.map((r: any) => ({
       id: r.id,
       title: `${r.drive.company?.name} - ${r.title}`,
       date: r.date,
@@ -177,7 +177,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
       include: { company: true }
     });
 
-    const deadlineEvents = deadlines.map(d => ({
+    const deadlineEvents = deadlines.map((d: any) => ({
       id: `deadline-${d.id}`,
       title: `${d.company?.name} - Application Deadline`,
       date: d.applicationDeadline,

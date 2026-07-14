@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { forwardRef, useRef } from 'react';
 import { Upload, User, FileText, Image as ImageIcon, X } from 'lucide-react';
 

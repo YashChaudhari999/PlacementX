@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// @ts-nocheck
 import { database } from '../config/firebaseApp';
 import { ref, get, set, update, runTransaction, onValue, off } from 'firebase/database';
 

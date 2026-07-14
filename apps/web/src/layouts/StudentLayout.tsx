@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import { 
   LayoutDashboard, Briefcase, FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, User, CheckCircle, GraduationCap, Award
+  LogOut, Menu, Search, ChevronDown, User, GraduationCap, Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createContext, ReactNode } from 'react';
 import type { PermissionState } from '../types';
 

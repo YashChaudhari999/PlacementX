@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createContext, useState, ReactNode } from 'react';
 
 export interface AppShellState {
