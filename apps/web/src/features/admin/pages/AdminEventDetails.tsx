@@ -98,6 +98,22 @@ export default function AdminEventDetails() {
         </Card>
       )}
 
+      {drive.status === 'DRAFT' && (
+        <Card className="p-6 bg-slate-50 border-slate-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Draft Drive</h3>
+              <p className="text-sm text-slate-700 mt-1">This drive is currently a draft and is not visible to students. Publish it to start accepting applications.</p>
+            </div>
+            <div className="flex gap-3">
+              <Button onClick={() => handleDriveReview('approve')} className="bg-primary hover:bg-primary/90 text-white">
+                <CheckCircle className="w-4 h-4 mr-2" /> Publish Drive
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Drive Info Sidebar */}
         <div className="lg:col-span-1 space-y-6">
@@ -128,11 +144,21 @@ export default function AdminEventDetails() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
+                  <span className="text-slate-600">Eligible Students</span>
+                  <span className="font-bold">{drive.eligibleStudentsCount || 0}</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2">
+                  <div className="bg-slate-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-600">Total Applied</span>
                   <span className="font-bold">{applications.length}</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '100%' }}></div>
+                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: drive.eligibleStudentsCount ? `${(applications.length / drive.eligibleStudentsCount) * 100}%` : '100%' }}></div>
                 </div>
               </div>
               

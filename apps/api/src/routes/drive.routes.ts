@@ -8,7 +8,9 @@ import {
   updateApplicationStatus,
   approveHrDrive,
   rejectHrDrive,
-  requestChangesHrDrive
+  requestChangesHrDrive,
+  updateDrive,
+  deleteDrive
 } from '../controllers/drive.controller';
 
 const router = Router();
@@ -17,6 +19,8 @@ router.post('/', createDrive);
 router.get('/', getDrives);
 router.get('/:id/eligibility', checkEligibilityStatus);
 router.get('/:id', getDriveById);
+router.put('/:id', updateDrive);
+router.delete('/:id', deleteDrive);
 router.get('/:id/applications', getDriveApplications);
 router.put('/applications/:id/status', updateApplicationStatus);
 
