@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -36,6 +37,51 @@ export const getStudents = async (req: any, res: any) => {
     return res.status(200).json(formattedStudents);
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching students', error: error.message });
+  }
+};
+
+export const importStudents = async (req: any, res: any) => {
+  try {
+    const students = req.body;
+    if (!Array.isArray(students) || students.length === 0) {
+      return res.status(400).json({ message: 'Invalid or empty students array' });
+    }
+
+    const defaultPassword = await bcrypt.hash('student123', 10);
+    
+    let importedCount = 0;
+    
+    // Process each student sequentially to avoid overwhelming DB and to handle existing gracefully
+    for (const student of students) {
+      const { firstName, lastName, email, branch, cgpa, passingYear } = student;
+      
+      if (!email || !firstName) continue;
+
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) continue;
+
+      await prisma.user.create({
+        data: {
+          email,
+          password: defaultPassword,
+          role: 'STUDENT',
+          studentProfile: {
+            create: {
+              firstName,
+              lastName,
+              branch: branch || null,
+              cgpa: cgpa ? parseFloat(cgpa) : null,
+              passingYear: passingYear ? parseInt(passingYear, 10) : null
+            }
+          }
+        }
+      });
+      importedCount++;
+    }
+
+    return res.status(200).json({ message: `Successfully imported ${importedCount} students.` });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Error importing students', error: error.message });
   }
 };
 

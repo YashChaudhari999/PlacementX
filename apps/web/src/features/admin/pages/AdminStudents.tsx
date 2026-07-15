@@ -1,9 +1,10 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { Search, GraduationCap, FileText, CheckCircle, XCircle } from 'lucide-react';
+import { Search, GraduationCap, FileText, CheckCircle, XCircle, Upload } from 'lucide-react';
+import Papa from 'papaparse';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
 
@@ -11,6 +12,8 @@ export default function AdminStudents() {
   const [students, setStudents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchStudents();
@@ -29,6 +32,36 @@ export default function AdminStudents() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const res = await axios.post('http://localhost:5000/api/admin/students/import', results.data);
+          toast.success(res.data.message || 'Students imported successfully');
+          fetchStudents();
+        } catch (error: any) {
+          console.error(error);
+          toast.error(error.response?.data?.message || 'Failed to import students');
+        } finally {
+          setImporting(false);
+          if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+      },
+      error: (error) => {
+        console.error(error);
+        toast.error('Error parsing CSV file');
+        setImporting(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+      }
+    });
+  };
+
   const filteredStudents = students.filter(s => 
     s.name.toLowerCase().includes(search.toLowerCase()) || 
     s.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,13 +75,30 @@ export default function AdminStudents() {
           <h1 className="text-2xl font-bold text-slate-800">Students Directory</h1>
           <p className="text-slate-500">Manage all registered students and their placement status.</p>
         </div>
-        <div className="w-72">
-          <Input
-            icon={<Search className="w-4 h-4" />}
-            placeholder="Search by name, email, or branch..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+        <div className="flex items-center gap-3">
+          <div className="w-72">
+            <Input
+              icon={<Search className="w-4 h-4" />}
+              placeholder="Search by name, email, or branch..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <input 
+            type="file" 
+            accept=".csv" 
+            className="hidden" 
+            ref={fileInputRef}
+            onChange={handleFileUpload}
           />
+          <Button 
+            onClick={() => fileInputRef.current?.click()} 
+            disabled={importing}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            {importing ? 'Importing...' : 'Import CSV'}
+          </Button>
         </div>
       </div>
 

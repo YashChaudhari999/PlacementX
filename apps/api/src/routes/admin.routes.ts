@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { 
   getStudents, 
+  importStudents,
   getCoordinators, 
   addCoordinator, 
   getReportsData, 
@@ -11,6 +12,7 @@ import {
 const router = Router();
 
 router.get('/students', getStudents);
+router.post('/students/import', importStudents);
 router.get('/coordinators', getCoordinators);
 router.post('/coordinators', addCoordinator);
 router.get('/reports/data', getReportsData);

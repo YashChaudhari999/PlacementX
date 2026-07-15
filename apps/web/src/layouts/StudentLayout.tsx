@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import { 
   LayoutDashboard, Briefcase, FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, User, GraduationCap, Award
+  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download, GraduationCap, Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
@@ -42,11 +42,8 @@ export const StudentLayout = () => {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center shadow-lg shadow-primary/20">
-            <GraduationCap className="h-6 w-6 text-white" />
-          </div>
-          <span className="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-700">NMIMS</span>
+        <div className="flex items-center gap-3 justify-center w-full h-full py-4">
+          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain" />
         </div>
       </div>
       
@@ -173,9 +170,27 @@ export const StudentLayout = () => {
               />
             </div>
             
-            <button className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group">
+            {/* Download App Button */}
+            <a
+              href="/placementx-student-app.apk"
+              download="PlacementX_Student.apk"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              <span>Download App</span>
+            </a>
+
+            <button 
+              onClick={() => navigate('/student/notifications')}
+              title="Notifications"
+              className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group"
+            >
               <Bell className="h-5 w-5 group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
-              <span className="absolute top-2.5 right-2.5 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white shadow-sm"></span>
+              {unreadCount > 0 && (
+                <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
             </button>
 
             <div className="relative">
