@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreHorizontal, Building2, Calendar, Users, Briefcase, Link as LinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
 import { useDrives } from '@/hooks/queries/useDrives';
 import { ListSkeleton } from '@/components/common/Skeletons';
 import { GenerateHrInviteModal } from '../components/GenerateHrInviteModal';
+import { toast } from 'sonner';
+import axios from 'axios';
 
 interface Drive {
   id: string;
@@ -21,8 +23,31 @@ interface Drive {
 }
 
 export default function DriveList() {
-  const { data: drives = [], isPending, error } = useDrives();
+  const { data: drives = [], isPending, error, refetch } = useDrives();
   const [isHrModalOpen, setIsHrModalOpen] = useState(false);
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => setActiveMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
+  const handleDeleteDrive = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setActiveMenuId(null);
+    if (window.confirm("Are you sure you want to delete this drive?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/admin/drives/${id}`);
+        toast.success("Drive deleted successfully");
+        refetch();
+      } catch (err: any) {
+        toast.error("Failed to delete drive");
+        console.error(err);
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -93,9 +118,23 @@ export default function DriveList() {
                     <p className="text-sm text-primary font-medium">{drive.fixedSalary ? `${drive.fixedSalary} LPA` : "N/A"}</p>
                   </div>
                 </div>
-                <button className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <MoreHorizontal className="w-5 h-5" />
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveMenuId(activeMenuId === drive.id ? null : drive.id);
+                    }} 
+                    className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreHorizontal className="w-5 h-5" />
+                  </button>
+                  {activeMenuId === drive.id && (
+                    <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-slate-200 z-10 py-1">
+                      <Link to={`/admin/placement-events/edit/${drive.id}`} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">Edit</Link>
+                      <button onClick={(e) => handleDeleteDrive(drive.id, e)} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50">Delete</button>
+                    </div>
+                  )}
+                </div>
               </div>
               
               <div className="space-y-3 mb-6 flex-1">
