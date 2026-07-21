@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
+import NotificationBell from '@/features/notifications/components/NotificationBell';
 
 export const StudentLayout = () => {
   const { user } = useAuthStore();
@@ -180,18 +181,7 @@ export const StudentLayout = () => {
               <span>Download App</span>
             </a>
 
-            <button 
-              onClick={() => navigate('/student/notifications')}
-              title="Notifications"
-              className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group"
-            >
-              <Bell className="h-5 w-5 group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+            <NotificationBell />
 
             <div className="relative">
               <button 

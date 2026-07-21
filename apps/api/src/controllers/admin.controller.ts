@@ -211,28 +211,31 @@ export const getCalendarEvents = async (req: any, res: any) => {
     const now = new Date();
     
     // --- 1. Summary Statistics ---
-    const upcomingDrivesCount = await prisma.placementDrive.count({
-      where: { expectedDriveDate: { gt: now } }
-    });
-    const registrationOpenCount = await prisma.placementDrive.count({
-      where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
-    });
-    
-    const oneWeekFromNow = new Date(now);
-    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
-    const closingThisWeekCount = await prisma.placementDrive.count({
-      where: { registrationEnd: { gte: now, lte: oneWeekFromNow } }
-    });
-    
-    const interviewsCount = await prisma.selectionRound.count({
-      where: { date: { gte: now } }
-    });
-    
-    const offersReleasedCount = await prisma.offerLetter.count();
-    
-    const completedCount = await prisma.placementDrive.count({
-      where: { status: 'COMPLETED' }
-    });
+    const [
+      upcomingDrivesCount,
+      registrationOpenCount,
+      closingThisWeekCount,
+      interviewsCount,
+      offersReleasedCount,
+      completedCount
+    ] = await Promise.all([
+      prisma.placementDrive.count({
+        where: { expectedDriveDate: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationEnd: { gte: now, lte: oneWeekFromNow } }
+      }),
+      prisma.selectionRound.count({
+        where: { date: { gte: now } }
+      }),
+      prisma.offerLetter.count(),
+      prisma.placementDrive.count({
+        where: { status: 'COMPLETED' }
+      })
+    ]);
 
     const summary = {
       upcomingDrives: upcomingDrivesCount,
@@ -407,58 +410,47 @@ export const getAdminDashboard = async (req: any, res: any) => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     const now = new Date();
 
-    // Drives
-    const todaysDrives = await prisma.placementDrive.count({
-      where: {
-        expectedDriveDate: {
-          gte: today,
-          lt: tomorrow,
-        },
-      },
-    });
+    const [
+      todaysDrives,
+      upcomingClosedDrives,
+      openDrives,
+      eligibleStudents,
+      activeDrives
+    ] = await Promise.all([
+      prisma.placementDrive.count({
+        where: { expectedDriveDate: { gte: today, lt: tomorrow } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationEnd: { lt: now }, expectedDriveDate: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
+      }),
+      prisma.studentProfile.count({
+        where: { isProfileComplete: true, activeBacklogs: 0 }
+      }),
+      prisma.placementDrive.findMany({
+        where: { registrationEnd: { gte: now } },
+        include: { company: true }
+      })
+    ]);
 
-    const upcomingClosedDrives = await prisma.placementDrive.count({
-      where: {
-        registrationEnd: { lt: now },
-        expectedDriveDate: { gt: now },
-      },
-    });
-
-    const openDrives = await prisma.placementDrive.count({
-      where: {
-        registrationStart: { lte: now },
-        registrationEnd: { gt: now },
-      },
-    });
-
-    const eligibleStudents = await prisma.studentProfile.count({
-      where: {
-        isProfileComplete: true,
-        activeBacklogs: 0,
-      },
-    });
-
-    const activeDrives = await prisma.placementDrive.findMany({
-      where: {
-        registrationEnd: { gte: now }
-      },
-      include: { company: true }
-    });
-
-    const eligibleByCompanyMap: Record<string, number> = {};
-
-    for (const drive of activeDrives) {
-      const companyName = drive.company?.name || 'Unknown';
-      
-      const count = await prisma.studentProfile.count({
+    // Optimize N+1 query: Instead of looping over activeDrives sequentially, use Promise.all
+    const eligiblePromises = activeDrives.map(drive => {
+      return prisma.studentProfile.count({
         where: {
           isProfileComplete: true,
           cgpa: { gte: drive.minimumCgpa || 0 },
           activeBacklogs: { lte: drive.activeBacklogsAllowed || 0 }
         }
-      });
+      }).then(count => ({ companyName: drive.company?.name || 'Unknown', count }));
+    });
 
-      eligibleByCompanyMap[companyName] = (eligibleByCompanyMap[companyName] || 0) + count;
+    const eligibleResults = await Promise.all(eligiblePromises);
+
+    const eligibleByCompanyMap: Record<string, number> = {};
+    for (const res of eligibleResults) {
+      eligibleByCompanyMap[res.companyName] = (eligibleByCompanyMap[res.companyName] || 0) + res.count;
     }
 
     const eligibleByCompany = Object.entries(eligibleByCompanyMap)

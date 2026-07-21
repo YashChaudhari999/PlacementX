@@ -41,51 +41,63 @@ export const getAnalyticsSummary = async (req: any, res: any) => {
     const prevWhere = buildDriveWhereClause(req.query, 'previousYear');
     const studentWhere = buildStudentWhereClause(req.query);
 
-    // Basic Counts (Students)
-    const totalEligibleCurrent = await prisma.studentProfile.count({
-      where: { ...studentWhere, isProfileComplete: true, activeBacklogs: 0 }
-    });
+    // Group 1: Independent queries
+    const [
+      totalEligibleCurrent,
+      currentDrives,
+      prevDrives,
+    ] = await Promise.all([
+      prisma.studentProfile.count({
+        where: { ...studentWhere, isProfileComplete: true, activeBacklogs: 0 }
+      }),
+      prisma.placementDrive.findMany({
+        where: currentWhere,
+        select: { id: true, fixedSalary: true, companyId: true }
+      }),
+      prisma.placementDrive.findMany({
+        where: prevWhere,
+        select: { id: true, fixedSalary: true, companyId: true }
+      })
+    ]);
+
     // In a real app, student batches define year. Here we'll just mock previous as slightly less for demo
     const totalEligiblePrev = Math.max(0, totalEligibleCurrent - Math.floor(Math.random() * 20));
 
-    // Applications
-    const currentDrives = await prisma.placementDrive.findMany({
-      where: currentWhere,
-      select: { id: true, fixedSalary: true, companyId: true }
-    });
     const currentDriveIds = currentDrives.map(d => d.id);
-    
-    const prevDrives = await prisma.placementDrive.findMany({
-      where: prevWhere,
-      select: { id: true, fixedSalary: true, companyId: true }
-    });
     const prevDriveIds = prevDrives.map(d => d.id);
 
-    const totalAppliedCurrent = await prisma.driveApplication.count({
-      where: { driveId: { in: currentDriveIds }, student: studentWhere }
-    });
-    const totalAppliedPrev = await prisma.driveApplication.count({
-      where: { driveId: { in: prevDriveIds } }
-    });
+    // Group 2: Dependent queries
+    const [
+      totalAppliedCurrent,
+      totalAppliedPrev,
+      currentOffers,
+      prevOffers,
+      placedCurrentGroup,
+      placedPrevGroup
+    ] = await Promise.all([
+      prisma.driveApplication.count({
+        where: { driveId: { in: currentDriveIds }, student: studentWhere }
+      }),
+      prisma.driveApplication.count({
+        where: { driveId: { in: prevDriveIds } }
+      }),
+      prisma.driveApplication.count({
+        where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
+      }),
+      prisma.driveApplication.count({
+        where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
+      }),
+      prisma.driveApplication.groupBy({
+        by: ['studentId'],
+        where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
+      }),
+      prisma.driveApplication.groupBy({
+        by: ['studentId'],
+        where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
+      })
+    ]);
 
-    const currentOffers = await prisma.driveApplication.count({
-      where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
-    });
-    const prevOffers = await prisma.driveApplication.count({
-      where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
-    });
-
-    // Distinct Placed Students
-    const placedCurrentGroup = await prisma.driveApplication.groupBy({
-      by: ['studentId'],
-      where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
-    });
     const placedCurrent = placedCurrentGroup.length;
-    
-    const placedPrevGroup = await prisma.driveApplication.groupBy({
-      by: ['studentId'],
-      where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
-    });
     const placedPrev = placedPrevGroup.length;
 
     // Packages

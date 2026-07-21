@@ -1,137 +1,124 @@
-// @ts-nocheck
-import { PrismaClient } from '@prisma/client';
-import admin from 'firebase-admin';
+import { PrismaClient, Notification } from '@prisma/client';
+import { getIO } from '../socket';
 
 const prisma = new PrismaClient();
 
-export const sendNotification = async (
-  userId: string,
-  title: string,
-  message: string,
-  type: string = 'INFO',
-  link?: string
-) => {
-  try {
-    const notification = await prisma.notification.create({
-      data: {
-        userId,
-        title,
-        message,
-        type,
-        link
-      }
-    });
-    
-    // Fetch device tokens for the user
-    const tokens = await prisma.deviceToken.findMany({
-      where: { userId }
-    });
+export interface CreateNotificationInput {
+  title: string;
+  message: string;
+  type?: string;
+  priority?: string;
+  receiverId: string;
+  receiverRole?: string;
+  senderId?: string;
+  senderRole?: string;
+  metadata?: any;
+  actionUrl?: string;
+}
 
-    if (tokens.length > 0 && admin.apps.length > 0) {
-      const fcmTokens = tokens.map((t: any) => t.token);
-      const payload = {
-        notification: {
-          title,
-          body: message,
-        },
-        data: {
-          url: link || '/',
-          type
-        },
-        tokens: fcmTokens
-      };
+export interface BroadcastNotificationInput {
+  title: string;
+  message: string;
+  type?: string;
+  priority?: string;
+  receiverIds: string[];
+  senderId?: string;
+  senderRole?: string;
+  metadata?: any;
+  actionUrl?: string;
+}
 
-      try {
-        const response = await admin.messaging().sendEachForMulticast(payload);
-        console.log(`[FCM] Sent to ${userId}, Success: ${response.successCount}, Failure: ${response.failureCount}`);
-        
-        // Clean up invalid tokens
-        if (response.failureCount > 0) {
-          const failedTokens: any[] = [];
-          response.responses.forEach((resp, idx) => {
-            if (!resp.success) {
-              failedTokens.push(fcmTokens[idx]);
-            }
-          });
-          if (failedTokens.length > 0) {
-            await prisma.deviceToken.deleteMany({
-              where: { token: { in: failedTokens } }
-            });
-          }
-        }
-      } catch (fcmError) {
-        console.error('[FCM] Error sending push notification:', fcmError);
-      }
+export const createNotification = async (input: CreateNotificationInput) => {
+  const notification = await prisma.notification.create({
+    data: {
+      title: input.title,
+      message: input.message,
+      type: input.type || 'system',
+      priority: input.priority || 'NORMAL',
+      receiverId: input.receiverId,
+      receiverRole: input.receiverRole || 'STUDENT',
+      senderId: input.senderId,
+      senderRole: input.senderRole,
+      metadata: input.metadata || {},
+      actionUrl: input.actionUrl,
     }
-    
-    return notification;
-  } catch (error) {
-    console.error('Failed to send notification:', error);
-    throw error;
+  });
+
+  // Emit to specific user
+  try {
+    const io = getIO();
+    io.to(`user:${input.receiverId}`).emit('notification:new', notification);
+  } catch (e) {
+    console.error('Socket error:', e);
   }
+
+  return notification;
 };
 
-export const broadcastToEligibleStudents = async (
-  driveId: string,
-  title: string,
-  message: string,
-  link?: string
-) => {
-  try {
-    // For now, simple broadcast to all students
-    // A robust version would fetch all students and run checkEligibility on them
-    const students = await prisma.user.findMany({
-      where: { role: 'STUDENT' },
-      include: { deviceTokens: true }
-    });
-    
-    // Create DB notifications for all students
-    const notifications = await Promise.all(
-      students.map((student: any) => 
-        prisma.notification.create({
-          data: {
-            userId: student.id,
-            title,
-            message,
-            type: 'DRIVE_ALERT',
-            link
-          }
-        })
-      )
-    );
-    
-    // Batch FCM push notifications for students who have tokens
-    const allTokens: string[] = [];
-    students.forEach(student => {
-      student.deviceTokens.forEach(dt => allTokens.push(dt.token));
-    });
+export const createBulkNotifications = async (input: BroadcastNotificationInput) => {
+  if (!input.receiverIds.length) return [];
 
-    if (allTokens.length > 0 && admin.apps.length > 0) {
-      // Chunk tokens into groups of 500 (FCM limit for sendEachForMulticast)
-      const chunkSize = 500;
-      for (let i = 0; i < allTokens.length; i += chunkSize) {
-        const chunk = allTokens.slice(i, i + chunkSize);
-        
-        const payload = {
-          notification: {
-            title,
-            body: message,
-          },
-          data: {
-            url: link || '/',
-            type: 'DRIVE_ALERT'
-          },
-          tokens: chunk
-        };
-        
-        admin.messaging().sendEachForMulticast(payload).then(response => {
-           console.log(`[FCM Broadcast] Success: ${response.successCount}, Failure: ${response.failureCount}`);
-        }).catch(err => console.error('[FCM Broadcast] Error:', err));
-      }
-    }
-    
-    console.log(`[Broadcast] Created ${notifications.length} notifications for Drive ${driveId}`);
-  } catch (error) {
-    console.error('Failed to broadcast notifications:', error);
+  const notificationsData = input.receiverIds.map(id => ({
+    title: input.title,
+    message: input.message,
+    type: input.type || 'system',
+    priority: input.priority || 'NORMAL',
+    receiverId: id,
+    receiverRole: 'STUDENT', // Defaulting for bulk, adjust as needed
+    senderId: input.senderId,
+    senderRole: input.senderRole,
+    metadata: input.metadata || {},
+    actionUrl: input.actionUrl,
+  }));
+
+  // Create many using Prisma
+  await prisma.notification.createMany({
+    data: notificationsData
+  });
+
+  try {
+    const io = getIO();
+    input.receiverIds.forEach(id => {
+      io.to(`user:${id}`).emit('notification:update'); // Tells client to re-fetch
+    });
+  } catch (e) {
+    console.error('Socket error:', e);
   }
+
+  return { success: true, count: input.receiverIds.length };
+};
+
+export const getUserNotifications = async (userId: string, limit = 50, offset = 0) => {
+  return await prisma.notification.findMany({
+    where: { receiverId: userId },
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+    skip: offset,
+  });
+};
+
+export const getUnreadCount = async (userId: string) => {
+  return await prisma.notification.count({
+    where: { receiverId: userId, isRead: false },
+  });
+};
+
+export const markAsRead = async (id: string, userId: string) => {
+  return await prisma.notification.updateMany({
+    where: { id, receiverId: userId },
+    data: { isRead: true, readAt: new Date() }
+  });
+};
+
+export const markAllAsRead = async (userId: string) => {
+  return await prisma.notification.updateMany({
+    where: { receiverId: userId, isRead: false },
+    data: { isRead: true, readAt: new Date() }
+  });
+};
+
+export const deleteNotification = async (id: string, userId: string) => {
+  return await prisma.notification.deleteMany({
+    where: { id, receiverId: userId },
+  });
 };
