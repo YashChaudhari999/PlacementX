@@ -1,8 +1,10 @@
 import { Router } from 'express';
-import { getAnalytics } from '../controllers/analytics.controller';
+import { getAnalyticsSummary, getAnalyticsCharts, getAnalyticsAiInsights } from '../controllers/analytics.controller';
 
 const router = Router();
 
-router.get('/', getAnalytics);
+router.get('/summary', getAnalyticsSummary);
+router.get('/charts', getAnalyticsCharts);
+router.get('/ai-insights', getAnalyticsAiInsights);
 
 export default router;

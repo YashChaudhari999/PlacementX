@@ -9,6 +9,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@fullcalendar/core/internal.js': path.resolve(__dirname, '../../node_modules/@fullcalendar/core/internal.js'),
+      '@fullcalendar/core/preact.js': path.resolve(__dirname, '../../node_modules/@fullcalendar/core/preact.js'),
+      '@fullcalendar/core/index.js': path.resolve(__dirname, '../../node_modules/@fullcalendar/core/index.js'),
     },
   },
 });

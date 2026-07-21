@@ -43,7 +43,7 @@ export const StudentLayout = () => {
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
         <div className="flex items-center gap-3 justify-center w-full h-full py-4">
-          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain" />
+          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain mix-blend-multiply" />
         </div>
       </div>
       

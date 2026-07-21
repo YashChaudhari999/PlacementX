@@ -8,6 +8,7 @@ import studentRoutes from './routes/student.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import adminRoutes from './routes/admin.routes';
 import hrRoutes from './routes/hr.routes';
+import publicRoutes from './routes/public.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
 
 dotenv.config();
@@ -28,6 +29,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/public', publicRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'PlacementX API is running' });
