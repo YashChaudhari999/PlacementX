@@ -9,7 +9,11 @@
     "build": "tsc",
     "lint": "eslint src --ext .ts",
     "db:push": "npx prisma db push",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "db:seed": "ts-node-dev src/seed.ts"
+  },
+  "prisma": {
+    "seed": "ts-node-dev src/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.0.0",

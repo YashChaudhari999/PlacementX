@@ -13,7 +13,8 @@
     "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,css,json,md}\"",
-    "type-check": "npm run type-check --workspaces --if-present"
+    "type-check": "npm run type-check --workspaces --if-present",
+    "seed": "npm run db:seed --workspace=@placementx/api"
   },
   "devDependencies": {
     "concurrently": "^10.0.3",
