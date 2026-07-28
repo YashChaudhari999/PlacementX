@@ -6,11 +6,13 @@ import {
   addCoordinator, 
   getReportsData, 
   broadcastNotification, 
-  getCalendarEvents 
+  getCalendarEvents,
+  getAdminDashboard
 } from '../controllers/admin.controller';
 
 const router = Router();
 
+router.get('/dashboard', getAdminDashboard);
 router.get('/students', getStudents);
 router.post('/students/import', importStudents);
 router.get('/coordinators', getCoordinators);

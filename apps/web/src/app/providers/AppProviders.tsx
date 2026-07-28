@@ -18,24 +18,28 @@ const queryClient = new QueryClient({
   },
 });
 
+import { SocketProvider } from '@/contexts/SocketContext';
+
 // Wrapping order is critical: Auth -> Session -> Roles -> Permissions -> AppShell -> UI Providers
 export const AppProviders = ({ children }: { children: ReactNode }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <SessionProvider>
-          <RoleProvider>
-            <PermissionProvider>
-              <AppShellProvider>
-                <ToastProvider>
-                  <DialogProvider>
-                    {children}
-                  </DialogProvider>
-                </ToastProvider>
-              </AppShellProvider>
-            </PermissionProvider>
-          </RoleProvider>
-        </SessionProvider>
+        <SocketProvider>
+          <SessionProvider>
+            <RoleProvider>
+              <PermissionProvider>
+                <AppShellProvider>
+                  <ToastProvider>
+                    <DialogProvider>
+                      {children}
+                    </DialogProvider>
+                  </ToastProvider>
+                </AppShellProvider>
+              </PermissionProvider>
+            </RoleProvider>
+          </SessionProvider>
+        </SocketProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

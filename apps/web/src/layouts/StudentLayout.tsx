@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
+import NotificationBell from '@/features/notifications/components/NotificationBell';
 
 export const StudentLayout = () => {
   const { user } = useAuthStore();
@@ -43,7 +44,7 @@ export const StudentLayout = () => {
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
         <div className="flex items-center gap-3 justify-center w-full h-full py-4">
-          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain" />
+          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain mix-blend-multiply" />
         </div>
       </div>
       
@@ -180,18 +181,7 @@ export const StudentLayout = () => {
               <span>Download App</span>
             </a>
 
-            <button 
-              onClick={() => navigate('/student/notifications')}
-              title="Notifications"
-              className="relative p-3 text-slate-600 bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-primary hover:text-primary transition-colors group"
-            >
-              <Bell className="h-5 w-5 group-hover:animate-[wiggle_1s_ease-in-out_infinite]" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-2 -right-2 min-w-[20px] h-[20px] px-1 bg-red-500 text-white text-[10px] font-bold rounded-full border-2 border-white flex items-center justify-center shadow-sm">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </button>
+            <NotificationBell />
 
             <div className="relative">
               <button 
@@ -248,14 +238,18 @@ export const StudentLayout = () => {
 
         {/* Page Content */}
         <main className="flex-1 px-6 sm:px-10 pb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="w-full max-w-[1400px] mx-auto"
-          >
-            <Outlet />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full max-w-[1400px] mx-auto"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

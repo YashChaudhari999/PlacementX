@@ -36,3 +36,5 @@ export const authorize = (...roles: string[]) => {
     next();
   };
 };
+
+export const authenticate = protect;

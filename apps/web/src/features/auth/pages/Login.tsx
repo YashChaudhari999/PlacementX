@@ -1,12 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '@/lib/authService';
+import api from '@/lib/api';
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const [stats, setStats] = useState({
+    companies: '500+',
+    placementRate: '95%',
+    avgPackage: '12L+'
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get('/public/stats');
+        const data = response.data;
+        setStats({
+          companies: `${data.companies}+`,
+          placementRate: `${data.placementRate}%`,
+          avgPackage: `${data.avgPackageLPA}L+`
+        });
+      } catch (err) {
+        console.error('Failed to fetch stats:', err);
+      }
+    };
+    fetchStats();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +82,7 @@ export default function Login() {
           {/* Logo card */}
           <div className="bg-white rounded-3xl px-6 py-5 inline-flex items-center gap-6 shadow-2xl mb-10">
             {/* NMIMS Logo */}
-            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-32 object-contain" />
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-32 object-contain mix-blend-multiply" />
             <div className="border-l border-gray-200 pl-4">
               <div className="text-[11px] font-bold text-gray-800 uppercase leading-tight">
                 PLACEMENT<br />CELL PORTAL
@@ -81,9 +105,9 @@ export default function Login() {
           {/* Stats row */}
           <div className="mt-10 flex items-center justify-center gap-8">
             {[
-              { value: '500+', label: 'Companies' },
-              { value: '95%', label: 'Placement Rate' },
-              { value: '12L+', label: 'Avg. Package' },
+              { value: stats.companies, label: 'Companies' },
+              { value: stats.placementRate, label: 'Placement Rate' },
+              { value: stats.avgPackage, label: 'Avg. Package' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-2xl font-black text-white">{stat.value}</div>

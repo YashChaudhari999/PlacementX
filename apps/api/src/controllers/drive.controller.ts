@@ -68,15 +68,33 @@ export const createDrive = async (req: any, res: any) => {
     });
 
     if (!data.isDraft) {
-      // Trigger notification if published
-      import('../services/notification.service').then(({ broadcastToEligibleStudents }) => {
-        broadcastToEligibleStudents(
-          drive.id,
-          'New Placement Drive Available',
-          `${company.name} is hiring for ${drive.jobRole}. Apply before ${drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'the deadline'}.`,
-          `/student/drives/${drive.id}`
-        );
-      });
+      try {
+        const { filterEligibleStudents } = await import('../services/eligibility.service');
+        const { createBulkNotifications } = await import('../services/notification.service');
+        
+        const eligibleStudentIds = await filterEligibleStudents(drive);
+        
+        if (eligibleStudentIds.length > 0) {
+          await createBulkNotifications({
+            title: 'New Placement Drive Available',
+            message: `${company.name} is hiring for ${drive.jobRole}. Apply before ${drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'the deadline'}.`,
+            type: 'placement_drive',
+            priority: 'HIGH',
+            actionUrl: `/student/drives/${drive.id}`,
+            receiverIds: eligibleStudentIds,
+            senderId: req.user?.id,
+            senderRole: req.user?.role,
+            metadata: {
+              driveId: drive.id,
+              companyName: company.name,
+              package: drive.fixedSalary,
+              deadline: drive.registrationEnd
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error triggering notifications on create:', err);
+      }
     }
 
     return res.status(201).json({ message: 'Drive created successfully', drive });
@@ -234,12 +252,39 @@ export const approveHrDrive = async (req: any, res: any) => {
     const { id } = req.params;
     const drive = await prisma.placementDrive.update({
       where: { id },
-      data: { status: 'PUBLISHED' }
+      data: { status: 'PUBLISHED' },
+      include: { company: true }
     });
     
     await prisma.driveAuditLog.create({
       data: { driveId: id, action: 'APPROVED', performedBy: 'Admin' }
     });
+
+    try {
+      const { filterEligibleStudents } = await import('../services/eligibility.service');
+      const { createBulkNotifications } = await import('../services/notification.service');
+      
+      const eligibleStudentIds = await filterEligibleStudents(drive);
+      
+      if (eligibleStudentIds.length > 0) {
+        await createBulkNotifications({
+          title: 'New Placement Drive Approved',
+          message: `${drive.company.name} is hiring for ${drive.jobRole}.`,
+          type: 'placement_drive',
+          priority: 'HIGH',
+          actionUrl: `/student/drives/${drive.id}`,
+          receiverIds: eligibleStudentIds,
+          senderId: req.user?.id,
+          senderRole: req.user?.role,
+          metadata: {
+            driveId: drive.id,
+            companyName: drive.company.name,
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Error triggering notifications on approve:', err);
+    }
 
     return res.status(200).json({ message: 'Drive approved', drive });
   } catch (error: any) {

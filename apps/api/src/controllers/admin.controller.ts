@@ -208,37 +208,347 @@ export const broadcastNotification = async (req: any, res: any) => {
 // 5. Calendar Module
 export const getCalendarEvents = async (req: any, res: any) => {
   try {
-    const rounds = await prisma.selectionRound.findMany({
-      include: {
-        drive: {
-          include: { company: true }
+    const now = new Date();
+    
+    // --- 1. Summary Statistics ---
+    const [
+      upcomingDrivesCount,
+      registrationOpenCount,
+      closingThisWeekCount,
+      interviewsCount,
+      offersReleasedCount,
+      completedCount
+    ] = await Promise.all([
+      prisma.placementDrive.count({
+        where: { expectedDriveDate: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationEnd: { gte: now, lte: oneWeekFromNow } }
+      }),
+      prisma.selectionRound.count({
+        where: { date: { gte: now } }
+      }),
+      prisma.offerLetter.count(),
+      prisma.placementDrive.count({
+        where: { status: 'COMPLETED' }
+      })
+    ]);
+
+    const summary = {
+      upcomingDrives: upcomingDrivesCount,
+      registrationOpen: registrationOpenCount,
+      closingThisWeek: closingThisWeekCount,
+      interviews: interviewsCount,
+      offersReleased: offersReleasedCount,
+      completed: completedCount
+    };
+
+    // --- 2. Dynamic Semester Calculation ---
+    // Hardcoded config as requested
+    const sem7Start = new Date('2026-07-13');
+    const sem7End = new Date('2026-12-05');
+    
+    const sem8Start = new Date('2027-01-02');
+    const sem8End = new Date('2027-04-30');
+
+    const generateWeeks = (start: Date, end: Date) => {
+      const weeks = [];
+      let currentStart = new Date(start);
+      let weekNum = 1;
+
+      while (currentStart <= end) {
+        let currentEnd = new Date(currentStart);
+        currentEnd.setDate(currentEnd.getDate() + 6);
+        
+        if (currentEnd > end) {
+          currentEnd = new Date(end);
         }
+
+        weeks.push({
+          id: weekNum,
+          start: currentStart.toISOString().split('T')[0],
+          end: currentEnd.toISOString().split('T')[0]
+        });
+
+        currentStart.setDate(currentStart.getDate() + 7);
+        weekNum++;
       }
-    });
+      return weeks;
+    };
 
-    const events = rounds.map((r: any) => ({
-      id: r.id,
-      title: `${r.drive.company?.name} - ${r.title}`,
-      date: r.date,
-      time: r.time,
-      venue: r.venue,
-      type: 'ROUND'
-    }));
+    const semester = {
+      semester7: {
+        startDate: '2026-07-13',
+        endDate: '2026-12-05',
+        weeks: generateWeeks(sem7Start, sem7End)
+      },
+      semester8: {
+        startDate: '2027-01-02',
+        endDate: '2027-04-30',
+        weeks: generateWeeks(sem8Start, sem8End)
+      }
+    };
 
-    const deadlines = await prisma.placementDrive.findMany({
-      where: { applicationDeadline: { not: null } },
+    // --- 3. Events Mapping ---
+    const allDrives = await prisma.placementDrive.findMany({
       include: { company: true }
     });
 
-    const deadlineEvents = deadlines.map((d: any) => ({
-      id: `deadline-${d.id}`,
-      title: `${d.company?.name} - Application Deadline`,
-      date: d.applicationDeadline,
-      type: 'DEADLINE'
-    }));
+    let calendarEvents: any[] = [];
 
-    return res.status(200).json([...events, ...deadlineEvents]);
+    allDrives.forEach((d: any) => {
+      // 3.1 Registration Open Event
+      if (d.registrationStart && d.registrationEnd) {
+        calendarEvents.push({
+          id: `reg-${d.id}`,
+          title: `${d.company?.name} - Registration Open`,
+          start: d.registrationStart.toISOString().split('T')[0],
+          end: d.registrationEnd.toISOString().split('T')[0],
+          allDay: true,
+          color: '#10b981', // green
+          extendedProps: {
+            driveId: d.id,
+            company: d.company?.name,
+            status: 'Registration Open',
+            type: 'Placement Drive',
+            department: d.eligibleBranches ? JSON.parse(d.eligibleBranches) : [],
+            package: d.fixedSalary ? `${d.fixedSalary} LPA` : 'N/A',
+            location: d.location || d.workMode,
+            description: 'Registration window is currently active.'
+          }
+        });
+      }
+
+      // 3.2 Main Drive Event (Spanning Expected Drive Date)
+      if (d.expectedDriveDate) {
+        const driveEnd = new Date(d.expectedDriveDate);
+        driveEnd.setDate(driveEnd.getDate() + 2); // Assume 2 days duration for the visual span
+
+        calendarEvents.push({
+          id: `drive-${d.id}`,
+          title: `${d.company?.name} - Campus Drive`,
+          start: d.expectedDriveDate.toISOString().split('T')[0],
+          end: driveEnd.toISOString().split('T')[0],
+          allDay: true,
+          color: '#3b82f6', // blue
+          extendedProps: {
+            driveId: d.id,
+            company: d.company?.name,
+            status: d.status,
+            type: d.driveType || 'Placement Drive',
+            department: d.eligibleBranches ? JSON.parse(d.eligibleBranches) : [],
+            package: d.fixedSalary ? `${d.fixedSalary} LPA` : 'N/A',
+            location: d.location || d.workMode,
+            description: d.jobDescription || ''
+          }
+        });
+      }
+      
+      // 3.3 Application Deadline
+      if (d.applicationDeadline) {
+         calendarEvents.push({
+          id: `deadline-${d.id}`,
+          title: `${d.company?.name} Deadline`,
+          start: d.applicationDeadline.toISOString(),
+          allDay: true,
+          color: '#ef4444', // red
+          extendedProps: {
+             driveId: d.id,
+             company: d.company?.name,
+             type: 'Deadline',
+             status: 'Registration Closed'
+          }
+         });
+      }
+    });
+
+    // 3.4 Selection Rounds (Interviews)
+    const rounds = await prisma.selectionRound.findMany({
+      include: { drive: { include: { company: true } } }
+    });
+
+    rounds.forEach((r: any) => {
+      if (r.date) {
+        calendarEvents.push({
+          id: `round-${r.id}`,
+          title: `${r.drive.company?.name} - ${r.title}`,
+          start: r.time ? `${r.date.toISOString().split('T')[0]}T${r.time}:00` : r.date.toISOString().split('T')[0],
+          allDay: !r.time,
+          color: '#8b5cf6', // purple
+          extendedProps: {
+            driveId: r.drive.id,
+            company: r.drive.company?.name,
+            status: 'Interview',
+            type: 'Interview Schedule',
+            venue: r.venue || r.platform,
+            description: r.instructions || ''
+          }
+        });
+      }
+    });
+
+    return res.status(200).json({
+      summary,
+      semester,
+      events: calendarEvents
+    });
   } catch (error: any) {
+    console.error('Calendar Error:', error);
     return res.status(500).json({ message: 'Error fetching calendar events', error: error.message });
+  }
+};
+
+// 6. Dashboard Module
+export const getAdminDashboard = async (req: any, res: any) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const now = new Date();
+
+    const [
+      todaysDrives,
+      upcomingClosedDrives,
+      openDrives,
+      eligibleStudents,
+      activeDrives
+    ] = await Promise.all([
+      prisma.placementDrive.count({
+        where: { expectedDriveDate: { gte: today, lt: tomorrow } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationEnd: { lt: now }, expectedDriveDate: { gt: now } }
+      }),
+      prisma.placementDrive.count({
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
+      }),
+      prisma.studentProfile.count({
+        where: { isProfileComplete: true, activeBacklogs: 0 }
+      }),
+      prisma.placementDrive.findMany({
+        where: { registrationEnd: { gte: now } },
+        include: { company: true }
+      })
+    ]);
+
+    // Optimize N+1 query: Instead of looping over activeDrives sequentially, use Promise.all
+    const eligiblePromises = activeDrives.map(drive => {
+      return prisma.studentProfile.count({
+        where: {
+          isProfileComplete: true,
+          cgpa: { gte: drive.minimumCgpa || 0 },
+          activeBacklogs: { lte: drive.activeBacklogsAllowed || 0 }
+        }
+      }).then(count => ({ companyName: drive.company?.name || 'Unknown', count }));
+    });
+
+    const eligibleResults = await Promise.all(eligiblePromises);
+
+    const eligibleByCompanyMap: Record<string, number> = {};
+    for (const res of eligibleResults) {
+      eligibleByCompanyMap[res.companyName] = (eligibleByCompanyMap[res.companyName] || 0) + res.count;
+    }
+
+    const eligibleByCompany = Object.entries(eligibleByCompanyMap)
+      .map(([company, count]) => ({ company, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const allApplications = await prisma.driveApplication.findMany({
+      include: {
+        drive: {
+          include: { company: true },
+        },
+      },
+    });
+
+    const companyAppCounts: Record<string, number> = {};
+    for (const app of allApplications) {
+      const companyName = app.drive?.company?.name;
+      if (companyName) {
+        companyAppCounts[companyName] = (companyAppCounts[companyName] || 0) + 1;
+      }
+    }
+
+    const applicationsByCompany = Object.entries(companyAppCounts)
+      .map(([company, applications]) => ({ company, applications }))
+      .sort((a, b) => b.applications - a.applications)
+      .slice(0, 5);
+
+    // Packages
+    const placedStudentsObj = await prisma.driveApplication.groupBy({
+      by: ['studentId'],
+      where: { status: 'SELECTED' },
+    });
+    const placedStudents = placedStudentsObj.length;
+
+    const placementPercentage = eligibleStudents > 0 
+      ? Math.round((placedStudents / eligibleStudents) * 100) 
+      : 0;
+
+    const selectedApps = await prisma.driveApplication.findMany({
+      where: { status: 'SELECTED' },
+      include: {
+        drive: { select: { fixedSalary: true } },
+      },
+    });
+
+    const packages = selectedApps
+      .map(app => app.drive?.fixedSalary)
+      .filter((p): p is number => p !== null && p > 0)
+      .sort((a, b) => a - b);
+
+    let highest = 0;
+    let average = 0;
+    let median = 0;
+
+    if (packages.length > 0) {
+      highest = packages[packages.length - 1];
+      average = packages.reduce((a, b) => a + b, 0) / packages.length;
+      
+      const mid = Math.floor(packages.length / 2);
+      median = packages.length % 2 !== 0 
+        ? packages[mid] 
+        : (packages[mid - 1] + packages[mid]) / 2;
+    }
+
+    // Overall
+    const companiesVisitedObj = await prisma.placementDrive.findMany({
+      where: { status: { not: 'DRAFT' } },
+      distinct: ['companyId'],
+      select: { companyId: true }
+    });
+
+    const totalOffers = selectedApps.length;
+
+    return res.status(200).json({
+      drives: {
+        today: todaysDrives,
+        upcomingClosed: upcomingClosedDrives,
+        open: openDrives,
+      },
+      students: {
+        eligible: eligibleStudents,
+        eligibleByCompany,
+        applicationsByCompany,
+      },
+      packages: {
+        placementPercentage,
+        highest,
+        average: Math.round(average * 100) / 100,
+        median: Math.round(median * 100) / 100,
+      },
+      overall: {
+        companiesVisited: companiesVisitedObj.length,
+        totalOffers,
+      },
+    });
+  } catch (error: any) {
+    console.error('Get admin dashboard error:', error);
+    return res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 };

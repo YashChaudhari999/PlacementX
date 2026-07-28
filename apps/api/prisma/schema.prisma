@@ -239,18 +239,30 @@ model OfferLetter {
 }
 
 model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String    @id @default(uuid())
+  title        String
+  message      String
+  type         String    @default("system")
+  priority     String    @default("NORMAL")
   
-  title     String
-  message   String
-  type      String   @default("INFO")
-  isRead    Boolean  @default(false)
+  receiverId   String
+  receiverRole String    @default("STUDENT")
+  senderId     String?
+  senderRole   String?
   
-  link      String?
+  metadata     Json?
+  actionUrl    String?
   
-  createdAt DateTime @default(now())
+  isRead       Boolean   @default(false)
+  readAt       DateTime?
+  expiresAt    DateTime?
+  
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user         User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+  
+  @@index([receiverId, isRead, createdAt])
 }
 
 model HrInvitationLink {
