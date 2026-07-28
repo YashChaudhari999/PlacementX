@@ -4,13 +4,15 @@ import { useAuthStore } from '@/stores/authStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-export const useNotifications = (limit = 10, offset = 0) => {
+export const useNotifications = (limit: any = 10, offset: any = 0) => {
+  const parsedLimit = typeof limit === 'number' && !isNaN(limit) ? limit : 10;
+  const parsedOffset = typeof offset === 'number' && !isNaN(offset) ? offset : 0;
   const { token } = useAuthStore();
   return useQuery({
-    queryKey: ['notifications', limit, offset],
+    queryKey: ['notifications', parsedLimit, parsedOffset],
     queryFn: async () => {
       const res = await axios.get(`${API_URL}/notifications`, {
-        params: { limit, offset },
+        params: { limit: parsedLimit, offset: parsedOffset },
         headers: { Authorization: `Bearer ${token}` }
       });
       return res.data;
@@ -78,3 +80,6 @@ export const useDeleteNotification = () => {
     }
   });
 };
+
+export const useMarkNotificationRead = useMarkAsRead;
+export const useMarkAllNotificationsRead = useMarkAllAsRead;
