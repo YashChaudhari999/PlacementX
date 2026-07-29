@@ -1,26 +1,58 @@
 import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, ViewProps, StyleSheet } from 'react-native';
+import { theme } from '../../theme/theme';
 
-interface CardProps {
+interface CardProps extends ViewProps {
   children: React.ReactNode;
-  style?: ViewStyle;
 }
 
-export function Card({ children, style }: CardProps) {
-  return <View style={[styles.card, style]}>{children}</View>;
-}
+export const Card = ({ children, style, ...props }: CardProps) => {
+  return (
+    <View style={[styles.card, style]} {...props}>
+      {children}
+    </View>
+  );
+};
+
+export const CardHeader = ({ children, style, ...props }: CardProps) => (
+  <View style={[styles.header, style]} {...props}>
+    {children}
+  </View>
+);
+
+export const CardContent = ({ children, style, ...props }: CardProps) => (
+  <View style={[styles.content, style]} {...props}>
+    {children}
+  </View>
+);
+
+export const CardFooter = ({ children, style, ...props }: CardProps) => (
+  <View style={[styles.footer, style]} {...props}>
+    {children}
+  </View>
+);
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: theme.colors.card,
+    borderRadius: theme.radius.xl,
     borderWidth: 1,
-    borderColor: '#F1F5F9',
+    borderColor: theme.colors.border,
+    ...theme.shadows.card,
+    overflow: 'hidden',
+  },
+  header: {
+    padding: theme.spacing[6],
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+  },
+  content: {
+    padding: theme.spacing[6],
+  },
+  footer: {
+    padding: theme.spacing[6],
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    backgroundColor: theme.colors.background, // Slight contrast for footer
   },
 });
