@@ -1,16 +1,21 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator, View } from 'react-native';
 import { theme } from '../../theme/theme';
 
 interface ButtonProps extends TouchableOpacityProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  title?: string;
+  icon?: React.ReactNode;
   variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   isLoading?: boolean;
+  textStyle?: any;
 }
 
 export const Button = ({
   children,
+  title,
+  icon,
   variant = 'default',
   size = 'default',
   isLoading,
@@ -82,12 +87,15 @@ export const Button = ({
     >
       {isLoading ? (
         <ActivityIndicator color={getTextColor()} />
-      ) : typeof children === 'string' ? (
-        <Text style={[styles.text, { color: getTextColor(), fontSize: size === 'sm' ? 14 : 16 }]}>
-          {children}
-        </Text>
       ) : (
-        children
+        <>
+          {icon && <View style={[styles.iconContainer, (title || children) ? { marginRight: theme.spacing[2] } : null]}>{icon}</View>}
+          {(title || children) && (
+            <Text style={[styles.text, { color: getTextColor(), fontSize: size === 'sm' ? 14 : 16 }, (props as any).textStyle]}>
+              {title || children}
+            </Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );
@@ -103,4 +111,8 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: '600',
   },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  }
 });

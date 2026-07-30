@@ -20,15 +20,19 @@ model User {
   coordinatorProfile CoordinatorProfile?
   adminProfile AdminProfile?
   notifications Notification[]
+  notificationPreferences NotificationPreference?
   deviceTokens DeviceToken[]
 }
 
 model DeviceToken {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token     String   @unique
-  createdAt DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String   @unique
+  platform   String   @default("android")  // android, ios, web
+  deviceName String?                       // "Samsung Galaxy S24", "iPhone 15", etc.
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model StudentProfile {
@@ -242,8 +246,10 @@ model Notification {
   id           String    @id @default(uuid())
   title        String
   message      String
-  type         String    @default("system")
-  priority     String    @default("NORMAL")
+  type         String    @default("system")       // system, placement_drive, interview, meeting, assignment, submission, mentor, admin, announcement, message, reminder, payment, order, warning, success, error, security
+  category     String    @default("system")       // For grouping/filtering in notification center
+  priority     String    @default("MEDIUM")       // HIGH, MEDIUM, LOW
+  image        String?                            // Rich notification image URL (company logo, avatar, etc.)
   
   receiverId   String
   receiverRole String    @default("STUDENT")
@@ -252,8 +258,12 @@ model Notification {
   
   metadata     Json?
   actionUrl    String?
+  deepLinkRoute  String?                          // Target screen name: "DriveDetails", "InterviewDetails", etc.
+  deepLinkParams Json?                            // Navigation params: { "id": "drive_123" }
   
   isRead       Boolean   @default(false)
+  isArchived   Boolean   @default(false)          // Archived notifications (hidden from main view)
+  isDeleted    Boolean   @default(false)          // Soft delete — never lose notification history
   readAt       DateTime?
   expiresAt    DateTime?
   
@@ -262,7 +272,36 @@ model Notification {
 
   user         User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
   
-  @@index([receiverId, isRead, createdAt])
+  @@index([receiverId, isDeleted, createdAt])     // Primary query: user's non-deleted notifications sorted by date
+  @@index([receiverId, isRead, isDeleted])        // Badge count: unread non-deleted
+  @@index([receiverId, category, isDeleted])      // Filter by category
+  @@index([receiverId, type, isDeleted])          // Filter by type
+}
+
+// ─── Notification Preferences ───────────────────────────
+// Per-user granular control over which notification categories
+// are enabled and which channels (push, email) are active.
+model NotificationPreference {
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Category toggles
+  placement    Boolean @default(true)
+  interviews   Boolean @default(true)
+  meetings     Boolean @default(true)
+  messages     Boolean @default(true)
+  assignments  Boolean @default(true)
+  marketing    Boolean @default(true)
+  promotions   Boolean @default(true)
+  system       Boolean @default(true)
+
+  // Channel toggles
+  pushEnabled  Boolean @default(true)
+  emailEnabled Boolean @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model HrInvitationLink {

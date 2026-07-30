@@ -1,298 +1,398 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { Briefcase, Bell, Check, ExternalLink } from 'lucide-react-native';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, StatusBar } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Bell, User, Calendar, MapPin, Search, ChevronRight } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import { theme } from '../../theme/theme';
+import { Card, StatusBadge, DashboardSkeleton } from '../../components/ui';
+import { useAuthStore } from '../../stores/authStore';
+import { usePublishedDrives, useStudentProfile } from '../../hooks/queries';
 
-export const DashboardScreen = () => {
-  // Dummy data to mimic the web hooks for MVP UI preview
-  const user = { email: 'student@example.com' };
-  const drives = [
-    {
-      id: '1',
-      company: { name: 'Google' },
-      jobRole: 'Software Engineer',
-      fixedSalary: '25',
-      employmentType: 'Full Time',
-      registrationEnd: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      company: { name: 'Microsoft' },
-      jobRole: 'Frontend Developer',
-      fixedSalary: '20',
-      employmentType: 'Full Time',
-      registrationEnd: new Date().toISOString(),
-    }
-  ];
-  const notifications = [
-    {
-      id: '1',
-      title: 'Drive Shortlist',
-      message: 'You have been shortlisted for Google.',
-      isRead: false,
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: '2',
-      title: 'Assessment Link',
-      message: 'Assessment link for Microsoft has been sent.',
-      isRead: true,
-      createdAt: new Date().toISOString(),
-    }
-  ];
+const { height } = Dimensions.get('window');
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+export default function DashboardScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+  const { user } = useAuthStore();
+  const { data: drives, isLoading: isLoadingDrives, refetch: refetchDrives } = usePublishedDrives();
+  const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile } = useStudentProfile(user?.id);
+  const insets = useSafeAreaInsets();
 
-  return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome, {user.email}</Text>
-        <Text style={styles.subtitle}>Here is your placement dashboard.</Text>
+  const isRefreshing = false; 
+  
+  const handleRefresh = React.useCallback(() => {
+    refetchDrives();
+    refetchProfile();
+  }, [refetchDrives, refetchProfile]);
+
+  const handleDrivePress = (id: string) => {
+    navigation.navigate('DriveDetails', { id });
+  };
+
+  if (isLoadingDrives || isLoadingProfile) {
+    return (
+      <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <DashboardSkeleton />
+        </SafeAreaView>
       </View>
+    );
+  }
 
-      <Card style={styles.sectionCard}>
-        <View style={styles.cardHeader}>
-          <Briefcase color={theme.colors.primary} size={20} />
-          <Text style={styles.cardTitle}>Active Drives</Text>
+  const renderDriveCard = (drive: any) => (
+    <TouchableOpacity 
+      key={drive.id} 
+      activeOpacity={0.8}
+      onPress={() => handleDrivePress(drive.id)}
+      style={styles.cardWrapper}
+    >
+      <Card style={styles.driveCard}>
+        <View style={styles.driveHeader}>
+          <View style={styles.companyInfo}>
+            <View style={styles.companyIconContainer}>
+              <Text style={styles.companyIconText}>
+                {drive.company?.name ? drive.company.name.charAt(0).toUpperCase() : 'C'}
+              </Text>
+            </View>
+            <View>
+              <Text style={styles.companyName}>{drive.company?.name || 'Unknown Company'}</Text>
+              <Text style={styles.driveRole}>{drive.jobRole || 'Role not specified'}</Text>
+            </View>
+          </View>
+          <StatusBadge status={drive.status} />
+        </View>
+        
+        <View style={styles.driveDetails}>
+          <View style={styles.detailRow}>
+            <View style={styles.detailIconBox}>
+              <MapPin size={14} color={theme.colors.primary} />
+            </View>
+            <Text style={styles.detailText}>{drive.location || 'Location TBA'}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <View style={styles.detailIconBox}>
+              <Calendar size={14} color={theme.colors.primary} />
+            </View>
+            <Text style={styles.detailText}>
+              {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'TBA'}
+            </Text>
+          </View>
         </View>
 
-        <View style={styles.list}>
-          {drives.length === 0 ? (
-            <Text style={styles.emptyText}>No active drives available right now.</Text>
-          ) : (
-            drives.map(drive => (
-              <View key={drive.id} style={styles.driveItem}>
-                <View style={styles.driveHeader}>
-                  <View>
-                    <Text style={styles.companyName}>{drive.company.name}</Text>
-                    <Text style={styles.jobRole}>{drive.jobRole}</Text>
-                  </View>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeText}>{drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'TBD'}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.driveDetails}>
-                  <Text style={styles.detailText}><Text style={styles.bold}>Type:</Text> {drive.employmentType}</Text>
-                  <Text style={styles.detailText}><Text style={styles.bold}>Deadline:</Text> {new Date(drive.registrationEnd).toLocaleDateString()}</Text>
-                </View>
-
-                <View style={styles.driveFooter}>
-                  <Button size="sm">View Details</Button>
-                </View>
-              </View>
-            ))
-          )}
+        <View style={styles.salaryContainer}>
+          <View>
+            <Text style={styles.salaryLabel}>CTC Package</Text>
+            <Text style={styles.salaryAmount}>{drive.fixedSalary ? `₹${drive.fixedSalary.toLocaleString()}` : 'Not disclosed'}</Text>
+          </View>
+          <View style={styles.applyBtn}>
+            <Text style={styles.applyBtnText}>Details</Text>
+            <ChevronRight size={16} color={theme.colors.primary} />
+          </View>
         </View>
       </Card>
+    </TouchableOpacity>
+  );
 
-      <Card style={styles.sectionCard}>
-        <View style={styles.cardHeader}>
-          <Bell color={theme.colors.primary} size={20} />
-          <Text style={styles.cardTitle}>Notifications</Text>
-          {unreadCount > 0 && (
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>{unreadCount} New</Text>
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.primary} />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor={theme.colors.primary} />
+        }
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top Background Decoration */}
+        <View style={[styles.topBackground, { paddingTop: insets.top + theme.spacing[4] }]}>
+          <View style={styles.headerContent}>
+            <View>
+              <Text style={styles.greetingText}>Hello, {user?.name || 'Student'} 👋</Text>
+              <Text style={styles.subtitleText}>Ready for your next opportunity?</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <TouchableOpacity 
+                style={styles.headerIconButton}
+                onPress={() => navigation.navigate('Notifications')}
+              >
+                <Bell color="#FFFFFF" size={22} />
+                {/* Notification dot */}
+                <View style={styles.notificationDot} />
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.headerIconButton}
+                onPress={() => navigation.navigate('ProfileStack')}
+              >
+                <User color="#FFFFFF" size={22} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.searchWrapper}>
+          <TouchableOpacity 
+            style={styles.searchFakeInput}
+            onPress={() => navigation.navigate('Drives')}
+            activeOpacity={0.9}
+          >
+            <Search color={theme.colors.mutedForeground} size={20} />
+            <Text style={styles.searchPlaceholder}>Search companies, roles...</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Featured Drives</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Drives')} style={styles.seeAllBtn}>
+              <Text style={styles.seeAllText}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          
+          {drives && drives.length > 0 ? (
+            drives.slice(0, 4).map(renderDriveCard)
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>No upcoming drives at the moment.</Text>
             </View>
           )}
         </View>
-
-        <View style={styles.list}>
-          {notifications.length === 0 ? (
-            <Text style={styles.emptyText}>You have no notifications.</Text>
-          ) : (
-            notifications.map(notification => (
-              <View 
-                key={notification.id} 
-                style={[
-                  styles.notificationItem, 
-                  notification.isRead ? styles.notificationRead : styles.notificationUnread
-                ]}
-              >
-                <View style={styles.notificationHeader}>
-                  <Text style={[styles.notificationTitle, notification.isRead ? styles.textSlate700 : styles.textBlue900]}>
-                    {notification.title}
-                  </Text>
-                  {!notification.isRead && (
-                    <TouchableOpacity>
-                      <Check color="#3B82F6" size={16} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <Text style={styles.notificationMessage}>{notification.message}</Text>
-                
-                <View style={styles.notificationFooter}>
-                  <Text style={styles.notificationDate}>
-                    {new Date(notification.createdAt).toLocaleDateString()}
-                  </Text>
-                </View>
-              </View>
-            ))
-          )}
-        </View>
-      </Card>
-    </ScrollView>
+        
+        <View style={{ height: theme.spacing[8] }} />
+      </ScrollView>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#F8FAFC', // slightly cooler off-white background
   },
-  content: {
-    padding: theme.spacing[4],
-    gap: theme.spacing[6],
+  safeArea: {
+    flex: 1,
   },
-  header: {
-    marginBottom: theme.spacing[2],
+  scrollView: {
+    flex: 1,
+    zIndex: 10,
+    elevation: 10,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#1E293B', // slate-800
+  scrollContent: {
+    paddingBottom: theme.spacing[10],
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#64748B', // slate-500
-    marginTop: 4,
+  topBackground: {
+    backgroundColor: theme.colors.primary,
+    paddingHorizontal: theme.spacing[5],
+    paddingBottom: theme.spacing[10],
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
-  sectionCard: {
-    padding: theme.spacing[4],
-    marginBottom: theme.spacing[6],
-  },
-  cardHeader: {
+  headerContent: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: theme.spacing[4],
+  },
+  greetingText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  subtitleText: {
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontWeight: '500',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    gap: theme.spacing[3],
+  },
+  headerIconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  notificationDot: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.colors.destructive,
+    borderWidth: 1.5,
+    borderColor: theme.colors.primary,
+  },
+  searchWrapper: {
+    marginBottom: theme.spacing[6],
+    marginTop: -28,
+    marginHorizontal: theme.spacing[4],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    zIndex: 10,
+  },
+  searchFakeInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: theme.spacing[4],
+    gap: theme.spacing[3],
+  },
+  searchPlaceholder: {
+    color: theme.colors.mutedForeground,
+    fontSize: 15,
+  },
+  section: {
+    marginBottom: theme.spacing[6],
+    paddingHorizontal: theme.spacing[4],
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: theme.spacing[4],
   },
-  cardTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#0F172A',
-    marginLeft: theme.spacing[2],
+    fontWeight: '700',
+    color: theme.colors.foreground,
   },
-  notificationBadge: {
-    backgroundColor: '#FEE2E2', // red-100
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 9999,
-    marginLeft: 8,
+  seeAllBtn: {
+    paddingVertical: theme.spacing[1],
+    paddingHorizontal: theme.spacing[2],
   },
-  notificationBadgeText: {
-    color: '#DC2626', // red-600
-    fontSize: 12,
+  seeAllText: {
+    fontSize: 14,
+    color: theme.colors.primary,
     fontWeight: '600',
   },
-  list: {
-    gap: theme.spacing[4],
-  },
-  emptyText: {
-    textAlign: 'center',
-    color: '#64748B',
-    paddingVertical: 32,
-  },
-  driveItem: {
-    padding: theme.spacing[4],
-    borderWidth: 1,
-    borderColor: '#E2E8F0', // slate-200
-    borderRadius: theme.radius.xl,
+  cardWrapper: {
     marginBottom: theme.spacing[4],
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 14,
+    elevation: 3,
+  },
+  driveCard: {
+    padding: theme.spacing[5],
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 0,
   },
   driveHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-  },
-  companyName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1E293B',
-  },
-  jobRole: {
-    color: '#475569',
-    fontWeight: '500',
-    marginTop: 2,
-  },
-  badge: {
-    backgroundColor: '#DCFCE7', // green-100
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 9999,
-  },
-  badgeText: {
-    color: '#15803D', // green-700
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  driveDetails: {
-    marginTop: theme.spacing[4],
-    flexDirection: 'row',
-    gap: theme.spacing[4],
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#64748B',
-    marginRight: 16,
-  },
-  bold: {
-    fontWeight: '600',
-    color: '#334155',
-  },
-  driveFooter: {
-    marginTop: theme.spacing[6],
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
-  notificationItem: {
-    padding: theme.spacing[4],
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
     marginBottom: theme.spacing[4],
   },
-  notificationRead: {
-    backgroundColor: '#F8FAFC', // slate-50
-    borderColor: '#F1F5F9', // slate-100
+  companyInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: theme.spacing[3],
   },
-  notificationUnread: {
-    backgroundColor: '#EFF6FF', // blue-50
-    borderColor: '#DBEAFE', // blue-100
+  companyIconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: theme.colors.primary + '15',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  notificationHeader: {
+  companyIconText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: theme.colors.primary,
+  },
+  companyName: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: theme.colors.foreground,
+    marginBottom: 2,
+  },
+  driveRole: {
+    fontSize: 13,
+    color: theme.colors.mutedForeground,
+  },
+  driveDetails: {
+    flexDirection: 'row',
+    gap: theme.spacing[4],
+    marginBottom: theme.spacing[5],
+    paddingBottom: theme.spacing[5],
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: theme.colors.border,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[2],
+    flex: 1,
+  },
+  detailIconBox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    backgroundColor: theme.colors.primary + '10',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailText: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: theme.colors.foreground,
+  },
+  salaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
+  },
+  salaryLabel: {
+    fontSize: 12,
+    color: theme.colors.mutedForeground,
     marginBottom: 4,
   },
-  notificationTitle: {
-    fontSize: 14,
-    fontWeight: '600',
+  salaryAmount: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: theme.colors.primary,
   },
-  textSlate700: {
-    color: '#334155',
-  },
-  textBlue900: {
-    color: '#1E3A8A',
-  },
-  notificationMessage: {
-    fontSize: 12,
-    color: '#475569',
-    marginBottom: 8,
-    lineHeight: 18,
-  },
-  notificationFooter: {
+  applyBtn: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(226, 232, 240, 0.6)',
+    gap: 4,
+    backgroundColor: theme.colors.primary + '10',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
-  notificationDate: {
-    fontSize: 10,
-    color: '#94A3B8',
-  }
+  applyBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.primary,
+  },
+  emptyState: {
+    padding: theme.spacing[8],
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderStyle: 'dashed',
+  },
+  emptyText: {
+    color: theme.colors.mutedForeground,
+    fontSize: 15,
+  },
 });

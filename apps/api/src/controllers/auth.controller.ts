@@ -74,6 +74,7 @@ export const register = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
+    console.log('Login attempt:', req.body);
     const { email, password, role } = loginSchema.parse(req.body);
 
     const user = await prisma.user.findUnique({
@@ -86,17 +87,22 @@ export const login = async (req: Request, res: Response) => {
     });
 
     if (!user) {
+      console.log('Login failed: user not found', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     if (user.role !== role) {
+      console.log('Login failed: wrong role', role, 'expected', user.role);
       return res.status(403).json({ error: `Not authorized as ${role}` });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
+      console.log('Login failed: invalid password for user', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+    
+    console.log('Login successful for user:', email);
 
     const token = jwt.sign(
       { id: user.id, role: user.role },

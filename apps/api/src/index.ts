@@ -10,6 +10,8 @@ import adminRoutes from './routes/admin.routes';
 import hrRoutes from './routes/hr.routes';
 import publicRoutes from './routes/public.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
+import { initRedis, closeRedis } from './config/redis';
+import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
 
 dotenv.config();
 
@@ -23,6 +25,15 @@ const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 initSocket(httpServer);
+
+// ─── Initialize Notification Queue Infrastructure ───────
+// Redis + BullMQ for reliable notification delivery.
+// Falls back to synchronous processing if Redis is unavailable.
+const redis = initRedis();
+// if (redis) {
+//   initQueues();
+//   initWorkers();
+// }
 
 app.use(cors());
 app.use(express.json());
@@ -44,3 +55,15 @@ app.get('/health', (req, res) => {
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+// ─── Graceful Shutdown ──────────────────────────────────
+const gracefulShutdown = async () => {
+  console.log('Shutting down gracefully...');
+  await closeQueues();
+  await closeRedis();
+  httpServer.close();
+  process.exit(0);
+};
+
+process.on('SIGTERM', gracefulShutdown);
+process.on('SIGINT', gracefulShutdown);

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1039676164614",
+    "project_id": "placementx-a3f1d",
+    "storage_bucket": "placementx-a3f1d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039676164614:android:0ea8e1688fd1e743da1187",
+        "android_client_info": {
+          "package_name": "com.placementx.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZLEu97XYEvnqOJzTe-jGJds2ziGqC0wI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
