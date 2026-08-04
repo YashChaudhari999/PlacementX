@@ -21,6 +21,7 @@ export const API_BASE_URL = getBaseUrl();
 export const API_ENDPOINTS = {
   // Auth
   LOGIN: '/auth/login',
+  FIREBASE_LOGIN: '/auth/firebase-login',
   ME: '/auth/me',
   CHANGE_PASSWORD: '/auth/password',
 

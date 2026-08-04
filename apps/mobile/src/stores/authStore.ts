@@ -29,6 +29,10 @@ export const useAuthStore = create<AuthState>()(
             await removePushTokenFromBackend(pushToken);
             useNotificationStore.getState().setPushToken(null);
           }
+          
+          const { auth } = require('../lib/firebaseApp');
+          const { signOut } = require('firebase/auth');
+          await signOut(auth);
         } catch (error) {
           console.error('Logout cleanup error:', error);
         }

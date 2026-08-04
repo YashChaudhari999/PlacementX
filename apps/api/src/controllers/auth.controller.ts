@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import { z } from 'zod';
+import { firebaseAdmin } from '../config/firebaseAdmin';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -128,6 +129,74 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Login error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+const firebaseLoginSchema = z.object({
+  idToken: z.string(),
+  role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']),
+});
+
+export const firebaseLogin = async (req: Request, res: Response) => {
+  try {
+    const { idToken, role } = firebaseLoginSchema.parse(req.body);
+
+    const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
+    const email = decodedToken.email;
+
+    if (!email) {
+      return res.status(401).json({ error: 'Invalid Firebase token: no email found' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        studentProfile: true,
+        coordinatorProfile: true,
+        adminProfile: true,
+      },
+    });
+
+    if (!user) {
+      console.log('Firebase login failed: user not found', email);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    if (user.role !== role) {
+      console.log('Firebase login failed: wrong role', role, 'expected', user.role);
+      return res.status(403).json({ error: `Not authorized as ${role}` });
+    }
+
+    console.log('Firebase login successful for user:', email);
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET || 'secret',
+      { expiresIn: '1d' }
+    );
+
+    let profile = null;
+    if (role === 'STUDENT') profile = user.studentProfile;
+    if (role === 'COORDINATOR') profile = user.coordinatorProfile;
+    if (role === 'SUPER_ADMIN') profile = user.adminProfile;
+
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: profile?.firstName,
+        lastName: profile?.lastName,
+      },
+    });
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: error.errors });
+    }
+    console.error('Firebase login error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
