@@ -3,8 +3,9 @@ import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import { Building2, Calendar, ChevronRight } from 'lucide-react';
+import { Building2, Calendar, ChevronRight, CheckCircle2, Clock, XCircle, MoreHorizontal } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
 
@@ -45,52 +46,93 @@ export default function StudentApplications() {
     }
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'SELECTED': return <CheckCircle2 className="w-4 h-4 mr-1.5" />;
+      case 'REJECTED': return <XCircle className="w-4 h-4 mr-1.5" />;
+      case 'APPLIED': return <Clock className="w-4 h-4 mr-1.5" />;
+      default: return <MoreHorizontal className="w-4 h-4 mr-1.5" />;
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 10 },
+    visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+  };
+
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+    <motion.div 
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="max-w-5xl mx-auto space-y-8 p-4 md:p-6 pb-20"
+    >
+      <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl backdrop-blur-md border border-slate-200/60 shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">My Applications</h1>
-          <p className="text-slate-500">Track your placement drive applications and current status.</p>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">My Applications</h1>
+          <p className="text-slate-500 mt-1 text-lg">Track your placement drive applications and current status.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {applications.length === 0 ? (
-          <Card className="p-8 text-center border-dashed">
-            <div className="text-slate-400 mb-2">
-              <Building2 className="w-12 h-12 mx-auto" />
-            </div>
-            <h3 className="text-lg font-medium text-slate-700">No applications yet</h3>
-            <p className="text-slate-500 mt-1">Visit your dashboard to browse active placement drives.</p>
-            <Link to="/student/dashboard" className="text-primary hover:underline mt-4 inline-block font-medium">Browse Drives</Link>
-          </Card>
-        ) : (
-          applications.map((app) => (
-            <Card key={app.id} className="p-5 flex items-center justify-between hover:border-primary/30 transition-colors">
-              <div className="flex items-center gap-5">
-                <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
-                  <Building2 className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-slate-800">{app.drive.company?.name}</h3>
-                  <p className="text-sm font-medium text-slate-600">{app.drive.jobRole}</p>
-                  <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
-                    <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> Applied on {new Date(app.appliedAt).toLocaleDateString()}</span>
-                  </div>
-                </div>
+          <motion.div variants={itemVariants} className="md:col-span-2">
+            <Card className="p-16 text-center border-dashed border-2 bg-slate-50/50 backdrop-blur-md">
+              <div className="text-slate-300 mb-6 flex justify-center">
+                <Building2 className="w-20 h-20 opacity-50" />
               </div>
-              <div className="flex items-center gap-6">
-                <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(app.status)}`}>
-                  {app.status.replace('_', ' ')}
-                </div>
-                <Link to={`/student/drives/${app.driveId}`} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-primary">
-                  <ChevronRight className="w-5 h-5" />
-                </Link>
-              </div>
+              <h3 className="text-2xl font-bold text-slate-700">No applications yet</h3>
+              <p className="text-slate-500 mt-2 text-lg">Visit your dashboard to browse active placement drives.</p>
+              <Link 
+                to="/student/dashboard" 
+                className="mt-6 inline-flex items-center justify-center h-12 px-8 rounded-full bg-blue-600 text-white font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
+              >
+                Browse Drives
+              </Link>
             </Card>
+          </motion.div>
+        ) : (
+          applications.map((app, idx) => (
+            <motion.div key={app.id} variants={itemVariants} custom={idx} whileHover={{ y: -5 }}>
+              <Link to={`/student/drives/${app.driveId}`} className="block h-full">
+                <Card className="h-full p-6 flex flex-col justify-between border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-blue-300 group">
+                  <div>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform duration-300">
+                        <Building2 className="w-7 h-7 group-hover:text-blue-500 transition-colors" />
+                      </div>
+                      <div className={`px-4 py-1.5 rounded-full text-xs font-bold border flex items-center shadow-sm ${getStatusColor(app.status)}`}>
+                        {getStatusIcon(app.status)}
+                        {app.status.replace('_', ' ')}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h3 className="font-extrabold text-xl text-slate-800 group-hover:text-blue-700 transition-colors line-clamp-1">{app.drive.company?.name}</h3>
+                      <p className="text-md font-semibold text-slate-500 mt-1 line-clamp-1">{app.drive.jobRole}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                      <Calendar className="w-4 h-4 text-slate-300" />
+                      Applied: {new Date(app.appliedAt).toLocaleDateString()}
+                    </div>
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                      <ChevronRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            </motion.div>
           ))
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -32,7 +32,7 @@ export const StudentLayout = () => {
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'My Profile', path: '/student/profile', icon: User },
     { name: 'Applications', path: '/student/applications', icon: Briefcase },
-    { name: 'Interviews', path: '/student/interviews', icon: Calendar },
+    { name: 'Rounds', path: '/student/interviews', icon: Calendar },
     { name: 'Documents', path: '/student/documents', icon: FileText },
     { name: 'Notifications', path: '/student/notifications', icon: Bell },
     { name: 'Settings', path: '/student/settings', icon: Settings },

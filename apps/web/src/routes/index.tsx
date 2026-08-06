@@ -42,6 +42,7 @@ const DriveList = lazy(() => import('@/features/admin/pages/DriveList'));
 const CreateDriveWizard = lazy(() => import('@/features/admin/pages/CreateDriveWizard'));
 const AdminEventDetails = lazy(() => import('@/features/admin/pages/AdminEventDetails'));
 const AdminStudents = lazy(() => import('@/features/admin/pages/AdminStudents'));
+const AdminStudentImport = lazy(() => import('@/features/admin/pages/AdminStudentImport'));
 const AdminReports = lazy(() => import('@/features/admin/pages/AdminReports'));
 const AdminNotifications = lazy(() => import('@/features/admin/pages/AdminNotifications'));
 const AdminCalendar = lazy(() => import('@/features/admin/pages/AdminCalendar'));
@@ -114,6 +115,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard', element: <Suspense fallback={<Loading />}><AdminDashboard /></Suspense> },
       { path: 'analytics', element: <Suspense fallback={<Loading />}><AnalyticsDashboard /></Suspense> },
       { path: 'students', element: <Suspense fallback={<Loading />}><AdminStudents /></Suspense> },
+      { path: 'students/import', element: <Suspense fallback={<Loading />}><AdminStudentImport /></Suspense> },
       { path: 'placement-events', element: <Suspense fallback={<Loading />}><DriveList /></Suspense> },
       { path: 'placement-events/create', element: <Suspense fallback={<Loading />}><CreateDriveWizard /></Suspense> },
       { path: 'placement-events/edit/:id', element: <Suspense fallback={<Loading />}><CreateDriveWizard /></Suspense> },

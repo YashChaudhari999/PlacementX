@@ -12,7 +12,8 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui';
 
 export default function NotificationCenter() {
-  const { data: notifications = [], isLoading } = useNotifications(50, 0);
+  const { data: notificationsResponse, isLoading } = useNotifications(50, 0);
+  const notifications = notificationsResponse?.data || [];
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
   const { mutate: deleteNotification } = useDeleteNotification();

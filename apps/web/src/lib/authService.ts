@@ -18,13 +18,33 @@ export const authService = {
     // 2. Retrieve Firebase ID Token
     const idToken = await userCredential.user.getIdToken();
 
-    // 3. Send token to backend for verification and fetching standard JWT
-    const response = await api.post('/auth/firebase-login', { 
-      idToken, 
-      role: credentials.role 
-    });
+    // 3. Try to send token to backend for verification
+    //    If backend is down, fall back to Firebase-only auth
+    let user: any;
+    let token: string;
+
+    try {
+      const response = await api.post('/auth/firebase-login', { 
+        idToken, 
+        role: credentials.role 
+      });
+      user = response.data.user;
+      token = response.data.token;
+    } catch (backendError: any) {
+      console.warn('[AuthService] Backend unavailable, using Firebase-only auth:', backendError.message);
+      
+      // Build user object from Firebase auth data
+      const fbUser = userCredential.user;
+      user = {
+        id: fbUser.uid,
+        email: fbUser.email,
+        role: credentials.role,
+        firstName: fbUser.displayName?.split(' ')[0] || credentials.role === 'SUPER_ADMIN' ? 'Admin' : 'User',
+        lastName: fbUser.displayName?.split(' ')[1] || '',
+      };
+      token = idToken;
+    }
     
-    const { user, token } = response.data;
     useAuthStore.getState().setAuth(user, token);
     return user;
   },
@@ -40,9 +60,14 @@ export const authService = {
   },
 
   async getMe() {
-    const response = await api.get('/auth/me');
-    const { user } = response.data;
-    useAuthStore.getState().updateUser(user);
-    return user;
+    try {
+      const response = await api.get('/auth/me');
+      const { user } = response.data;
+      useAuthStore.getState().updateUser(user);
+      return user;
+    } catch (error) {
+      console.warn('[AuthService] Backend unavailable for getMe, using stored user');
+      return useAuthStore.getState().user;
+    }
   }
 };

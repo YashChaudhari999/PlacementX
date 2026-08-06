@@ -16,6 +16,22 @@ const initializeFirebaseAdmin = () => {
       const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
       return admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
+        databaseURL: process.env.FIREBASE_DATABASE_URL,
+      });
+    }
+
+    // Alternatively, if the whole JSON is provided as a string
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+      
+      // Fix escaped newlines in the private key
+      if (serviceAccount.private_key) {
+        serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+      }
+      
+      return admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: process.env.FIREBASE_DATABASE_URL,
       });
     }
 
@@ -28,6 +44,7 @@ const initializeFirebaseAdmin = () => {
           // Replace escaped newlines with actual newlines
           privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
+        databaseURL: process.env.FIREBASE_DATABASE_URL,
       });
     }
 

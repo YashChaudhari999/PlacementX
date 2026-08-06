@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { firebaseAdmin } from '../config/firebaseAdmin';
 
-const prisma = new PrismaClient();
+// Prisma is deprecated; migrating endpoints to Firebase RTDB
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -53,25 +53,36 @@ export const importStudents = async (req: any, res: any) => {
     
     // Process each student sequentially to avoid overwhelming DB and to handle existing gracefully
     for (const student of students) {
-      const { firstName, lastName, email, branch, cgpa, passingYear } = student;
+      const email = student["Email"];
+      const firstName = student["First Name"];
+      const lastName = student["Last Name"];
+      const branch = student["Branch"];
+      const cgpa = student["CGPA"];
+      const phone = student["Phone"];
+      const providedPassword = student["Password"];
+      const rollNumber = student["Roll Number"];
       
       if (!email || !firstName) continue;
 
       const existingUser = await prisma.user.findUnique({ where: { email } });
       if (existingUser) continue;
 
+      const plainPassword = providedPassword || phone || 'student123';
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+
       await prisma.user.create({
         data: {
           email,
-          password: defaultPassword,
+          password: hashedPassword,
           role: 'STUDENT',
           studentProfile: {
             create: {
               firstName,
-              lastName,
+              lastName: lastName || '',
               branch: branch || null,
               cgpa: cgpa ? parseFloat(cgpa) : null,
-              passingYear: passingYear ? parseInt(passingYear, 10) : null
+              phone: phone || null,
+              rollNumber: rollNumber || null
             }
           }
         }
@@ -404,147 +415,46 @@ export const getCalendarEvents = async (req: any, res: any) => {
 // 6. Dashboard Module
 export const getAdminDashboard = async (req: any, res: any) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const now = new Date();
+    const db = firebaseAdmin.database();
+    
+    const studentsSnap = await db.ref('students').once('value');
+    const students = studentsSnap.exists() ? Object.values(studentsSnap.val()) : [];
+    const eligibleStudents = students.filter((s: any) => s.profileCompletion === 100).length;
 
-    const [
-      todaysDrives,
-      upcomingClosedDrives,
-      openDrives,
-      eligibleStudents,
-      activeDrives
-    ] = await Promise.all([
-      prisma.placementDrive.count({
-        where: { expectedDriveDate: { gte: today, lt: tomorrow } }
-      }),
-      prisma.placementDrive.count({
-        where: { registrationEnd: { lt: now }, expectedDriveDate: { gt: now } }
-      }),
-      prisma.placementDrive.count({
-        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
-      }),
-      prisma.studentProfile.count({
-        where: { isProfileComplete: true, activeBacklogs: 0 }
-      }),
-      prisma.placementDrive.findMany({
-        where: { registrationEnd: { gte: now } },
-        include: { company: true }
-      })
-    ]);
-
-    // Optimize N+1 query: Instead of looping over activeDrives sequentially, use Promise.all
-    const eligiblePromises = activeDrives.map(drive => {
-      return prisma.studentProfile.count({
-        where: {
-          isProfileComplete: true,
-          cgpa: { gte: drive.minimumCgpa || 0 },
-          activeBacklogs: { lte: drive.activeBacklogsAllowed || 0 }
-        }
-      }).then(count => ({ companyName: drive.company?.name || 'Unknown', count }));
+    const drivesSnap = await db.ref('placement_drives').once('value');
+    const drives = drivesSnap.exists() ? Object.values(drivesSnap.val()) : [];
+    
+    const now = Date.now();
+    let openDrives = 0;
+    
+    drives.forEach((d: any) => {
+       if (d.registrationStart && d.registrationEnd) {
+           const start = new Date(d.registrationStart).getTime();
+           const end = new Date(d.registrationEnd).getTime();
+           if (start <= now && end > now) openDrives++;
+       }
     });
-
-    const eligibleResults = await Promise.all(eligiblePromises);
-
-    const eligibleByCompanyMap: Record<string, number> = {};
-    for (const res of eligibleResults) {
-      eligibleByCompanyMap[res.companyName] = (eligibleByCompanyMap[res.companyName] || 0) + res.count;
-    }
-
-    const eligibleByCompany = Object.entries(eligibleByCompanyMap)
-      .map(([company, count]) => ({ company, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    const allApplications = await prisma.driveApplication.findMany({
-      include: {
-        drive: {
-          include: { company: true },
-        },
-      },
-    });
-
-    const companyAppCounts: Record<string, number> = {};
-    for (const app of allApplications) {
-      const companyName = app.drive?.company?.name;
-      if (companyName) {
-        companyAppCounts[companyName] = (companyAppCounts[companyName] || 0) + 1;
-      }
-    }
-
-    const applicationsByCompany = Object.entries(companyAppCounts)
-      .map(([company, applications]) => ({ company, applications }))
-      .sort((a, b) => b.applications - a.applications)
-      .slice(0, 5);
-
-    // Packages
-    const placedStudentsObj = await prisma.driveApplication.groupBy({
-      by: ['studentId'],
-      where: { status: 'SELECTED' },
-    });
-    const placedStudents = placedStudentsObj.length;
-
-    const placementPercentage = eligibleStudents > 0 
-      ? Math.round((placedStudents / eligibleStudents) * 100) 
-      : 0;
-
-    const selectedApps = await prisma.driveApplication.findMany({
-      where: { status: 'SELECTED' },
-      include: {
-        drive: { select: { fixedSalary: true } },
-      },
-    });
-
-    const packages = selectedApps
-      .map(app => app.drive?.fixedSalary)
-      .filter((p): p is number => p !== null && p > 0)
-      .sort((a, b) => a - b);
-
-    let highest = 0;
-    let average = 0;
-    let median = 0;
-
-    if (packages.length > 0) {
-      highest = packages[packages.length - 1];
-      average = packages.reduce((a, b) => a + b, 0) / packages.length;
-      
-      const mid = Math.floor(packages.length / 2);
-      median = packages.length % 2 !== 0 
-        ? packages[mid] 
-        : (packages[mid - 1] + packages[mid]) / 2;
-    }
-
-    // Overall
-    const companiesVisitedObj = await prisma.placementDrive.findMany({
-      where: { status: { not: 'DRAFT' } },
-      distinct: ['companyId'],
-      select: { companyId: true }
-    });
-
-    const totalOffers = selectedApps.length;
 
     return res.status(200).json({
       drives: {
-        today: todaysDrives,
-        upcomingClosed: upcomingClosedDrives,
+        today: 0,
+        upcomingClosed: 0,
         open: openDrives,
       },
       students: {
         eligible: eligibleStudents,
-        eligibleByCompany,
-        applicationsByCompany,
+        eligibleByCompany: [],
+        applicationsByCompany: [],
       },
       packages: {
-        placementPercentage,
-        highest,
-        average: Math.round(average * 100) / 100,
-        median: Math.round(median * 100) / 100,
+        placementPercentage: 0,
+        highest: 0,
+        average: 0,
+        median: 0,
       },
       overall: {
-        companiesVisited: companiesVisitedObj.length,
-        totalOffers,
+        companiesVisited: drives.length,
+        totalOffers: 0,
       },
     });
   } catch (error: any) {

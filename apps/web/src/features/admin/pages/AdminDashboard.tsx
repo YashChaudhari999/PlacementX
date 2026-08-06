@@ -20,7 +20,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Card } from '@/components/ui';
-import api from '@/lib/api';
+import { ref, get } from 'firebase/database';
+import { database } from '@/lib/firebase/config/firebaseApp';
 
 // --- Animation Variants ---
 const containerVariants = {
@@ -106,8 +107,49 @@ export default function AdminDashboard() {
   const { data, isLoading, isError, error, dataUpdatedAt, refetch, isRefetching } = useQuery({
     queryKey: ['adminDashboardStats'],
     queryFn: async () => {
-      const response = await api.get('/admin/dashboard');
-      return response.data;
+      // Fetch data directly from Firebase
+      const [studentsSnap, drivesSnap, applicationsSnap] = await Promise.all([
+        get(ref(database, 'students')),
+        get(ref(database, 'drives')),
+        get(ref(database, 'applications')),
+      ]);
+
+      const studentsData = studentsSnap.exists() ? studentsSnap.val() : {};
+      const drivesData = drivesSnap.exists() ? drivesSnap.val() : {};
+      const applicationsData = applicationsSnap.exists() ? applicationsSnap.val() : {};
+
+      const totalStudents = Object.keys(studentsData).length;
+      const totalDrives = Object.keys(drivesData).length;
+      const totalApplications = Object.keys(applicationsData).length;
+
+      // Compute drive stats
+      const now = new Date();
+      const today = now.toISOString().split('T')[0];
+      let todayDrives = 0, openDrives = 0, upcomingDrives = 0;
+      
+      Object.values(drivesData).forEach((drive: any) => {
+        const driveDate = drive.date || drive.startDate || '';
+        if (driveDate === today) todayDrives++;
+        if (drive.status === 'open' || drive.status === 'OPEN') openDrives++;
+        if (drive.status === 'upcoming' || drive.status === 'UPCOMING') upcomingDrives++;
+      });
+
+      // Student placement stats
+      let placedCount = 0;
+      Object.values(studentsData).forEach((s: any) => {
+        if (s.placementStatus === 'placed' || s.placementStatus === 'PLACED') {
+          placedCount++;
+        }
+      });
+
+      const placementPercentage = totalStudents > 0 ? Math.round((placedCount / totalStudents) * 100) : 0;
+
+      return {
+        drives: { today: todayDrives, open: openDrives, upcomingClosed: upcomingDrives },
+        students: { total: totalStudents, placed: placedCount, eligibleByCompany: [], applicationsByCompany: [] },
+        packages: { placementPercentage, highest: 0, average: 0, median: 0 },
+        overall: { companiesVisited: totalDrives, totalOffers: totalApplications }
+      };
     },
     refetchInterval: 60000,
   });

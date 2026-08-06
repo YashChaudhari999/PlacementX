@@ -9,323 +9,269 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      String   @default("STUDENT")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  studentProfile StudentProfile?
-  coordinatorProfile CoordinatorProfile?
-  adminProfile AdminProfile?
-  notifications Notification[]
+  id                      String                  @id @default(uuid())
+  email                   String                  @unique
+  password                String
+  role                    String                  @default("STUDENT")
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  adminProfile            AdminProfile?
+  coordinatorProfile      CoordinatorProfile?
+  deviceTokens            DeviceToken[]
+  notifications           Notification[]
   notificationPreferences NotificationPreference?
-  deviceTokens DeviceToken[]
+  studentProfile          StudentProfile?
 }
 
 model DeviceToken {
   id         String   @id @default(uuid())
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   token      String   @unique
-  platform   String   @default("android")  // android, ios, web
-  deviceName String?                       // "Samsung Galaxy S24", "iPhone 15", etc.
   createdAt  DateTime @default(now())
+  deviceName String?
+  platform   String   @default("android")
   updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model StudentProfile {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  firstName String?
-  lastName  String?
-  phone     String?
-  branch    String?
-  cgpa      Float?
-  passingYear Int?
-  activeBacklogs Int @default(0)
-  yearGap   Int @default(0)
-  nationality String?
-  gender    String?
-  
-  resumeUrl String?
-  photoUrl  String?
-  portfolioUrl String?
-  githubUrl String?
-  
-  skills    String? // JSON string
-  projects  String? // JSON string
-  educationDetails String? // JSON string
-  
-  isProfileComplete Boolean @default(false)
-  
-  applications DriveApplication[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String             @id @default(uuid())
+  userId            String             @unique
+  firstName         String?
+  lastName          String?
+  phone             String?
+  branch            String?
+  cgpa              Float?
+  passingYear       Int?
+  activeBacklogs    Int                @default(0)
+  yearGap           Int                @default(0)
+  nationality       String?
+  gender            String?
+  resumeUrl         String?
+  photoUrl          String?
+  portfolioUrl      String?
+  githubUrl         String?
+  skills            String?
+  projects          String?
+  educationDetails  String?
+  isProfileComplete Boolean            @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  applications      DriveApplication[]
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CoordinatorProfile {
-  id        String   @id @default(uuid())
-  userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  firstName String?
-  lastName  String?
+  id         String   @id @default(uuid())
+  userId     String   @unique
+  firstName  String?
+  lastName   String?
   department String?
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model AdminProfile {
   id        String   @id @default(uuid())
   userId    String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
   firstName String?
   lastName  String?
-  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Company {
-  id        String   @id @default(uuid())
-  name      String
-  logoUrl   String?
-  website   String?
-  industry  String?
-  profile   String? // Short profile
-  description String? // Detailed description
+  id          String           @id @default(uuid())
+  name        String
+  logoUrl     String?
+  website     String?
+  industry    String?
+  profile     String?
+  hrName      String?
+  hrEmail     String?
+  hrContact   String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  description String?
   linkedInUrl String?
-  
-  hrName    String?
-  hrEmail   String?
-  hrContact String?
-  location   String?
-  workMode  String? // On Campus, Off Campus, Hybrid, Remote
-  
-  drives    PlacementDrive[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  location    String?
+  workMode    String?
+  drives      PlacementDrive[]
 }
 
 model PlacementDrive {
-  id        String   @id @default(uuid())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
-  status    String @default("WAITING_FOR_HR") // WAITING_FOR_HR, DRAFT, SUBMITTED, UNDER_REVIEW, CHANGES_REQUESTED, APPROVED, PUBLISHED, CLOSED
-  
-  // Placement Cell Basic Details
-  driveTitle String?
-  placementSeason String?
-  campus String?
-  academicYear String?
-  driveType String? // On Campus, Off Campus, Virtual, Hybrid
-  expectedDriveDate DateTime?
-  remarks String?
-  
-  // Job Details
-  jobRole   String?
-  jobDescription String?
-  department String?
-  fixedSalary Float?
-  variableSalary Float?
-  joiningBonus Float?
-  internshipStipend Float?
-  employmentType String?
-  ppoAvailable Boolean @default(false)
-  bondDetails String?
-  vacancies Int?
-  location String?
-  workMode String?
-  requiredSkills String?
-  preferredSkills String?
-  technologyStack String?
-  trainingPeriod String?
-  benefits String?
-  
-  // Eligibility
-  eligibleBranches String? // JSON or comma-separated
-  passingYear Int?
-  semester Int?
-  minimumCgpa Float?
-  activeBacklogsAllowed Int @default(0)
-  historyOfBacklogsAllowed Int @default(0)
-  yearGapAllowed Int @default(0)
-  maximumGapYears Int @default(0)
-  maximumLiveOffers Int @default(1)
-  genderRestriction String?
-  minimumAttendance Float?
-  
-  // Registration Timeline
-  registrationStart DateTime?
-  registrationEnd DateTime?
-  applicationDeadline DateTime?
-  nominationLink String?
-  maximumApplicants Int?
-  
-  resumeMandatory Boolean @default(true)
-  portfolioRequired Boolean @default(false)
-  githubRequired Boolean @default(false)
-  linkedinRequired Boolean @default(false)
-  consentGiven Boolean @default(false)
-  specialInstructions String?
-  
-  // Attachments (JSON array or relation)
-  attachments String?
-  
-  applications DriveApplication[]
-  selectionRounds SelectionRound[]
-  hrInvitations HrInvitationLink[]
-  auditLogs DriveAuditLog[]
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                       String             @id @default(uuid())
+  companyId                String
+  status                   String             @default("WAITING_FOR_HR")
+  jobRole                  String?
+  jobDescription           String?
+  fixedSalary              Float?
+  variableSalary           Float?
+  internshipStipend        Float?
+  employmentType           String?
+  ppoAvailable             Boolean            @default(false)
+  bondDetails              String?
+  vacancies                Int?
+  location                 String?
+  workMode                 String?
+  eligibleBranches         String?
+  passingYear              Int?
+  minimumCgpa              Float?
+  activeBacklogsAllowed    Int                @default(0)
+  yearGapAllowed           Int                @default(0)
+  maximumLiveOffers        Int                @default(1)
+  genderRestriction        String?
+  registrationStart        DateTime?
+  registrationEnd          DateTime?
+  nominationLink           String?
+  maximumApplicants        Int?
+  resumeMandatory          Boolean            @default(true)
+  portfolioRequired        Boolean            @default(false)
+  githubRequired           Boolean            @default(false)
+  attachments              String?
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  academicYear             String?
+  applicationDeadline      DateTime?
+  benefits                 String?
+  campus                   String?
+  consentGiven             Boolean            @default(false)
+  department               String?
+  driveTitle               String?
+  driveType                String?
+  expectedDriveDate        DateTime?
+  historyOfBacklogsAllowed Int                @default(0)
+  joiningBonus             Float?
+  linkedinRequired         Boolean            @default(false)
+  maximumGapYears          Int                @default(0)
+  minimumAttendance        Float?
+  placementSeason          String?
+  preferredSkills          String?
+  remarks                  String?
+  requiredSkills           String?
+  semester                 Int?
+  specialInstructions      String?
+  technologyStack          String?
+  trainingPeriod           String?
+  applications             DriveApplication[]
+  auditLogs                DriveAuditLog[]
+  hrInvitations            HrInvitationLink[]
+  company                  Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  selectionRounds          SelectionRound[]
 }
 
 model SelectionRound {
-  id        String   @id @default(uuid())
-  driveId   String
-  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  
-  roundNumber Int
-  title       String // e.g., "Online Assessment", "Technical Interview"
-  roundType   String?
-  date        DateTime?
-  time        String?
-  duration    String?
-  venue       String? // Could be virtual link
-  platform    String?
-  instructions String?
+  id                 String         @id @default(uuid())
+  driveId            String
+  roundNumber        Int
+  title              String
+  date               DateTime?
+  time               String?
+  duration           String?
+  venue              String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
   evaluationCriteria String?
-  interviewer String?
-  weightage   Float?
-  order       Int @default(0)
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  instructions       String?
+  interviewer        String?
+  order              Int            @default(0)
+  platform           String?
+  roundType          String?
+  weightage          Float?
+  drive              PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
 
 model DriveApplication {
-  id        String   @id @default(uuid())
-  driveId   String
-  studentId String
-  
-  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  student   StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  
-  // APPLIED, RESUME_VERIFIED, ASSESSMENT_SCHEDULED, ASSESSMENT_CLEARED, TECHNICAL_INTERVIEW, HR_INTERVIEW, SELECTED, REJECTED
-  status    String @default("APPLIED")
-  appliedAt DateTime @default(now())
-  
+  id          String         @id @default(uuid())
+  driveId     String
+  studentId   String
+  status      String         @default("APPLIED")
+  appliedAt   DateTime       @default(now())
+  drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
   offerLetter OfferLetter?
-  
+
   @@unique([driveId, studentId])
 }
 
 model OfferLetter {
-  id            String   @id @default(uuid())
-  applicationId String   @unique
-  application   DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  
-  offerLetterUrl String?
-  joiningLetterUrl String?
+  id                  String           @id @default(uuid())
+  applicationId       String           @unique
+  offerLetterUrl      String?
+  joiningLetterUrl    String?
   internshipLetterUrl String?
-  
-  uploadedAt DateTime @default(now())
+  uploadedAt          DateTime         @default(now())
+  application         DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
-  id           String    @id @default(uuid())
-  title        String
-  message      String
-  type         String    @default("system")       // system, placement_drive, interview, meeting, assignment, submission, mentor, admin, announcement, message, reminder, payment, order, warning, success, error, security
-  category     String    @default("system")       // For grouping/filtering in notification center
-  priority     String    @default("MEDIUM")       // HIGH, MEDIUM, LOW
-  image        String?                            // Rich notification image URL (company logo, avatar, etc.)
-  
-  receiverId   String
-  receiverRole String    @default("STUDENT")
-  senderId     String?
-  senderRole   String?
-  
-  metadata     Json?
-  actionUrl    String?
-  deepLinkRoute  String?                          // Target screen name: "DriveDetails", "InterviewDetails", etc.
-  deepLinkParams Json?                            // Navigation params: { "id": "drive_123" }
-  
-  isRead       Boolean   @default(false)
-  isArchived   Boolean   @default(false)          // Archived notifications (hidden from main view)
-  isDeleted    Boolean   @default(false)          // Soft delete — never lose notification history
-  readAt       DateTime?
-  expiresAt    DateTime?
-  
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id             String    @id @default(uuid())
+  title          String
+  message        String
+  type           String    @default("system")
+  isRead         Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  actionUrl      String?
+  expiresAt      DateTime?
+  metadata       Json?
+  priority       String    @default("MEDIUM")
+  readAt         DateTime?
+  receiverId     String
+  receiverRole   String    @default("STUDENT")
+  senderId       String?
+  senderRole     String?
+  updatedAt      DateTime  @updatedAt
+  category       String    @default("system")
+  deepLinkParams Json?
+  deepLinkRoute  String?
+  image          String?
+  isArchived     Boolean   @default(false)
+  isDeleted      Boolean   @default(false)
+  user           User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
 
-  user         User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
-  
-  @@index([receiverId, isDeleted, createdAt])     // Primary query: user's non-deleted notifications sorted by date
-  @@index([receiverId, isRead, isDeleted])        // Badge count: unread non-deleted
-  @@index([receiverId, category, isDeleted])      // Filter by category
-  @@index([receiverId, type, isDeleted])          // Filter by type
+  @@index([receiverId, isDeleted, createdAt])
+  @@index([receiverId, isRead, isDeleted])
+  @@index([receiverId, category, isDeleted])
+  @@index([receiverId, type, isDeleted])
 }
 
-// ─── Notification Preferences ───────────────────────────
-// Per-user granular control over which notification categories
-// are enabled and which channels (push, email) are active.
 model NotificationPreference {
-  id           String  @id @default(uuid())
-  userId       String  @unique
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // Category toggles
-  placement    Boolean @default(true)
-  interviews   Boolean @default(true)
-  meetings     Boolean @default(true)
-  messages     Boolean @default(true)
-  assignments  Boolean @default(true)
-  marketing    Boolean @default(true)
-  promotions   Boolean @default(true)
-  system       Boolean @default(true)
-
-  // Channel toggles
-  pushEnabled  Boolean @default(true)
-  emailEnabled Boolean @default(true)
-
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  placement    Boolean  @default(true)
+  interviews   Boolean  @default(true)
+  meetings     Boolean  @default(true)
+  messages     Boolean  @default(true)
+  assignments  Boolean  @default(true)
+  marketing    Boolean  @default(true)
+  promotions   Boolean  @default(true)
+  system       Boolean  @default(true)
+  pushEnabled  Boolean  @default(true)
+  emailEnabled Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model HrInvitationLink {
-  id        String   @id @default(uuid())
+  id        String         @id @default(uuid())
   driveId   String
-  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  
-  token     String   @unique
+  token     String         @unique
   hrEmail   String
-  isUsed    Boolean  @default(false)
+  isUsed    Boolean        @default(false)
   expiresAt DateTime
-  
-  createdAt DateTime @default(now())
+  createdAt DateTime       @default(now())
+  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
 
 model DriveAuditLog {
-  id        String   @id @default(uuid())
-  driveId   String
-  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  
-  action    String // CREATED, HR_LINK_GENERATED, SUBMITTED, APPROVED, REJECTED, CHANGES_REQUESTED
-  performedBy String // "System", "Admin: id", "HR"
-  comments  String?
-  
-  createdAt DateTime @default(now())
+  id          String         @id @default(uuid())
+  driveId     String
+  action      String
+  performedBy String
+  comments    String?
+  createdAt   DateTime       @default(now())
+  drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
-

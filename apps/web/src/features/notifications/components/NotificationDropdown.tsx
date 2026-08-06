@@ -13,7 +13,8 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function NotificationDropdown({ onClose }: { onClose: () => void }) {
   const { user } = useAuthStore();
-  const { data: notifications = [], isLoading } = useNotifications(10, 0);
+  const { data: notificationsResponse, isLoading } = useNotifications(10, 0);
+  const notifications = notificationsResponse?.data || [];
   const { mutate: markAsRead } = useMarkAsRead();
   const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
   
