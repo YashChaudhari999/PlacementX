@@ -45,3 +45,34 @@ export const useReviewUpdateRequest = () => {
     }
   });
 };
+
+export const useProvisionStudents = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => adminService.provisionCurrentYearStudents(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminStudents'] });
+      toast.success('Students provisioned successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to provision students');
+    }
+  });
+};
+
+export const useAdminStudents = (filters?: any) => {
+  return useQuery({
+    queryKey: ['adminStudents', filters],
+    queryFn: async () => {
+      // Assuming getStudents takes filters in query string. Using api directly.
+      const { default: api } = await import('@/lib/api');
+      const params = new URLSearchParams();
+      if (filters?.academic_year) params.append('academic_year', filters.academic_year);
+      if (filters?.department) params.append('department', filters.department);
+      if (filters?.search) params.append('search', filters.search);
+      
+      const res = await api.get(`/admin/students?${params.toString()}`);
+      return res.data;
+    }
+  });
+};

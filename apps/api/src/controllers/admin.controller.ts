@@ -847,3 +847,150 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
     return res.status(500).json({ message: 'Error reviewing update request', error: error.message });
   }
 };
+
+import { createClient } from '@supabase/supabase-js';
+
+export const provisionCurrentYearStudents = async (req: Request, res: Response) => {
+  try {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return res.status(500).json({ message: 'Server configuration error: Missing Supabase keys.' });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
+
+    const ACADEMIC_YEAR = '2026/2027';
+    const DEFAULT_PASSWORD = 'student@123';
+
+    let stats = {
+      totalStudents: 0,
+      accountsCreated: 0,
+      profilesCreated: 0,
+      alreadyExisting: 0,
+      missingEmail: 0,
+      failed: 0
+    };
+
+    const importedStudents = await prisma.importedStudent.findMany({
+      where: { academicYear: ACADEMIC_YEAR }
+    });
+
+    stats.totalStudents = importedStudents.length;
+
+    if (stats.totalStudents === 0) {
+      return res.status(200).json({ message: 'No students found to provision.', stats });
+    }
+
+    for (const student of importedStudents) {
+      if (!student.email || student.email.trim() === '') {
+        stats.missingEmail++;
+        continue;
+      }
+      
+      const email = student.email.trim().toLowerCase();
+      let authUserId: string | null = null;
+      let isNewAccount = false;
+
+      try {
+        const { data: { users }, error: fetchError } = await supabaseAdmin.auth.admin.listUsers();
+        if (fetchError) throw new Error(fetchError.message);
+        
+        let authUser = users.find(u => u.email === email);
+        
+        if (!authUser) {
+          const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+            email,
+            password: DEFAULT_PASSWORD,
+            email_confirm: true,
+            user_metadata: {
+              full_name: student.fullName,
+              student_id: student.studentId
+            }
+          });
+          if (createError) throw new Error(createError.message);
+          authUser = newUser.user;
+          isNewAccount = true;
+          stats.accountsCreated++;
+        } else {
+          stats.alreadyExisting++;
+        }
+
+        authUserId = authUser?.id || null;
+        if (!authUserId) throw new Error("Failed to resolve Auth User ID");
+
+        let user = await prisma.user.findUnique({ where: { email } });
+        
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email,
+              password: '',
+              firebaseUid: authUserId,
+              role: 'STUDENT',
+              mustChangePassword: isNewAccount
+            }
+          });
+        } else {
+          await prisma.user.update({
+            where: { email },
+            data: { role: 'STUDENT', firebaseUid: authUserId }
+          });
+        }
+
+        let profile = await prisma.studentProfile.findUnique({ where: { userId: user.id } });
+        
+        const firstName = student.fullName?.split(' ')[0] || '';
+        const lastName = student.fullName?.split(' ').slice(1).join(' ') || '';
+        const branch = student.department;
+        const cgpa = student.cgpa;
+        const gender = student.gender;
+        const activeBacklogs = student.activeBacklogs || 0;
+        
+        let skillsObj = null;
+        if (student.skills) {
+          skillsObj = student.skills.split(',').map((s: string) => s.trim());
+        }
+
+        if (!profile) {
+          profile = await prisma.studentProfile.create({
+            data: {
+              userId: user.id,
+              firstName,
+              lastName,
+              branch,
+              cgpa,
+              gender,
+              activeBacklogs,
+              skills: skillsObj ? JSON.stringify(skillsObj) : null,
+              profileStatus: 'PENDING',
+              isProfileComplete: false
+            }
+          });
+          stats.profilesCreated++;
+        } else {
+          await prisma.studentProfile.update({
+            where: { id: profile.id },
+            data: {
+              branch: profile.branch || branch,
+              cgpa: profile.cgpa || cgpa,
+              activeBacklogs: activeBacklogs,
+              skills: profile.skills ? profile.skills : (skillsObj ? JSON.stringify(skillsObj) : null)
+            }
+          });
+        }
+      } catch (err: any) {
+        console.error(`Provisioning error for ${email}:`, err.message);
+        stats.failed++;
+      }
+    }
+
+    return res.status(200).json({ message: 'Provisioning completed successfully.', stats });
+  } catch (error: any) {
+    console.error('Provisioning route error:', error);
+    return res.status(500).json({ message: 'Error running provisioning', error: error.message });
+  }
+};

@@ -20,5 +20,9 @@ export const adminService = {
   reviewUpdateRequest: async (id: string, action: 'APPROVE' | 'REJECT', reason?: string) => {
     const res = await api.post(`/admin/profile-update-requests/${id}/review`, { action, reason });
     return res.data;
+  },
+  provisionCurrentYearStudents: async () => {
+    const res = await api.post('/admin/students/provision');
+    return res.data;
   }
 };

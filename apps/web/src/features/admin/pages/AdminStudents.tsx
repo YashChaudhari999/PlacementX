@@ -1,68 +1,30 @@
 // @ts-nocheck
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { Search, GraduationCap, FileText, CheckCircle, XCircle, Upload, Download } from 'lucide-react';
+import { Search, GraduationCap, FileText, CheckCircle, XCircle, Upload, Download, UserPlus } from 'lucide-react';
 import Papa from 'papaparse';
-import { ref, get } from 'firebase/database';
-import { database, auth } from '@/lib/firebase/config/firebaseApp';
 import { StudentImportService } from '@/features/admin/services/studentImportService';
-
+import { auth } from '@/lib/firebase/config/firebaseApp';
+import { useAdminStudents, useProvisionStudents } from '@/hooks/queries/useAdmin';
 import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function AdminStudents() {
-  const [students, setStudents] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [importing, setImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      const snapshot = await get(ref(database, 'students'));
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        const studentsList = Object.keys(data).map(key => {
-          const s = data[key];
-          return {
-            id: key,
-            name: `${s.personalInfo?.firstName || ''} ${s.personalInfo?.lastName || ''}`.trim(),
-            firstName: s.personalInfo?.firstName,
-            lastName: s.personalInfo?.lastName,
-            email: s.contactDetails?.email,
-            phone: s.contactDetails?.phone,
-            branch: s.academicInfo?.branchId || 'N/A', // In Firebase, branchId is stored
-            department: s.academicInfo?.departmentId || 'N/A',
-            cgpa: s.academicInfo?.cgpa || 0,
-            activeBacklogs: s.eligibility?.activeBacklogs || 0,
-            totalBacklogs: s.eligibility?.totalBacklogs || 0,
-            rollNumber: s.studentRollNumber || s.personalInfo?.firstName, // Fallback if no roll number
-            status: s.eligibility?.isEligible ? 'Unplaced' : 'Placed' // Needs proper mapping, but usually Unplaced initially
-          };
-        });
-        setStudents(studentsList);
-      } else {
-        setStudents([]);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load students');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Filter params for the query if we wanted backend searching, but doing frontend search for now
+  const { data, isLoading: loading, refetch } = useAdminStudents({ academic_year: '2026/2027' });
+  const students = data?.data || [];
+  
+  const { mutate: provisionStudents, isPending: isProvisioning } = useProvisionStudents();
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log('[AdminStudents] File selected:', file.name, file.size, 'bytes');
     setImporting(true);
     setImportProgress(0);
 
@@ -70,10 +32,6 @@ export default function AdminStudents() {
       header: true,
       skipEmptyLines: true,
       complete: async (results) => {
-        console.log('[AdminStudents] CSV parsed. Rows:', results.data.length);
-        console.log('[AdminStudents] CSV headers:', results.meta.fields);
-        console.log('[AdminStudents] First row:', JSON.stringify(results.data[0]));
-        
         if (results.data.length === 0) {
           toast.error('CSV file is empty or has no valid rows.');
           setImporting(false);
@@ -83,41 +41,32 @@ export default function AdminStudents() {
 
         try {
           const adminUid = auth.currentUser?.uid || 'unknown_admin';
-          console.log('[AdminStudents] Admin UID:', adminUid);
           
           const importResult = await StudentImportService.importStudents(
             results.data as any,
             adminUid,
             (progress, status) => {
-              console.log('[AdminStudents] Progress:', progress, status);
               setImportProgress(Math.round(progress));
             }
           );
-          
-          console.log('[AdminStudents] Import result:', JSON.stringify(importResult));
           
           if (importResult.imported > 0) {
             toast.success(`Successfully imported ${importResult.imported} students!`);
           }
           if (importResult.failed > 0) {
-            toast.error(`Failed to import ${importResult.failed} students. Check console for details.`);
-            console.error('[AdminStudents] Import errors:', importResult.errors);
+            toast.error(`Failed to import ${importResult.failed} students.`);
           }
           if (importResult.skipped > 0) {
             toast(`Skipped ${importResult.skipped} empty/duplicate rows.`);
           }
           
-          // Refresh the students list
-          console.log('[AdminStudents] Refreshing student list...');
-          await fetchStudents();
-          console.log('[AdminStudents] Student list refreshed. Total:', students.length);
+          await refetch();
           
           setImporting(false);
           setImportProgress(0);
           if (fileInputRef.current) fileInputRef.current.value = '';
           
         } catch (error: any) {
-          console.error('[AdminStudents] Import error:', error);
           setImportProgress(0);
           setImporting(false);
           toast.error(error.message || 'Failed to import students');
@@ -125,7 +74,6 @@ export default function AdminStudents() {
         }
       },
       error: (error) => {
-        console.error('[AdminStudents] CSV parse error:', error);
         setImportProgress(0);
         toast.error('Error parsing CSV file: ' + error.message);
         setImporting(false);
@@ -134,10 +82,21 @@ export default function AdminStudents() {
     });
   };
 
+  const handleProvisionAccounts = () => {
+    provisionStudents(undefined, {
+      onSuccess: (res: any) => {
+        const msg = res.stats 
+          ? `Accounts Created: ${res.stats.accountsCreated} | Profiles Created: ${res.stats.profilesCreated} | Existing: ${res.stats.alreadyExisting}` 
+          : 'Provisioning completed.';
+        toast.success(msg, { duration: 6000 });
+      }
+    });
+  };
+
   const filteredStudents = students.filter(s => 
-    s.name.toLowerCase().includes(search.toLowerCase()) || 
-    s.email.toLowerCase().includes(search.toLowerCase()) ||
-    s.branch.toLowerCase().includes(search.toLowerCase())
+    s.name?.toLowerCase().includes(search.toLowerCase()) || 
+    s.email?.toLowerCase().includes(search.toLowerCase()) ||
+    s.branch?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleDownloadTemplate = () => {
@@ -155,16 +114,16 @@ export default function AdminStudents() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-end">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Students Directory</h1>
-          <p className="text-slate-500">Manage all registered students and their placement status.</p>
+          <p className="text-slate-500">Manage all registered students, their placement status, and provision accounts.</p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="w-72">
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          <div className="w-full md:w-64">
             <Input
               icon={<Search className="w-4 h-4" />}
-              placeholder="Search by name, email, or branch..."
+              placeholder="Search students..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -177,9 +136,17 @@ export default function AdminStudents() {
             onChange={handleFileUpload}
           />
           <Button 
+            onClick={handleProvisionAccounts}
+            disabled={isProvisioning}
+            className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            {isProvisioning ? 'Provisioning...' : 'Provision Accounts'}
+          </Button>
+          <Button 
             onClick={handleDownloadTemplate}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hidden lg:flex"
           >
             <Download className="w-4 h-4" />
             Template
@@ -190,12 +157,12 @@ export default function AdminStudents() {
             className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center gap-2"
           >
             <Upload className="w-4 h-4" />
-            {importing ? 'Importing...' : 'Import CSV'}
+            {importing ? 'Importing...' : 'Import'}
           </Button>
         </div>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden border border-slate-200/60 shadow-sm">
         {importing && (
           <div className="p-6 border-b border-slate-100 bg-slate-50">
             <div className="flex justify-between text-sm text-slate-600 mb-3">
@@ -214,16 +181,16 @@ export default function AdminStudents() {
         )}
 
         {loading ? (
-          <div className="p-6"><ListSkeleton /></div>
+          <div className="p-6"><ListSkeleton count={8} /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Student & Roll No</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200">
+                  <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Student & ID</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Contact</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Branch/Dept</th>
-                  <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Academics (CGPA/Backlogs)</th>
+                  <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Academics</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider">Status</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm uppercase tracking-wider text-right">Actions</th>
                 </tr>
@@ -231,49 +198,44 @@ export default function AdminStudents() {
               <tbody className="divide-y divide-slate-100">
                 {filteredStudents.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="p-12 text-center text-slate-500">
-                      <GraduationCap className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                      No students found.
+                    <td colSpan={6} className="p-16 text-center text-slate-500 bg-slate-50/30">
+                      <GraduationCap className="w-12 h-12 mx-auto mb-4 opacity-20 text-slate-400" />
+                      <p className="text-lg font-medium text-slate-600">No students found.</p>
+                      <p className="text-sm text-slate-400 mt-1">Try importing data or adjusting your search.</p>
                     </td>
                   </tr>
                 ) : (
                   filteredStudents.map((student) => (
-                    <tr key={student.id} className="hover:bg-slate-50/50 transition-colors">
+                    <tr key={student.id} className="hover:bg-slate-50/50 transition-colors group">
                       <td className="p-4">
-                        <div className="font-semibold text-slate-800">{student.name || `${student.firstName} ${student.lastName}`}</div>
-                        <div className="text-xs text-slate-500 font-mono mt-1">{student.rollNumber || student.id}</div>
+                        <div className="font-semibold text-slate-800">{student.name}</div>
+                        <div className="text-xs text-slate-500 font-mono mt-1 bg-slate-100 inline-block px-1.5 rounded">{student.studentId || student.id}</div>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm text-slate-700">{student.email}</div>
-                        <div className="text-xs text-slate-500 mt-1">{student.phone}</div>
+                        <div className="text-sm text-slate-700 font-medium">{student.email}</div>
                       </td>
                       <td className="p-4">
                         <div className="text-sm font-medium text-slate-700">{student.branch}</div>
-                        <div className="text-xs text-slate-500 mt-1">{student.department || '-'}</div>
+                        <div className="text-xs text-slate-500 mt-1">{student.academicYear || '-'}</div>
                       </td>
                       <td className="p-4">
-                        <div className="text-sm font-bold text-slate-700">{student.cgpa || '-'}</div>
-                        <div className="text-xs text-slate-500 mt-1">Backlogs: {student.activeBacklogs || 0} / {student.totalBacklogs || 0}</div>
+                        <div className="text-sm font-bold text-slate-700">CGPA: {student.cgpa || '-'}</div>
                       </td>
                       <td className="p-4">
                         {student.status === 'Placed' ? (
-                          <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                          <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
                             <CheckCircle className="w-3.5 h-3.5" /> Placed
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold bg-amber-100 text-amber-700">
+                          <span className="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
                             <XCircle className="w-3.5 h-3.5" /> Unplaced
                           </span>
                         )}
                       </td>
                       <td className="p-4 text-right">
-                        {student.resumeUrl ? (
-                          <Button variant="outline" size="sm" onClick={() => window.open(student.resumeUrl, '_blank')}>
-                            <FileText className="w-4 h-4 mr-2" /> Resume
-                          </Button>
-                        ) : (
-                          <span className="text-xs text-slate-400 italic">No Resume</span>
-                        )}
+                        <Button variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          View Details
+                        </Button>
                       </td>
                     </tr>
                   ))
