@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import { Calendar, Building2, Clock, MapPin, Video, CheckCircle2 } from 'lucide-react';
+import { Calendar, Building2, Clock, MapPin, Video, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
@@ -22,8 +22,8 @@ export default function StudentInterviews() {
   const fetchInterviews = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/student/interviews', {
-        headers: { 'x-user-id': user?.id }
+      const res = await api.get('/student/interviews', {
+        
       });
       setInterviews(res.data);
     } catch (error) {
@@ -43,7 +43,7 @@ export default function StudentInterviews() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+    visible: { opacity: 1, y: 0 }
   };
 
   return (

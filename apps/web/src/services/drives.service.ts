@@ -1,12 +1,12 @@
-import { apiClient } from '@/lib/apiClient';
+import api from '@/lib/api';
 
 export const driveService = {
   getAllDrives: async () => {
-    const res = await apiClient.get('/admin/drives');
+    const res = await api.get('/admin/drives');
     return res.data;
   },
   getDriveDetails: async (id: string) => {
-    const res = await apiClient.get(`/admin/drives/${id}`);
+    const res = await api.get(`/admin/drives/${id}`);
     return res.data;
   },
 };

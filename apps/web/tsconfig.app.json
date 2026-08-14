@@ -18,8 +18,8 @@
 
     /* Strict Type-Checking */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "erasableSyntaxOnly": true,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Link as LinkIcon, Check, Copy } from 'lucide-react';
 import { Button, Input } from '@/components/ui';
-import axios from 'axios';
+import api from '@/lib/api';
 
 interface Props {
   isOpen: boolean;
@@ -25,7 +25,7 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/hr/generate', formData);
+      const res = await api.post('/hr/generate', formData);
       // The API returns a signed JWT or token, let's assume it returns a secureToken
       const link = `${window.location.origin}/hr-drive/${res.data.data.secureToken}`;
       setGeneratedLink(link);

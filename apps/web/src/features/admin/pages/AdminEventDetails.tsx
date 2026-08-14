@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { Users, ChevronLeft, Building2, Calendar, MapPin, IndianRupee, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
@@ -23,8 +23,8 @@ export default function AdminEventDetails() {
     try {
       setLoading(true);
       const [driveRes, appsRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/admin/drives/${id}`),
-        axios.get(`http://localhost:5000/api/admin/drives/${id}/applications`)
+        api.get(`/admin/drives/${id}`),
+        api.get(`/admin/drives/${id}/applications`)
       ]);
       setDrive(driveRes.data);
       setApplications(appsRes.data);
@@ -38,7 +38,7 @@ export default function AdminEventDetails() {
 
   const fetchApplications = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/drives/${id}/applications`);
+      const res = await api.get(`/admin/drives/${id}/applications`);
       setApplications(res.data);
     } catch (error) {
       console.error(error);
@@ -48,7 +48,7 @@ export default function AdminEventDetails() {
 
   const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
     try {
-      await axios.put(`http://localhost:5000/api/admin/drives/applications/${applicationId}/status`, {
+      await api.put(`/admin/drives/applications/${applicationId}/status`, {
         status: newStatus
       });
       toast.success('Status updated successfully');
@@ -61,9 +61,9 @@ export default function AdminEventDetails() {
 
   const handleDriveReview = async (action: 'approve' | 'reject' | 'request-changes') => {
     try {
-      await axios.post(`http://localhost:5000/api/admin/drives/${id}/${action}`, action === 'request-changes' ? { comments: 'Please revise criteria.' } : {});
+      await api.post(`/admin/drives/${id}/${action}`, action === 'request-changes' ? { comments: 'Please revise criteria.' } : {});
       toast.success(`Drive ${action}d successfully`);
-      fetchDriveDetails();
+      // fetchDriveDetails();
     } catch (error) {
       console.error(error);
       toast.error(`Failed to ${action} drive`);

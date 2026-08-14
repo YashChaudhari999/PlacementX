@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card, Button, Input } from '@/components/ui';
 import { toast } from 'sonner';
 import { Shield, Key } from 'lucide-react';
@@ -27,11 +27,11 @@ export default function StudentSettings() {
 
     try {
       setLoading(true);
-      await axios.put('http://localhost:5000/api/auth/password', {
+      await api.put('/auth/password', {
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword
       }, {
-        headers: { 'x-user-id': user?.id }
+        
       });
       toast.success('Password updated successfully');
       setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });

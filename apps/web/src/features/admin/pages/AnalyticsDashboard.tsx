@@ -3,7 +3,7 @@ import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 import GlobalFilters from '../components/analytics/GlobalFilters';
 import AnalyticsKPIs from '../components/analytics/AnalyticsKPIs';
 import AnalyticsCharts from '../components/analytics/AnalyticsCharts';
-import AiInsightsPanel from '../components/analytics/AIInsightsPanel';
+import AiInsightsPanel from '../components/analytics/AiInsightsPanel';
 import { 
   useAnalyticsSummary, 
   useAnalyticsCharts,

@@ -49,8 +49,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       
       // Request to join default rooms based on profile if needed
       // (The backend already joins user:id, role, etc. automatically)
-      if (user.role === 'STUDENT' && user.studentProfile?.branch) {
-         newSocket.emit('notification:join', [`department:${user.studentProfile.branch}`]);
+      if (user.role === 'STUDENT' && (user as any).studentProfile?.branch) {
+         newSocket.emit('notification:join', [`department:${(user as any).studentProfile.branch}`]);
       }
     });
 

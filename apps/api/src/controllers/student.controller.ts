@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const getProfile = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -33,7 +33,7 @@ export const getProfile = async (req: any, res: any) => {
 
 export const updateProfile = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -90,7 +90,7 @@ export const updateProfile = async (req: any, res: any) => {
 
 export const applyForDrive = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     const { driveId } = req.body;
 
     if (!userId || !driveId) {
@@ -151,7 +151,7 @@ export const applyForDrive = async (req: any, res: any) => {
 
 export const getApplications = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });
@@ -189,7 +189,7 @@ export const getApplications = async (req: any, res: any) => {
 
 export const getInterviews = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
@@ -234,7 +234,7 @@ export const getInterviews = async (req: any, res: any) => {
 
 export const getDocuments = async (req: any, res: any) => {
   try {
-    const userId = req.user?.id || req.headers['x-user-id'];
+    const userId = req.user?.id;
     
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
@@ -274,7 +274,7 @@ export const getDocuments = async (req: any, res: any) => {
 // ML Prediction Proxy — calls Python ML microservice
 export const mlPredictSuccess = async (req: any, res: any) => {
   const { studentId } = req.params;
-  const userId = req.user?.id || req.headers['x-user-id'];
+  const userId = req.user?.id;
 
   try {
     const profile = await prisma.studentProfile.findFirst({

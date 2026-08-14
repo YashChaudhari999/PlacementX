@@ -2,7 +2,7 @@
 // Full REST API for the notification system.
 
 import { Router } from 'express';
-import { authenticate } from '../middlewares/auth';
+import { authenticate, authorize } from '../middlewares/auth.middleware';
 import {
   getMyNotifications,
   getMyUnreadCount,
@@ -43,7 +43,9 @@ router.delete('/remove-device', authenticate, removeDevice);          // DELETE 
 
 // ─── Admin Endpoints ────────────────────────────────────
 
-router.post('/broadcast', authenticate, broadcastNotification);       // POST /notifications/broadcast
-router.post('/schedule', authenticate, scheduleNotificationController); // POST /notifications/schedule
+const adminOnly = authorize('SUPER_ADMIN', 'COORDINATOR');
+
+router.post('/broadcast', authenticate, adminOnly, broadcastNotification);       // POST /notifications/broadcast
+router.post('/schedule', authenticate, adminOnly, scheduleNotificationController); // POST /notifications/schedule
 
 export default router;

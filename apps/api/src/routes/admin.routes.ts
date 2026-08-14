@@ -9,8 +9,13 @@ import {
   getCalendarEvents,
   getAdminDashboard
 } from '../controllers/admin.controller';
+import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+// Secure all admin routes
+router.use(authenticate, authorize('SUPER_ADMIN', 'COORDINATOR'));
+
 
 router.get('/dashboard', getAdminDashboard);
 router.get('/students', getStudents);

@@ -3,6 +3,8 @@ import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebaseAdmin';
 
 // Prisma is deprecated; migrating endpoints to Firebase RTDB
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -81,8 +83,7 @@ export const importStudents = async (req: any, res: any) => {
               lastName: lastName || '',
               branch: branch || null,
               cgpa: cgpa ? parseFloat(cgpa) : null,
-              phone: phone || null,
-              rollNumber: rollNumber || null
+              phone: phone || null
             }
           }
         }
@@ -198,7 +199,7 @@ export const broadcastNotification = async (req: any, res: any) => {
 
     // Create notifications in bulk
     const notifications = students.map((student: any) => ({
-      userId: student.id,
+      receiverId: student.id,
       title,
       message,
       link,
@@ -220,6 +221,7 @@ export const broadcastNotification = async (req: any, res: any) => {
 export const getCalendarEvents = async (req: any, res: any) => {
   try {
     const now = new Date();
+    const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     
     // --- 1. Summary Statistics ---
     const [

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -11,7 +11,7 @@ export const useNotifications = (limit: any = 10, offset: any = 0) => {
   return useQuery({
     queryKey: ['notifications', parsedLimit, parsedOffset],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/notifications`, {
+      const res = await api.get(`/notifications`, {
         params: { limit: parsedLimit, offset: parsedOffset },
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -26,7 +26,7 @@ export const useUnreadCount = () => {
   return useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
-      const res = await axios.get(`${API_URL}/notifications/unread-count`, {
+      const res = await api.get(`/notifications/unread-count`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return res.data.count as number;
@@ -41,7 +41,7 @@ export const useMarkAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await axios.patch(`${API_URL}/notifications/read/${id}`, {}, {
+      await api.patch(`/notifications/read/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -56,7 +56,7 @@ export const useMarkAllAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await axios.patch(`${API_URL}/notifications/read-all`, {}, {
+      await api.patch(`/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },
@@ -71,7 +71,7 @@ export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`${API_URL}/notifications/${id}`, {
+      await api.delete(`/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
     },

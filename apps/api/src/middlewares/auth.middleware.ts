@@ -13,7 +13,10 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
       return res.status(401).json({ error: 'Not authorized to access this route' });
     }
     
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is required');
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // @ts-ignore
     req.user = decoded;

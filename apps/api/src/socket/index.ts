@@ -21,7 +21,10 @@ export const initSocket = (httpServer: HttpServer) => {
     }
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret') as { id: string, role: string };
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is required');
+      }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET) as { id: string, role: string };
       // Attach user info to socket
       (socket as any).user = decoded;
       next();

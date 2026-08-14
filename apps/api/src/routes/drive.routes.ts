@@ -12,21 +12,27 @@ import {
   updateDrive,
   deleteDrive
 } from '../controllers/drive.controller';
+import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.post('/', createDrive);
+// Require authentication for all drive routes
+router.use(authenticate);
+
+const adminOnly = authorize('SUPER_ADMIN', 'COORDINATOR');
+
+router.post('/', adminOnly, createDrive);
 router.get('/', getDrives);
 router.get('/:id/eligibility', checkEligibilityStatus);
 router.get('/:id', getDriveById);
-router.put('/:id', updateDrive);
-router.delete('/:id', deleteDrive);
-router.get('/:id/applications', getDriveApplications);
-router.put('/applications/:id/status', updateApplicationStatus);
+router.put('/:id', adminOnly, updateDrive);
+router.delete('/:id', adminOnly, deleteDrive);
+router.get('/:id/applications', adminOnly, getDriveApplications);
+router.put('/applications/:id/status', adminOnly, updateApplicationStatus);
 
 // HR Drive Review Routes
-router.post('/:id/approve', approveHrDrive);
-router.post('/:id/reject', rejectHrDrive);
-router.post('/:id/request-changes', requestChangesHrDrive);
+router.post('/:id/approve', adminOnly, approveHrDrive);
+router.post('/:id/reject', adminOnly, rejectHrDrive);
+router.post('/:id/request-changes', adminOnly, requestChangesHrDrive);
 
 export default router;

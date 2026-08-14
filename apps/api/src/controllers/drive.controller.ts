@@ -125,7 +125,7 @@ export const getDrives = async (req: any, res: any) => {
 export const checkEligibilityStatus = async (req: any, res: any) => {
   try {
     const { id: driveId } = req.params;
-    const userId = req.headers['x-user-id'];
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ message: 'Unauthorized' });

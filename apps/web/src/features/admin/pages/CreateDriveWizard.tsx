@@ -3,7 +3,7 @@ import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Check, Plus, Trash2, Building2, Briefcase, GraduationCap, CalendarDays, ClipboardCheck, Paperclip, Eye, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useEffect, useState as useState2 } from 'react';
 import { toast } from 'sonner';
 import { Card, Input, Button, AvatarUpload } from '@/components/ui';
@@ -83,7 +83,7 @@ export default function CreateDriveWizard() {
   useEffect(() => {
     if (isEditMode && id) {
       setIsLoading(true);
-      axios.get(`http://localhost:5000/api/admin/drives/${id}`)
+      api.get(`/admin/drives/${id}`)
         .then(res => {
           const d = res.data;
           let branches = [];
@@ -149,10 +149,10 @@ export default function CreateDriveWizard() {
       };
       
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/admin/drives/${id}`, payload);
+        await api.put(`/admin/drives/${id}`, payload);
         toast.success('Drive Updated Successfully!');
       } else {
-        await axios.post('http://localhost:5000/api/admin/drives', payload);
+        await api.post('/admin/drives', payload);
         toast.success('Drive Published Successfully!');
       }
       navigate('/admin/placement-events');
