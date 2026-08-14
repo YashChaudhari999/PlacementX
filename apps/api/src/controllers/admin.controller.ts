@@ -3,41 +3,63 @@ import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebaseAdmin';
 import prisma from '../utils/prisma';
 
-// Prisma is deprecated; migrating endpoints to Firebase RTDB
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
   try {
-    const students = await prisma.user.findMany({
-      where: { role: 'STUDENT' },
-      include: {
-        studentProfile: {
-          include: {
-            applications: {
-              select: { status: true }
-            }
-          }
-        }
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    
+    const where: any = {};
+    
+    if (req.query.academic_year && req.query.academic_year !== 'All Years') {
+      where.academicYear = req.query.academic_year;
+    }
+    if (req.query.department && req.query.department !== 'All Departments') {
+      where.department = req.query.department;
+    }
+    if (req.query.student_status && req.query.student_status !== 'All') {
+      where.studentStatus = req.query.student_status;
+    }
+    if (req.query.search) {
+      where.OR = [
+        { fullName: { contains: req.query.search, mode: 'insensitive' } },
+        { studentId: { contains: req.query.search, mode: 'insensitive' } },
+        { email: { contains: req.query.search, mode: 'insensitive' } }
+      ];
+    }
+
+    const [total, students] = await Promise.all([
+      prisma.importedStudent.count({ where }),
+      prisma.importedStudent.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { fullName: 'asc' }
+      })
+    ]);
+
+    const formattedStudents = students.map((s: any) => ({
+      id: s.id,
+      studentId: s.studentId,
+      name: s.fullName,
+      email: s.email,
+      branch: s.department,
+      cgpa: s.cgpa || 0,
+      status: s.placementStatus || 'Unplaced',
+      academicYear: s.academicYear
+    }));
+
+    return res.status(200).json({
+      data: formattedStudents,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit)
       }
     });
-
-    // Compute basic status for frontend
-    const formattedStudents = students.map((s: any) => {
-      const isPlaced = s.studentProfile?.applications?.some((app: any) => app.status === 'SELECTED') || false;
-      return {
-        id: s.id,
-        name: `${s.studentProfile?.firstName || ''} ${s.studentProfile?.lastName || ''}`.trim(),
-        email: s.email,
-        branch: s.studentProfile?.branch || 'N/A',
-        cgpa: s.studentProfile?.cgpa || 0,
-        status: isPlaced ? 'Placed' : 'Unplaced',
-        resumeUrl: s.studentProfile?.resumeUrl
-      };
-    });
-
-    return res.status(200).json(formattedStudents);
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching students', error: error.message });
   }
@@ -76,7 +98,6 @@ export const importStudents = async (req: any, res: any) => {
 
       const plainPassword = providedPassword || phone || 'student123';
 
-<<<<<<< HEAD
       let firebaseUid = null;
       let firebaseStatus = '';
       let rtdbStatus = '';
@@ -119,21 +140,6 @@ export const importStudents = async (req: any, res: any) => {
             summary.firebaseAccountsCreated++;
           } else {
             throw error;
-=======
-      await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          role: 'STUDENT',
-          studentProfile: {
-            create: {
-              firstName,
-              lastName: lastName || '',
-              branch: branch || null,
-              cgpa: cgpa ? parseFloat(cgpa) : null,
-              phone: phone || null
-            }
->>>>>>> ecf8d5e6085864fa3365d1642b4dfcb03e291ced
           }
         }
       } catch (authError: any) {
@@ -613,76 +619,57 @@ export const getCalendarEvents = async (req: any, res: any) => {
 // 6. Dashboard Module
 export const getAdminDashboard = async (req: any, res: any) => {
   try {
-    const db = firebaseAdmin.database();
-    
-    // Fetch data directly from Firebase
-    const [studentsSnap, drivesSnap, applicationsSnap] = await Promise.all([
-      db.ref('students').once('value'),
-      db.ref('drives').once('value'),
-      db.ref('applications').once('value'),
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const [
+      totalStudents,
+      placedStudents,
+      salaries,
+      totalDrives,
+      openDrives,
+      totalApplications
+    ] = await Promise.all([
+      prisma.importedStudent.count(),
+      prisma.importedStudent.count({ where: { placementStatus: 'Placed' } }),
+      prisma.importedStudent.aggregate({
+        where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+        _max: { fixedSalaryLpa: true },
+        _avg: { fixedSalaryLpa: true }
+      }),
+      prisma.placementDrive.count(),
+      prisma.placementDrive.count({ where: { status: 'OPEN' } }),
+      prisma.driveApplication.count()
     ]);
 
-    const studentsData = studentsSnap.exists() ? studentsSnap.val() : {};
-    const drivesData = drivesSnap.exists() ? drivesSnap.val() : {};
-    const applicationsData = applicationsSnap.exists() ? applicationsSnap.val() : {};
-
-    const totalStudents = Object.keys(studentsData).length;
-    const totalDrives = Object.keys(drivesData).length;
-    const totalApplications = Object.keys(applicationsData).length;
-
-    // Compute drive stats
-    const now = new Date();
-    const today = now.toISOString().split('T')[0];
-    let todayDrives = 0, openDrives = 0, upcomingDrives = 0;
+    const placementPercentage = totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
     
-    Object.values(drivesData).forEach((drive: any) => {
-      const driveDate = drive.date || drive.startDate || '';
-      if (driveDate === today) todayDrives++;
-      if (drive.status === 'open' || drive.status === 'OPEN') openDrives++;
-      if (drive.status === 'upcoming' || drive.status === 'UPCOMING') upcomingDrives++;
+    // Median logic
+    const allSalaries = await prisma.importedStudent.findMany({
+      where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+      select: { fixedSalaryLpa: true },
+      orderBy: { fixedSalaryLpa: 'asc' }
     });
-
-    // Student placement stats
-    let placedCount = 0;
-    Object.values(studentsData).forEach((s: any) => {
-      if (s.placementStatus === 'placed' || s.placementStatus === 'PLACED') {
-        placedCount++;
-      }
-    });
-
-    const placementPercentage = totalStudents > 0 ? Math.round((placedCount / totalStudents) * 100) : 0;
-
-    // Package stats
-    let highestPackage = 0;
-    let totalPackage = 0;
-    let packageList: number[] = [];
-
-    Object.values(drivesData).forEach((drive: any) => {
-      const pkg = Number(drive.fixedSalary || drive.ctc || drive.package) || 0;
-      if (pkg > 0) {
-        if (pkg > highestPackage) highestPackage = pkg;
-        totalPackage += pkg;
-        packageList.push(pkg);
-      }
-    });
-
-    const averagePackage = packageList.length > 0 ? Number((totalPackage / packageList.length).toFixed(1)) : 0;
     
     let medianPackage = 0;
-    if (packageList.length > 0) {
-      packageList.sort((a: number, b: number) => a - b);
-      const mid = Math.floor(packageList.length / 2);
-      if (packageList.length % 2 === 0) {
-        medianPackage = Number(((packageList[mid - 1] + packageList[mid]) / 2).toFixed(1));
+    if (allSalaries.length > 0) {
+      const mid = Math.floor(allSalaries.length / 2);
+      if (allSalaries.length % 2 === 0) {
+        medianPackage = Number((((allSalaries[mid - 1].fixedSalaryLpa as number) + (allSalaries[mid].fixedSalaryLpa as number)) / 2).toFixed(1));
       } else {
-        medianPackage = packageList[mid];
+        medianPackage = Number((allSalaries[mid].fixedSalaryLpa as number).toFixed(1));
       }
     }
 
     return res.status(200).json({
-      drives: { today: todayDrives, open: openDrives, upcomingClosed: upcomingDrives },
-      students: { total: totalStudents, placed: placedCount, eligibleByCompany: [], applicationsByCompany: [] },
-      packages: { placementPercentage, highest: highestPackage, average: averagePackage, median: medianPackage },
+      drives: { today: 0, open: openDrives, upcomingClosed: 0 },
+      students: { total: totalStudents, placed: placedStudents, eligibleByCompany: [], applicationsByCompany: [] },
+      packages: { 
+        placementPercentage, 
+        highest: salaries._max.fixedSalaryLpa || 0, 
+        average: salaries._avg.fixedSalaryLpa ? Number((salaries._avg.fixedSalaryLpa).toFixed(1)) : 0, 
+        median: medianPackage 
+      },
       overall: { companiesVisited: totalDrives, totalOffers: totalApplications }
     });
   } catch (error: any) {
@@ -750,14 +737,14 @@ export const verifyProfile = async (req: any, res: any) => {
     await prisma.notification.create({
       data: {
         title: action === 'APPROVE' ? 'Profile Verified' : 'Profile Changes Requested',
-        message: action === 'APPROVE' ? 'Your profile has been verified successfully.' : \`Your profile requires changes: \${reason}\`,
+        message: action === 'APPROVE' ? 'Your profile has been verified successfully.' : `Your profile requires changes: ${reason}`,
         type: 'system',
         receiverId: profile.userId,
         priority: 'HIGH'
       }
     });
 
-    return res.status(200).json({ message: \`Profile \${action.toLowerCase()}d successfully\`, profile: updatedProfile });
+    return res.status(200).json({ message: `Profile ${action.toLowerCase()}d successfully`, profile: updatedProfile });
   } catch (error: any) {
     console.error('Verify profile error:', error);
     return res.status(500).json({ message: 'Error verifying profile', error: error.message });
@@ -847,14 +834,14 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
     await prisma.notification.create({
       data: {
         title: action === 'APPROVE' ? 'Profile Update Approved' : 'Profile Update Rejected',
-        message: action === 'APPROVE' ? 'Your requested profile changes have been approved.' : \`Your requested profile changes were rejected: \${reason}\`,
+        message: action === 'APPROVE' ? 'Your requested profile changes have been approved.' : `Your requested profile changes were rejected: ${reason}`,
         type: 'system',
         receiverId: request.student.userId,
         priority: 'HIGH'
       }
     });
 
-    return res.status(200).json({ message: \`Update request \${action.toLowerCase()}d\`, request: updatedRequest });
+    return res.status(200).json({ message: `Update request ${action.toLowerCase()}d`, request: updatedRequest });
   } catch (error: any) {
     console.error('Review update request error:', error);
     return res.status(500).json({ message: 'Error reviewing update request', error: error.message });

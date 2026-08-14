@@ -1,97 +1,137 @@
+import { ArrowUpRight, ArrowDownRight, Users, GraduationCap, Briefcase, IndianRupee, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui';
-import { 
-  Users, Briefcase, GraduationCap, IndianRupee, Activity, TrendingUp, TrendingDown, Building2 
-} from 'lucide-react';
-import { motion } from 'framer-motion';
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
-  show: { opacity: 1, y: 0 }
-};
-
-interface KpiData {
-  current: number;
-  previous: number;
+interface AnalyticsKPIsProps {
+  overview: any;
 }
 
-interface KPIProps {
-  summary: {
-    eligibleStudents: KpiData;
-    appliedStudents: KpiData;
-    placedStudents: KpiData;
-    placementPercentage: KpiData;
-    totalOffers: KpiData;
-    highestPackage: KpiData;
-    averagePackage: KpiData;
-    medianPackage: KpiData;
-    companiesVisited: KpiData;
-    newRecruiters: KpiData;
-  };
-}
+const KPICard = ({ label, current, previous, icon: Icon, unit = '', format = 'number', invertColors = false }: any) => {
+  const currentVal = current ?? 0;
+  const previousVal = previous ?? 0;
+  
+  let changeValue = 0;
+  let isPositive = true;
+  let isPercentagePoint = false;
+  
+  if (previousVal > 0) {
+    if (format === 'percentage') {
+      // Percentage points
+      changeValue = currentVal - previousVal;
+      isPositive = changeValue >= 0;
+      isPercentagePoint = true;
+    } else {
+      // Percentage growth
+      changeValue = ((currentVal - previousVal) / previousVal) * 100;
+      isPositive = changeValue >= 0;
+    }
+  }
 
-const KPICard = ({ title, data, icon: Icon, color, isCurrency = false, isPercent = false }: any) => {
-  const current = data.current;
-  const previous = data.previous;
-  const diff = current - previous;
-  const percentChange = previous > 0 ? (diff / previous) * 100 : (current > 0 ? 100 : 0);
-  
-  const isPositive = diff >= 0;
-  
-  const formatVal = (v: number) => {
-    if (isCurrency) return `${v} LPA`;
-    if (isPercent) return `${v}%`;
-    return v.toLocaleString('en-IN');
+  // Reverse color logic for things like Unplaced Students
+  let positiveColor = invertColors ? 'text-rose-600' : 'text-emerald-600';
+  let positiveBg = invertColors ? 'bg-rose-50' : 'bg-emerald-50';
+  let negativeColor = invertColors ? 'text-emerald-600' : 'text-rose-600';
+  let negativeBg = invertColors ? 'bg-emerald-50' : 'bg-rose-50';
+
+  const formatDisplay = (val: number) => {
+    if (format === 'percentage') return `${val.toFixed(1)}%`;
+    if (format === 'currency') return `₹${val.toFixed(2)} LPA`;
+    return val.toLocaleString('en-IN');
   };
 
   return (
-    <motion.div variants={itemVariants}>
-      <Card className="p-5 border-slate-200 hover:shadow-lg transition-all duration-300 group">
-        <div className="flex justify-between items-start mb-3">
-          <p className="text-sm font-semibold text-slate-500">{title}</p>
-          <div className={`p-2 rounded-lg ${color.bg} ${color.text} group-hover:scale-110 transition-transform`}>
-            <Icon className="w-5 h-5" />
-          </div>
+    <Card className="p-5 flex flex-col justify-between hover:shadow-md transition-shadow border-slate-200">
+      <div className="flex items-start justify-between mb-4">
+        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+          <Icon className="w-5 h-5 text-slate-600" />
         </div>
         
-        <div className="flex items-end gap-3">
-          <h3 className="text-3xl font-black text-slate-800 tracking-tight">{formatVal(current)}</h3>
-          {previous > 0 && (
-            <div className={`flex items-center gap-1 text-sm font-bold pb-1 ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
-              {isPositive ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
-              {Math.abs(percentChange).toFixed(1)}%
-            </div>
+        {previousVal > 0 && (
+          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${isPositive ? positiveBg + ' ' + positiveColor : negativeBg + ' ' + negativeColor}`}>
+            {isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
+            {Math.abs(changeValue).toFixed(1)}{isPercentagePoint ? 'pp' : '%'}
+          </div>
+        )}
+      </div>
+      
+      <div>
+        <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{label}</p>
+        <div className="flex items-end gap-3 mt-1">
+          <h3 className="text-3xl font-black text-slate-800 tracking-tight">{formatDisplay(currentVal)}</h3>
+          {previousVal > 0 && (
+            <p className="text-sm font-semibold text-slate-400 mb-1 line-through decoration-slate-300">
+              {formatDisplay(previousVal)}
+            </p>
           )}
         </div>
-        
-        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-400">
-          <span>Previous Year</span>
-          <span className="text-slate-600">{formatVal(previous)}</span>
-        </div>
-      </Card>
-    </motion.div>
+      </div>
+    </Card>
   );
 };
 
-export default function AnalyticsKPIs({ summary }: KPIProps) {
-  if (!summary) return null;
-  
+export default function AnalyticsKPIs({ overview }: AnalyticsKPIsProps) {
+  if (!overview?.current) return null;
+
+  const current = overview.current;
+  const previous = overview.previous;
+
   return (
-    <motion.div 
-      initial="hidden" animate="show"
-      variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
-    >
-      <KPICard title="Total Eligible" data={summary.eligibleStudents} icon={Users} color={{ bg: 'bg-blue-50', text: 'text-blue-600' }} />
-      <KPICard title="Total Applied" data={summary.appliedStudents} icon={Activity} color={{ bg: 'bg-indigo-50', text: 'text-indigo-600' }} />
-      <KPICard title="Total Offers" data={summary.totalOffers} icon={Briefcase} color={{ bg: 'bg-fuchsia-50', text: 'text-fuchsia-600' }} />
-      <KPICard title="Placed Students" data={summary.placedStudents} icon={GraduationCap} color={{ bg: 'bg-emerald-50', text: 'text-emerald-600' }} />
-      <KPICard title="Placement %" data={summary.placementPercentage} icon={TrendingUp} isPercent color={{ bg: 'bg-teal-50', text: 'text-teal-600' }} />
+    <div className="space-y-6 mb-8">
+      <div className="flex items-center gap-2 mb-2">
+        <TrendingUp className="w-5 h-5 text-indigo-600" />
+        <h2 className="text-xl font-bold text-slate-800">Executive Placement Overview</h2>
+      </div>
       
-      <KPICard title="Highest Package" data={summary.highestPackage} icon={IndianRupee} isCurrency color={{ bg: 'bg-purple-50', text: 'text-purple-600' }} />
-      <KPICard title="Average Package" data={summary.averagePackage} icon={IndianRupee} isCurrency color={{ bg: 'bg-pink-50', text: 'text-pink-600' }} />
-      <KPICard title="Median Package" data={summary.medianPackage} icon={IndianRupee} isCurrency color={{ bg: 'bg-rose-50', text: 'text-rose-600' }} />
-      <KPICard title="Companies Visited" data={summary.companiesVisited} icon={Building2} color={{ bg: 'bg-amber-50', text: 'text-amber-600' }} />
-      <KPICard title="New Recruiters" data={summary.newRecruiters} icon={Building2} color={{ bg: 'bg-orange-50', text: 'text-orange-600' }} />
-    </motion.div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard 
+          label="Total Students" 
+          current={current.totalStudents} 
+          previous={previous?.totalStudents} 
+          icon={Users} 
+        />
+        <KPICard 
+          label="Eligible Students" 
+          current={current.eligibleStudents} 
+          previous={previous?.eligibleStudents} 
+          icon={GraduationCap} 
+        />
+        <KPICard 
+          label="Placed Students" 
+          current={current.placedStudents} 
+          previous={previous?.placedStudents} 
+          icon={Briefcase} 
+        />
+        <KPICard 
+          label="Unplaced Students" 
+          current={current.unplacedStudents} 
+          previous={previous?.unplacedStudents} 
+          icon={AlertTriangle} 
+          invertColors={true}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <KPICard 
+          label="Placement Rate" 
+          current={current.placementRate} 
+          previous={previous?.placementRate} 
+          icon={TrendingUp} 
+          format="percentage"
+        />
+        <KPICard 
+          label="Average Package" 
+          current={current.averagePackage} 
+          previous={previous?.averagePackage} 
+          icon={IndianRupee} 
+          format="currency"
+        />
+        <KPICard 
+          label="Highest Package" 
+          current={current.highestPackage} 
+          previous={previous?.highestPackage} 
+          icon={IndianRupee} 
+          format="currency"
+        />
+      </div>
+    </div>
   );
 }

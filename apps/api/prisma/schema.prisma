@@ -364,3 +364,43 @@ model ProfileAuditLog {
   
   student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
+
+model ImportedStudent {
+  id                 String    @id @default(uuid())
+  studentId          String    @map("student_id") // Fallback ID generated if missing
+  fullName           String?   @map("full_name")
+  email              String?
+  department         String
+  academicYear       String    @map("academic_year")
+  studentStatus      String    @map("student_status") // "Regular" or "Alumni"
+  gender             String?
+  cgpa               Float?
+  activeBacklogs     Int?      @map("active_backlogs")
+  profileComplete    String?   @map("profile_complete")
+  skills             String?
+  driveId            String?   @map("drive_id")
+  placementSeason    String?   @map("placement_season")
+  applicationStatus  String?   @map("application_status")
+  companyId          String?   @map("company_id")
+  companyName        String?   @map("company_name")
+  industry           String?
+  fixedSalaryLpa     Float?    @map("fixed_salary_lpa")
+  placementStatus    String?   @map("placement_status")
+
+  sourceFile         String    @map("source_file")
+  sourceFolder       String    @map("source_folder")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+
+  @@unique([studentId, academicYear])
+  
+  @@index([academicYear])
+  @@index([department])
+  @@index([studentStatus])
+  @@index([academicYear, department])
+  @@index([academicYear, studentStatus])
+  @@index([placementStatus])
+  @@index([academicYear, placementStatus])
+
+  @@map("students")
+}

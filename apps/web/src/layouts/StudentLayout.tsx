@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
+import { useStudentProfile } from '@/hooks/queries/useStudent';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 
 export const StudentLayout = () => {
@@ -19,9 +20,23 @@ export const StudentLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { unreadCount } = useNotifications();
+  const { data: serverProfile } = useStudentProfile(user?.id);
 
   // Register for FCM tokens
   useFCMToken(user);
+
+  let completionPercentage = 0;
+  if (serverProfile) {
+    const requiredFields = ['firstName', 'lastName', 'phone', 'branch', 'cgpa', 'passingYear'];
+    let filled = 0;
+    requiredFields.forEach(field => {
+      if (serverProfile[field as keyof typeof serverProfile]) filled++;
+    });
+    if (serverProfile.resumeUrl) filled += 1;
+    if (serverProfile.githubUrl) filled += 0.5;
+    if (serverProfile.portfolioUrl) filled += 0.5;
+    completionPercentage = Math.min(Math.round((filled / 8) * 100), 100);
+  }
 
   const handleLogout = async () => {
     await authService.logout();
@@ -86,12 +101,12 @@ export const StudentLayout = () => {
               <Award className="h-4 w-4 text-yellow-500" />
               <span className="text-xs font-bold text-slate-700">Profile Strength</span>
             </div>
-            <span className="text-xs font-black text-emerald-600">100%</span>
+            <span className="text-xs font-black text-emerald-600">{completionPercentage}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
             <motion.div 
               initial={{ width: 0 }}
-              animate={{ width: '100%' }}
+              animate={{ width: `${completionPercentage}%` }}
               transition={{ duration: 1, delay: 0.5 }}
               className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-2 rounded-full"
             />

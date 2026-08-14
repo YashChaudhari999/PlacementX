@@ -384,30 +384,7 @@ export default function StudentProfile() {
                           <option value="Other">Other</option>
                         </select>
                       </Field>
-                      <Field label="Category" icon={Hash}>
-                        <select 
-                          className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70"
-                          value={profile.category}
-                          onChange={e => setProfile({...profile, category: e.target.value})}
-                          disabled={isReadOnly}
-                        >
-                          <option value="">Select Category</option>
-                          <option value="General">General</option>
-                          <option value="OBC">OBC</option>
-                          <option value="SC">SC</option>
-                          <option value="ST">ST</option>
-                          <option value="EWS">EWS</option>
-                        </select>
-                      </Field>
-                      <Field label="Nationality" icon={Flag}>
-                        <Input 
-                          value={profile.nationality} 
-                          onChange={e => setProfile({...profile, nationality: e.target.value})} 
-                          placeholder="Indian" 
-                          disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
-                        />
-                      </Field>
+
                     </div>
                   </SectionCard>
 

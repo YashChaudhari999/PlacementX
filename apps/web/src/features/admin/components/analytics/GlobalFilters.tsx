@@ -20,8 +20,8 @@ export default function GlobalFilters() {
     setSearchParams(new URLSearchParams());
   };
 
-  const currentYear = searchParams.get('currentYear') || '2026-2027';
-  const previousYear = searchParams.get('previousYear') || '2025-2026';
+  const academicYear = searchParams.get('academicYear') || '2026/2027';
+  const compareWith = searchParams.get('compareWith') || '2025/2026';
   const season = searchParams.get('season') || 'All';
   const department = searchParams.get('department') || 'All';
 
@@ -40,21 +40,21 @@ export default function GlobalFilters() {
           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1">
             <span className="text-xs font-semibold text-slate-500 px-2 uppercase tracking-wider">Compare</span>
             <select 
-              value={currentYear} 
-              onChange={e => updateFilter('currentYear', e.target.value)}
+              value={academicYear} 
+              onChange={e => updateFilter('academicYear', e.target.value)}
               className="text-sm font-bold bg-white border border-slate-200 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
-              <option>2026-2027</option>
-              <option>2025-2026</option>
+              <option>2026/2027</option>
+              <option>2025/2026</option>
             </select>
             <span className="text-xs font-semibold text-slate-400 px-2">vs</span>
             <select 
-              value={previousYear} 
-              onChange={e => updateFilter('previousYear', e.target.value)}
+              value={compareWith} 
+              onChange={e => updateFilter('compareWith', e.target.value)}
               className="text-sm font-bold bg-white border border-slate-200 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
-              <option>2025-2026</option>
-              <option>2024-2025</option>
+              <option>2025/2026</option>
+              <option>2024/2025</option>
             </select>
           </div>
 

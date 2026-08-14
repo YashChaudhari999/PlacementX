@@ -1,26 +1,58 @@
 import { useQuery } from '@tanstack/react-query';
-import { analyticsService } from '@/services/analytics.service';
+import { analyticsService } from '../../services/analytics.service';
 
-export const useAnalyticsSummary = (params: any) => {
+export const useAnalyticsOverview = (params?: any) => {
   return useQuery({
-    queryKey: ['analytics', 'summary', params],
-    queryFn: () => analyticsService.getSummary(params),
-    refetchInterval: 60000,
+    queryKey: ['analytics', 'overview', params],
+    queryFn: () => analyticsService.getOverview(params),
+    staleTime: 60000,
   });
 };
 
-export const useAnalyticsCharts = (params: any) => {
+export const useAnalyticsDepartments = (params?: any) => {
   return useQuery({
-    queryKey: ['analytics', 'charts', params],
-    queryFn: () => analyticsService.getCharts(params),
-    refetchInterval: 60000,
+    queryKey: ['analytics', 'departments', params],
+    queryFn: () => analyticsService.getDepartments(params),
+    staleTime: 60000,
   });
 };
 
-export const useAnalyticsAiInsights = (params: any) => {
+export const useAnalyticsYearComparison = (params?: any) => {
   return useQuery({
-    queryKey: ['analytics', 'ai-insights', params],
-    queryFn: () => analyticsService.getAiInsights(params),
-    refetchInterval: 60000,
+    queryKey: ['analytics', 'yearComparison', params],
+    queryFn: () => analyticsService.getYearComparison(params),
+    staleTime: 60000,
+  });
+};
+
+export const useAnalyticsPackages = (params?: any) => {
+  return useQuery({
+    queryKey: ['analytics', 'packages', params],
+    queryFn: () => analyticsService.getPackages(params),
+    staleTime: 60000,
+  });
+};
+
+export const useAnalyticsCompanies = (params?: any) => {
+  return useQuery({
+    queryKey: ['analytics', 'companies', params],
+    queryFn: () => analyticsService.getCompanies(params),
+    staleTime: 60000,
+  });
+};
+
+export const useAnalyticsFunnel = (params?: any) => {
+  return useQuery({
+    queryKey: ['analytics', 'funnel', params],
+    queryFn: () => analyticsService.getFunnel(params),
+    staleTime: 60000,
+  });
+};
+
+export const useAnalyticsIntelligence = (params?: any) => {
+  return useQuery({
+    queryKey: ['analytics', 'intelligence', params],
+    queryFn: () => analyticsService.getIntelligence(params),
+    staleTime: 60000,
   });
 };

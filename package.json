@@ -20,5 +20,8 @@
     "concurrently": "^10.0.3",
     "prettier": "^3.9.5",
     "typescript": "~5.3.3"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }

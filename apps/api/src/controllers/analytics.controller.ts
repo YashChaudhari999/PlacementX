@@ -3,360 +3,395 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Helper to build where clause from query
-const buildDriveWhereClause = (query: any, yearKey: string) => {
-  const where: any = { status: { not: 'DRAFT' } };
-  
-  if (query[yearKey]) {
-    where.academicYear = query[yearKey];
-  }
-  if (query.season && query.season !== 'All') {
-    where.placementSeason = query.season;
-  }
-  // Add more filters as needed: department, company, etc.
-  // For company
-  if (query.companyId) {
-    where.companyId = query.companyId;
-  }
-  
-  return where;
-};
-
-// Helper to build student where clause
-const buildStudentWhereClause = (query: any) => {
+// Helper to build where clause
+const buildStudentWhereClause = (query: any, yearOverride?: string) => {
   const where: any = {};
-  if (query.department && query.department !== 'All') {
-    where.branch = query.department;
+  
+  if (yearOverride) {
+    where.academicYear = yearOverride;
+  } else if (query.academicYear && query.academicYear !== 'All Years') {
+    where.academicYear = query.academicYear;
   }
-  if (query.gender && query.gender !== 'All') {
-    where.gender = query.gender;
+  
+  if (query.department && query.department !== 'All Departments') {
+    where.department = query.department;
   }
   return where;
 };
 
-// 1. Summary Endpoint
-export const getAnalyticsSummary = async (req: any, res: any) => {
+// 1. Placement Overview (KPIs with YoY Comparison)
+export const getPlacementOverview = async (req: Request, res: Response) => {
   try {
-    const currentWhere = buildDriveWhereClause(req.query, 'currentYear');
-    const prevWhere = buildDriveWhereClause(req.query, 'previousYear');
-    const studentWhere = buildStudentWhereClause(req.query);
+    const currentWhere = buildStudentWhereClause(req.query);
+    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
 
-    // Group 1: Independent queries
-    const [
-      totalEligibleCurrent,
-      currentDrives,
-      prevDrives,
-    ] = await Promise.all([
-      prisma.studentProfile.count({
-        where: { ...studentWhere, isProfileComplete: true, activeBacklogs: 0 }
-      }),
-      prisma.placementDrive.findMany({
-        where: currentWhere,
-        select: { id: true, fixedSalary: true, companyId: true }
-      }),
-      prisma.placementDrive.findMany({
-        where: prevWhere,
-        select: { id: true, fixedSalary: true, companyId: true }
-      })
-    ]);
+    const fetchStats = async (where: any) => {
+      const [totalStudents, eligibleStudents, placedStudents, salaries] = await Promise.all([
+        prisma.importedStudent.count({ where }),
+        prisma.importedStudent.count({ where: { ...where, activeBacklogs: 0 } }),
+        prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } }),
+        prisma.importedStudent.aggregate({
+          where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+          _avg: { fixedSalaryLpa: true },
+          _max: { fixedSalaryLpa: true }
+        })
+      ]);
 
-    // In a real app, student batches define year. Here we'll just mock previous as slightly less for demo
-    const totalEligiblePrev = Math.max(0, totalEligibleCurrent - Math.floor(Math.random() * 20));
-
-    const currentDriveIds = currentDrives.map(d => d.id);
-    const prevDriveIds = prevDrives.map(d => d.id);
-
-    // Group 2: Dependent queries
-    const [
-      totalAppliedCurrent,
-      totalAppliedPrev,
-      currentOffers,
-      prevOffers,
-      placedCurrentGroup,
-      placedPrevGroup
-    ] = await Promise.all([
-      prisma.driveApplication.count({
-        where: { driveId: { in: currentDriveIds }, student: studentWhere }
-      }),
-      prisma.driveApplication.count({
-        where: { driveId: { in: prevDriveIds } }
-      }),
-      prisma.driveApplication.count({
-        where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
-      }),
-      prisma.driveApplication.count({
-        where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
-      }),
-      prisma.driveApplication.groupBy({
-        by: ['studentId'],
-        where: { driveId: { in: currentDriveIds }, status: 'SELECTED', student: studentWhere }
-      }),
-      prisma.driveApplication.groupBy({
-        by: ['studentId'],
-        where: { driveId: { in: prevDriveIds }, status: 'SELECTED' }
-      })
-    ]);
-
-    const placedCurrent = placedCurrentGroup.length;
-    const placedPrev = placedPrevGroup.length;
-
-    // Packages
-    const currentPackages = currentDrives.map(d => d.fixedSalary).filter(p => p && p > 0) as number[];
-    const prevPackages = prevDrives.map(d => d.fixedSalary).filter(p => p && p > 0) as number[];
-
-    const calcHighest = (arr: number[]) => arr.length > 0 ? Math.max(...arr) : 0;
-    const calcAvg = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-    const calcMedian = (arr: number[]) => {
-      if (arr.length === 0) return 0;
-      const sorted = [...arr].sort((a, b) => a - b);
-      const mid = Math.floor(sorted.length / 2);
-      return sorted.length % 2 !== 0 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+      const unplacedStudents = totalStudents - placedStudents;
+      const placementRate = totalStudents > 0 ? (placedStudents / totalStudents) * 100 : 0;
+      
+      return {
+        totalStudents,
+        eligibleStudents,
+        placedStudents,
+        unplacedStudents,
+        placementRate: parseFloat(placementRate.toFixed(2)),
+        averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0,
+        highestPackage: salaries._max.fixedSalaryLpa || 0
+      };
     };
 
-    // Recruiters
-    const currentCompanies = new Set(currentDrives.map(d => d.companyId)).size;
-    const prevCompanies = new Set(prevDrives.map(d => d.companyId)).size;
+    const current = await fetchStats(currentWhere);
+    let previous = null;
 
-    return res.status(200).json({
-      eligibleStudents: { current: totalEligibleCurrent, previous: totalEligiblePrev },
-      appliedStudents: { current: totalAppliedCurrent, previous: totalAppliedPrev },
-      placedStudents: { current: placedCurrent, previous: placedPrev },
-      placementPercentage: { 
-        current: totalEligibleCurrent > 0 ? Math.round((placedCurrent / totalEligibleCurrent) * 100) : 0,
-        previous: totalEligiblePrev > 0 ? Math.round((placedPrev / totalEligiblePrev) * 100) : 0,
-      },
-      totalOffers: { current: currentOffers, previous: prevOffers },
-      highestPackage: { current: calcHighest(currentPackages), previous: calcHighest(prevPackages) },
-      averagePackage: { 
-        current: Math.round(calcAvg(currentPackages) * 100) / 100, 
-        previous: Math.round(calcAvg(prevPackages) * 100) / 100 
-      },
-      medianPackage: { 
-        current: Math.round(calcMedian(currentPackages) * 100) / 100, 
-        previous: Math.round(calcMedian(prevPackages) * 100) / 100 
-      },
-      companiesVisited: { current: currentCompanies, previous: prevCompanies },
-      newRecruiters: { current: Math.floor(currentCompanies * 0.3), previous: Math.floor(prevCompanies * 0.2) } // Mock calculation for new
-    });
-
-  } catch (error: any) {
-    console.error('Summary Analytics Error:', error);
-    return res.status(500).json({ message: 'Error fetching summary', error: error.message });
-  }
-};
-
-// 2. Charts Endpoint
-export const getAnalyticsCharts = async (req: any, res: any) => {
-  try {
-    const currentWhere = buildDriveWhereClause(req.query, 'currentYear');
-    const studentWhere = buildStudentWhereClause(req.query);
-
-    // Get all relevant drives
-    const currentDrives = await prisma.placementDrive.findMany({
-      where: currentWhere,
-      include: {
-        company: true,
-        applications: {
-          where: { student: studentWhere },
-          include: { student: true }
-        }
-      }
-    });
-
-    // 1. Placement Trend (Mocked month-wise distribution based on total offers for speed, usually group by createdAt)
-    const placementTrend = [
-      { month: 'Jul', current: 0, previous: 0 },
-      { month: 'Aug', current: 15, previous: 10 },
-      { month: 'Sep', current: 45, previous: 35 },
-      { month: 'Oct', current: 80, previous: 60 },
-      { month: 'Nov', current: 50, previous: 45 },
-      { month: 'Dec', current: 20, previous: 15 },
-      { month: 'Jan', current: 10, previous: 12 },
-    ];
-
-    // 3. Department Wise (Horizontal Bar)
-    const deptCounts: any = {};
-    currentDrives.forEach(drive => {
-      drive.applications.forEach(app => {
-        if (app.status === 'SELECTED') {
-          const b = app.student.branch || 'Unknown';
-          deptCounts[b] = (deptCounts[b] || 0) + 1;
-        }
-      });
-    });
-    const departmentWise = Object.entries(deptCounts).map(([name, current]) => ({
-      name,
-      current,
-      previous: Math.max(0, (current as number) - Math.floor(Math.random() * 5))
-    }));
-
-    // 4. Company Hiring Stacked
-    const companyHiringCounts: any = {};
-    currentDrives.forEach(drive => {
-      const c = drive.company.name;
-      if (!companyHiringCounts[c]) companyHiringCounts[c] = { applied: 0, selected: 0 };
-      companyHiringCounts[c].applied += drive.applications.length;
-      companyHiringCounts[c].selected += drive.applications.filter(a => a.status === 'SELECTED').length;
-    });
-    const companyHiring = Object.entries(companyHiringCounts)
-      .map(([name, counts]: any) => ({ name, ...counts }))
-      .sort((a, b) => b.selected - a.selected)
-      .slice(0, 10);
-
-    // 5. Package Distribution (Histogram approximation)
-    const bins = { '3-5 LPA': 0, '5-8 LPA': 0, '8-10 LPA': 0, '10-15 LPA': 0, '15+ LPA': 0 };
-    currentDrives.forEach(d => {
-      if (d.fixedSalary) {
-        if (d.fixedSalary >= 15) bins['15+ LPA']++;
-        else if (d.fixedSalary >= 10) bins['10-15 LPA']++;
-        else if (d.fixedSalary >= 8) bins['8-10 LPA']++;
-        else if (d.fixedSalary >= 5) bins['5-8 LPA']++;
-        else bins['3-5 LPA']++;
-      }
-    });
-    const packageDistribution = Object.entries(bins).map(([name, current]) => ({
-      name,
-      current,
-      previous: Math.max(0, current - Math.floor(Math.random() * 3))
-    }));
-
-    // 7. Company Category
-    const categoryCounts: any = {};
-    currentDrives.forEach(d => {
-      const type = d.company.industry || 'Service'; // Mocking
-      categoryCounts[type] = (categoryCounts[type] || 0) + 1;
-    });
-    const companyCategory = Object.entries(categoryCounts).map(([name, value]) => ({ name, value }));
-
-    // 9. Offer Acceptance Rate (Donut)
-    const offerAcceptance = [
-      { name: 'Accepted', value: 85 },
-      { name: 'Rejected', value: 10 },
-      { name: 'Pending', value: 5 },
-    ];
-
-    // 10. Student Funnel
-    const funnel = [
-      { name: 'Eligible', value: 500 },
-      { name: 'Applied', value: 450 },
-      { name: 'Shortlisted', value: 300 },
-      { name: 'Interview', value: 200 },
-      { name: 'Offer', value: 120 },
-      { name: 'Placed', value: 110 },
-    ];
-
-    // 13. Gender
-    const genderWise = [
-      { name: 'Male', value: 60 },
-      { name: 'Female', value: 40 },
-    ];
-
-    // 14. Location (Mocked for map/chart)
-    const locationWise = [
-      { id: 'IN-MH', state: 'Maharashtra', value: 120 },
-      { id: 'IN-KA', state: 'Karnataka', value: 80 },
-      { id: 'IN-DL', state: 'Delhi', value: 40 },
-      { id: 'IN-TS', state: 'Telangana', value: 60 },
-    ];
-
-    // 15. Skills (Word Cloud)
-    const skills = [
-      { text: 'React', value: 100 },
-      { text: 'Java', value: 80 },
-      { text: 'Python', value: 90 },
-      { text: 'AWS', value: 60 },
-      { text: 'Node.js', value: 70 },
-      { text: 'SQL', value: 85 },
-      { text: 'Docker', value: 45 },
-      { text: 'Machine Learning', value: 50 },
-    ];
-
-    // 16. CGPA vs Placement (Scatter)
-    const cgpaVsPlacement = [
-      { cgpa: 8.5, package: 12, status: 'Placed' },
-      { cgpa: 9.1, package: 15, status: 'Placed' },
-      { cgpa: 7.8, package: 8, status: 'Placed' },
-      { cgpa: 6.5, package: 5, status: 'Placed' },
-      { cgpa: 8.0, package: 0, status: 'Unplaced' },
-      { cgpa: 9.5, package: 20, status: 'Placed' },
-    ];
-
-    // 18. Leaderboard
-    const leaderboard = companyHiring.map(c => ({
-      company: c.name,
-      studentsHired: c.selected,
-      avgPackage: 10,
-      highestPackage: 15,
-      department: 'Computer Engineering'
-    }));
-
-    return res.status(200).json({
-      placementTrend,
-      departmentWise,
-      companyHiring,
-      packageDistribution,
-      companyCategory,
-      offerAcceptance,
-      funnel,
-      genderWise,
-      locationWise,
-      skills,
-      cgpaVsPlacement,
-      leaderboard
-    });
-
-  } catch (error: any) {
-    return res.status(500).json({ message: 'Error fetching charts', error: error.message });
-  }
-};
-
-// 3. AI Insights
-export const getAnalyticsAiInsights = async (req: any, res: any) => {
-  try {
-    // Generate deterministic insights based on data. (Mocked logic for speed)
-    const insights = [
-      "Placement increased by 18% compared to last year.",
-      "Average package increased by 1.8 LPA.",
-      "Computer Engineering department showed the highest growth.",
-      "Amazon hired 35% more students this season.",
-      "Placement percentage dropped slightly in Information Technology.",
-      "Top recruiters shifted from service companies to product companies.",
-      "Interview conversion improved by 12% across all branches."
-    ];
-
-    let predictions = {
-      placementPercentage: 92,
-      expectedCompanies: 45,
-      highestPackage: 35,
-      averagePackage: 11.5,
-      trend: "Upward",
-      atRisk: "AI/ML"
-    };
-
-    try {
-      // Fetch real predictions from Python ML Service
-      const mlResponse = await fetch('http://localhost:8000/api/ai/analytics/forecast?forecastYear=2026');
-      if (mlResponse.ok) {
-        const mlData = await mlResponse.json();
-        predictions = {
-          ...predictions,
-          placementPercentage: mlData.placementPercentage,
-          expectedCompanies: mlData.visitingCompanies,
-          highestPackage: mlData.highestPackage,
-          averagePackage: mlData.averagePackage,
-          trend: mlData.trend
-        };
-      }
-    } catch (mlError) {
-      console.warn("ML Service unavailable, falling back to mock predictions", mlError);
+    if (req.query.compareWith) {
+      previous = await fetchStats(previousWhere);
     }
 
-    return res.status(200).json({
-      insights,
-      predictions
+    res.status(200).json({ current, previous });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching overview', error: error.message });
+  }
+};
+
+// 2. Year Comparison (Trend)
+export const getPlacementYearComparison = async (req: Request, res: Response) => {
+  try {
+    const where = buildStudentWhereClause(req.query);
+    delete where.academicYear; // we group by year instead
+
+    const stats = await prisma.importedStudent.groupBy({
+      by: ['academicYear'],
+      where,
+      _count: { _all: true }
     });
 
+    const results = await Promise.all(stats.map(async (stat: any) => {
+      const yearWhere = { ...where, academicYear: stat.academicYear };
+      const [placed, salaries] = await Promise.all([
+        prisma.importedStudent.count({ where: { ...yearWhere, placementStatus: 'Placed' } }),
+        prisma.importedStudent.aggregate({
+          where: { ...yearWhere, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+          _avg: { fixedSalaryLpa: true }
+        })
+      ]);
+      const total = stat._count._all;
+      return {
+        year: stat.academicYear,
+        totalStudents: total,
+        placedStudents: placed,
+        unplacedStudents: total - placed,
+        placementRate: total > 0 ? parseFloat(((placed / total) * 100).toFixed(2)) : 0,
+        averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0
+      };
+    }));
+
+    // Sort by year
+    results.sort((a, b) => a.year.localeCompare(b.year));
+    res.status(200).json(results);
   } catch (error: any) {
-    return res.status(500).json({ message: 'Error generating AI insights', error: error.message });
+    res.status(500).json({ message: 'Error fetching year comparison', error: error.message });
+  }
+};
+
+// 3. Departments Comparison & Heatmap
+export const getPlacementDepartments = async (req: Request, res: Response) => {
+  try {
+    const currentYear = req.query.academicYear as string || '2026/2027';
+    const previousYear = req.query.compareWith as string || '2025/2026';
+
+    const getDeptStats = async (year: string) => {
+      const depts = await prisma.importedStudent.groupBy({
+        by: ['department'],
+        where: { academicYear: year },
+        _count: { _all: true }
+      });
+
+      const stats = await Promise.all(depts.map(async (d: any) => {
+        const [placed, salaries] = await Promise.all([
+          prisma.importedStudent.count({ where: { academicYear: year, department: d.department, placementStatus: 'Placed' } }),
+          prisma.importedStudent.aggregate({
+            where: { academicYear: year, department: d.department, placementStatus: 'Placed' },
+            _avg: { fixedSalaryLpa: true }
+          })
+        ]);
+        const total = d._count._all;
+        return {
+          department: d.department,
+          total,
+          placed,
+          placementRate: total > 0 ? parseFloat(((placed / total) * 100).toFixed(2)) : 0,
+          averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0
+        };
+      }));
+      return stats;
+    };
+
+    const currentStats = await getDeptStats(currentYear);
+    const prevStats = await getDeptStats(previousYear);
+
+    // Merge them
+    const allDepts = Array.from(new Set([...currentStats.map(s => s.department), ...prevStats.map(s => s.department)]));
+    
+    const combined = allDepts.map(dept => {
+      const curr = currentStats.find(s => s.department === dept) || { total: 0, placed: 0, placementRate: 0, averagePackage: 0 };
+      const prev = prevStats.find(s => s.department === dept) || { total: 0, placed: 0, placementRate: 0, averagePackage: 0 };
+      
+      return {
+        department: dept,
+        current: curr,
+        previous: prev,
+        placementRateChange: parseFloat((curr.placementRate - prev.placementRate).toFixed(2)),
+        packageChange: parseFloat((curr.averagePackage - prev.averagePackage).toFixed(2)),
+        placedChange: curr.placed - prev.placed
+      };
+    });
+
+    res.status(200).json(combined);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching department stats', error: error.message });
+  }
+};
+
+// 4. Packages
+export const getPlacementPackages = async (req: Request, res: Response) => {
+  try {
+    const currentWhere = buildStudentWhereClause(req.query);
+    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
+
+    const getPkgStats = async (where: any) => {
+      const stats = await prisma.importedStudent.aggregate({
+        where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+        _avg: { fixedSalaryLpa: true },
+        _max: { fixedSalaryLpa: true },
+        _min: { fixedSalaryLpa: true }
+      });
+      
+      const all = await prisma.importedStudent.findMany({
+        where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+        select: { fixedSalaryLpa: true },
+        orderBy: { fixedSalaryLpa: 'asc' }
+      });
+      
+      let median = 0;
+      if (all.length > 0) {
+        const mid = Math.floor(all.length / 2);
+        median = all.length % 2 === 0 
+          ? ((all[mid - 1].fixedSalaryLpa as number) + (all[mid].fixedSalaryLpa as number)) / 2 
+          : (all[mid].fixedSalaryLpa as number);
+      }
+
+      // Distribution
+      const distribution = {
+        '< 3 LPA': 0,
+        '3-5 LPA': 0,
+        '5-8 LPA': 0,
+        '8-12 LPA': 0,
+        '12-20 LPA': 0,
+        '20+ LPA': 0
+      };
+
+      all.forEach(s => {
+        const pkg = s.fixedSalaryLpa as number;
+        if (pkg < 3) distribution['< 3 LPA']++;
+        else if (pkg < 5) distribution['3-5 LPA']++;
+        else if (pkg < 8) distribution['5-8 LPA']++;
+        else if (pkg < 12) distribution['8-12 LPA']++;
+        else if (pkg < 20) distribution['12-20 LPA']++;
+        else distribution['20+ LPA']++;
+      });
+
+      return {
+        averagePackage: stats._avg.fixedSalaryLpa ? parseFloat(stats._avg.fixedSalaryLpa.toFixed(2)) : 0,
+        highestPackage: stats._max.fixedSalaryLpa || 0,
+        lowestPackage: stats._min.fixedSalaryLpa || 0,
+        medianPackage: parseFloat(median.toFixed(2)),
+        distribution
+      };
+    };
+
+    const current = await getPkgStats(currentWhere);
+    const previous = req.query.compareWith ? await getPkgStats(previousWhere) : null;
+
+    res.status(200).json({ current, previous });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching packages', error: error.message });
+  }
+};
+
+// 5. Companies
+export const getPlacementCompanies = async (req: Request, res: Response) => {
+  try {
+    const currentWhere = buildStudentWhereClause(req.query);
+    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
+
+    const getCompanyStats = async (where: any) => {
+      const companies = await prisma.importedStudent.groupBy({
+        by: ['companyName'],
+        where: { ...where, placementStatus: 'Placed', companyName: { not: null } },
+        _count: { _all: true },
+        orderBy: { _count: { companyName: 'desc' } },
+        take: 10
+      });
+      
+      return Promise.all(companies.map(async (c: any) => {
+        const stats = await prisma.importedStudent.aggregate({
+          where: { ...where, companyName: c.companyName, placementStatus: 'Placed' },
+          _avg: { fixedSalaryLpa: true }
+        });
+        return {
+          companyName: c.companyName,
+          offers: c._count._all,
+          averagePackage: stats._avg.fixedSalaryLpa ? parseFloat(stats._avg.fixedSalaryLpa.toFixed(2)) : 0
+        };
+      }));
+    };
+
+    const countUniqueCompanies = async (where: any) => {
+      const res = await prisma.importedStudent.groupBy({
+        by: ['companyName'],
+        where: { ...where, placementStatus: 'Placed', companyName: { not: null } }
+      });
+      return res.length;
+    };
+
+    const currentTop = await getCompanyStats(currentWhere);
+    const currentCount = await countUniqueCompanies(currentWhere);
+    
+    let previousCount = 0;
+    if (req.query.compareWith) {
+      previousCount = await countUniqueCompanies(previousWhere);
+    }
+
+    res.status(200).json({ 
+      topCompanies: currentTop,
+      totalCompanies: currentCount,
+      previousCompanies: previousCount
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching companies', error: error.message });
+  }
+};
+
+// 6. Placement Funnel
+export const getPlacementFunnel = async (req: Request, res: Response) => {
+  try {
+    const where = buildStudentWhereClause(req.query);
+
+    const totalStudents = await prisma.importedStudent.count({ where });
+    const eligibleStudents = await prisma.importedStudent.count({ where: { ...where, activeBacklogs: 0 } });
+    const participating = await prisma.importedStudent.count({ where: { ...where, applicationStatus: { not: null } } });
+    const offers = await prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } });
+    const placed = offers; // In this dataset, offers == placed
+
+    res.status(200).json([
+      { stage: 'Total Students', count: totalStudents, percentage: 100 },
+      { stage: 'Eligible', count: eligibleStudents, percentage: totalStudents ? Math.round((eligibleStudents/totalStudents)*100) : 0 },
+      { stage: 'Participating', count: participating, percentage: eligibleStudents ? Math.round((participating/eligibleStudents)*100) : 0 },
+      { stage: 'Offers', count: offers, percentage: participating ? Math.round((offers/participating)*100) : 0 },
+      { stage: 'Placed', count: placed, percentage: offers ? Math.round((placed/offers)*100) : 0 }
+    ]);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching funnel', error: error.message });
+  }
+};
+
+// 7. Intelligence (Insights & Recommendations)
+export const getPlacementIntelligence = async (req: Request, res: Response) => {
+  try {
+    const currentYear = req.query.academicYear as string || '2026/2027';
+    const previousYear = req.query.compareWith as string || '2025/2026';
+
+    const insights: any[] = [];
+    const recommendations: any[] = [];
+    const risks: any[] = [];
+
+    // 1. Overall logic
+    const currCount = await prisma.importedStudent.count({ where: { academicYear: currentYear } });
+    const prevCount = await prisma.importedStudent.count({ where: { academicYear: previousYear } });
+    const currPlaced = await prisma.importedStudent.count({ where: { academicYear: currentYear, placementStatus: 'Placed' } });
+    const prevPlaced = await prisma.importedStudent.count({ where: { academicYear: previousYear, placementStatus: 'Placed' } });
+
+    const currRate = currCount ? (currPlaced / currCount) * 100 : 0;
+    const prevRate = prevCount ? (prevPlaced / prevCount) * 100 : 0;
+    const rateDiff = currRate - prevRate;
+
+    if (rateDiff > 2) {
+      insights.push({ type: 'improvement', text: `Overall placement rate improved by +${rateDiff.toFixed(1)} percentage points compared to ${previousYear}.` });
+    } else if (rateDiff < -2) {
+      insights.push({ type: 'risk', text: `Overall placement rate declined by ${Math.abs(rateDiff).toFixed(1)} percentage points compared to ${previousYear}.` });
+      recommendations.push({ text: `Investigate the overall decline in placement rate. Focus on increasing recruiter outreach and student interview preparation.` });
+    }
+
+    // 2. Department logic
+    const depts = await prisma.importedStudent.groupBy({ by: ['department'], where: { academicYear: currentYear } });
+    
+    let bestDept = null;
+    let worstDept = null;
+    let maxRate = -1;
+    let minRate = 101;
+
+    for (const d of depts) {
+      const c = await prisma.importedStudent.count({ where: { academicYear: currentYear, department: d.department } });
+      const p = await prisma.importedStudent.count({ where: { academicYear: currentYear, department: d.department, placementStatus: 'Placed' } });
+      const rate = c ? (p / c) * 100 : 0;
+      
+      if (rate > maxRate) { maxRate = rate; bestDept = d.department; }
+      if (rate < minRate && c > 10) { minRate = rate; worstDept = d.department; } // minimum 10 students
+      
+      const prevC = await prisma.importedStudent.count({ where: { academicYear: previousYear, department: d.department } });
+      const prevP = await prisma.importedStudent.count({ where: { academicYear: previousYear, department: d.department, placementStatus: 'Placed' } });
+      const pRate = prevC ? (prevP / prevC) * 100 : 0;
+      const dDiff = rate - pRate;
+
+      // Add a specific insight for this department
+      if (dDiff > 0) {
+        insights.push({ type: 'improvement', text: `${d.department} placement rate improved by +${dDiff.toFixed(1)} percentage points.` });
+      } else if (dDiff < 0) {
+        if (dDiff < -5) {
+          risks.push({ type: 'risk', text: `${d.department} experienced a decline of ${Math.abs(dDiff).toFixed(1)} percentage points.` });
+          recommendations.push({ text: `Increase specialized recruiter outreach for ${d.department} and prioritize department-specific placement training.` });
+        } else {
+          insights.push({ type: 'attention', text: `${d.department} placement rate slightly declined by ${Math.abs(dDiff).toFixed(1)} percentage points.` });
+        }
+      } else {
+        insights.push({ type: 'info', text: `${d.department} placement rate remained stable.` });
+      }
+    }
+
+    if (bestDept) {
+      insights.push({ type: 'strong', text: `${bestDept} currently has the strongest placement performance (${maxRate.toFixed(1)}%).` });
+    }
+    if (worstDept && minRate < currRate - 5) {
+      risks.push({ type: 'attention', text: `${worstDept} is significantly below the institutional average (${minRate.toFixed(1)}%).` });
+      recommendations.push({ text: `Focus placement training and opportunities heavily on ${worstDept} to bring them up to the institutional average.` });
+    }
+
+    // 3. Salary logic
+    const currSal = await prisma.importedStudent.aggregate({ where: { academicYear: currentYear, placementStatus: 'Placed' }, _avg: { fixedSalaryLpa: true } });
+    const prevSal = await prisma.importedStudent.aggregate({ where: { academicYear: previousYear, placementStatus: 'Placed' }, _avg: { fixedSalaryLpa: true } });
+
+    if (currSal._avg.fixedSalaryLpa && prevSal._avg.fixedSalaryLpa) {
+      const salDiff = currSal._avg.fixedSalaryLpa - prevSal._avg.fixedSalaryLpa;
+      const salGrowth = (salDiff / prevSal._avg.fixedSalaryLpa) * 100;
+      
+      if (salGrowth > 5) {
+        insights.push({ type: 'growth', text: `Average package increased by ${salGrowth.toFixed(1)}% compared with the previous academic year.` });
+      }
+    }
+
+    res.status(200).json({ insights, risks, recommendations });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error fetching intelligence', error: error.message });
   }
 };

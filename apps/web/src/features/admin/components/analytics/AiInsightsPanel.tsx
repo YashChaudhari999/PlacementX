@@ -120,23 +120,15 @@ function InsightRow({ text, delay }: { text: string; delay: number }) {
 }
 
 // ── Main Component ────────────────────────────────────────
-export default function AiInsightsPanel({ data }: { data: any }) {
-  if (!data) return null;
-  const { insights = [], predictions = {} } = data;
-
-  const pct      = Number(predictions.placementPercentage ?? 0);
-  const avgPkg   = Number(predictions.averagePackage ?? 0);
-  const highPkg  = Number(predictions.highestPackage ?? 0);
-  const companies= Math.round(Number(predictions.expectedCompanies ?? 0));
-  const trend    = String(predictions.trend ?? 'STABLE');
-  const atRisk   = String(predictions.atRisk ?? '—');
-  const isUp     = trend === 'UPWARD';
+export default function AiInsightsPanel({ data }: { data: string[] }) {
+  if (!data || !Array.isArray(data)) return null;
+  const insights = data;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
-      {/* ── Left: Insights ──────────────────────────────── */}
-      <Card className="lg:col-span-2 p-6 bg-slate-900 text-white border-slate-800 shadow-xl overflow-hidden relative">
+      {/* ── Insights ──────────────────────────────── */}
+      <Card className="lg:col-span-3 p-6 bg-slate-900 text-white border-slate-800 shadow-xl overflow-hidden relative">
         {/* Glow blobs */}
         <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-12 left-10 w-40 h-40 bg-purple-600/8 rounded-full blur-2xl pointer-events-none" />
@@ -160,85 +152,6 @@ export default function AiInsightsPanel({ data }: { data: any }) {
         </div>
       </Card>
 
-      {/* ── Right: Predictive Forecast ───────────────────── */}
-      <Card className="p-0 bg-transparent border-0 shadow-none overflow-visible">
-        {/* Outer gradient shell */}
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-[#1e1b4b] via-[#1a1040] to-[#0f0a1e] border border-indigo-700/30 shadow-2xl shadow-indigo-950/60 h-full">
-
-          {/* Decorative orbs */}
-          <div className="absolute -top-10 -left-10 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-purple-600/20 rounded-full blur-2xl pointer-events-none" />
-
-          <div className="relative z-10 p-6 flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-purple-500/20 ring-1 ring-purple-500/30">
-                  <Zap className="w-4 h-4 text-purple-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white leading-tight">Predictive Forecast</h2>
-                  <p className="text-[10px] text-indigo-400/70 font-semibold tracking-wider uppercase">ML · 2026</p>
-                </div>
-              </div>
-              {/* Trend badge */}
-              <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border ${
-                isUp
-                  ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                  : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-              }`}>
-                {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                {trend}
-              </div>
-            </div>
-
-            {/* Radial gauge + label */}
-            <div className="flex flex-col items-center py-2">
-              <RadialGauge value={pct} />
-              <p className="text-[11px] text-indigo-300/70 font-semibold uppercase tracking-widest mt-2">
-                Placement Rate
-              </p>
-            </div>
-
-            {/* Divider */}
-            <div className="my-4 border-t border-white/8" />
-
-            {/* Stats grid */}
-            <div className="grid grid-cols-2 gap-2.5 flex-1">
-              <StatTile
-                label="Highest Pkg"
-                value={fmt(highPkg)}
-                unit="LPA"
-                icon={IndianRupee}
-                accent="indigo"
-                delay={0.1}
-              />
-              <StatTile
-                label="Avg Package"
-                value={fmt(avgPkg)}
-                unit="LPA"
-                icon={IndianRupee}
-                accent="purple"
-                delay={0.2}
-              />
-              <StatTile
-                label="Companies"
-                value={companies}
-                icon={Building2}
-                accent="emerald"
-                delay={0.3}
-              />
-              <StatTile
-                label="At Risk"
-                value={atRisk}
-                icon={AlertTriangle}
-                accent="rose"
-                delay={0.4}
-              />
-            </div>
-          </div>
-        </div>
-      </Card>
 
     </div>
   );
