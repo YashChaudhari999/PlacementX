@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -24,8 +24,8 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const res = await axios.get('http://localhost:5000/api/notifications', {
-        headers: { 'x-user-id': user.id },
+      const res = await api.get('/notifications', {
+        
       });
       const sorted = res.data.sort(
         (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

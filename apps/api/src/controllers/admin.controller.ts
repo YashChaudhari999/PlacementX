@@ -4,6 +4,8 @@ import { firebaseAdmin } from '../config/firebaseAdmin';
 import prisma from '../utils/prisma';
 
 // Prisma is deprecated; migrating endpoints to Firebase RTDB
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -74,6 +76,7 @@ export const importStudents = async (req: any, res: any) => {
 
       const plainPassword = providedPassword || phone || 'student123';
 
+<<<<<<< HEAD
       let firebaseUid = null;
       let firebaseStatus = '';
       let rtdbStatus = '';
@@ -116,6 +119,21 @@ export const importStudents = async (req: any, res: any) => {
             summary.firebaseAccountsCreated++;
           } else {
             throw error;
+=======
+      await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          role: 'STUDENT',
+          studentProfile: {
+            create: {
+              firstName,
+              lastName: lastName || '',
+              branch: branch || null,
+              cgpa: cgpa ? parseFloat(cgpa) : null,
+              phone: phone || null
+            }
+>>>>>>> ecf8d5e6085864fa3365d1642b4dfcb03e291ced
           }
         }
       } catch (authError: any) {
@@ -377,7 +395,7 @@ export const broadcastNotification = async (req: any, res: any) => {
 
     // Create notifications in bulk
     const notifications = students.map((student: any) => ({
-      userId: student.id,
+      receiverId: student.id,
       title,
       message,
       link,
@@ -399,6 +417,7 @@ export const broadcastNotification = async (req: any, res: any) => {
 export const getCalendarEvents = async (req: any, res: any) => {
   try {
     const now = new Date();
+    const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     
     // --- 1. Summary Statistics ---
     const [

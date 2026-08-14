@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle, XCircle, Download, FileSpreadsheet, AlertTriangle, AlertCircle } from 'lucide-react';
-import { CSVParserService, CSVValidationError } from '@/lib/csvParserService';
+import { CSVParserService } from '@/lib/csvParserService';
+import type { CSVValidationError } from '@/lib/csvParserService';
 import type { CSVStudentRow } from '@/lib/firebase/models';
-import { StudentImportService, ImportResult } from '../services/studentImportService';
+import { StudentImportService } from '../services/studentImportService';
+import type { ImportResult } from '../services/studentImportService';
 import { auth } from '@/lib/firebase/config/firebaseApp';
 import { toast } from 'react-hot-toast';
 
@@ -22,12 +24,12 @@ export default function AdminStudentImport() {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
+      const selectedFile = e.target.files[0] || null;
       setFile(selectedFile);
       setParsedData([]);
       setValidationErrors([]);
       setImportResult(null);
-      await parseFile(selectedFile);
+      if (selectedFile) await parseFile(selectedFile);
     }
   };
 

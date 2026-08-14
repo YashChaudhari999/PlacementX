@@ -1,8 +1,8 @@
-import { apiClient } from '@/lib/apiClient';
+import api from '@/lib/api';
 
 export const adminService = {
   getDashboard: async () => {
-    const res = await apiClient.get('/admin/dashboard');
+    const res = await api.get('/admin/dashboard');
     return res.data;
   },
 };

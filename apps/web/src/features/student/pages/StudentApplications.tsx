@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
 import { Building2, Calendar, ChevronRight, CheckCircle2, Clock, XCircle, MoreHorizontal } from 'lucide-react';
@@ -23,8 +23,8 @@ export default function StudentApplications() {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/student/applications', {
-        headers: { 'x-user-id': user?.id }
+      const res = await api.get('/student/applications', {
+        
       });
       setApplications(res.data);
     } catch (error) {
@@ -62,7 +62,7 @@ export default function StudentApplications() {
 
   const itemVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 10 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+    visible: { opacity: 1, scale: 1, y: 0 }
   };
 
   return (

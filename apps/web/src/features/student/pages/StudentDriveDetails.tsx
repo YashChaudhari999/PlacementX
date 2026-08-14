@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button } from '@/components/ui';
 import { Building2, MapPin, CalendarDays, IndianRupee, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
@@ -22,7 +22,7 @@ export default function StudentDriveDetails() {
 
   const fetchDriveDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/drives/${id}`);
+      const res = await api.get(`/admin/drives/${id}`);
       setDrive(res.data);
     } catch (error) {
       console.error(error);
@@ -34,8 +34,8 @@ export default function StudentDriveDetails() {
   const checkEligibility = async () => {
     if (!user) return;
     try {
-      const res = await axios.get(`http://localhost:5000/api/admin/drives/${id}/eligibility`, {
-        headers: { 'x-user-id': user.id }
+      const res = await api.get(`/admin/drives/${id}/eligibility`, {
+        
       });
       setEligibility(res.data);
     } catch (error) {
@@ -48,9 +48,9 @@ export default function StudentDriveDetails() {
   const handleApply = async () => {
     try {
       setLoading(true);
-      await axios.post('http://localhost:5000/api/student/applications', 
+      await api.post('/student/applications', 
         { driveId: id },
-        { headers: { 'x-user-id': user?.id } }
+        {  }
       );
       toast.success('Successfully applied to the drive!');
       navigate('/student/applications');

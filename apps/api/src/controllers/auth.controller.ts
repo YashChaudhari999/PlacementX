@@ -80,27 +80,9 @@ export const firebaseLogin = async (req: Request, res: Response) => {
              };
          }
       } else if (email === 'admin@nmims.edu') {
-         // Auto-provision default admin if missing in RTDB
-         const newAdminRef = db.ref('admins').push();
-         userId = newAdminRef.key as string;
-         const adminData = {
-             profile: {
-                 name: 'System Admin',
-                 email: email
-             },
-             role: 'superadmin',
-             permissions: ["manage_students", "manage_drives", "approve_submissions"],
-             createdAt: new Date().toISOString()
-         };
-         await newAdminRef.set(adminData);
-         user = {
-             id: userId,
-             email: email,
-             role: role,
-             firstName: 'System',
-             lastName: 'Admin'
-         };
-         console.log('Auto-provisioned default admin in RTDB');
+         // Auto-provisioning disabled for security. Admin must be provisioned securely.
+         console.log('Login rejected: Auto-provisioning admin is disabled.');
+         return res.status(403).json({ error: 'Auto-provisioning is disabled. Contact system administrator.' });
       }
     }
 
@@ -111,9 +93,13 @@ export const firebaseLogin = async (req: Request, res: Response) => {
 
     console.log('Firebase login successful for user:', email);
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET is required');
+    }
+
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.JWT_SECRET || 'secret',
+      process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 

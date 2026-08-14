@@ -5,7 +5,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 
 import CalendarSidebar from '../components/calendar/CalendarSidebar';
@@ -29,7 +29,7 @@ export default function AdminCalendar() {
   const { data, isPending, error } = useQuery({
     queryKey: ['admin-calendar'],
     queryFn: async () => {
-      const res = await axios.get('http://localhost:5000/api/admin/calendar');
+      const res = await api.get('/admin/calendar');
       return res.data;
     },
     refetchInterval: 60000,

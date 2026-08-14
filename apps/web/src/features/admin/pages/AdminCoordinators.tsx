@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { Users, Plus, Shield, Mail, Search } from 'lucide-react';
@@ -20,7 +20,7 @@ export default function AdminCoordinators() {
 
   const fetchCoordinators = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/coordinators');
+      const res = await api.get('/admin/coordinators');
       setCoordinators(res.data);
     } catch (error) {
       console.error(error);
@@ -33,7 +33,7 @@ export default function AdminCoordinators() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/admin/coordinators', formData);
+      await api.post('/admin/coordinators', formData);
       toast.success('Coordinator added successfully');
       setShowAdd(false);
       setFormData({ firstName: '', lastName: '', email: '', password: '' });

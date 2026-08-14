@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { FileText, Download, Building2, CheckCircle2 } from 'lucide-react';
@@ -21,8 +21,8 @@ export default function StudentDocuments() {
   const fetchDocuments = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5000/api/student/documents', {
-        headers: { 'x-user-id': user?.id }
+      const res = await api.get('/student/documents', {
+        
       });
       setData(res.data);
     } catch (error) {

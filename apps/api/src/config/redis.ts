@@ -16,6 +16,7 @@ export const initRedis = (): Redis | null => {
   console.log('Redis disabled locally to prevent connection errors.');
   return null;
   try {
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
     redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: null, // Required by BullMQ
       enableReadyCheck: false,
@@ -28,17 +29,17 @@ export const initRedis = (): Redis | null => {
       },
     });
 
-    redisClient.on('connect', () => {
+    redisClient?.on('connect', () => {
       isRedisAvailable = true;
       console.log('✅ Redis connected successfully.');
     });
 
-    redisClient.on('error', (err) => {
+    redisClient?.on('error', (err) => {
       isRedisAvailable = false;
       console.error('❌ Redis error:', err.message);
     });
 
-    redisClient.on('close', () => {
+    redisClient?.on('close', () => {
       isRedisAvailable = false;
     });
 

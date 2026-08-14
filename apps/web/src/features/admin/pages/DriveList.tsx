@@ -6,7 +6,7 @@ import { useDrives } from '@/hooks/queries/useDrives';
 import { ListSkeleton } from '@/components/common/Skeletons';
 import { GenerateHrInviteModal } from '../components/GenerateHrInviteModal';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/lib/api';
 
 interface Drive {
   id: string;
@@ -41,7 +41,7 @@ export default function DriveList() {
     setActiveMenuId(null);
     if (window.confirm("Are you sure you want to delete this drive?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/admin/drives/${id}`);
+        await api.delete(`/admin/drives/${id}`);
         toast.success("Drive deleted successfully");
         refetch();
       } catch (err: any) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
 import { FileSpreadsheet, Download, RefreshCw, BarChart2 } from 'lucide-react';
@@ -15,7 +15,7 @@ export default function AdminReports() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/reports/data');
+      const res = await api.get('/admin/reports/data');
       setData(res.data);
     } catch (error) {
       console.error(error);
