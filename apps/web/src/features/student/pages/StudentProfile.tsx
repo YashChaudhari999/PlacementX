@@ -210,12 +210,17 @@ export default function StudentProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">Branch / Specialization</label>
-                    <Input 
+                    <select 
                       value={profile.branch} 
                       onChange={e => setProfile({...profile, branch: e.target.value})} 
-                      placeholder="Computer Science" 
-                      className="h-12 bg-slate-50/50 focus:bg-white text-lg rounded-xl"
-                    />
+                      className="w-full h-12 bg-slate-50/50 focus:bg-white border border-slate-200 text-lg rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select Branch</option>
+                      <option value="Information Technology">Information Technology</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Computer Engineering">Computer Engineering</option>
+                      <option value="AI/ML">AI/ML</option>
+                    </select>
                   </div>
                   <div className="space-y-3">
                     <label className="text-sm font-bold text-slate-700 uppercase tracking-wider">CGPA</label>

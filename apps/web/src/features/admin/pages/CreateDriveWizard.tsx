@@ -452,11 +452,10 @@ function Step3Eligibility() {
         <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium text-slate-700">Eligible Branches (Hold Ctrl/Cmd to select multiple)</label>
           <select multiple {...register('eligibleBranches')} className="w-full h-32 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
-            <option value="CS">Computer Science</option>
-            <option value="IT">Information Technology</option>
-            <option value="EXTC">Electronics & Telecommunication</option>
-            <option value="MECH">Mechanical Engineering</option>
-            <option value="CIVIL">Civil Engineering</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Computer Engineering">Computer Engineering</option>
+            <option value="AI/ML">AI/ML</option>
           </select>
         </div>
         

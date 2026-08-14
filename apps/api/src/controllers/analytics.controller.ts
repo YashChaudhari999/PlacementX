@@ -287,7 +287,7 @@ export const getAnalyticsCharts = async (req: any, res: any) => {
       studentsHired: c.selected,
       avgPackage: 10,
       highestPackage: 15,
-      department: 'Computer Eng.'
+      department: 'Computer Engineering'
     }));
 
     return res.status(200).json({
@@ -319,7 +319,7 @@ export const getAnalyticsAiInsights = async (req: any, res: any) => {
       "Average package increased by 1.8 LPA.",
       "Computer Engineering department showed the highest growth.",
       "Amazon hired 35% more students this season.",
-      "Placement percentage dropped slightly in Civil Engineering.",
+      "Placement percentage dropped slightly in Information Technology.",
       "Top recruiters shifted from service companies to product companies.",
       "Interview conversion improved by 12% across all branches."
     ];
@@ -330,7 +330,7 @@ export const getAnalyticsAiInsights = async (req: any, res: any) => {
       highestPackage: 35,
       averagePackage: 11.5,
       trend: "Upward",
-      atRisk: "Mechanical Engineering"
+      atRisk: "AI/ML"
     };
 
     try {

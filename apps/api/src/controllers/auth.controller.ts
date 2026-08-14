@@ -3,7 +3,9 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebaseAdmin';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
@@ -46,49 +48,43 @@ export const firebaseLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid Firebase token: no email found' });
     }
 
-    const db = firebaseAdmin.database();
-    let user: any = null;
-    let userId: string = '';
+    const userRecord = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        studentProfile: true,
+        adminProfile: true,
+        coordinatorProfile: true,
+      }
+    });
 
-    if (role === 'STUDENT') {
-      const snapshot = await db.ref('students').orderByChild('contactDetails/email').equalTo(email).once('value');
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        userId = Object.keys(data)[0];
-        const studentData = data[userId];
-        user = {
-          id: userId,
-          email: studentData.contactDetails?.email,
-          role: 'STUDENT',
-          firstName: studentData.personalInfo?.firstName,
-          lastName: studentData.personalInfo?.lastName,
-        };
-      }
-    } else if (role === 'SUPER_ADMIN' || role === 'COORDINATOR') {
-      const snapshot = await db.ref('admins').orderByChild('profile/email').equalTo(email).once('value');
-      if (snapshot.exists()) {
-         const data = snapshot.val();
-         userId = Object.keys(data)[0];
-         const adminData = data[userId];
-         if (adminData.role === role.toLowerCase() || adminData.role === 'superadmin') {
-             user = {
-               id: userId,
-               email: adminData.profile?.email,
-               role: role, 
-               firstName: adminData.profile?.name?.split(' ')[0] || 'Admin',
-               lastName: adminData.profile?.name?.split(' ').slice(1).join(' ') || '',
-             };
-         }
-      } else if (email === 'admin@nmims.edu') {
-         // Auto-provisioning disabled for security. Admin must be provisioned securely.
-         console.log('Login rejected: Auto-provisioning admin is disabled.');
-         return res.status(403).json({ error: 'Auto-provisioning is disabled. Contact system administrator.' });
-      }
+    if (!userRecord) {
+      console.log(`Firebase login failed: user not found in Prisma DB for email ${email}`);
+      return res.status(401).json({ error: 'User not registered in the system' });
     }
 
-    if (!user) {
-      console.log(`Firebase login failed: user not found in Realtime DB for role ${role}`, email);
-      return res.status(401).json({ error: 'User not registered in the system or role mismatch' });
+    // Check if the requested role matches the database role
+    // For admins, allow them to login as SUPER_ADMIN or COORDINATOR if they have that role
+    if (role === 'STUDENT' && userRecord.role !== 'STUDENT') {
+       return res.status(401).json({ error: 'Role mismatch: user is not a student' });
+    }
+    
+    let user = {
+      id: userRecord.id,
+      email: userRecord.email,
+      role: userRecord.role,
+      firstName: 'Admin',
+      lastName: '',
+    };
+
+    if (userRecord.role === 'STUDENT' && userRecord.studentProfile) {
+      user.firstName = userRecord.studentProfile.firstName || '';
+      user.lastName = userRecord.studentProfile.lastName || '';
+    } else if (userRecord.role === 'SUPER_ADMIN' && userRecord.adminProfile) {
+      user.firstName = userRecord.adminProfile.firstName || 'Admin';
+      user.lastName = userRecord.adminProfile.lastName || '';
+    } else if (userRecord.role === 'COORDINATOR' && userRecord.coordinatorProfile) {
+      user.firstName = userRecord.coordinatorProfile.firstName || 'Admin';
+      user.lastName = userRecord.coordinatorProfile.lastName || '';
     }
 
     console.log('Firebase login successful for user:', email);
@@ -124,40 +120,43 @@ export const getMe = async (req: Request, res: Response) => {
     // @ts-ignore
     const role = req.user.role;
     
-    const db = firebaseAdmin.database();
-    let userResponse: any = null;
+    const userRecord = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        studentProfile: true,
+        adminProfile: true,
+        coordinatorProfile: true,
+      }
+    });
 
-    if (role === 'STUDENT') {
-       const snapshot = await db.ref(`students/${userId}`).once('value');
-       if (snapshot.exists()) {
-           const data = snapshot.val();
-           userResponse = {
-              id: userId,
-              email: data.contactDetails?.email,
-              role: 'STUDENT',
-              firstName: data.personalInfo?.firstName,
-              lastName: data.personalInfo?.lastName,
-              isProfileComplete: data.profileCompletion === 100,
-           };
-       }
-    } else {
-       const snapshot = await db.ref(`admins/${userId}`).once('value');
-       if (snapshot.exists()) {
-           const data = snapshot.val();
-           userResponse = {
-              id: userId,
-              email: data.profile?.email,
-              role: role,
-              firstName: data.profile?.name?.split(' ')[0] || 'Admin',
-              lastName: data.profile?.name?.split(' ').slice(1).join(' ') || '',
-              isProfileComplete: true,
-           };
-       }
-    }
-
-    if (!userResponse) {
+    if (!userRecord) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    let isProfileComplete = true;
+    let firstName = 'Admin';
+    let lastName = '';
+
+    if (role === 'STUDENT' && userRecord.studentProfile) {
+       isProfileComplete = userRecord.studentProfile.isProfileComplete;
+       firstName = userRecord.studentProfile.firstName || '';
+       lastName = userRecord.studentProfile.lastName || '';
+    } else if (role === 'SUPER_ADMIN' && userRecord.adminProfile) {
+       firstName = userRecord.adminProfile.firstName || 'Admin';
+       lastName = userRecord.adminProfile.lastName || '';
+    } else if (role === 'COORDINATOR' && userRecord.coordinatorProfile) {
+       firstName = userRecord.coordinatorProfile.firstName || 'Admin';
+       lastName = userRecord.coordinatorProfile.lastName || '';
+    }
+
+    const userResponse = {
+       id: userId,
+       email: userRecord.email,
+       role: role,
+       firstName,
+       lastName,
+       isProfileComplete,
+    };
 
     res.status(200).json({ user: userResponse });
   } catch (error) {

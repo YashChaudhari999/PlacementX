@@ -344,11 +344,10 @@ export default function HrDriveWizard() {
                             setDriveData({...driveData, eligibleBranches: JSON.stringify(options)});
                           }}
                         >
-                          <option value="CS" className="py-1">Computer Science</option>
-                          <option value="IT" className="py-1">Information Technology</option>
-                          <option value="EXTC" className="py-1">Electronics & Telecommunication</option>
-                          <option value="MECH" className="py-1">Mechanical Engineering</option>
-                          <option value="CIVIL" className="py-1">Civil Engineering</option>
+                          <option value="Information Technology" className="py-1">Information Technology</option>
+                          <option value="Computer Science" className="py-1">Computer Science</option>
+                          <option value="Computer Engineering" className="py-1">Computer Engineering</option>
+                          <option value="AI/ML" className="py-1">AI/ML</option>
                         </select>
                       </div>
                       

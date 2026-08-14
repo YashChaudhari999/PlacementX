@@ -97,10 +97,10 @@ export default function GlobalFilters() {
               className="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/20"
             >
               <option>All</option>
-              <option>Computer Engineering</option>
               <option>Information Technology</option>
-              <option>Mechanical</option>
-              <option>Civil</option>
+              <option>Computer Science</option>
+              <option>Computer Engineering</option>
+              <option>AI/ML</option>
             </select>
           </div>
 
