@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebaseAdmin';
+import prisma from '../utils/prisma';
 
 // Prisma is deprecated; migrating endpoints to Firebase RTDB
 
@@ -47,51 +48,229 @@ export const importStudents = async (req: any, res: any) => {
       return res.status(400).json({ message: 'Invalid or empty students array' });
     }
 
-    const defaultPassword = await bcrypt.hash('student123', 10);
+    const results = [];
+    let summary = {
+      total: students.length,
+      firebaseAccountsCreated: 0,
+      firebaseAccountsExisting: 0,
+      rtdbRecordsProcessed: 0,
+      supabaseRecordsCreated: 0,
+      supabaseRecordsUpdated: 0,
+      failedRecords: 0
+    };
+
+    const db = firebaseAdmin.database();
     
-    let importedCount = 0;
-    
-    // Process each student sequentially to avoid overwhelming DB and to handle existing gracefully
+    // Process each student sequentially
     for (const student of students) {
       const email = student["Email"];
-      const firstName = student["First Name"];
-      const lastName = student["Last Name"];
-      const branch = student["Branch"];
-      const cgpa = student["CGPA"];
-      const phone = student["Phone"];
+      const firstName = student["First Name"] || '';
+      const lastName = student["Last Name"] || '';
+      const branch = student["Branch"] || '';
+      const phone = student["Phone"] || '';
       const providedPassword = student["Password"];
-      const rollNumber = student["Roll Number"];
-      
-      if (!email || !firstName) continue;
-
-      const existingUser = await prisma.user.findUnique({ where: { email } });
-      if (existingUser) continue;
+      const rollNumber = student["Roll Number"] || '';
+      const gender = student["Gender"] || '';
 
       const plainPassword = providedPassword || phone || 'student123';
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
 
-      await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          role: 'STUDENT',
-          studentProfile: {
-            create: {
-              firstName,
-              lastName: lastName || '',
-              branch: branch || null,
-              cgpa: cgpa ? parseFloat(cgpa) : null,
-              phone: phone || null,
-              rollNumber: rollNumber || null
-            }
+      let firebaseUid = null;
+      let firebaseStatus = '';
+      let rtdbStatus = '';
+      let supabaseStatus = '';
+      let overallStatus = 'Success';
+      let errorReason = null;
+      let isExistingSupabase = false;
+
+      if (!email || !firstName) {
+        results.push({
+          "Roll Number": rollNumber,
+          Name: `${firstName} ${lastName}`.trim(),
+          Email: email,
+          "Firebase Status": 'Failed',
+          "RTDB Status": 'Failed',
+          "Supabase Status": 'Failed',
+          "Overall Status": 'Failed',
+          "Error Reason": 'Missing required fields (Email or First Name)'
+        });
+        summary.failedRecords++;
+        continue;
+      }
+
+      // Step 1: Firebase Authentication
+      try {
+        try {
+          const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
+          firebaseUid = userRecord.uid;
+          firebaseStatus = 'Existing';
+          summary.firebaseAccountsExisting++;
+        } catch (error: any) {
+          if (error.code === 'auth/user-not-found') {
+            const newUser = await firebaseAdmin.auth().createUser({
+              email: email,
+              password: plainPassword,
+              displayName: `${firstName} ${lastName}`.trim()
+            });
+            firebaseUid = newUser.uid;
+            firebaseStatus = 'Created';
+            summary.firebaseAccountsCreated++;
+          } else {
+            throw error;
           }
         }
+      } catch (authError: any) {
+        errorReason = `Firebase Auth Error: ${authError.message}`;
+        overallStatus = 'Failed';
+        firebaseStatus = 'Failed';
+        rtdbStatus = 'Skipped';
+        supabaseStatus = 'Skipped';
+      }
+
+      // Step 2: Firebase Realtime Database
+      if (firebaseUid) {
+        try {
+          const studentRecord = {
+            id: firebaseUid,
+            role: "student",
+            accountStatus: "active",
+            studentRollNumber: rollNumber,
+            emailVerified: false,
+            personalInfo: {
+              firstName: firstName,
+              lastName: lastName,
+              gender: gender,
+              dob: ""
+            },
+            academicInfo: {
+              departmentId: branch,
+              branchId: branch,
+              cgpa: 0,
+              batch: new Date().getFullYear(),
+              semester: 1
+            },
+            eligibility: {
+              isEligible: true,
+              activeBacklogs: 0,
+              totalBacklogs: 0
+            },
+            contactDetails: {
+              email: email,
+              phone: phone,
+              linkedin: "",
+              github: ""
+            },
+            profileCompletion: 30,
+            resumeVersion: "",
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            lastLogin: null
+          };
+
+          await db.ref(`students/${firebaseUid}`).update(studentRecord);
+          rtdbStatus = 'Updated';
+          summary.rtdbRecordsProcessed++;
+        } catch (rtdbError: any) {
+          errorReason = `RTDB Error: ${rtdbError.message}`;
+          overallStatus = 'Partial Failure';
+          rtdbStatus = 'Failed';
+        }
+      }
+
+      // Step 3: Supabase PostgreSQL
+      if (firebaseUid && overallStatus !== 'Partial Failure') {
+        try {
+          const existingUserByUid = await prisma.user.findUnique({ where: { firebaseUid } });
+          const existingUserByEmail = existingUserByUid ? null : await prisma.user.findUnique({ where: { email } });
+          
+          let userIdToUpdate = null;
+          if (existingUserByUid) {
+            userIdToUpdate = existingUserByUid.id;
+            isExistingSupabase = true;
+          } else if (existingUserByEmail) {
+            userIdToUpdate = existingUserByEmail.id;
+            isExistingSupabase = true;
+          }
+
+          const dummyHashedPassword = await bcrypt.hash('dummy_pass_not_used', 10);
+
+          if (userIdToUpdate) {
+            await prisma.user.update({
+              where: { id: userIdToUpdate },
+              data: {
+                firebaseUid: firebaseUid,
+                studentProfile: {
+                  upsert: {
+                    create: {
+                      firstName,
+                      lastName: lastName,
+                      branch: branch,
+                      phone: phone,
+                      gender: gender
+                    },
+                    update: {
+                      firstName,
+                      lastName: lastName,
+                      branch: branch,
+                      phone: phone,
+                      gender: gender
+                    }
+                  }
+                }
+              }
+            });
+            supabaseStatus = 'Updated';
+            summary.supabaseRecordsUpdated++;
+          } else {
+            await prisma.user.create({
+              data: {
+                email: email,
+                password: dummyHashedPassword,
+                firebaseUid: firebaseUid,
+                role: 'STUDENT',
+                studentProfile: {
+                  create: {
+                    firstName,
+                    lastName: lastName,
+                    branch: branch,
+                    phone: phone,
+                    gender: gender
+                  }
+                }
+              }
+            });
+            supabaseStatus = 'Created';
+            summary.supabaseRecordsCreated++;
+          }
+        } catch (supabaseError: any) {
+          errorReason = `Supabase Error: ${supabaseError.message}`;
+          overallStatus = 'Partial Failure';
+          supabaseStatus = 'Failed';
+        }
+      }
+
+      if (overallStatus === 'Partial Failure' || overallStatus === 'Failed') {
+        summary.failedRecords++;
+      }
+
+      results.push({
+        "Roll Number": rollNumber,
+        Name: `${firstName} ${lastName}`.trim(),
+        Email: email,
+        "Firebase Status": firebaseStatus,
+        "RTDB Status": rtdbStatus,
+        "Supabase Status": supabaseStatus,
+        "Overall Status": overallStatus,
+        "Error Reason": errorReason || 'None'
       });
-      importedCount++;
     }
 
-    return res.status(200).json({ message: `Successfully imported ${importedCount} students.` });
+    return res.status(200).json({
+      message: 'Import processed.',
+      summary,
+      results
+    });
   } catch (error: any) {
+    console.error('Import students error:', error);
     return res.status(500).json({ message: 'Error importing students', error: error.message });
   }
 };

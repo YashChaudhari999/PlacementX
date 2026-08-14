@@ -28,6 +28,7 @@ export const initFirebaseAdmin = () => {
 
       admin.initializeApp({
         credential,
+        databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://placementx-a3f1d-default-rtdb.firebaseio.com'
       });
       
       console.log('Firebase Admin initialized successfully.');

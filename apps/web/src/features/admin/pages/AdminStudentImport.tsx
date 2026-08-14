@@ -273,7 +273,7 @@ export default function AdminStudentImport() {
               <p className="text-gray-500 mt-2">The batch import process has finished.</p>
            </div>
            
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div className="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-lg text-center">
                  <div className="text-sm text-gray-500">Total Processed</div>
                  <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">{importResult.total}</div>
@@ -282,15 +282,36 @@ export default function AdminStudentImport() {
                  <div className="text-sm text-green-600">Successfully Imported</div>
                  <div className="text-2xl font-bold text-green-700 dark:text-green-300">{importResult.imported}</div>
               </div>
-              <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg text-center">
-                 <div className="text-sm text-amber-600">Skipped (Duplicates)</div>
-                 <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">{importResult.skipped}</div>
-              </div>
               <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg text-center">
-                 <div className="text-sm text-red-600">Failed</div>
+                 <div className="text-sm text-red-600">Failed Records</div>
                  <div className="text-2xl font-bold text-red-700 dark:text-red-300">{importResult.failed}</div>
               </div>
            </div>
+
+           {importResult.summary && (
+             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center border border-blue-100">
+                  <div className="text-xs text-blue-600">Firebase Created</div>
+                  <div className="text-xl font-bold text-blue-700">{importResult.summary.firebaseAccountsCreated}</div>
+               </div>
+               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-center border border-blue-100">
+                  <div className="text-xs text-blue-600">Firebase Existing</div>
+                  <div className="text-xl font-bold text-blue-700">{importResult.summary.firebaseAccountsExisting}</div>
+               </div>
+               <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-center border border-indigo-100">
+                  <div className="text-xs text-indigo-600">RTDB Processed</div>
+                  <div className="text-xl font-bold text-indigo-700">{importResult.summary.rtdbRecordsProcessed}</div>
+               </div>
+               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-center border border-emerald-100">
+                  <div className="text-xs text-emerald-600">Supabase Created</div>
+                  <div className="text-xl font-bold text-emerald-700">{importResult.summary.supabaseRecordsCreated}</div>
+               </div>
+               <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-center border border-emerald-100">
+                  <div className="text-xs text-emerald-600">Supabase Updated</div>
+                  <div className="text-xl font-bold text-emerald-700">{importResult.summary.supabaseRecordsUpdated}</div>
+               </div>
+             </div>
+           )}
 
            {importResult.errors.length > 0 && (
              <div className="mb-8 text-sm text-red-500 bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">

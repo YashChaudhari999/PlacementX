@@ -10,6 +10,7 @@ datasource db {
 
 model User {
   id                      String                  @id @default(uuid())
+  firebaseUid             String?                 @unique
   email                   String                  @unique
   password                String
   role                    String                  @default("STUDENT")
@@ -35,16 +36,16 @@ model DeviceToken {
 }
 
 model StudentProfile {
-  id                String             @id @default(uuid())
-  userId            String             @unique
+  id                String   @id @default(uuid())
+  userId            String   @unique
   firstName         String?
   lastName          String?
   phone             String?
   branch            String?
   cgpa              Float?
   passingYear       Int?
-  activeBacklogs    Int                @default(0)
-  yearGap           Int                @default(0)
+  activeBacklogs    Int      @default(0)
+  yearGap           Int      @default(0)
   nationality       String?
   gender            String?
   resumeUrl         String?
@@ -54,10 +55,10 @@ model StudentProfile {
   skills            String?
   projects          String?
   educationDetails  String?
-  isProfileComplete Boolean            @default(false)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  
+  isProfileComplete Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
   // AI Extensions
   predictedSuccessRate Float?
   riskLevel            String?
@@ -67,8 +68,8 @@ model StudentProfile {
   lastPredictionAt     DateTime?
   profileEmbedding     Json?
 
-  applications      DriveApplication[]
-  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications DriveApplication[]
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CoordinatorProfile {
@@ -112,16 +113,16 @@ model Company {
 }
 
 model PlacementDrive {
-  id                       String             @id @default(uuid())
+  id                       String    @id @default(uuid())
   companyId                String
-  status                   String             @default("WAITING_FOR_HR")
+  status                   String    @default("WAITING_FOR_HR")
   jobRole                  String?
   jobDescription           String?
   fixedSalary              Float?
   variableSalary           Float?
   internshipStipend        Float?
   employmentType           String?
-  ppoAvailable             Boolean            @default(false)
+  ppoAvailable             Boolean   @default(false)
   bondDetails              String?
   vacancies                Int?
   location                 String?
@@ -129,33 +130,33 @@ model PlacementDrive {
   eligibleBranches         String?
   passingYear              Int?
   minimumCgpa              Float?
-  activeBacklogsAllowed    Int                @default(0)
-  yearGapAllowed           Int                @default(0)
-  maximumLiveOffers        Int                @default(1)
+  activeBacklogsAllowed    Int       @default(0)
+  yearGapAllowed           Int       @default(0)
+  maximumLiveOffers        Int       @default(1)
   genderRestriction        String?
   registrationStart        DateTime?
   registrationEnd          DateTime?
   nominationLink           String?
   maximumApplicants        Int?
-  resumeMandatory          Boolean            @default(true)
-  portfolioRequired        Boolean            @default(false)
-  githubRequired           Boolean            @default(false)
+  resumeMandatory          Boolean   @default(true)
+  portfolioRequired        Boolean   @default(false)
+  githubRequired           Boolean   @default(false)
   attachments              String?
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
   academicYear             String?
   applicationDeadline      DateTime?
   benefits                 String?
   campus                   String?
-  consentGiven             Boolean            @default(false)
+  consentGiven             Boolean   @default(false)
   department               String?
   driveTitle               String?
   driveType                String?
   expectedDriveDate        DateTime?
-  historyOfBacklogsAllowed Int                @default(0)
+  historyOfBacklogsAllowed Int       @default(0)
   joiningBonus             Float?
-  linkedinRequired         Boolean            @default(false)
-  maximumGapYears          Int                @default(0)
+  linkedinRequired         Boolean   @default(false)
+  maximumGapYears          Int       @default(0)
   minimumAttendance        Float?
   placementSeason          String?
   preferredSkills          String?
@@ -167,14 +168,14 @@ model PlacementDrive {
   trainingPeriod           String?
 
   // AI Extensions
-  jobEmbedding             Json?
-  semanticTags             Json?
+  jobEmbedding Json?
+  semanticTags Json?
 
-  applications             DriveApplication[]
-  auditLogs                DriveAuditLog[]
-  hrInvitations            HrInvitationLink[]
-  company                  Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  selectionRounds          SelectionRound[]
+  applications    DriveApplication[]
+  auditLogs       DriveAuditLog[]
+  hrInvitations   HrInvitationLink[]
+  company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  selectionRounds SelectionRound[]
 }
 
 model SelectionRound {
@@ -300,4 +301,3 @@ model PlacementAnalytics {
   predictionDate   DateTime @default(now())
   trend            String?
 }
-

@@ -9,8 +9,10 @@ import { Platform } from 'react-native';
  */
 const getBaseUrl = (): string => {
   if (__DEV__) {
-    // Using LAN IP to ensure it works on physical devices (Expo Go) as well as emulators
-    return 'http://192.168.1.3:5000/api';
+    if (Platform.OS === 'android') {
+      return 'http://10.0.2.2:5000/api';
+    }
+    return 'http://localhost:5000/api';
   }
   // In production, replace with your actual API URL
   return 'https://api.placementx.com/api';

@@ -16,22 +16,22 @@ const initializeFirebaseAdmin = () => {
       const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
       return admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: process.env.FIREBASE_DATABASE_URL,
+        databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://placementx-a3f1d-default-rtdb.firebaseio.com',
       });
     }
 
     // Alternatively, if the whole JSON is provided as a string
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
       const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
-      
+
       // Fix escaped newlines in the private key
       if (serviceAccount.private_key) {
         serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
       }
-      
+
       return admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        databaseURL: process.env.FIREBASE_DATABASE_URL,
+        databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://placementx-a3f1d-default-rtdb.firebaseio.com',
       });
     }
 
@@ -44,13 +44,15 @@ const initializeFirebaseAdmin = () => {
           // Replace escaped newlines with actual newlines
           privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
-        databaseURL: process.env.FIREBASE_DATABASE_URL,
+        databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://placementx-a3f1d-default-rtdb.firebaseio.com',
       });
     }
 
     // Fallback if no specific config is provided (assumes default GCP credentials)
     console.warn('No Firebase Service Account config found. Falling back to application default credentials.');
-    return admin.initializeApp();
+    return admin.initializeApp({
+      databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://placementx-a3f1d-default-rtdb.firebaseio.com'
+    });
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
     throw error;
