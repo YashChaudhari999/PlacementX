@@ -417,45 +417,75 @@ export const getAdminDashboard = async (req: any, res: any) => {
   try {
     const db = firebaseAdmin.database();
     
-    const studentsSnap = await db.ref('students').once('value');
-    const students = studentsSnap.exists() ? Object.values(studentsSnap.val()) : [];
-    const eligibleStudents = students.filter((s: any) => s.profileCompletion === 100).length;
+    // Fetch data directly from Firebase
+    const [studentsSnap, drivesSnap, applicationsSnap] = await Promise.all([
+      db.ref('students').once('value'),
+      db.ref('drives').once('value'),
+      db.ref('applications').once('value'),
+    ]);
 
-    const drivesSnap = await db.ref('placement_drives').once('value');
-    const drives = drivesSnap.exists() ? Object.values(drivesSnap.val()) : [];
+    const studentsData = studentsSnap.exists() ? studentsSnap.val() : {};
+    const drivesData = drivesSnap.exists() ? drivesSnap.val() : {};
+    const applicationsData = applicationsSnap.exists() ? applicationsSnap.val() : {};
+
+    const totalStudents = Object.keys(studentsData).length;
+    const totalDrives = Object.keys(drivesData).length;
+    const totalApplications = Object.keys(applicationsData).length;
+
+    // Compute drive stats
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    let todayDrives = 0, openDrives = 0, upcomingDrives = 0;
     
-    const now = Date.now();
-    let openDrives = 0;
-    
-    drives.forEach((d: any) => {
-       if (d.registrationStart && d.registrationEnd) {
-           const start = new Date(d.registrationStart).getTime();
-           const end = new Date(d.registrationEnd).getTime();
-           if (start <= now && end > now) openDrives++;
-       }
+    Object.values(drivesData).forEach((drive: any) => {
+      const driveDate = drive.date || drive.startDate || '';
+      if (driveDate === today) todayDrives++;
+      if (drive.status === 'open' || drive.status === 'OPEN') openDrives++;
+      if (drive.status === 'upcoming' || drive.status === 'UPCOMING') upcomingDrives++;
     });
 
+    // Student placement stats
+    let placedCount = 0;
+    Object.values(studentsData).forEach((s: any) => {
+      if (s.placementStatus === 'placed' || s.placementStatus === 'PLACED') {
+        placedCount++;
+      }
+    });
+
+    const placementPercentage = totalStudents > 0 ? Math.round((placedCount / totalStudents) * 100) : 0;
+
+    // Package stats
+    let highestPackage = 0;
+    let totalPackage = 0;
+    let packageList: number[] = [];
+
+    Object.values(drivesData).forEach((drive: any) => {
+      const pkg = Number(drive.fixedSalary || drive.ctc || drive.package) || 0;
+      if (pkg > 0) {
+        if (pkg > highestPackage) highestPackage = pkg;
+        totalPackage += pkg;
+        packageList.push(pkg);
+      }
+    });
+
+    const averagePackage = packageList.length > 0 ? Number((totalPackage / packageList.length).toFixed(1)) : 0;
+    
+    let medianPackage = 0;
+    if (packageList.length > 0) {
+      packageList.sort((a: number, b: number) => a - b);
+      const mid = Math.floor(packageList.length / 2);
+      if (packageList.length % 2 === 0) {
+        medianPackage = Number(((packageList[mid - 1] + packageList[mid]) / 2).toFixed(1));
+      } else {
+        medianPackage = packageList[mid];
+      }
+    }
+
     return res.status(200).json({
-      drives: {
-        today: 0,
-        upcomingClosed: 0,
-        open: openDrives,
-      },
-      students: {
-        eligible: eligibleStudents,
-        eligibleByCompany: [],
-        applicationsByCompany: [],
-      },
-      packages: {
-        placementPercentage: 0,
-        highest: 0,
-        average: 0,
-        median: 0,
-      },
-      overall: {
-        companiesVisited: drives.length,
-        totalOffers: 0,
-      },
+      drives: { today: todayDrives, open: openDrives, upcomingClosed: upcomingDrives },
+      students: { total: totalStudents, placed: placedCount, eligibleByCompany: [], applicationsByCompany: [] },
+      packages: { placementPercentage, highest: highestPackage, average: averagePackage, median: medianPackage },
+      overall: { companiesVisited: totalDrives, totalOffers: totalApplications }
     });
   } catch (error: any) {
     console.error('Get admin dashboard error:', error);

@@ -3,9 +3,11 @@ import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 import GlobalFilters from '../components/analytics/GlobalFilters';
 import AnalyticsKPIs from '../components/analytics/AnalyticsKPIs';
 import AnalyticsCharts from '../components/analytics/AnalyticsCharts';
+import AiInsightsPanel from '../components/analytics/AIInsightsPanel';
 import { 
   useAnalyticsSummary, 
-  useAnalyticsCharts 
+  useAnalyticsCharts,
+  useAnalyticsAiInsights
 } from '@/hooks/queries/useAnalytics';
 
 export default function AnalyticsDashboard() {
@@ -14,8 +16,9 @@ export default function AnalyticsDashboard() {
 
   const { data: summary, isPending: summaryPending } = useAnalyticsSummary(params);
   const { data: charts, isPending: chartsPending } = useAnalyticsCharts(params);
+  const { data: aiInsights, isPending: aiPending } = useAnalyticsAiInsights(params);
 
-  const isPending = summaryPending || chartsPending;
+  const isPending = summaryPending || chartsPending || aiPending;
 
   if (isPending && (!summary || !charts)) {
     return <AnalyticsSkeleton />;
@@ -37,6 +40,7 @@ export default function AnalyticsDashboard() {
 
       {isPending && <div className="text-sm text-indigo-600 animate-pulse font-medium">Refreshing data...</div>}
 
+      <AiInsightsPanel data={aiInsights} />
       <AnalyticsKPIs summary={summary} />
       <AnalyticsCharts charts={charts} />
     </div>

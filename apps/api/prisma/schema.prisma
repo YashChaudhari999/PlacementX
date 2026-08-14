@@ -57,6 +57,16 @@ model StudentProfile {
   isProfileComplete Boolean            @default(false)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
+  
+  // AI Extensions
+  predictedSuccessRate Float?
+  riskLevel            String?
+  riskFactors          Json?
+  recommendedCompanies Json?
+  recommendedJobs      Json?
+  lastPredictionAt     DateTime?
+  profileEmbedding     Json?
+
   applications      DriveApplication[]
   user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -155,6 +165,11 @@ model PlacementDrive {
   specialInstructions      String?
   technologyStack          String?
   trainingPeriod           String?
+
+  // AI Extensions
+  jobEmbedding             Json?
+  semanticTags             Json?
+
   applications             DriveApplication[]
   auditLogs                DriveAuditLog[]
   hrInvitations            HrInvitationLink[]
@@ -275,3 +290,14 @@ model DriveAuditLog {
   createdAt   DateTime       @default(now())
   drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
+
+model PlacementAnalytics {
+  id               String   @id @default(uuid())
+  forecastYear     Int
+  actualMetrics    Json?
+  predictedMetrics Json?
+  modelVersion     String?
+  predictionDate   DateTime @default(now())
+  trend            String?
+}
+

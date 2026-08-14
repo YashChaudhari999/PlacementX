@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Plus, Trash2, Building2, Briefcase, GraduationCap, CalendarDays, ClipboardCheck, Paperclip, Eye } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Plus, Trash2, Building2, Briefcase, GraduationCap, CalendarDays, ClipboardCheck, Paperclip, Eye, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useEffect, useState as useState2 } from 'react';
 import { toast } from 'sonner';
-import { Card, Input, Button } from '@/components/ui';
+import { Card, Input, Button, AvatarUpload } from '@/components/ui';
+import { storage } from '@/lib/firebase/config/firebaseApp';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 // Step definitions
 const STEPS = [
@@ -30,6 +32,7 @@ export default function CreateDriveWizard() {
   const methods = useForm({
     defaultValues: {
       companyName: '',
+      logoUrl: '',
       industry: '',
       hrName: '',
       hrEmail: '',
@@ -88,6 +91,7 @@ export default function CreateDriveWizard() {
           
           methods.reset({
             companyName: d.company?.name || '',
+            logoUrl: d.company?.logoUrl || '',
             industry: d.company?.industry || '',
             hrName: d.company?.hrName || '',
             hrEmail: d.company?.hrEmail || '',
@@ -281,7 +285,32 @@ export default function CreateDriveWizard() {
 // --- STEP COMPONENTS ---
 
 function Step1Company() {
-  const { register } = useFormContext();
+  const { register, watch, setValue } = useFormContext();
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const logoUrl = watch('logoUrl');
+
+  const handleLogoUpload = (file: File) => {
+    if (!file) return;
+    setIsUploadingLogo(true);
+    const storageRef = ref(storage, `companies/logos/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      null,
+      (err) => {
+        console.error('Logo upload failed:', err);
+        toast.error('Failed to upload logo.');
+        setIsUploadingLogo(false);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setValue('logoUrl', downloadURL, { shouldDirty: true });
+        setIsUploadingLogo(false);
+      }
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -290,6 +319,22 @@ function Step1Company() {
       </div>
       
       <div className="grid grid-cols-2 gap-6">
+        <div className="col-span-2 flex flex-col items-start space-y-3">
+          <label className="text-sm font-medium text-slate-700">Company Logo</label>
+          <div className="relative">
+            <AvatarUpload
+              currentUrl={logoUrl}
+              onFileSelected={handleLogoUpload}
+              size="lg"
+            />
+            {isUploadingLogo && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full backdrop-blur-sm z-10">
+                <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-slate-500">Upload a square logo for best display results.</p>
+        </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Company Name *</label>
           <Input {...register('companyName')} placeholder="e.g. Google India" />

@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, Input, } from '@/components/ui';
+import { Button, Input, AvatarUpload } from '@/components/ui';
 import { CheckCircle2, AlertCircle, Loader2, UploadCloud, Trash2, Calendar, Clock, MapPin, Building2, UserCircle2, BookOpen, Clock4, Paperclip, CheckSquare } from 'lucide-react';
 import api from '@/lib/api';
+import { storage } from '@/lib/firebase/config/firebaseApp';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const STEPS = [
   { title: 'Company Information', icon: Building2 },
@@ -23,6 +25,8 @@ export default function HrDriveWizard() {
   const [error, setError] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   // Form State
   const [companyData, setCompanyData] = useState<any>({});
@@ -50,6 +54,28 @@ export default function HrDriveWizard() {
     };
     validateToken();
   }, [token]);
+
+  const handleLogoUpload = (file: File) => {
+    if (!file) return;
+    setIsUploadingLogo(true);
+    const storageRef = ref(storage, `companies/logos/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      'state_changed',
+      null,
+      (err) => {
+        console.error('Logo upload failed:', err);
+        alert('Failed to upload logo.');
+        setIsUploadingLogo(false);
+      },
+      async () => {
+        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+        setCompanyData((prev: any) => ({ ...prev, logoUrl: downloadURL }));
+        setIsUploadingLogo(false);
+      }
+    );
+  };
 
   // Debounced Auto-Save
   useEffect(() => {
@@ -95,8 +121,8 @@ export default function HrDriveWizard() {
   if (loading) return (
     <div className="flex flex-col justify-center items-center h-[60vh]">
       <div className="w-16 h-16 relative mb-4">
-        <div className="absolute inset-0 rounded-xl border-4 border-slate-100"></div>
-        <div className="absolute inset-0 rounded-xl border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+        <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+        <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
       </div>
       <h2 className="text-xl font-bold text-slate-800">Authenticating Session</h2>
       <p className="text-slate-500 mt-1">Please wait while we verify your secure link...</p>
@@ -202,6 +228,23 @@ export default function HrDriveWizard() {
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="col-span-1 md:col-span-2 flex flex-col items-start space-y-3">
+                        <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider">Company Logo</label>
+                        <div className="relative">
+                          <AvatarUpload
+                            currentUrl={companyData.logoUrl}
+                            onFileSelected={handleLogoUpload}
+                            size="lg"
+                          />
+                          {isUploadingLogo && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full backdrop-blur-sm z-10">
+                              <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-sm text-slate-500">Upload a square logo for best display results.</p>
+                      </div>
+
                       <div className="space-y-2">
                         <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider">Company Name</label>
                         <Input 
@@ -521,19 +564,31 @@ export default function HrDriveWizard() {
                         <div className="mt-1">
                           <input 
                             type="checkbox" 
+                            checked={isConfirmed}
                             className="w-5 h-5 rounded border-slate-300 text-slate-900 focus:ring-slate-900/20"
                             onChange={(e) => {
-                              if (e.target.checked) {
-                                handleSubmit();
-                              }
+                              setIsConfirmed(e.target.checked);
                             }}
                           />
                         </div>
                         <div>
                           <p className="font-bold text-slate-800">I confirm that all provided details are accurate.</p>
-                          <p className="text-sm text-slate-500 mt-1">Checking this box will instantly submit your form.</p>
+                          <p className="text-sm text-slate-500 mt-1">Check this box to enable the submit button.</p>
                         </div>
                       </label>
+                      
+                      {isConfirmed && (
+                        <div className="mt-8 flex justify-end">
+                          <Button 
+                            onClick={handleSubmit} 
+                            disabled={loading}
+                            className="h-12 px-8 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20"
+                          >
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <CheckCircle2 className="w-5 h-5 mr-2" />}
+                            Submit Drive
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

@@ -26,6 +26,8 @@ export default function DriveList() {
   const { data: drives = [], isPending, error, refetch } = useDrives();
   const [isHrModalOpen, setIsHrModalOpen] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -81,12 +83,22 @@ export default function DriveList() {
       <Card className="p-4 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input placeholder="Search by company or role..." className="pl-9 bg-slate-50 border-slate-200" />
+          <Input 
+            placeholder="Search by company or role..." 
+            className="pl-9 bg-slate-50 border-slate-200" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
         <div className="flex gap-4">
-          <select className="h-10 rounded-md border border-slate-200 px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <select 
+            className="h-10 rounded-md border border-slate-200 px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
             <option value="">All Statuses</option>
             <option value="open">Open</option>
+            <option value="published">Published</option>
             <option value="upcoming">Upcoming</option>
             <option value="closed">Closed</option>
           </select>
@@ -104,10 +116,22 @@ export default function DriveList() {
         <div className="py-12 text-center text-red-500">Failed to load drives</div>
       ) : drives.length === 0 ? (
         <div className="py-12 text-center text-slate-500">No drives created yet.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {drives.map((drive: Drive) => (
-            <Card key={drive.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
+      ) : (() => {
+        const filteredDrives = drives.filter((drive: Drive) => {
+          const matchesSearch = drive.company.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
+          const matchesStatus = statusFilter === '' || drive.status.toLowerCase() === statusFilter.toLowerCase();
+          return matchesSearch && matchesStatus;
+        });
+
+        if (filteredDrives.length === 0) {
+          return <div className="py-12 text-center text-slate-500">No drives match your search filters.</div>;
+        }
+
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredDrives.map((drive: Drive) => (
+              <Card key={drive.id} className="p-6 hover:shadow-md transition-shadow group flex flex-col">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
@@ -167,9 +191,10 @@ export default function DriveList() {
                 </Link>
               </div>
             </Card>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        );
+      })()}
 
       <GenerateHrInviteModal 
         isOpen={isHrModalOpen} 

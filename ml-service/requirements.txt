@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+scikit-learn
+xgboost
+pandas
+numpy
+joblib
+spacy
+sentence-transformers
+PyMuPDF
+python-docx
+psycopg2-binary
+sqlalchemy
+requests

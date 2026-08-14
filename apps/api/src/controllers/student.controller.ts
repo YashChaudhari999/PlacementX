@@ -52,26 +52,32 @@ export const updateProfile = async (req: any, res: any) => {
       data.resumeUrl
     );
 
-    const updatedProfile = await prisma.studentProfile.update({
+    const updateData = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      branch: data.branch,
+      cgpa: data.cgpa ? parseFloat(data.cgpa) : null,
+      passingYear: data.passingYear ? parseInt(data.passingYear) : null,
+      activeBacklogs: data.activeBacklogs ? parseInt(data.activeBacklogs) : 0,
+      yearGap: data.yearGap ? parseInt(data.yearGap) : 0,
+      nationality: data.nationality,
+      gender: data.gender,
+      resumeUrl: data.resumeUrl,
+      portfolioUrl: data.portfolioUrl,
+      githubUrl: data.githubUrl,
+      skills: data.skills, // Should be passed as JSON string
+      projects: data.projects, // Should be passed as JSON string
+      educationDetails: data.educationDetails, // Should be passed as JSON string
+      isProfileComplete
+    };
+
+    const updatedProfile = await prisma.studentProfile.upsert({
       where: { userId },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        branch: data.branch,
-        cgpa: data.cgpa ? parseFloat(data.cgpa) : null,
-        passingYear: data.passingYear ? parseInt(data.passingYear) : null,
-        activeBacklogs: data.activeBacklogs ? parseInt(data.activeBacklogs) : 0,
-        yearGap: data.yearGap ? parseInt(data.yearGap) : 0,
-        nationality: data.nationality,
-        gender: data.gender,
-        resumeUrl: data.resumeUrl,
-        portfolioUrl: data.portfolioUrl,
-        githubUrl: data.githubUrl,
-        skills: data.skills, // Should be passed as JSON string
-        projects: data.projects, // Should be passed as JSON string
-        educationDetails: data.educationDetails, // Should be passed as JSON string
-        isProfileComplete
+      update: updateData,
+      create: {
+        userId,
+        ...updateData
       }
     });
 
@@ -264,3 +270,64 @@ export const getDocuments = async (req: any, res: any) => {
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
+
+// ML Prediction Proxy — calls Python ML microservice
+export const mlPredictSuccess = async (req: any, res: any) => {
+  const { studentId } = req.params;
+  const userId = req.user?.id || req.headers['x-user-id'];
+
+  try {
+    const profile = await prisma.studentProfile.findFirst({
+      where: { userId: studentId || userId }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ message: 'Profile not found for ML prediction' });
+    }
+
+    const payload = {
+      studentId: studentId || userId,
+      cgpa: profile.cgpa || 7.0,
+      experience_years: 0,
+      active_backlogs: profile.activeBacklogs || 0,
+      education: 'B.Tech',
+      occupation: 'Student'
+    };
+
+    try {
+      const mlResp = await fetch(`http://localhost:8000/api/ai/students/${studentId || userId}/success-prediction`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (mlResp.ok) {
+        const mlData = await mlResp.json();
+        return res.status(200).json(mlData);
+      }
+    } catch (mlErr) {
+      console.warn('ML service unavailable, using fallback');
+    }
+
+    // Fallback: local heuristic
+    const cgpa = profile.cgpa || 7.0;
+    const successRate = Math.min(95, Math.max(10, (cgpa / 10) * 80 + (profile.activeBacklogs === 0 ? 10 : -15)));
+    const riskLevel = successRate >= 70 ? 'LOW' : successRate >= 50 ? 'MEDIUM' : 'HIGH';
+
+    return res.status(200).json({
+      studentId: studentId || userId,
+      predictedSuccessRate: successRate,
+      riskLevel,
+      modelVersion: 'fallback-1.0.0',
+      topFactors: [
+        { feature: cgpa >= 8 ? 'High CGPA' : 'CGPA', impact: cgpa >= 7 ? 'positive' : 'negative' },
+        ...(profile.activeBacklogs > 0 ? [{ feature: 'Active Backlogs', impact: 'negative' }] : [])
+      ]
+    });
+
+  } catch (error: any) {
+    console.error('ML Predict error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+

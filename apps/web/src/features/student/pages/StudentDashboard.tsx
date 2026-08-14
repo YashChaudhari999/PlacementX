@@ -7,6 +7,9 @@ import { usePublishedDrives } from '@/hooks/queries/useDrives';
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 import { motion } from 'framer-motion';
 
+import StudentInsightsPanel from '../components/StudentInsightsPanel';
+import { useStudentProfile, useStudentMLPrediction } from '@/hooks/queries/useStudent';
+
 export default function StudentDashboard() {
   const user = useAuthStore(state => state.user);
   const [greeting, setGreeting] = useState('');
@@ -15,6 +18,8 @@ export default function StudentDashboard() {
   const notifications = notificationsResponse?.data || [];
   const { data: drives = [], isPending: drivesLoading } = usePublishedDrives();
   const markAsReadMutation = useMarkNotificationRead();
+  const { data: profileData } = useStudentProfile(user?.id);
+  const { data: mlPrediction } = useStudentMLPrediction(user?.id, profileData);
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -67,6 +72,8 @@ export default function StudentDashboard() {
           </p>
         </div>
       </motion.div>
+
+      <StudentInsightsPanel prediction={mlPrediction} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content: Active Drives */}

@@ -23,3 +23,13 @@ export const useUpdateStudentProfile = () => {
     }
   });
 };
+
+export const useStudentMLPrediction = (userId?: string, profileData?: any) => {
+  return useQuery({
+    queryKey: ['studentMLPrediction', userId],
+    queryFn: () => studentService.getMLPrediction(userId!, profileData),
+    enabled: !!userId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+

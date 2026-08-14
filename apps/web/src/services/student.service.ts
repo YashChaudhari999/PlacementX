@@ -13,5 +13,16 @@ export const studentService = {
       headers: { 'x-user-id': userId }
     });
     return res.data;
+  },
+  getMLPrediction: async (userId: string, profileData: any) => {
+    if (!userId) return null;
+    try {
+      const res = await apiClient.post(`/student/${userId}/ml-predict`, profileData, {
+        headers: { 'x-user-id': userId }
+      });
+      return res.data;
+    } catch {
+      return null;
+    }
   }
 };

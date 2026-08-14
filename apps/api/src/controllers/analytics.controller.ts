@@ -324,7 +324,7 @@ export const getAnalyticsAiInsights = async (req: any, res: any) => {
       "Interview conversion improved by 12% across all branches."
     ];
 
-    const predictions = {
+    let predictions = {
       placementPercentage: 92,
       expectedCompanies: 45,
       highestPackage: 35,
@@ -332,6 +332,24 @@ export const getAnalyticsAiInsights = async (req: any, res: any) => {
       trend: "Upward",
       atRisk: "Mechanical Engineering"
     };
+
+    try {
+      // Fetch real predictions from Python ML Service
+      const mlResponse = await fetch('http://localhost:8000/api/ai/analytics/forecast?forecastYear=2026');
+      if (mlResponse.ok) {
+        const mlData = await mlResponse.json();
+        predictions = {
+          ...predictions,
+          placementPercentage: mlData.placementPercentage,
+          expectedCompanies: mlData.visitingCompanies,
+          highestPackage: mlData.highestPackage,
+          averagePackage: mlData.averagePackage,
+          trend: mlData.trend
+        };
+      }
+    } catch (mlError) {
+      console.warn("ML Service unavailable, falling back to mock predictions", mlError);
+    }
 
     return res.status(200).json({
       insights,
