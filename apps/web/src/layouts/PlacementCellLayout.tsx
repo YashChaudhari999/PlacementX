@@ -5,7 +5,7 @@ import { authService } from '@/lib/authService';
 import { 
   LayoutDashboard, LineChart, Briefcase, Users, 
   FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, CheckCircle
+  LogOut, Menu, Search, ChevronDown, CheckCircle, ShieldCheck, FileEdit
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
@@ -28,6 +28,8 @@ export const PlacementCellLayout = () => {
     { name: 'Analytics', path: '/admin/analytics', icon: LineChart },
     { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase },
     { name: 'Students', path: '/admin/students', icon: Users },
+    { name: 'Verifications', path: '/admin/students/verifications', icon: ShieldCheck },
+    { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEdit },
     { name: 'Reports', path: '/admin/reports', icon: FileText },
     { name: 'Notifications', path: '/admin/notifications', icon: Bell },
     { name: 'Calendar', path: '/admin/calendar', icon: Calendar },

@@ -7,7 +7,11 @@ import {
   getReportsData, 
   broadcastNotification, 
   getCalendarEvents,
-  getAdminDashboard
+  getAdminDashboard,
+  getPendingProfiles,
+  verifyProfile,
+  getUpdateRequests,
+  reviewUpdateRequest
 } from '../controllers/admin.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -25,5 +29,11 @@ router.post('/coordinators', addCoordinator);
 router.get('/reports/data', getReportsData);
 router.post('/notifications/broadcast', broadcastNotification);
 router.get('/calendar', getCalendarEvents);
+
+// Verification and Updates
+router.get('/profile-verifications', getPendingProfiles);
+router.post('/profile-verifications/:id/verify', verifyProfile);
+router.get('/profile-update-requests', getUpdateRequests);
+router.post('/profile-update-requests/:id/review', reviewUpdateRequest);
 
 export default router;

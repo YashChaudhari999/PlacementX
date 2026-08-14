@@ -10,6 +10,7 @@ export interface User {
   firstName?: string;
   lastName?: string;
   isProfileComplete?: boolean;
+  profileStatus?: string;
 }
 
 interface AuthState {

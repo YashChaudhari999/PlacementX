@@ -52,10 +52,42 @@ model StudentProfile {
   photoUrl          String?
   portfolioUrl      String?
   githubUrl         String?
-  skills            String?
-  projects          String?
-  educationDetails  String?
+  linkedinUrl       String?
+  skills               Json?
+  programmingLanguages Json?
+  projects             Json?
+  codingProfiles       Json?
+  educationDetails     String?
   isProfileComplete Boolean  @default(false)
+  profileStatus     String   @default("NOT_COMPLETED")
+  verifiedAt        DateTime?
+  verifiedBy        String?
+  // Personal Details
+  dateOfBirth       DateTime?
+  address           String?
+  alternatePhone    String?
+  category          String?
+
+  // Academic Details (Past)
+  tenthBoard        String?
+  tenthYear         Int?
+  tenthPercentage   Float?
+  twelfthBoard      String?
+  twelfthYear       Int?
+  twelfthPercentage Float?
+  diplomaBoard      String?
+  diplomaYear       Int?
+  diplomaPercentage Float?
+  
+  // Current Academics
+  currentSemester   Int?
+  totalBacklogs     Int      @default(0)
+
+  // Professional Details
+  certifications    Json?
+  experience        Json?
+  languages         Json?
+
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -68,8 +100,10 @@ model StudentProfile {
   lastPredictionAt     DateTime?
   profileEmbedding     Json?
 
-  applications DriveApplication[]
-  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications   DriveApplication[]
+  updateRequests ProfileUpdateRequest[]
+  auditLogs      ProfileAuditLog[]
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CoordinatorProfile {
@@ -300,4 +334,33 @@ model PlacementAnalytics {
   modelVersion     String?
   predictionDate   DateTime @default(now())
   trend            String?
+}
+
+model ProfileUpdateRequest {
+  id               String    @id @default(uuid())
+  studentId        String
+  requestedChanges Json
+  previousValues   Json?
+  changedFields    Json?
+  reason           String?
+  status           String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  requestedAt      DateTime  @default(now())
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  adminComment     String?
+  
+  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+}
+
+model ProfileAuditLog {
+  id            String         @id @default(uuid())
+  studentId     String
+  action        String
+  performedBy   String
+  previousValue Json?
+  newValue      Json?
+  comments      String?
+  createdAt     DateTime       @default(now())
+  
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }

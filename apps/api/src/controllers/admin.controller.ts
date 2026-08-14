@@ -690,3 +690,173 @@ export const getAdminDashboard = async (req: any, res: any) => {
     return res.status(500).json({ message: 'Error fetching dashboard data', error: error.message });
   }
 };
+
+// 7. Profile Verification & Update Requests Module
+
+export const getPendingProfiles = async (req: any, res: any) => {
+  try {
+    const profiles = await prisma.studentProfile.findMany({
+      where: { profileStatus: 'PENDING_VERIFICATION' },
+      include: {
+        user: { select: { email: true } }
+      },
+      orderBy: { updatedAt: 'asc' }
+    });
+    return res.status(200).json(profiles);
+  } catch (error: any) {
+    console.error('Get pending profiles error:', error);
+    return res.status(500).json({ message: 'Error fetching pending profiles', error: error.message });
+  }
+};
+
+export const verifyProfile = async (req: any, res: any) => {
+  try {
+    const adminId = req.user?.id;
+    const { id } = req.params;
+    const { action, reason } = req.body; // action: 'APPROVE' or 'REJECT'
+
+    if (!adminId) return res.status(401).json({ message: 'Unauthorized' });
+    if (action !== 'APPROVE' && action !== 'REJECT') {
+      return res.status(400).json({ message: 'Invalid action. Use APPROVE or REJECT' });
+    }
+
+    const profile = await prisma.studentProfile.findUnique({ where: { id } });
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    if (profile.profileStatus !== 'PENDING_VERIFICATION') {
+      return res.status(400).json({ message: 'Profile is not pending verification' });
+    }
+
+    const newStatus = action === 'APPROVE' ? 'VERIFIED' : 'UPDATE_REJECTED';
+
+    const updatedProfile = await prisma.studentProfile.update({
+      where: { id },
+      data: {
+        profileStatus: newStatus,
+        verifiedAt: action === 'APPROVE' ? new Date() : null,
+        verifiedBy: action === 'APPROVE' ? adminId : null
+      }
+    });
+
+    await prisma.profileAuditLog.create({
+      data: {
+        studentId: profile.id,
+        action: action === 'APPROVE' ? 'PROFILE_VERIFIED' : 'PROFILE_REJECTED',
+        performedBy: adminId,
+        comments: reason || ''
+      }
+    });
+
+    // Notify Student
+    await prisma.notification.create({
+      data: {
+        title: action === 'APPROVE' ? 'Profile Verified' : 'Profile Changes Requested',
+        message: action === 'APPROVE' ? 'Your profile has been verified successfully.' : \`Your profile requires changes: \${reason}\`,
+        type: 'system',
+        receiverId: profile.userId,
+        priority: 'HIGH'
+      }
+    });
+
+    return res.status(200).json({ message: \`Profile \${action.toLowerCase()}d successfully\`, profile: updatedProfile });
+  } catch (error: any) {
+    console.error('Verify profile error:', error);
+    return res.status(500).json({ message: 'Error verifying profile', error: error.message });
+  }
+};
+
+export const getUpdateRequests = async (req: any, res: any) => {
+  try {
+    const requests = await prisma.profileUpdateRequest.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        student: {
+          include: { user: { select: { email: true } } }
+        }
+      },
+      orderBy: { requestedAt: 'asc' }
+    });
+    return res.status(200).json(requests);
+  } catch (error: any) {
+    console.error('Get update requests error:', error);
+    return res.status(500).json({ message: 'Error fetching update requests', error: error.message });
+  }
+};
+
+export const reviewUpdateRequest = async (req: any, res: any) => {
+  try {
+    const adminId = req.user?.id;
+    const { id } = req.params;
+    const { action, reason } = req.body; // action: 'APPROVE' or 'REJECT'
+
+    if (!adminId) return res.status(401).json({ message: 'Unauthorized' });
+    if (action !== 'APPROVE' && action !== 'REJECT') {
+      return res.status(400).json({ message: 'Invalid action' });
+    }
+
+    const request = await prisma.profileUpdateRequest.findUnique({
+      where: { id },
+      include: { student: true }
+    });
+
+    if (!request) return res.status(404).json({ message: 'Update request not found' });
+    if (request.status !== 'PENDING') return res.status(400).json({ message: 'Request is already processed' });
+
+    let updatedProfile = request.student;
+
+    if (action === 'APPROVE') {
+      // Apply the requested changes
+      const changesToApply = request.requestedChanges as any;
+      
+      // Filter out any restricted fields if necessary, assuming requestedChanges is safe for now
+      updatedProfile = await prisma.studentProfile.update({
+        where: { id: request.studentId },
+        data: {
+          ...changesToApply,
+          profileStatus: 'VERIFIED'
+        }
+      });
+    } else {
+      // Revert status back to VERIFIED without applying changes
+      updatedProfile = await prisma.studentProfile.update({
+        where: { id: request.studentId },
+        data: { profileStatus: 'VERIFIED' }
+      });
+    }
+
+    // Update the request status
+    const updatedRequest = await prisma.profileUpdateRequest.update({
+      where: { id },
+      data: {
+        status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED',
+        reviewedAt: new Date(),
+        reviewedBy: adminId,
+        adminComment: reason || ''
+      }
+    });
+
+    await prisma.profileAuditLog.create({
+      data: {
+        studentId: request.studentId,
+        action: action === 'APPROVE' ? 'PROFILE_UPDATE_APPROVED' : 'PROFILE_UPDATE_REJECTED',
+        performedBy: adminId,
+        comments: reason || ''
+      }
+    });
+
+    // Notify Student
+    await prisma.notification.create({
+      data: {
+        title: action === 'APPROVE' ? 'Profile Update Approved' : 'Profile Update Rejected',
+        message: action === 'APPROVE' ? 'Your requested profile changes have been approved.' : \`Your requested profile changes were rejected: \${reason}\`,
+        type: 'system',
+        receiverId: request.student.userId,
+        priority: 'HIGH'
+      }
+    });
+
+    return res.status(200).json({ message: \`Update request \${action.toLowerCase()}d\`, request: updatedRequest });
+  } catch (error: any) {
+    console.error('Review update request error:', error);
+    return res.status(500).json({ message: 'Error reviewing update request', error: error.message });
+  }
+};

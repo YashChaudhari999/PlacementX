@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getProfile, updateProfile, applyForDrive, getApplications, getInterviews, getDocuments, mlPredictSuccess } from '../controllers/student.controller';
+import { getProfile, updateProfile, applyForDrive, getApplications, getInterviews, getDocuments, mlPredictSuccess, getProfileStatus, requestProfileUpdate } from '../controllers/student.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -8,7 +8,9 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/profile', getProfile);
+router.get('/profile/status', getProfileStatus);
 router.put('/profile', updateProfile);
+router.put('/profile/update-request', requestProfileUpdate);
 router.post('/applications', applyForDrive);
 router.get('/applications', getApplications);
 router.get('/interviews', getInterviews);

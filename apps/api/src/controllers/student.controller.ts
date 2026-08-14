@@ -66,24 +66,191 @@ export const updateProfile = async (req: any, res: any) => {
       resumeUrl: data.resumeUrl,
       portfolioUrl: data.portfolioUrl,
       githubUrl: data.githubUrl,
-      skills: data.skills, // Should be passed as JSON string
-      projects: data.projects, // Should be passed as JSON string
-      educationDetails: data.educationDetails, // Should be passed as JSON string
+      linkedinUrl: data.linkedinUrl,
+      skills: data.skills || null,
+      programmingLanguages: data.programmingLanguages || null,
+      projects: data.projects || null,
+      codingProfiles: data.codingProfiles || null,
+      educationDetails: data.educationDetails,
+      dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
+      address: data.address,
+      alternatePhone: data.alternatePhone,
+      category: data.category,
+      tenthBoard: data.tenthBoard,
+      tenthYear: data.tenthYear ? parseInt(data.tenthYear) : null,
+      tenthPercentage: data.tenthPercentage ? parseFloat(data.tenthPercentage) : null,
+      twelfthBoard: data.twelfthBoard,
+      twelfthYear: data.twelfthYear ? parseInt(data.twelfthYear) : null,
+      twelfthPercentage: data.twelfthPercentage ? parseFloat(data.twelfthPercentage) : null,
+      diplomaBoard: data.diplomaBoard,
+      diplomaYear: data.diplomaYear ? parseInt(data.diplomaYear) : null,
+      diplomaPercentage: data.diplomaPercentage ? parseFloat(data.diplomaPercentage) : null,
+      currentSemester: data.currentSemester ? parseInt(data.currentSemester) : null,
+      totalBacklogs: data.totalBacklogs ? parseInt(data.totalBacklogs) : 0,
+      certifications: data.certifications || null,
+      experience: data.experience || null,
+      languages: data.languages || null,
       isProfileComplete
     };
 
+    const existingProfile = await prisma.studentProfile.findUnique({
+      where: { userId }
+    });
+
+    // Determine the next status
+    let nextStatus = existingProfile?.profileStatus || 'NOT_COMPLETED';
+    if (isProfileComplete && (nextStatus === 'NOT_COMPLETED' || nextStatus === 'UPDATE_REJECTED')) {
+      nextStatus = 'PENDING_VERIFICATION';
+    }
+
+    if (existingProfile && existingProfile.profileStatus === 'PENDING_VERIFICATION') {
+      return res.status(400).json({ message: 'Profile is currently under verification. Updates are not allowed.' });
+    }
+
+    if (existingProfile && existingProfile.profileStatus === 'VERIFIED') {
+      return res.status(400).json({ message: 'Profile is already verified. Please submit an update request instead.' });
+    }
+
     const updatedProfile = await prisma.studentProfile.upsert({
       where: { userId },
-      update: updateData,
+      update: {
+        ...updateData,
+        profileStatus: nextStatus
+      },
       create: {
         userId,
-        ...updateData
+        ...updateData,
+        profileStatus: nextStatus
       }
     });
+
+    if (nextStatus === 'PENDING_VERIFICATION' && (!existingProfile || existingProfile.profileStatus !== 'PENDING_VERIFICATION')) {
+      // Create Audit Log
+      await prisma.profileAuditLog.create({
+        data: {
+          studentId: updatedProfile.id,
+          action: 'PROFILE_SUBMITTED',
+          performedBy: userId,
+          newValue: updateData as any
+        }
+      });
+    }
 
     return res.status(200).json(updatedProfile);
   } catch (error: any) {
     console.error('Update profile error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const getProfileStatus = async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const profile = await prisma.studentProfile.findUnique({
+      where: { userId },
+      include: {
+        updateRequests: {
+          where: { status: 'PENDING' },
+          orderBy: { requestedAt: 'desc' },
+          take: 1
+        }
+      }
+    });
+
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+
+    return res.status(200).json({
+      status: profile.profileStatus,
+      isProfileComplete: profile.isProfileComplete,
+      pendingUpdateRequest: profile.updateRequests[0] || null
+    });
+  } catch (error: any) {
+    console.error('Get profile status error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const requestProfileUpdate = async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const data = req.body;
+    
+    const profile = await prisma.studentProfile.findUnique({
+      where: { userId }
+    });
+
+    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+
+    if (profile.profileStatus !== 'VERIFIED') {
+      return res.status(400).json({ message: 'Only verified profiles can request updates' });
+    }
+
+    // Check if there is already a pending request
+    const pendingRequest = await prisma.profileUpdateRequest.findFirst({
+      where: {
+        studentId: profile.id,
+        status: 'PENDING'
+      }
+    });
+
+    if (pendingRequest) {
+      return res.status(400).json({ message: 'You already have a pending update request' });
+    }
+
+    // Determine changed fields
+    const changedFields: any = {};
+    const previousValues: any = {};
+    
+    Object.keys(data).forEach(key => {
+      if (data[key] !== undefined) {
+        const newValue = typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key];
+        const oldValue = typeof (profile as any)[key] === 'object' ? JSON.stringify((profile as any)[key]) : (profile as any)[key];
+        
+        if (newValue !== oldValue) {
+          changedFields[key] = data[key];
+          previousValues[key] = (profile as any)[key];
+        }
+      }
+    });
+
+    if (Object.keys(changedFields).length === 0) {
+      return res.status(400).json({ message: 'No changes detected' });
+    }
+
+    const request = await prisma.profileUpdateRequest.create({
+      data: {
+        studentId: profile.id,
+        requestedChanges: changedFields,
+        previousValues: previousValues,
+        changedFields: Object.keys(changedFields),
+        reason: data.reason || 'Student requested profile update',
+        status: 'PENDING'
+      }
+    });
+
+    await prisma.studentProfile.update({
+      where: { id: profile.id },
+      data: { profileStatus: 'UPDATE_REQUESTED' }
+    });
+    
+    await prisma.profileAuditLog.create({
+      data: {
+        studentId: profile.id,
+        action: 'PROFILE_CHANGE_REQUESTED',
+        performedBy: userId,
+        newValue: changedFields,
+        previousValue: previousValues,
+        comments: data.reason || 'Student requested profile update'
+      }
+    });
+
+    return res.status(201).json(request);
+  } catch (error: any) {
+    console.error('Request profile update error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };

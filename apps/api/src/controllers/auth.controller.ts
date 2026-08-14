@@ -68,7 +68,7 @@ export const firebaseLogin = async (req: Request, res: Response) => {
        return res.status(401).json({ error: 'Role mismatch: user is not a student' });
     }
     
-    let user = {
+    let user: any = {
       id: userRecord.id,
       email: userRecord.email,
       role: userRecord.role,
@@ -79,6 +79,8 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     if (userRecord.role === 'STUDENT' && userRecord.studentProfile) {
       user.firstName = userRecord.studentProfile.firstName || '';
       user.lastName = userRecord.studentProfile.lastName || '';
+      user.isProfileComplete = userRecord.studentProfile.isProfileComplete;
+      user.profileStatus = userRecord.studentProfile.profileStatus;
     } else if (userRecord.role === 'SUPER_ADMIN' && userRecord.adminProfile) {
       user.firstName = userRecord.adminProfile.firstName || 'Admin';
       user.lastName = userRecord.adminProfile.lastName || '';

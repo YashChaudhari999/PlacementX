@@ -9,9 +9,15 @@ export const studentService = {
     return res.data;
   },
   updateProfile: async (userId: string, data: any) => {
-    const res = await api.put('/student/profile', data, {
-      
-    });
+    const res = await api.put('/student/profile', data);
+    return res.data;
+  },
+  getProfileStatus: async () => {
+    const res = await api.get('/student/profile/status');
+    return res.data;
+  },
+  requestProfileUpdate: async (data: any) => {
+    const res = await api.put('/student/profile/update-request', data);
     return res.data;
   },
   getMLPrediction: async (userId: string, profileData: any) => {
