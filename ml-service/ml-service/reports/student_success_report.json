@@ -1,0 +1,20 @@
+{
+    "model_name": "student_success",
+    "version": "1.0.0",
+    "training_dataset": "openml_adult_proxy",
+    "training_date": "2026-08-23",
+    "features": [
+        "cgpa",
+        "experience_years",
+        "active_backlogs",
+        "education",
+        "occupation"
+    ],
+    "metrics": {
+        "accuracy": 0.78,
+        "precision": 0.5588235294117647,
+        "recall": 0.7307692307692307,
+        "f1": 0.6333333333333333,
+        "roc_auc": 0.8446758056133056
+    }
+}

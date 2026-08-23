@@ -25,6 +25,7 @@ export const theme = {
     success: '#28A745',
     warning: '#FD7E14',
     info: '#007BFF',
+    error: '#DC3545',
   },
   spacing: {
     1: 4,
@@ -44,6 +45,7 @@ export const theme = {
     lg: 12,
     xl: 16,
     '2xl': 24,
+    full: 9999,
   },
   shadows: {
     sm: {

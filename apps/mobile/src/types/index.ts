@@ -13,6 +13,7 @@ export interface User {
   role: Role;
   firstName?: string;
   lastName?: string;
+  name?: string;
   isProfileComplete?: boolean;
 }
 
@@ -38,6 +39,11 @@ export interface StudentProfile {
   resumeUrl: string;
   portfolioUrl: string;
   githubUrl: string;
+  address?: string;
+  skills?: string[];
+  academics?: any;
+  department?: string;
+  graduationYear?: string | number;
 }
 
 // ─── Drives ─────────────────────────────────────────────
@@ -77,6 +83,13 @@ export interface Drive {
   eligibleStudentsCount?: number;
   selectionRounds?: SelectionRound[];
   applications?: Application[];
+  minimumCgpa?: number;
+  passingYear?: number;
+  activeBacklogsAllowed?: number;
+  maximumGapYears?: number;
+  location?: string;
+  remarks?: string;
+  assessments?: any[];
 }
 
 export type DriveStatus = 'DRAFT' | 'SUBMITTED' | 'PUBLISHED' | 'OPEN' | 'UPCOMING' | 'CLOSED';

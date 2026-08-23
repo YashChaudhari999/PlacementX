@@ -1,16 +1,40 @@
 import { Card } from '@/components/ui';
-import { Lightbulb, AlertTriangle, CheckCircle2, TrendingUp, Target } from 'lucide-react';
+import { Lightbulb, AlertTriangle, CheckCircle2, TrendingUp, Target, Activity } from 'lucide-react';
 
 export default function PlacementIntelligence({ intelligence }: { intelligence: any }) {
   if (!intelligence) return null;
 
-  const { insights, risks, recommendations } = intelligence;
+  const { insights, risks, recommendations, riskDistribution } = intelligence;
 
-  if (insights?.length === 0 && risks?.length === 0 && recommendations?.length === 0) return null;
+  if (insights?.length === 0 && risks?.length === 0 && recommendations?.length === 0 && !riskDistribution) return null;
 
   return (
     <div className="space-y-6">
       
+      {/* Placement Risk Distribution */}
+      {riskDistribution && (
+        <Card className="p-6 border-slate-200">
+          <div className="flex items-center gap-2 mb-4">
+            <Activity className="w-5 h-5 text-indigo-500" />
+            <h3 className="text-lg font-bold text-slate-800">Placement Risk Distribution</h3>
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex flex-col items-center justify-center">
+              <span className="text-3xl font-black text-emerald-600">{riskDistribution['Low Risk']}</span>
+              <span className="text-sm font-semibold text-emerald-800 mt-1">Low Risk</span>
+            </div>
+            <div className="bg-amber-50 rounded-xl p-4 border border-amber-100 flex flex-col items-center justify-center">
+              <span className="text-3xl font-black text-amber-600">{riskDistribution['Medium Risk']}</span>
+              <span className="text-sm font-semibold text-amber-800 mt-1">Medium Risk</span>
+            </div>
+            <div className="bg-rose-50 rounded-xl p-4 border border-rose-100 flex flex-col items-center justify-center">
+              <span className="text-3xl font-black text-rose-600">{riskDistribution['High Risk']}</span>
+              <span className="text-sm font-semibold text-rose-800 mt-1">High Risk</span>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Key Insights & Risks */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 border-slate-200">
@@ -27,6 +51,8 @@ export default function PlacementIntelligence({ intelligence }: { intelligence: 
                   {insight.type === 'strong' && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
                   {insight.type === 'growth' && <TrendingUp className="w-4 h-4 text-emerald-500" />}
                   {(!insight.type || insight.type === 'info') && <CheckCircle2 className="w-4 h-4 text-blue-500" />}
+                  {insight.type === 'risk' && <AlertTriangle className="w-4 h-4 text-rose-500" />}
+                  {insight.type === 'attention' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
                 </div>
                 <p className="text-sm text-slate-700 font-medium">{insight.text}</p>
               </li>

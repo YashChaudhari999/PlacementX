@@ -63,7 +63,7 @@ export default function DocumentsScreen() {
         <ListSkeleton />
       ) : (
         <FlatList
-          data={documents}
+          data={(Array.isArray(documents) ? documents : documents ? [documents] : []) as any[]}
           keyExtractor={(item) => item.id}
           renderItem={renderDocumentCard}
           contentContainerStyle={styles.listContent}

@@ -1,0 +1,55 @@
+name: PlacementX CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run lint --workspace=apps/web
+    - run: npm run type-check --workspace=apps/web
+    
+  api:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run lint --workspace=apps/api
+    - run: npm run type-check --workspace=apps/api
+    - run: npm test --workspace=apps/api
+
+  ml-service:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+    - name: Install dependencies
+      run: |
+        cd ml-service
+        python -m pip install --upgrade pip
+        pip install pytest
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Test with pytest
+      run: |
+        cd ml-service
+        pytest

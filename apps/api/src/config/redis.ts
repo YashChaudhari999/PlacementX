@@ -12,11 +12,16 @@ let isRedisAvailable = false;
  * Uses REDIS_URL from environment or defaults to localhost.
  */
 export const initRedis = (): Redis | null => {
-  // Disabled Redis locally because user does not have a Redis server running
-  console.log('Redis disabled locally to prevent connection errors.');
-  return null;
   try {
-    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    let redisUrl = process.env.REDIS_URL;
+    
+    if (!redisUrl) {
+      const host = process.env.REDIS_HOST || 'localhost';
+      const port = process.env.REDIS_PORT || '6379';
+      const password = process.env.REDIS_PASSWORD ? `:${process.env.REDIS_PASSWORD}@` : '';
+      redisUrl = `redis://${password}${host}:${port}`;
+    }
+    
     redisClient = new Redis(redisUrl, {
       maxRetriesPerRequest: null, // Required by BullMQ
       enableReadyCheck: false,

@@ -104,7 +104,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.horizontalCardWrapper}>
               <AdminStatCard 
                 label="Today's Drives" 
-                value={formatNum(dashboard?.drives?.today)} 
+                value={formatNum(dashboard?.drives?.today || 0)} 
                 icon={<CalendarIcon size={24} color="#2563eb" />}
                 iconBg="#dbeafe"
                 description="Active Today"
@@ -113,7 +113,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.horizontalCardWrapper}>
               <AdminStatCard 
                 label="Upcoming" 
-                value={formatNum(dashboard?.drives?.upcomingClosed)} 
+                value={formatNum(dashboard?.drives?.upcomingClosed || 0)} 
                 icon={<Clock size={24} color="#4f46e5" />}
                 iconBg="#e0e7ff"
                 description="Reg. Closed"
@@ -122,7 +122,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.horizontalCardWrapper}>
               <AdminStatCard 
                 label="Open Drives" 
-                value={formatNum(dashboard?.drives?.open)} 
+                value={formatNum(dashboard?.drives?.open || 0)} 
                 icon={<Briefcase size={24} color="#16a34a" />}
                 iconBg="#dcfce7"
                 description="Accepting Apps"
@@ -158,8 +158,8 @@ export default function AdminDashboardScreen() {
             </View>
             
             <View style={styles.listContent}>
-              {dashboard?.students?.eligibleByCompany?.length > 0 ? (
-                dashboard.students.eligibleByCompany.map((item: any, idx: number) => (
+              {(dashboard?.students?.eligibleByCompany?.length || 0) > 0 ? (
+                dashboard!.students.eligibleByCompany.map((item: any, idx: number) => (
                   <TouchableOpacity key={idx} style={styles.listItem} activeOpacity={0.7}>
                     <View style={styles.listItemLeft}>
                       <View style={styles.listAvatar}>
@@ -197,8 +197,8 @@ export default function AdminDashboardScreen() {
             </View>
             
             <View style={styles.listContent}>
-              {dashboard?.students?.applicationsByCompany?.length > 0 ? (
-                dashboard.students.applicationsByCompany.map((item: any, idx: number) => (
+              {(dashboard?.students?.applicationsByCompany?.length || 0) > 0 ? (
+                dashboard!.students.applicationsByCompany.map((item: any, idx: number) => (
                   <TouchableOpacity key={idx} style={styles.listItem} activeOpacity={0.7}>
                     <View style={styles.listItemLeft}>
                       <View style={styles.listAvatar}>
@@ -282,7 +282,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.gridCol}>
               <AdminStatCard 
                 label="Companies" 
-                value={formatNum(dashboard?.overall?.companiesVisited)} 
+                value={formatNum(dashboard?.overall?.companiesVisited || 0)} 
                 icon={<Building2 size={24} color="#0891b2" />}
                 iconBg="#cffafe"
                 description="Total visited"
@@ -291,7 +291,7 @@ export default function AdminDashboardScreen() {
             <View style={styles.gridCol}>
               <AdminStatCard 
                 label="Total Offers" 
-                value={formatNum(dashboard?.overall?.totalOffers)} 
+                value={formatNum(dashboard?.overall?.totalOffers || 0)} 
                 icon={<FileCheck size={24} color="#0d9488" />}
                 iconBg="#ccfbf1"
                 description="All selections"

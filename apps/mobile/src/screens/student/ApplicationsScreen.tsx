@@ -95,7 +95,7 @@ export default function ApplicationsScreen() {
   };
 
   const getFilteredData = () => {
-    let data = activeTab === 'All Drives' ? (allDrives || []) : (applications || []);
+    let data: any[] = activeTab === 'All Drives' ? (allDrives || []) : (applications || []);
     
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();

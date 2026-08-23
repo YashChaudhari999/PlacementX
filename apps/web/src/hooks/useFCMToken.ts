@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react';
 import { getToken, onMessage } from 'firebase/messaging';
 import { messaging } from '../lib/firebase/config/firebaseApp';

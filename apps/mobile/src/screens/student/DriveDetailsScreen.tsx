@@ -20,8 +20,8 @@ export default function DriveDetailsScreen() {
   const applyMutation = useApplyForDrive();
 
   const handleApply = async () => {
-    if (!eligibility?.eligible) {
-      Toast.error(eligibility?.reason || 'Not eligible for this drive');
+    if (!eligibility?.isEligible) {
+      Toast.error(eligibility?.reasons?.[0] || 'Not eligible for this drive');
       return;
     }
     
@@ -112,7 +112,7 @@ export default function DriveDetailsScreen() {
               
               {loadingEligibility ? (
                 <ActivityIndicator size="small" color={theme.colors.primary} style={{ padding: 20 }} />
-              ) : eligibility?.eligible ? (
+              ) : eligibility?.isEligible ? (
                 <View style={styles.eligibleBox}>
                   <View style={styles.eligibleIconRow}>
                     <CheckCircle2 size={20} color={theme.colors.success} />
@@ -132,7 +132,7 @@ export default function DriveDetailsScreen() {
                     <XCircle size={20} color={theme.colors.destructive} />
                     <Text style={styles.notEligibleText}>Not Eligible</Text>
                   </View>
-                  <Text style={styles.notEligibleReason}>{eligibility?.reason}</Text>
+                  <Text style={styles.notEligibleReason}>{eligibility?.reasons?.[0]}</Text>
                 </View>
               )}
             </View>

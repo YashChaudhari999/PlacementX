@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createContext, ReactNode } from 'react';
 import type { AuthState } from '../types';
 

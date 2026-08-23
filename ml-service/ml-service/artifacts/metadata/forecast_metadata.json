@@ -1,0 +1,20 @@
+{
+    "model_name": "placement_forecast",
+    "version": "1.0.0",
+    "training_dataset": "synthetic_historical_development_data",
+    "training_date": "2026-08-23",
+    "metrics": {
+        "placement_percentage": {
+            "MAE": 2.6320325734607337
+        },
+        "average_package": {
+            "MAE": 0.6820733164790793
+        },
+        "highest_package": {
+            "MAE": 3.1576297033778875
+        },
+        "visiting_companies": {
+            "MAE": 3.391666666666424
+        }
+    }
+}

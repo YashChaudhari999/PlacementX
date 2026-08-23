@@ -18,7 +18,6 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // @ts-ignore
     req.user = decoded;
     
     next();
@@ -29,10 +28,8 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
 
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ 
-        // @ts-ignore
         error: `User role ${req.user.role} is not authorized to access this route` 
       });
     }

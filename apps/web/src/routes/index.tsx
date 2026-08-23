@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 
@@ -34,6 +33,7 @@ const FAQPage = lazy(() => import('@/features/public/pages/FAQPage'));
 const ContactPage = lazy(() => import('@/features/public/pages/ContactPage'));
 
 const HrDriveWizard = lazy(() => import('@/features/hr-portal/pages/HrDriveWizard'));
+const RecruiterEventDashboard = lazy(() => import('@/features/recruiter/pages/RecruiterEventDashboard'));
 
 const Login = lazy(() => import('@/features/auth/pages/Login'));
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
@@ -138,7 +138,7 @@ export const router = createBrowserRouter([
     path: '/event/:token',
     element: <PublicRoute><RecruiterEventLayout /></PublicRoute>,
     children: [
-      { index: true, element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
+      { index: true, element: <Suspense fallback={<Loading />}><RecruiterEventDashboard /></Suspense> },
       { path: 'success', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
       { path: 'expired', element: <Suspense fallback={<Loading />}><LazyPage /></Suspense> },
     ],

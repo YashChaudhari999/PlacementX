@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
-import { firebaseAdmin } from '../config/firebaseAdmin';
+import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
 
 
@@ -965,7 +965,7 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
               cgpa,
               gender,
               activeBacklogs,
-              skills: skillsObj ? JSON.stringify(skillsObj) : null,
+              skills: skillsObj || [],
               profileStatus: 'PENDING',
               isProfileComplete: false
             }
@@ -978,7 +978,7 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
               branch: profile.branch || branch,
               cgpa: profile.cgpa || cgpa,
               activeBacklogs: activeBacklogs,
-              skills: profile.skills ? profile.skills : (skillsObj ? JSON.stringify(skillsObj) : null)
+              skills: profile.skills ? profile.skills : (skillsObj || [])
             }
           });
         }

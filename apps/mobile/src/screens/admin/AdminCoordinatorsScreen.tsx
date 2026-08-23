@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Menu, Search, Mail, Phone, Plus, Building, User } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { DrawerNavigationProp } from '@react-navigation/native-stack';
+import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import { theme } from '../../theme/theme';
 import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState } from '../../components/ui';

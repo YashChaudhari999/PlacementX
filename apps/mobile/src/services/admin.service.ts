@@ -30,7 +30,7 @@ export const adminService = {
   },
 
   getReportsData: async () => {
-    const response = await apiClient.get<any[]>(API_ENDPOINTS.ADMIN_REPORTS_DATA);
+    const response = await apiClient.get<any>(API_ENDPOINTS.ADMIN_REPORTS_DATA);
     return response.data;
   }
 };

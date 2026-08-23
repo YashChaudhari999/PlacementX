@@ -1,6 +1,1 @@
-{
-  "name": "@placementx/assets",
-  "version": "1.0.0",
-  "main": "index.ts",
-  "private": true
-}
+{"name":"@placementx/assets","version":"1.0.0","main":"index.ts"}

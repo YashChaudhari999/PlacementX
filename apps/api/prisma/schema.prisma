@@ -1,11 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
 }
 
 model User {
@@ -99,7 +101,7 @@ model StudentProfile {
   recommendedCompanies Json?
   recommendedJobs      Json?
   lastPredictionAt     DateTime?
-  profileEmbedding     Json?
+  profileEmbedding     Unsupported("vector(384)")?
 
   applications   DriveApplication[]
   updateRequests ProfileUpdateRequest[]
@@ -203,7 +205,7 @@ model PlacementDrive {
   trainingPeriod           String?
 
   // AI Extensions
-  jobEmbedding Json?
+  jobEmbedding Unsupported("vector(384)")?
   semanticTags Json?
 
   applications    DriveApplication[]
@@ -235,14 +237,15 @@ model SelectionRound {
 }
 
 model DriveApplication {
-  id          String         @id @default(uuid())
-  driveId     String
-  studentId   String
-  status      String         @default("APPLIED")
-  appliedAt   DateTime       @default(now())
-  drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  offerLetter OfferLetter?
+  id               String         @id @default(uuid())
+  driveId          String
+  studentId        String
+  status           String         @default("APPLIED")
+  appliedAt        DateTime       @default(now())
+  interviewSchedule Json?
+  drive            PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offerLetter      OfferLetter?
 
   @@unique([driveId, studentId])
 }

@@ -442,10 +442,11 @@ export const getDocuments = async (req: any, res: any) => {
 export const mlPredictSuccess = async (req: any, res: any) => {
   const { studentId } = req.params;
   const userId = req.user?.id;
+  const targetUserId = studentId || userId;
 
   try {
     const profile = await prisma.studentProfile.findFirst({
-      where: { userId: studentId || userId }
+      where: { userId: targetUserId }
     });
 
     if (!profile) {
@@ -453,7 +454,6 @@ export const mlPredictSuccess = async (req: any, res: any) => {
     }
 
     const payload = {
-      studentId: studentId || userId,
       cgpa: profile.cgpa || 7.0,
       experience_years: 0,
       active_backlogs: profile.activeBacklogs || 0,
@@ -461,35 +461,51 @@ export const mlPredictSuccess = async (req: any, res: any) => {
       occupation: 'Student'
     };
 
+    let mlData: any = null;
+
     try {
-      const mlResp = await fetch(`http://localhost:8000/api/ai/students/${studentId || userId}/success-prediction`, {
+      const mlResp = await fetch(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/ai/students/success-prediction`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
       if (mlResp.ok) {
-        const mlData = await mlResp.json();
-        return res.status(200).json(mlData);
+        mlData = await mlResp.json();
+      } else {
+        throw new Error(`ML service returned ${mlResp.status}`);
       }
     } catch (mlErr) {
-      console.warn('ML service unavailable, using fallback');
+      console.warn('ML service unavailable or failed, using fallback heuristic', mlErr);
+      const cgpa = profile.cgpa || 7.0;
+      const successRate = Math.min(95, Math.max(10, (cgpa / 10) * 80 + (profile.activeBacklogs === 0 ? 10 : -15)));
+      const riskLevel = successRate >= 70 ? 'LOW' : successRate >= 50 ? 'MEDIUM' : 'HIGH';
+      
+      mlData = {
+        predictedSuccessRate: successRate,
+        riskLevel,
+        riskFactors: [
+          { feature: cgpa >= 8 ? 'High CGPA' : 'CGPA', impact: cgpa >= 7 ? 'positive' : 'negative' },
+          ...(profile.activeBacklogs > 0 ? [{ feature: 'Active Backlogs', impact: 'negative' }] : [])
+        ]
+      };
     }
 
-    // Fallback: local heuristic
-    const cgpa = profile.cgpa || 7.0;
-    const successRate = Math.min(95, Math.max(10, (cgpa / 10) * 80 + (profile.activeBacklogs === 0 ? 10 : -15)));
-    const riskLevel = successRate >= 70 ? 'LOW' : successRate >= 50 ? 'MEDIUM' : 'HIGH';
+    // Save to database
+    await prisma.studentProfile.update({
+      where: { id: profile.id },
+      data: {
+        predictedSuccessRate: mlData.predictedSuccessRate,
+        riskLevel: mlData.riskLevel,
+        riskFactors: mlData.riskFactors || [],
+        lastPredictionAt: new Date()
+      }
+    });
 
     return res.status(200).json({
-      studentId: studentId || userId,
-      predictedSuccessRate: successRate,
-      riskLevel,
-      modelVersion: 'fallback-1.0.0',
-      topFactors: [
-        { feature: cgpa >= 8 ? 'High CGPA' : 'CGPA', impact: cgpa >= 7 ? 'positive' : 'negative' },
-        ...(profile.activeBacklogs > 0 ? [{ feature: 'Active Backlogs', impact: 'negative' }] : [])
-      ]
+      studentId: targetUserId,
+      ...mlData,
+      modelVersion: mlData.modelVersion || 'fallback-1.0.0'
     });
 
   } catch (error: any) {

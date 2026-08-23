@@ -9,9 +9,12 @@ import analyticsRoutes from './routes/analytics.routes';
 import adminRoutes from './routes/admin.routes';
 import hrRoutes from './routes/hr.routes';
 import publicRoutes from './routes/public.routes';
+import aiRoutes from './routes/ai.routes';
+import recruiterRoutes from './routes/recruiter.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
 import { initRedis, closeRedis } from './config/redis';
 import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
+import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
 
@@ -30,10 +33,10 @@ initSocket(httpServer);
 // Redis + BullMQ for reliable notification delivery.
 // Falls back to synchronous processing if Redis is unavailable.
 const redis = initRedis();
-// if (redis) {
-//   initQueues();
-//   initWorkers();
-// }
+if (redis) {
+  initQueues();
+  initWorkers();
+}
 
 app.use(cors());
 app.use(express.json());
@@ -44,13 +47,17 @@ app.use('/api/admin/drives', driveRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/hr', hrRoutes);
+app.use('/api/recruiter', recruiterRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'PlacementX API is running' });
 });
+
+app.use(errorHandler);
 
 httpServer.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

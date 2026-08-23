@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { forwardRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
