@@ -22,11 +22,20 @@ const initializeFirebaseAdmin = () => {
 
     // Alternatively, if the whole JSON is provided as a string
     if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
-      const serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+      let serviceAccountStr = process.env.FIREBASE_SERVICE_ACCOUNT_KEY.trim();
       let credential;
       
       // Handle both base64 string and JSON string
       if (serviceAccountStr.startsWith('{')) {
+        // Strip actual control characters (real newlines/tabs/carriage returns)
+        // but preserve escaped sequences like \n inside private_key strings
+        serviceAccountStr = serviceAccountStr
+          .replace(/[\x00-\x1F\x7F]/g, (ch) => {
+            // Keep only escaped representations, remove raw control chars
+            if (ch === '\n' || ch === '\r' || ch === '\t') return '';
+            return ch;
+          });
+        
         const parsed = JSON.parse(serviceAccountStr);
         if (parsed.private_key) {
           // Fix escaped newlines if they are present

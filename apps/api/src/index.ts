@@ -32,11 +32,20 @@ initSocket(httpServer);
 // ─── Initialize Notification Queue Infrastructure ───────
 // Redis + BullMQ for reliable notification delivery.
 // Falls back to synchronous processing if Redis is unavailable.
-const redis = initRedis();
-if (redis) {
-  initQueues();
-  initWorkers();
-}
+// Runs in background so server startup isn't blocked.
+(async () => {
+  const redis = initRedis();
+  if (redis) {
+    // Give Redis a moment to connect (lazyConnect)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Only init queues if Redis actually connected
+    const { isRedisConnected } = await import('./config/redis');
+    if (isRedisConnected()) {
+      initQueues();
+      initWorkers();
+    }
+  }
+})();
 
 app.use(cors());
 app.use(express.json());

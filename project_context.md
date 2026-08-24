@@ -2,9 +2,9 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-08-23 21:20 IST
-**Last Verified Against Codebase:** 2026-08-23 21:20 IST
-**Context Version:** 1.0
+**Last Updated:** 2026-08-24 10:25 IST
+**Last Verified Against Codebase:** 2026-08-24 10:25 IST
+**Context Version:** 1.1
 
 ---
 
@@ -1063,6 +1063,7 @@ services:
 | Mobile app providers directory empty | Low | Mobile | Known | `apps/mobile/src/providers/` contains only `.gitkeep`. |
 | `react-simple-maps` in web deps | Low | Dependencies | Known | Listed as dependency but unclear if actively used. |
 | Firebase config labels in `.env.example` say "Legacy — will be migrated" | Low | Documentation | Known | Firebase is still actively used for Auth/FCM. Label may be misleading. |
+| Firebase .env JSON format fragile | Medium | Config | Resolved | `FIREBASE_SERVICE_ACCOUNT_KEY` in `apps/api/.env` was stored as multi-line JSON with raw control characters and a truncated `client_x509_cert_url`, causing `JSON.parse` to crash the API server on startup. Fixed by converting to single-line JSON and hardening the parser in `firebase-admin.ts`. |
 
 ---
 
@@ -1219,6 +1220,30 @@ services:
 ---
 
 # 25. Change Log
+
+### 2026-08-24 — Fix Admin Dashboard "Network Error" (API Server Crash)
+
+**Type:** Bugfix
+
+**Summary:**
+This caused `initializeFirebaseAdmin()` in `firebase-admin.ts` to throw a `SyntaxError: Bad control character in string literal in JSON at position 2349`, which propagated as an unhandled exception and crashed the entire Express server before it could start listening on port 5000.
+
+**Fix Applied:**
+1. **`apps/api/.env`**: Converted `FIREBASE_SERVICE_ACCOUNT_KEY` to a single-line JSON string with proper `\n` escape sequences for the private key, and fixed the truncated `client_x509_cert_url` field.
+2. **`apps/api/src/config/firebase-admin.ts`**: Hardened the JSON parser to strip raw control characters (newlines, carriage returns, tabs) before parsing, preventing future `.env` formatting issues from crashing the server.
+
+**Files Affected:**
+- `apps/api/.env` (reformatted Firebase JSON to single-line)
+- `apps/api/src/config/firebase-admin.ts` (added control character stripping before JSON.parse)
+
+**Testing:**
+- API server starts successfully on port 5000
+- Health endpoint `GET /health` returns `{"status":"ok"}`
+- Admin dashboard loads without "Network Error"
+
+**Status:** Completed
+
+---
 
 ### 2026-08-23 — Implementation of Remaining Priorities (P0-P3)
 
