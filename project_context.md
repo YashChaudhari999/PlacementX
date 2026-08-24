@@ -74,8 +74,6 @@ The core web application, backend API, and mobile app are all actively under dev
 | **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ✅ Completed |
 | **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ✅ Completed |
 | **AI Embeddings** | Generate profile/job embeddings for semantic matching | System | ✅ Completed |
-| **AI Mock Interview** | AI-powered mock interview module | Student | ⏳ Planned |
-| **AI Resume Builder** | AI-assisted resume creation | Student | ⏳ Planned |
 | **AI Admin Analytics** | Advanced AI analytics for admins | Admin | ✅ Completed |
 | **Recruiter Event Portal** | Public recruiter event view via token | Recruiter | ✅ Completed |
 

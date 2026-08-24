@@ -12,6 +12,11 @@ FOR /F "tokens=5" %%T IN ('netstat -a -n -o ^| findstr :5174') DO (
 
 echo Installing dependencies...
 call npm install
+
+if exist ".\redis\redis-server.exe" (
+  echo Starting Redis natively...
+  start /B .\redis\redis-server.exe >nul 2>&1
+)
 echo Starting PlacementX...
 call npm run dev
 pause

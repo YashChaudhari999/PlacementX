@@ -15,6 +15,11 @@ export const initRedis = (): Redis | null => {
   try {
     let redisUrl = process.env.REDIS_URL;
     
+    if (redisUrl === 'disabled') {
+      console.warn('⚠️ Redis is explicitly disabled via env. Running without queues.');
+      return null;
+    }
+
     if (!redisUrl) {
       const host = process.env.REDIS_HOST || 'localhost';
       const port = process.env.REDIS_PORT || '6379';
