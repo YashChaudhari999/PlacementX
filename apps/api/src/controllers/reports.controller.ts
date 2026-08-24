@@ -6,16 +6,32 @@ const prisma = new PrismaClient();
 
 export const exportReportExcel = async (req: Request, res: Response) => {
   try {
+    // Support filters from query params
+    const where: Record<string, unknown> = {};
+    if (req.query.academicYear && req.query.academicYear !== 'All Years') {
+      where.academicYear = req.query.academicYear;
+    }
+    if (req.query.department && req.query.department !== 'All Departments') {
+      where.department = req.query.department;
+    }
+    if (req.query.placementStatus) {
+      where.placementStatus = req.query.placementStatus;
+    }
+
     const students = await prisma.importedStudent.findMany({
+      where,
       select: {
-        registrationNumber: true,
-        name: true,
+        studentId: true,
+        fullName: true,
         department: true,
         academicYear: true,
         placementStatus: true,
         companyName: true,
         fixedSalaryLpa: true,
-      }
+        cgpa: true,
+        applicationStatus: true,
+      },
+      orderBy: { department: 'asc' },
     });
 
     const worksheet = xlsx.utils.json_to_sheet(students);

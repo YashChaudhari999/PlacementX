@@ -1,451 +1,291 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import { parseAnalyticsFilters } from '../schemas/analytics.schema';
+import { getOverview } from '../services/analytics/overview.service';
+import { getHealthScore } from '../services/analytics/health-score.service';
+import { getFunnel } from '../services/analytics/funnel.service';
+import { getDepartments } from '../services/analytics/department.service';
+import { getCompanies } from '../services/analytics/company.service';
+import { getSalary } from '../services/analytics/salary.service';
+import { getStudentRisk } from '../services/analytics/student-risk.service';
+import { getSkillGap } from '../services/analytics/skill-gap.service';
+import { getDriveAnalytics } from '../services/analytics/drive.service';
+import { getInsights } from '../services/analytics/insights.service';
+import { getOperationalHealth } from '../services/analytics/operational.service';
+import {
+  getDistinctAcademicYears,
+  getDistinctDepartments,
+  prisma,
+} from '../services/analytics/analytics.service';
 
-const prisma = new PrismaClient();
+// ── Helper: parse filters from query ──────────────────────
+function filtersFromQuery(req: Request) {
+  return parseAnalyticsFilters(req.query as Record<string, unknown>);
+}
 
-// Helper to build where clause
-const buildStudentWhereClause = (query: any, yearOverride?: string) => {
-  const where: any = {};
-  
-  if (yearOverride) {
-    where.academicYear = yearOverride;
-  } else if (query.academicYear && query.academicYear !== 'All Years') {
-    where.academicYear = query.academicYear;
-  }
-  
-  if (query.department && query.department !== 'All Departments') {
-    where.department = query.department;
-  }
-  return where;
-};
-
-// 1. Placement Overview (KPIs with YoY Comparison)
+// ── 1. Placement Overview ─────────────────────────────────
 export const getPlacementOverview = async (req: Request, res: Response) => {
   try {
-    const currentWhere = buildStudentWhereClause(req.query);
-    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
-
-    const fetchStats = async (where: any) => {
-      const [totalStudents, eligibleStudents, placedStudents, salaries] = await Promise.all([
-        prisma.importedStudent.count({ where }),
-        prisma.importedStudent.count({ where: { ...where, activeBacklogs: 0 } }),
-        prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } }),
-        prisma.importedStudent.aggregate({
-          where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
-          _avg: { fixedSalaryLpa: true },
-          _max: { fixedSalaryLpa: true }
-        })
-      ]);
-
-      const unplacedStudents = totalStudents - placedStudents;
-      const placementRate = totalStudents > 0 ? (placedStudents / totalStudents) * 100 : 0;
-      
-      return {
-        totalStudents,
-        eligibleStudents,
-        placedStudents,
-        unplacedStudents,
-        placementRate: parseFloat(placementRate.toFixed(2)),
-        averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0,
-        highestPackage: salaries._max.fixedSalaryLpa || 0
-      };
-    };
-
-    const current = await fetchStats(currentWhere);
-    let previous = null;
-
-    if (req.query.compareWith) {
-      previous = await fetchStats(previousWhere);
-    }
-
-    res.status(200).json({ current, previous });
+    const filters = filtersFromQuery(req);
+    const data = await getOverview(filters);
+    res.status(200).json(data);
   } catch (error: any) {
+    console.error('Analytics overview error:', error);
     res.status(500).json({ message: 'Error fetching overview', error: error.message });
   }
 };
 
-// 2. Year Comparison (Trend)
-export const getPlacementYearComparison = async (req: Request, res: Response) => {
+// ── 2. Health Score ───────────────────────────────────────
+export const getPlacementHealthScore = async (req: Request, res: Response) => {
   try {
-    const where = buildStudentWhereClause(req.query);
-    delete where.academicYear; // we group by year instead
-
-    const stats = await prisma.importedStudent.groupBy({
-      by: ['academicYear'],
-      where,
-      _count: { _all: true }
-    });
-
-    const results = await Promise.all(stats.map(async (stat: any) => {
-      const yearWhere = { ...where, academicYear: stat.academicYear };
-      const [placed, salaries] = await Promise.all([
-        prisma.importedStudent.count({ where: { ...yearWhere, placementStatus: 'Placed' } }),
-        prisma.importedStudent.aggregate({
-          where: { ...yearWhere, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
-          _avg: { fixedSalaryLpa: true }
-        })
-      ]);
-      const total = stat._count._all;
-      return {
-        year: stat.academicYear,
-        totalStudents: total,
-        placedStudents: placed,
-        unplacedStudents: total - placed,
-        placementRate: total > 0 ? parseFloat(((placed / total) * 100).toFixed(2)) : 0,
-        averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0
-      };
-    }));
-
-    // Sort by year
-    results.sort((a, b) => a.year.localeCompare(b.year));
-    res.status(200).json(results);
+    const filters = filtersFromQuery(req);
+    const data = await getHealthScore(filters);
+    res.status(200).json(data);
   } catch (error: any) {
-    res.status(500).json({ message: 'Error fetching year comparison', error: error.message });
+    console.error('Health score error:', error);
+    res.status(500).json({ message: 'Error computing health score', error: error.message });
   }
 };
 
-// 3. Departments Comparison & Heatmap
-export const getPlacementDepartments = async (req: Request, res: Response) => {
-  try {
-    const currentYear = req.query.academicYear as string || '2026/2027';
-    const previousYear = req.query.compareWith as string || '2025/2026';
-
-    const getDeptStats = async (year: string) => {
-      const depts = await prisma.importedStudent.groupBy({
-        by: ['department'],
-        where: { academicYear: year },
-        _count: { _all: true }
-      });
-
-      const stats = await Promise.all(depts.map(async (d: any) => {
-        const [placed, salaries] = await Promise.all([
-          prisma.importedStudent.count({ where: { academicYear: year, department: d.department, placementStatus: 'Placed' } }),
-          prisma.importedStudent.aggregate({
-            where: { academicYear: year, department: d.department, placementStatus: 'Placed' },
-            _avg: { fixedSalaryLpa: true }
-          })
-        ]);
-        const total = d._count._all;
-        return {
-          department: d.department,
-          total,
-          placed,
-          placementRate: total > 0 ? parseFloat(((placed / total) * 100).toFixed(2)) : 0,
-          averagePackage: salaries._avg.fixedSalaryLpa ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2)) : 0
-        };
-      }));
-      return stats;
-    };
-
-    const currentStats = await getDeptStats(currentYear);
-    const prevStats = await getDeptStats(previousYear);
-
-    // Merge them
-    const allDepts = Array.from(new Set([...currentStats.map(s => s.department), ...prevStats.map(s => s.department)]));
-    
-    const combined = allDepts.map(dept => {
-      const curr = currentStats.find(s => s.department === dept) || { total: 0, placed: 0, placementRate: 0, averagePackage: 0 };
-      const prev = prevStats.find(s => s.department === dept) || { total: 0, placed: 0, placementRate: 0, averagePackage: 0 };
-      
-      return {
-        department: dept,
-        current: curr,
-        previous: prev,
-        placementRateChange: parseFloat((curr.placementRate - prev.placementRate).toFixed(2)),
-        packageChange: parseFloat((curr.averagePackage - prev.averagePackage).toFixed(2)),
-        placedChange: curr.placed - prev.placed
-      };
-    });
-
-    res.status(200).json(combined);
-  } catch (error: any) {
-    res.status(500).json({ message: 'Error fetching department stats', error: error.message });
-  }
-};
-
-// 4. Packages
-export const getPlacementPackages = async (req: Request, res: Response) => {
-  try {
-    const currentWhere = buildStudentWhereClause(req.query);
-    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
-
-    const getPkgStats = async (where: any) => {
-      const stats = await prisma.importedStudent.aggregate({
-        where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
-        _avg: { fixedSalaryLpa: true },
-        _max: { fixedSalaryLpa: true },
-        _min: { fixedSalaryLpa: true }
-      });
-      
-      const all = await prisma.importedStudent.findMany({
-        where: { ...where, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
-        select: { fixedSalaryLpa: true },
-        orderBy: { fixedSalaryLpa: 'asc' }
-      });
-      
-      let median = 0;
-      if (all.length > 0) {
-        const mid = Math.floor(all.length / 2);
-        median = all.length % 2 === 0 
-          ? ((all[mid - 1].fixedSalaryLpa as number) + (all[mid].fixedSalaryLpa as number)) / 2 
-          : (all[mid].fixedSalaryLpa as number);
-      }
-
-      // Distribution
-      const distribution = {
-        '< 3 LPA': 0,
-        '3-5 LPA': 0,
-        '5-8 LPA': 0,
-        '8-12 LPA': 0,
-        '12-20 LPA': 0,
-        '20+ LPA': 0
-      };
-
-      all.forEach(s => {
-        const pkg = s.fixedSalaryLpa as number;
-        if (pkg < 3) distribution['< 3 LPA']++;
-        else if (pkg < 5) distribution['3-5 LPA']++;
-        else if (pkg < 8) distribution['5-8 LPA']++;
-        else if (pkg < 12) distribution['8-12 LPA']++;
-        else if (pkg < 20) distribution['12-20 LPA']++;
-        else distribution['20+ LPA']++;
-      });
-
-      return {
-        averagePackage: stats._avg.fixedSalaryLpa ? parseFloat(stats._avg.fixedSalaryLpa.toFixed(2)) : 0,
-        highestPackage: stats._max.fixedSalaryLpa || 0,
-        lowestPackage: stats._min.fixedSalaryLpa || 0,
-        medianPackage: parseFloat(median.toFixed(2)),
-        distribution
-      };
-    };
-
-    const current = await getPkgStats(currentWhere);
-    const previous = req.query.compareWith ? await getPkgStats(previousWhere) : null;
-
-    res.status(200).json({ current, previous });
-  } catch (error: any) {
-    res.status(500).json({ message: 'Error fetching packages', error: error.message });
-  }
-};
-
-// 5. Companies
-export const getPlacementCompanies = async (req: Request, res: Response) => {
-  try {
-    const currentWhere = buildStudentWhereClause(req.query);
-    const previousWhere = buildStudentWhereClause(req.query, req.query.compareWith as string);
-
-    const getCompanyStats = async (where: any) => {
-      const companies = await prisma.importedStudent.groupBy({
-        by: ['companyName'],
-        where: { ...where, placementStatus: 'Placed', companyName: { not: null } },
-        _count: { _all: true },
-        orderBy: { _count: { companyName: 'desc' } },
-        take: 10
-      });
-      
-      return Promise.all(companies.map(async (c: any) => {
-        const stats = await prisma.importedStudent.aggregate({
-          where: { ...where, companyName: c.companyName, placementStatus: 'Placed' },
-          _avg: { fixedSalaryLpa: true }
-        });
-        return {
-          companyName: c.companyName,
-          offers: c._count._all,
-          averagePackage: stats._avg.fixedSalaryLpa ? parseFloat(stats._avg.fixedSalaryLpa.toFixed(2)) : 0
-        };
-      }));
-    };
-
-    const countUniqueCompanies = async (where: any) => {
-      const res = await prisma.importedStudent.groupBy({
-        by: ['companyName'],
-        where: { ...where, placementStatus: 'Placed', companyName: { not: null } }
-      });
-      return res.length;
-    };
-
-    const currentTop = await getCompanyStats(currentWhere);
-    const currentCount = await countUniqueCompanies(currentWhere);
-    
-    let previousCount = 0;
-    if (req.query.compareWith) {
-      previousCount = await countUniqueCompanies(previousWhere);
-    }
-
-    res.status(200).json({ 
-      topCompanies: currentTop,
-      totalCompanies: currentCount,
-      previousCompanies: previousCount
-    });
-  } catch (error: any) {
-    res.status(500).json({ message: 'Error fetching companies', error: error.message });
-  }
-};
-
-// 6. Placement Funnel
+// ── 3. Placement Funnel ───────────────────────────────────
 export const getPlacementFunnel = async (req: Request, res: Response) => {
   try {
-    const where = buildStudentWhereClause(req.query);
-
-    const totalStudents = await prisma.importedStudent.count({ where });
-    const eligibleStudents = await prisma.importedStudent.count({ where: { ...where, activeBacklogs: 0 } });
-    const participating = await prisma.importedStudent.count({ where: { ...where, applicationStatus: { not: null } } });
-    const offers = await prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } });
-    const placed = offers; // In this dataset, offers == placed
-
-    res.status(200).json([
-      { stage: 'Total Students', count: totalStudents, percentage: 100 },
-      { stage: 'Eligible', count: eligibleStudents, percentage: totalStudents ? Math.round((eligibleStudents/totalStudents)*100) : 0 },
-      { stage: 'Participating', count: participating, percentage: eligibleStudents ? Math.round((participating/eligibleStudents)*100) : 0 },
-      { stage: 'Offers', count: offers, percentage: participating ? Math.round((offers/participating)*100) : 0 },
-      { stage: 'Placed', count: placed, percentage: offers ? Math.round((placed/offers)*100) : 0 }
-    ]);
+    const filters = filtersFromQuery(req);
+    const data = await getFunnel(filters);
+    res.status(200).json(data);
   } catch (error: any) {
+    console.error('Funnel error:', error);
     res.status(500).json({ message: 'Error fetching funnel', error: error.message });
   }
 };
 
-// 7. Intelligence (Insights & Recommendations)
-export const getPlacementIntelligence = async (req: Request, res: Response) => {
+// ── 4. Department Analytics ───────────────────────────────
+export const getPlacementDepartments = async (req: Request, res: Response) => {
   try {
-    const currentYear = req.query.academicYear as string || '2026/2027';
-    const previousYear = req.query.compareWith as string || '2025/2026';
+    const filters = filtersFromQuery(req);
+    const data = await getDepartments(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Department error:', error);
+    res.status(500).json({ message: 'Error fetching department stats', error: error.message });
+  }
+};
 
-    const insights: any[] = [];
-    const recommendations: any[] = [];
-    const risks: any[] = [];
+// ── 5. Company Analytics ──────────────────────────────────
+export const getPlacementCompanies = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getCompanies(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Company error:', error);
+    res.status(500).json({ message: 'Error fetching companies', error: error.message });
+  }
+};
 
-    // 1. Overall logic
-    const currCount = await prisma.importedStudent.count({ where: { academicYear: currentYear } });
-    const prevCount = await prisma.importedStudent.count({ where: { academicYear: previousYear } });
-    const currPlaced = await prisma.importedStudent.count({ where: { academicYear: currentYear, placementStatus: 'Placed' } });
-    const prevPlaced = await prisma.importedStudent.count({ where: { academicYear: previousYear, placementStatus: 'Placed' } });
+// ── 6. Salary/Package Analytics ───────────────────────────
+export const getPlacementPackages = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getSalary(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Salary error:', error);
+    res.status(500).json({ message: 'Error fetching packages', error: error.message });
+  }
+};
 
-    const currRate = currCount ? (currPlaced / currCount) * 100 : 0;
-    const prevRate = prevCount ? (prevPlaced / prevCount) * 100 : 0;
-    const rateDiff = currRate - prevRate;
-
-    if (rateDiff > 2) {
-      insights.push({ type: 'improvement', text: `AI Placement Insight: Placement rate increased by ${rateDiff.toFixed(1)}% compared with the previous academic year.` });
-    } else if (rateDiff < -2) {
-      insights.push({ type: 'risk', text: `AI Placement Insight: Overall placement rate declined by ${Math.abs(rateDiff).toFixed(1)} percentage points compared to ${previousYear}.` });
-      recommendations.push({ text: `Investigate the overall decline in placement rate. Focus on increasing recruiter outreach and student interview preparation.` });
+// ── 7. Year Comparison ────────────────────────────────────
+export const getPlacementYearComparison = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const where: Record<string, unknown> = {};
+    if (filters.department && filters.department !== 'All Departments') {
+      where.department = filters.department;
     }
 
-    // 2. Department logic
-    const depts = await prisma.importedStudent.groupBy({ by: ['department'], where: { academicYear: currentYear } });
-    
-    let bestDept = null;
-    let worstDept = null;
-    let maxRate = -1;
-    let minRate = 101;
-
-    for (const d of depts) {
-      const c = await prisma.importedStudent.count({ where: { academicYear: currentYear, department: d.department } });
-      const p = await prisma.importedStudent.count({ where: { academicYear: currentYear, department: d.department, placementStatus: 'Placed' } });
-      const rate = c ? (p / c) * 100 : 0;
-      
-      if (rate > maxRate) { maxRate = rate; bestDept = d.department; }
-      if (rate < minRate && c > 10) { minRate = rate; worstDept = d.department; } // minimum 10 students
-      
-      const prevC = await prisma.importedStudent.count({ where: { academicYear: previousYear, department: d.department } });
-      const prevP = await prisma.importedStudent.count({ where: { academicYear: previousYear, department: d.department, placementStatus: 'Placed' } });
-      const pRate = prevC ? (prevP / prevC) * 100 : 0;
-      const dDiff = rate - pRate;
-
-      // Add a specific insight for this department
-      if (dDiff > 0) {
-        insights.push({ type: 'improvement', text: `AI Placement Insight: ${d.department} placement rate improved by +${dDiff.toFixed(1)} percentage points.` });
-      } else if (dDiff < 0) {
-        if (dDiff < -5) {
-          risks.push({ type: 'risk', text: `AI Placement Insight: ${d.department} shows a decline in placement performance (${Math.abs(dDiff).toFixed(1)}%).` });
-          recommendations.push({ text: `Increase company outreach for ${d.department} and conduct skill-development programs based on current recruiter requirements.` });
-        } else {
-          insights.push({ type: 'attention', text: `AI Placement Insight: ${d.department} placement rate slightly declined by ${Math.abs(dDiff).toFixed(1)} percentage points.` });
-        }
-      }
-    }
-
-    if (bestDept) {
-      insights.push({ type: 'strong', text: `AI Placement Insight: The ${bestDept} department currently has the highest placement rate (${maxRate.toFixed(1)}%).` });
-    }
-    if (worstDept && minRate < currRate - 5) {
-      risks.push({ type: 'attention', text: `AI Placement Insight: ${worstDept} is significantly below the institutional average (${minRate.toFixed(1)}%).` });
-      recommendations.push({ text: `Conduct additional technical training for ${worstDept} students with lower placement probability.` });
-    }
-
-    // 3. Salary logic
-    const currSal = await prisma.importedStudent.aggregate({ where: { academicYear: currentYear, placementStatus: 'Placed' }, _avg: { fixedSalaryLpa: true } });
-    const prevSal = await prisma.importedStudent.aggregate({ where: { academicYear: previousYear, placementStatus: 'Placed' }, _avg: { fixedSalaryLpa: true } });
-
-    if (currSal._avg.fixedSalaryLpa && prevSal._avg.fixedSalaryLpa) {
-      const salDiff = currSal._avg.fixedSalaryLpa - prevSal._avg.fixedSalaryLpa;
-      const salGrowth = (salDiff / prevSal._avg.fixedSalaryLpa) * 100;
-      
-      if (salGrowth > 0) {
-        insights.push({ type: 'growth', text: `AI Placement Insight: Average package increased from ₹${prevSal._avg.fixedSalaryLpa.toFixed(2)} LPA to ₹${currSal._avg.fixedSalaryLpa.toFixed(2)} LPA.` });
-        recommendations.push({ text: `Target more recruiters offering ${Math.floor(currSal._avg.fixedSalaryLpa)}-${Math.floor(currSal._avg.fixedSalaryLpa)+4} LPA roles to maintain growth trend.` });
-      }
-    }
-
-    // 4. Company count logic
-    const currComp = await prisma.importedStudent.groupBy({ by: ['companyName'], where: { academicYear: currentYear, companyName: { not: null } } });
-    const prevComp = await prisma.importedStudent.groupBy({ by: ['companyName'], where: { academicYear: previousYear, companyName: { not: null } } });
-    
-    if (currComp.length > 0 && prevComp.length > 0) {
-      const compDiff = currComp.length - prevComp.length;
-      const compGrowth = (compDiff / prevComp.length) * 100;
-      if (compGrowth > 0) {
-        insights.push({ type: 'growth', text: `AI Placement Insight: The number of recruiting companies increased by ${compGrowth.toFixed(1)}%.` });
-      }
-    }
-
-    // 5. Placement Risk Distribution (from StudentProfile)
-    // Filter down to the matching department if provided in req.query
-    const studentProfileWhere: any = {};
-    if (req.query.department && req.query.department !== 'All Departments') {
-      studentProfileWhere.branch = req.query.department;
-    }
-    
-    const riskStats = await prisma.studentProfile.groupBy({
-      by: ['riskLevel'],
-      where: studentProfileWhere,
-      _count: { _all: true }
+    const stats = await prisma.importedStudent.groupBy({
+      by: ['academicYear'],
+      where,
+      _count: { _all: true },
     });
 
-    const riskDistribution = {
-      'High Risk': riskStats.find((r: any) => r.riskLevel === 'HIGH')?._count._all || 0,
-      'Medium Risk': riskStats.find((r: any) => r.riskLevel === 'MEDIUM')?._count._all || 0,
-      'Low Risk': riskStats.find((r: any) => r.riskLevel === 'LOW')?._count._all || 0,
-    };
+    const results = await Promise.all(
+      stats.map(async (stat: any) => {
+        const yearWhere = { ...where, academicYear: stat.academicYear };
+        const [placed, salaries] = await Promise.all([
+          prisma.importedStudent.count({
+            where: { ...yearWhere, placementStatus: 'Placed' },
+          }),
+          prisma.importedStudent.aggregate({
+            where: { ...yearWhere, placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+            _avg: { fixedSalaryLpa: true },
+          }),
+        ]);
+        const total = stat._count._all;
+        const companies = await prisma.importedStudent.groupBy({
+          by: ['companyName'],
+          where: { ...yearWhere, placementStatus: 'Placed', companyName: { not: null } },
+        });
 
-    res.status(200).json({ insights, risks, recommendations, riskDistribution });
+        return {
+          year: stat.academicYear,
+          totalStudents: total,
+          placedStudents: placed,
+          unplacedStudents: total - placed,
+          placementRate: total > 0 ? parseFloat(((placed / total) * 100).toFixed(2)) : 0,
+          averagePackage: salaries._avg.fixedSalaryLpa
+            ? parseFloat(salaries._avg.fixedSalaryLpa.toFixed(2))
+            : 0,
+          recruiters: companies.length,
+        };
+      })
+    );
+
+    results.sort((a, b) => a.year.localeCompare(b.year));
+    res.status(200).json(results);
   } catch (error: any) {
+    console.error('Year comparison error:', error);
+    res.status(500).json({ message: 'Error fetching year comparison', error: error.message });
+  }
+};
+
+// ── 8. Student Risk / Readiness ───────────────────────────
+export const getPlacementStudents = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getStudentRisk(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Student risk error:', error);
+    res.status(500).json({ message: 'Error fetching student risk', error: error.message });
+  }
+};
+
+// ── 9. Skill Gap ──────────────────────────────────────────
+export const getPlacementSkills = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getSkillGap(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Skill gap error:', error);
+    res.status(500).json({ message: 'Error fetching skills', error: error.message });
+  }
+};
+
+// ── 10. Drive Analytics ───────────────────────────────────
+export const getPlacementDrives = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getDriveAnalytics(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Drive analytics error:', error);
+    res.status(500).json({ message: 'Error fetching drives', error: error.message });
+  }
+};
+
+// ── 11. Intelligence Insights ─────────────────────────────
+export const getPlacementIntelligence = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    const data = await getInsights(filters);
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Intelligence error:', error);
     res.status(500).json({ message: 'Error fetching intelligence', error: error.message });
   }
 };
 
-// 8. ML Forecasting Proxy
+// ── 12. Action Center ─────────────────────────────────────
+export const getActionCenter = async (req: Request, res: Response) => {
+  try {
+    const filters = filtersFromQuery(req);
+    // Action center combines insights with operational data
+    const [insightsData, operational] = await Promise.all([
+      getInsights(filters),
+      getOperationalHealth(),
+    ]);
+
+    // Build action items from high-priority insights
+    const actions = insightsData.insights
+      .filter(i => ['CRITICAL', 'HIGH'].includes(i.severity))
+      .map(i => ({
+        priority: i.severity,
+        problem: i.title,
+        evidence: i.description,
+        affectedCount: i.affectedCount,
+        recommendedAction: i.recommendedAction,
+        category: i.category,
+        metric: i.metric,
+        currentValue: i.currentValue,
+      }));
+
+    // Add operational actions
+    if (operational.pendingVerifications > 0) {
+      actions.push({
+        priority: 'MEDIUM' as any,
+        problem: 'Pending Profile Verifications',
+        evidence: `${operational.pendingVerifications} student profiles are awaiting verification.`,
+        affectedCount: operational.pendingVerifications,
+        recommendedAction: 'Review and verify pending student profiles to enable placement eligibility.',
+        category: 'OPERATIONS' as any,
+        metric: 'Pending Verifications',
+        currentValue: operational.pendingVerifications,
+      });
+    }
+
+    if (operational.drivesAwaitingApproval > 0) {
+      actions.push({
+        priority: 'MEDIUM' as any,
+        problem: 'HR Drives Awaiting Approval',
+        evidence: `${operational.drivesAwaitingApproval} HR-submitted drives need review.`,
+        affectedCount: operational.drivesAwaitingApproval,
+        recommendedAction: 'Review and approve pending HR drive submissions.',
+        category: 'OPERATIONS' as any,
+        metric: 'Pending Drives',
+        currentValue: operational.drivesAwaitingApproval,
+      });
+    }
+
+    res.status(200).json({
+      actions,
+      summary: insightsData.summary,
+      operational,
+    });
+  } catch (error: any) {
+    console.error('Action center error:', error);
+    res.status(500).json({ message: 'Error fetching action center', error: error.message });
+  }
+};
+
+// ── 13. Operational Health ────────────────────────────────
+export const getPlacementOperational = async (_req: Request, res: Response) => {
+  try {
+    const data = await getOperationalHealth();
+    res.status(200).json(data);
+  } catch (error: any) {
+    console.error('Operational health error:', error);
+    res.status(500).json({ message: 'Error fetching operational health', error: error.message });
+  }
+};
+
+// ── 14. ML Forecast Proxy ─────────────────────────────────
 export const mlForecast = async (req: Request, res: Response) => {
   try {
     const { department, year } = req.query;
 
-    const payload = {
-      department: department || 'All Departments',
-      year: year || '2026/2027',
-      // Get historical counts to feed the forecast
-      historical_data: [] // We could pass historical data here, or let ML fetch it
-    };
-
-    // If we wanted to pass historical data to ML to make it stateless:
-    // ... logic to query past 3 years ...
-
-    const mlResp = await fetch(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/ai/analytics/forecast`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    const mlResp = await fetch(
+      `${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/ai/analytics/forecast`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          department: department || 'All Departments',
+          year: year || '2026/2027',
+        }),
+      }
+    );
 
     if (!mlResp.ok) {
       throw new Error(`ML service returned ${mlResp.status}`);
@@ -453,20 +293,61 @@ export const mlForecast = async (req: Request, res: Response) => {
 
     const forecastData = await mlResp.json();
     return res.status(200).json(forecastData);
-
   } catch (error: any) {
     console.error('ML Forecast error:', error);
-    
-    // Fallback static forecast if ML is down
-    const fallback = {
-      projectedPlacementRate: 85.5,
-      confidenceInterval: [82.0, 89.0],
-      trend: "upward",
-      department: req.query.department || "All Departments",
-      targetYear: req.query.year || "2026/2027",
-      modelVersion: "fallback-1.0.0"
-    };
+    // Fallback if ML service is down
+    return res.status(200).json({
+      projectedPlacementRate: null,
+      confidenceInterval: null,
+      trend: 'unknown',
+      department: req.query.department || 'All Departments',
+      targetYear: req.query.year || '2026/2027',
+      modelVersion: 'fallback',
+      error: 'ML service unavailable',
+    });
+  }
+};
 
-    return res.status(200).json(fallback);
+// ── 15. Filter Options (dynamic dropdown values) ──────────
+export const getFilterOptions = async (_req: Request, res: Response) => {
+  try {
+    const [academicYears, departments, companies, seasons] = await Promise.all([
+      getDistinctAcademicYears(),
+      getDistinctDepartments(),
+      prisma.importedStudent.groupBy({
+        by: ['companyName'],
+        where: { companyName: { not: null } },
+        orderBy: { companyName: 'asc' },
+      }),
+      prisma.importedStudent.groupBy({
+        by: ['placementSeason'],
+        where: { placementSeason: { not: null } },
+      }),
+    ]);
+
+    // Also get drive-related options
+    const [jobRoles, driveStatuses] = await Promise.all([
+      prisma.placementDrive.groupBy({
+        by: ['jobRole'],
+        where: { jobRole: { not: null } },
+      }),
+      prisma.placementDrive.groupBy({
+        by: ['status'],
+      }),
+    ]);
+
+    res.status(200).json({
+      academicYears,
+      departments,
+      companies: companies.map(c => c.companyName).filter(Boolean),
+      seasons: seasons.map(s => s.placementSeason).filter(Boolean),
+      jobRoles: jobRoles.map(j => j.jobRole).filter(Boolean),
+      driveStatuses: driveStatuses.map(d => d.status),
+      applicationStatuses: ['APPLIED', 'SHORTLISTED', 'INTERVIEWED', 'OFFERED', 'REJECTED'],
+      placementStatuses: ['Placed', 'Not Placed'],
+    });
+  } catch (error: any) {
+    console.error('Filter options error:', error);
+    res.status(500).json({ message: 'Error fetching filter options', error: error.message });
   }
 };

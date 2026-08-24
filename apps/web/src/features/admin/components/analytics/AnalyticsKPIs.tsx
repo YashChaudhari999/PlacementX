@@ -1,137 +1,171 @@
-import { ArrowUpRight, ArrowDownRight, Users, GraduationCap, Briefcase, IndianRupee, TrendingUp, AlertTriangle } from 'lucide-react';
 import { Card } from '@/components/ui';
+import {
+  Users, GraduationCap, IndianRupee, Building2, Briefcase,
+  TrendingUp, TrendingDown, Minus, FileCheck, Target, Medal,
+} from 'lucide-react';
+import type { OverviewResponse } from '@/types/analytics.types';
 
-interface AnalyticsKPIsProps {
-  overview: any;
+const fmt = (n: number | null | undefined) =>
+  n != null ? n.toLocaleString('en-IN') : '—';
+
+const fmtPct = (n: number | null | undefined) =>
+  n != null ? `${n.toFixed(1)}%` : '—';
+
+const fmtLpa = (n: number | null | undefined) =>
+  n != null ? `₹${n.toFixed(2)} L` : '—';
+
+interface KPICardProps {
+  label: string;
+  value: string;
+  subtitle?: string;
+  icon: React.ElementType;
+  iconBg: string;
+  iconColor: string;
+  change?: number | null;
+  changeLabel?: string;
+  tooltip?: string;
+  size?: 'default' | 'large';
 }
 
-const KPICard = ({ label, current, previous, icon: Icon, unit = '', format = 'number', invertColors = false }: any) => {
-  const currentVal = current ?? 0;
-  const previousVal = previous ?? 0;
-  
-  let changeValue = 0;
-  let isPositive = true;
-  let isPercentagePoint = false;
-  
-  if (previousVal > 0) {
-    if (format === 'percentage') {
-      // Percentage points
-      changeValue = currentVal - previousVal;
-      isPositive = changeValue >= 0;
-      isPercentagePoint = true;
-    } else {
-      // Percentage growth
-      changeValue = ((currentVal - previousVal) / previousVal) * 100;
-      isPositive = changeValue >= 0;
-    }
-  }
-
-  // Reverse color logic for things like Unplaced Students
-  let positiveColor = invertColors ? 'text-rose-600' : 'text-emerald-600';
-  let positiveBg = invertColors ? 'bg-rose-50' : 'bg-emerald-50';
-  let negativeColor = invertColors ? 'text-emerald-600' : 'text-rose-600';
-  let negativeBg = invertColors ? 'bg-emerald-50' : 'bg-rose-50';
-
-  const formatDisplay = (val: number) => {
-    if (format === 'percentage') return `${val.toFixed(1)}%`;
-    if (format === 'currency') return `₹${val.toFixed(2)} LPA`;
-    return val.toLocaleString('en-IN');
-  };
+function KPICard({
+  label, value, subtitle, icon: Icon, iconBg, iconColor,
+  change, changeLabel, tooltip, size = 'default',
+}: KPICardProps) {
+  const isPositive = change != null && change > 0;
+  const isNegative = change != null && change < 0;
+  const isNeutral = change != null && change === 0;
 
   return (
-    <Card className="p-5 flex flex-col justify-between hover:shadow-md transition-shadow border-slate-200">
-      <div className="flex items-start justify-between mb-4">
-        <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
-          <Icon className="w-5 h-5 text-slate-600" />
-        </div>
-        
-        {previousVal > 0 && (
-          <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${isPositive ? positiveBg + ' ' + positiveColor : negativeBg + ' ' + negativeColor}`}>
-            {isPositive ? <ArrowUpRight className="w-3.5 h-3.5" /> : <ArrowDownRight className="w-3.5 h-3.5" />}
-            {Math.abs(changeValue).toFixed(1)}{isPercentagePoint ? 'pp' : '%'}
+    <Card className={`p-5 border-slate-200 hover:shadow-md transition-shadow group relative ${
+      size === 'large' ? 'col-span-1 md:col-span-2 lg:col-span-1' : ''
+    }`}>
+      {tooltip && (
+        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="text-[10px] text-slate-400 bg-slate-50 rounded-md px-2 py-1 max-w-[200px]">
+            {tooltip}
           </div>
-        )}
-      </div>
-      
-      <div>
-        <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{label}</p>
-        <div className="flex items-end gap-3 mt-1">
-          <h3 className="text-3xl font-black text-slate-800 tracking-tight">{formatDisplay(currentVal)}</h3>
-          {previousVal > 0 && (
-            <p className="text-sm font-semibold text-slate-400 mb-1 line-through decoration-slate-300">
-              {formatDisplay(previousVal)}
-            </p>
+        </div>
+      )}
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">{label}</p>
+          <p className={`font-black text-slate-900 mt-1 tabular-nums ${
+            size === 'large' ? 'text-3xl' : 'text-2xl'
+          }`}>{value}</p>
+          {subtitle && (
+            <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>
           )}
         </div>
+        <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>
+          <Icon className={`w-5 h-5 ${iconColor}`} />
+        </div>
       </div>
+
+      {change !== undefined && change !== null && (
+        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-1.5">
+          {isPositive && <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />}
+          {isNegative && <TrendingDown className="w-3.5 h-3.5 text-rose-500" />}
+          {isNeutral && <Minus className="w-3.5 h-3.5 text-slate-400" />}
+          <span className={`text-xs font-bold tabular-nums ${
+            isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-500'
+          }`}>
+            {isPositive ? '+' : ''}{change.toFixed(1)}
+          </span>
+          <span className="text-xs text-slate-400 font-medium">
+            {changeLabel || 'vs previous year'}
+          </span>
+        </div>
+      )}
     </Card>
   );
-};
+}
 
-export default function AnalyticsKPIs({ overview }: AnalyticsKPIsProps) {
-  if (!overview?.current) return null;
+export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
+  if (!data?.current) return null;
 
-  const current = overview.current;
-  const previous = overview.previous;
+  const { current: c, previous: p } = data;
+
+  const kpis: KPICardProps[] = [
+    {
+      label: 'Placement Rate',
+      value: fmtPct(c.overallPlacementRate),
+      subtitle: `${fmt(c.placedStudents)} of ${fmt(c.totalStudents)} students`,
+      icon: Target,
+      iconBg: 'bg-indigo-100',
+      iconColor: 'text-indigo-600',
+      change: p ? c.overallPlacementRate - p.overallPlacementRate : null,
+      tooltip: 'Percentage of total students who received at least one offer',
+      size: 'large',
+    },
+    {
+      label: 'Average Package',
+      value: fmtLpa(c.averagePackage),
+      subtitle: `Median: ${fmtLpa(c.medianPackage)}`,
+      icon: IndianRupee,
+      iconBg: 'bg-emerald-100',
+      iconColor: 'text-emerald-600',
+      change: p && p.averagePackage ? c.averagePackage! - p.averagePackage : null,
+      tooltip: 'Mean CTC offered to placed students',
+    },
+    {
+      label: 'Highest Package',
+      value: fmtLpa(c.highestPackage),
+      icon: Medal,
+      iconBg: 'bg-amber-100',
+      iconColor: 'text-amber-600',
+      change: p && p.highestPackage ? c.highestPackage! - p.highestPackage : null,
+    },
+    {
+      label: 'Total Students',
+      value: fmt(c.totalStudents),
+      subtitle: `Eligible: ${fmt(c.eligibleStudents)}`,
+      icon: Users,
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600',
+      change: p ? c.totalStudents - p.totalStudents : null,
+    },
+    {
+      label: 'Placed Students',
+      value: fmt(c.placedStudents),
+      subtitle: `Unplaced: ${fmt(c.unplacedStudents)}`,
+      icon: GraduationCap,
+      iconBg: 'bg-emerald-100',
+      iconColor: 'text-emerald-600',
+      change: p ? c.placedStudents - p.placedStudents : null,
+    },
+    {
+      label: 'Total Offers',
+      value: fmt(c.totalOffers),
+      icon: FileCheck,
+      iconBg: 'bg-violet-100',
+      iconColor: 'text-violet-600',
+      change: p ? c.totalOffers - p.totalOffers : null,
+    },
+    {
+      label: 'Companies',
+      value: fmt(c.participatingCompanies),
+      subtitle: c.recruiterRetentionRate != null ? `Retention: ${c.recruiterRetentionRate}%` : undefined,
+      icon: Building2,
+      iconBg: 'bg-teal-100',
+      iconColor: 'text-teal-600',
+      change: p ? c.participatingCompanies - p.participatingCompanies : null,
+      tooltip: 'Number of unique companies offering placements',
+    },
+    {
+      label: 'Active Drives',
+      value: fmt(c.activeDrives),
+      icon: Briefcase,
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600',
+      tooltip: 'Currently active placement drives',
+    },
+  ];
 
   return (
-    <div className="space-y-6 mb-8">
-      <div className="flex items-center gap-2 mb-2">
-        <TrendingUp className="w-5 h-5 text-indigo-600" />
-        <h2 className="text-xl font-bold text-slate-800">Executive Placement Overview</h2>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard 
-          label="Total Students" 
-          current={current.totalStudents} 
-          previous={previous?.totalStudents} 
-          icon={Users} 
-        />
-        <KPICard 
-          label="Eligible Students" 
-          current={current.eligibleStudents} 
-          previous={previous?.eligibleStudents} 
-          icon={GraduationCap} 
-        />
-        <KPICard 
-          label="Placed Students" 
-          current={current.placedStudents} 
-          previous={previous?.placedStudents} 
-          icon={Briefcase} 
-        />
-        <KPICard 
-          label="Unplaced Students" 
-          current={current.unplacedStudents} 
-          previous={previous?.unplacedStudents} 
-          icon={AlertTriangle} 
-          invertColors={true}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <KPICard 
-          label="Placement Rate" 
-          current={current.placementRate} 
-          previous={previous?.placementRate} 
-          icon={TrendingUp} 
-          format="percentage"
-        />
-        <KPICard 
-          label="Average Package" 
-          current={current.averagePackage} 
-          previous={previous?.averagePackage} 
-          icon={IndianRupee} 
-          format="currency"
-        />
-        <KPICard 
-          label="Highest Package" 
-          current={current.highestPackage} 
-          previous={previous?.highestPackage} 
-          icon={IndianRupee} 
-          format="currency"
-        />
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {kpis.map((kpi, i) => (
+        <KPICard key={i} {...kpi} />
+      ))}
     </div>
   );
 }

@@ -1,118 +1,223 @@
-import { useSearchParams } from 'react-router-dom';
-import { Filter, Calendar, Building, Briefcase, GraduationCap, X, SlidersHorizontal } from 'lucide-react';
+import { X, Filter, RefreshCcw, Download, SlidersHorizontal } from 'lucide-react';
+import { useFilterOptions } from '@/hooks/queries/useAnalytics';
+import { useAnalyticsFilters } from '@/hooks/useAnalyticsFilters';
+import { analyticsService } from '@/services/analytics.service';
 import { useState } from 'react';
 
+const chipColors: Record<string, string> = {
+  academicYear: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+  compareWith: 'bg-violet-100 text-violet-700 border-violet-200',
+  department: 'bg-teal-100 text-teal-700 border-teal-200',
+  companyName: 'bg-amber-100 text-amber-700 border-amber-200',
+  placementStatus: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  default: 'bg-slate-100 text-slate-700 border-slate-200',
+};
+
+const filterLabels: Record<string, string> = {
+  academicYear: 'Year',
+  compareWith: 'Compare',
+  department: 'Dept',
+  companyName: 'Company',
+  placementStatus: 'Status',
+  jobRole: 'Role',
+  minSalary: 'Min ₹',
+  maxSalary: 'Max ₹',
+};
+
 export default function GlobalFilters() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const { filters, updateFilter, clearFilters, hasActiveFilters, activeFilterCount } = useAnalyticsFilters();
+  const { data: options, isLoading: optionsLoading } = useFilterOptions();
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const updateFilter = (key: string, value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (value && value !== 'All') {
-      newParams.set(key, value);
-    } else {
-      newParams.delete(key);
+  const academicYears = options?.academicYears || [];
+  const departments = options?.departments || [];
+  const companies = options?.companies || [];
+
+  const handleExport = async () => {
+    try {
+      const blob = await analyticsService.exportExcel(filters);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'placement_report.xlsx';
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Export failed:', err);
     }
-    setSearchParams(newParams);
   };
 
-  const clearFilters = () => {
-    setSearchParams(new URLSearchParams());
-  };
-
-  const academicYear = searchParams.get('academicYear') || '2026/2027';
-  const compareWith = searchParams.get('compareWith') || '2025/2026';
-  const season = searchParams.get('season') || 'All';
-  const department = searchParams.get('department') || 'All';
+  const activeFilters = Object.entries(filters).filter(
+    ([key, value]) => value !== undefined && value !== '' && !['page', 'pageSize', 'sortBy', 'sortOrder'].includes(key)
+  );
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm mb-6 sticky top-0 z-40">
-      {/* Top Bar */}
-      <div className="p-4 flex flex-wrap items-center justify-between gap-4 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-            <Filter className="w-5 h-5" />
-          </div>
-          <h2 className="font-bold text-slate-800">Global Filters</h2>
-        </div>
-        
+    <div className="space-y-3">
+      {/* ── Primary Filter Bar ──────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg p-1">
-            <span className="text-xs font-semibold text-slate-500 px-2 uppercase tracking-wider">Compare</span>
-            <select 
-              value={academicYear} 
-              onChange={e => updateFilter('academicYear', e.target.value)}
-              className="text-sm font-bold bg-white border border-slate-200 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option>2026/2027</option>
-              <option>2025/2026</option>
-            </select>
-            <span className="text-xs font-semibold text-slate-400 px-2">vs</span>
-            <select 
-              value={compareWith} 
-              onChange={e => updateFilter('compareWith', e.target.value)}
-              className="text-sm font-bold bg-white border border-slate-200 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option>2025/2026</option>
-              <option>2024/2025</option>
-            </select>
+          <div className="flex items-center gap-2 text-slate-600 shrink-0">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-bold">Filters</span>
           </div>
 
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
+          {/* Academic Year */}
+          <select
+            className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[140px]"
+            value={filters.academicYear || ''}
+            onChange={e => updateFilter('academicYear', e.target.value || undefined)}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            More Filters
+            <option value="">All Years</option>
+            {academicYears.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+
+          {/* Compare With */}
+          <select
+            className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[140px]"
+            value={filters.compareWith || ''}
+            onChange={e => updateFilter('compareWith', e.target.value || undefined)}
+          >
+            <option value="">Compare with...</option>
+            {academicYears.filter(y => y !== filters.academicYear).map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+
+          {/* Department */}
+          <select
+            className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[160px]"
+            value={filters.department || ''}
+            onChange={e => updateFilter('department', e.target.value || undefined)}
+          >
+            <option value="">All Departments</option>
+            {departments.map(d => (
+              <option key={d} value={d}>{d}</option>
+            ))}
+          </select>
+
+          {/* Placement Status */}
+          <select
+            className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[120px]"
+            value={filters.placementStatus || ''}
+            onChange={e => updateFilter('placementStatus', e.target.value || undefined)}
+          >
+            <option value="">All Status</option>
+            <option value="Placed">Placed</option>
+            <option value="Not Placed">Not Placed</option>
+          </select>
+
+          {/* Advanced Toggle */}
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className={`px-3 py-2 text-sm font-medium rounded-xl border transition-colors flex items-center gap-1.5 ${
+              showAdvanced ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Advanced
+          </button>
+
+          <div className="flex-1" />
+
+          {/* Actions */}
+          {hasActiveFilters && (
+            <button
+              onClick={clearFilters}
+              className="px-3 py-2 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors flex items-center gap-1.5"
+            >
+              <RefreshCcw className="w-3.5 h-3.5" />
+              Clear ({activeFilterCount})
+            </button>
+          )}
+
+          <button
+            onClick={handleExport}
+            className="px-3 py-2 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5" />
+            Export
           </button>
         </div>
+
+        {/* ── Advanced Filters ──────────────────────── */}
+        {showAdvanced && (
+          <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3">
+            {/* Company */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Company</label>
+              <select
+                className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"
+                value={filters.companyName || ''}
+                onChange={e => updateFilter('companyName', e.target.value || undefined)}
+              >
+                <option value="">All Companies</option>
+                {companies.map(c => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Job Role */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Job Role</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
+                placeholder="Filter by role..."
+                value={filters.jobRole || ''}
+                onChange={e => updateFilter('jobRole', e.target.value || undefined)}
+              />
+            </div>
+
+            {/* Min Salary */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Min Salary (LPA)</label>
+              <input
+                type="number"
+                className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
+                placeholder="0"
+                value={filters.minSalary || ''}
+                onChange={e => updateFilter('minSalary', e.target.value ? Number(e.target.value) : undefined)}
+              />
+            </div>
+
+            {/* Max Salary */}
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Max Salary (LPA)</label>
+              <input
+                type="number"
+                className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
+                placeholder="100"
+                value={filters.maxSalary || ''}
+                onChange={e => updateFilter('maxSalary', e.target.value ? Number(e.target.value) : undefined)}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Expanded Area */}
-      {isExpanded && (
-        <div className="p-4 bg-slate-50/50 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5" /> Placement Season
-            </label>
-            <select 
-              value={season} 
-              onChange={e => updateFilter('season', e.target.value)}
-              className="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/20"
+      {/* ── Active Filter Chips ─────────────────────── */}
+      {activeFilters.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {activeFilters.map(([key, value]) => (
+            <span
+              key={key}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border ${
+                chipColors[key] || chipColors.default
+              }`}
             >
-              <option>All</option>
-              <option>Placement</option>
-              <option>Summer Internship</option>
-              <option>PPO</option>
-            </select>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase flex items-center gap-1.5">
-              <GraduationCap className="w-3.5 h-3.5" /> Department
-            </label>
-            <select 
-              value={department} 
-              onChange={e => updateFilter('department', e.target.value)}
-              className="w-full text-sm bg-white border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500/20"
-            >
-              <option>All</option>
-              <option>Information Technology</option>
-              <option>Computer Science</option>
-              <option>Computer Engineering</option>
-              <option>AI/ML</option>
-            </select>
-          </div>
-
-          {/* Quick Clear */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-4 flex justify-end">
-            <button 
-              onClick={clearFilters}
-              className="flex items-center gap-1.5 text-sm font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-3 py-1.5 rounded-lg transition-colors"
-            >
-              <X className="w-4 h-4" /> Clear All Filters
-            </button>
-          </div>
+              <span className="opacity-70">{filterLabels[key] || key}:</span>
+              <span>{String(value)}</span>
+              <button
+                onClick={() => updateFilter(key as any, undefined)}
+                className="ml-0.5 hover:opacity-70 transition-opacity"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
         </div>
       )}
     </div>

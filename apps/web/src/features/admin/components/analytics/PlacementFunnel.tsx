@@ -1,66 +1,104 @@
 import { Card } from '@/components/ui';
-import { Users, GraduationCap, FileCheck, CheckCircle2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Filter, Users, UserCheck, Search, Briefcase, FileCheck, XCircle, ChevronRight, AlertTriangle } from 'lucide-react';
+import type { FunnelResponse } from '@/types/analytics.types';
 
-export default function PlacementFunnel({ funnelData }: { funnelData: any[] }) {
-  if (!funnelData || funnelData.length === 0) return null;
+const stageIcons: Record<string, React.ElementType> = {
+  APPLIED: Users,
+  SHORTLISTED: Search,
+  INTERVIEWED: UserCheck,
+  OFFERED: Briefcase,
+  REJECTED: XCircle,
+};
 
-  // Max count is typically the first item (Total Students)
-  const maxCount = Math.max(...funnelData.map(d => d.count));
+const stageColors: Record<string, string> = {
+  APPLIED: 'bg-blue-500',
+  SHORTLISTED: 'bg-indigo-500',
+  INTERVIEWED: 'bg-violet-500',
+  OFFERED: 'bg-emerald-500',
+  REJECTED: 'bg-rose-500',
+};
 
-  const getIcon = (stage: string) => {
-    if (stage.includes('Total')) return Users;
-    if (stage.includes('Eligible')) return GraduationCap;
-    if (stage.includes('Participating')) return Users;
-    if (stage.includes('Offers')) return FileCheck;
-    return CheckCircle2;
-  };
+export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
+  if (!data?.stages?.length) {
+    return (
+      <Card className="p-6 border-slate-200 flex flex-col items-center justify-center min-h-[300px] text-slate-500">
+        <Filter className="w-8 h-8 mb-3 opacity-20" />
+        <p>No funnel data available for selected filters</p>
+      </Card>
+    );
+  }
 
-  const getColor = (index: number, total: number) => {
-    // Gradient from blue-100 to blue-600
-    const intensity = Math.round((index / (total - 1)) * 500) + 100;
-    return `bg-indigo-${Math.min(intensity, 600)}`;
-  };
+  const maxCount = Math.max(...data.stages.map(s => s.count), 1);
 
   return (
     <Card className="p-6 border-slate-200">
-      <div className="mb-6">
-        <h3 className="text-lg font-bold text-slate-800">Placement Funnel</h3>
-        <p className="text-sm text-slate-500 mt-1">Conversion rates across the placement journey.</p>
+      <div className="flex items-center gap-2 mb-6">
+        <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
+          <Filter className="w-5 h-5" />
+        </div>
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">Application Funnel</h2>
+          <p className="text-xs text-slate-500">Conversion across selection stages</p>
+        </div>
       </div>
 
-      <div className="relative pt-4 pb-8 flex flex-col items-center">
-        {funnelData.map((stage, index) => {
-          const Icon = getIcon(stage.stage);
-          // Calculate width percentage relative to max, minimum 20% for readability
-          const widthPercent = Math.max((stage.count / maxCount) * 100, 20);
+      {data.insight?.largestDrop && (
+        <div className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200 flex gap-3 items-start">
+          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 className="text-sm font-bold text-amber-900">Significant Drop Detected</h4>
+            <p className="text-sm text-amber-700 mt-1">{data.insight.description}</p>
+            {data.insight.recommendation && (
+              <p className="text-sm font-medium text-amber-800 mt-2">{data.insight.recommendation}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-6">
+        {data.stages.map((stage, idx) => {
+          const Icon = stageIcons[stage.stage] || FileCheck;
+          const color = stageColors[stage.stage] || 'bg-slate-500';
+          const width = Math.max((stage.count / maxCount) * 100, 2);
 
           return (
-            <div key={index} className="w-full flex flex-col items-center relative">
-              {/* The Funnel Bar */}
-              <div 
-                className={`relative flex items-center justify-between px-4 py-3 rounded-lg shadow-sm transition-all duration-500`}
-                style={{ width: `${widthPercent}%`, minWidth: '280px', backgroundColor: index === 0 ? '#eff6ff' : index === 1 ? '#dbeafe' : index === 2 ? '#bfdbfe' : index === 3 ? '#93c5fd' : '#60a5fa' }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className={`p-1.5 rounded-md ${index > 2 ? 'bg-white/20' : 'bg-white'}`}>
-                    <Icon className={`w-4 h-4 ${index > 2 ? 'text-white' : 'text-blue-600'}`} />
-                  </div>
-                  <span className={`font-bold ${index > 2 ? 'text-white' : 'text-blue-900'}`}>{stage.stage}</span>
-                </div>
-                <span className={`font-black text-lg ${index > 2 ? 'text-white' : 'text-blue-900'}`}>
-                  {stage.count.toLocaleString('en-IN')}
-                </span>
-              </div>
-
-              {/* The connecting arrow with conversion percentage (except for last item) */}
-              {index < funnelData.length - 1 && (
-                <div className="h-12 w-full flex items-center justify-center relative">
-                  <div className="w-0.5 h-full bg-slate-200 absolute"></div>
-                  <div className="z-10 bg-white border border-slate-200 rounded-full px-2.5 py-1 text-xs font-bold text-slate-500 shadow-sm flex items-center gap-1 relative -top-1">
-                    ↓ {funnelData[index + 1].percentage}% Conversion
-                  </div>
+            <div key={stage.stage} className="relative">
+              {/* Conversion indicator from previous stage */}
+              {idx > 0 && stage.conversionFromPrevious !== null && (
+                <div className="absolute -top-5 left-10 flex items-center gap-2 text-[10px] font-bold text-slate-400">
+                  <div className="w-px h-6 bg-slate-200" />
+                  <ChevronRight className="w-3 h-3" />
+                  <span className={stage.conversionFromPrevious < 30 ? 'text-rose-500' : ''}>
+                    {stage.conversionFromPrevious.toFixed(1)}% conversion
+                  </span>
                 </div>
               )}
+
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm ${color}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-end mb-1.5">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stage.stage}</span>
+                    <div className="text-right">
+                      <span className="text-sm font-black text-slate-900">{stage.count.toLocaleString()}</span>
+                      <span className="text-xs font-medium text-slate-500 ml-2">({stage.percentage.toFixed(1)}%)</span>
+                    </div>
+                  </div>
+                  
+                  <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${color}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${width}%` }}
+                      transition={{ duration: 1, ease: 'easeOut', delay: idx * 0.1 }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           );
         })}

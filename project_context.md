@@ -609,7 +609,7 @@ Routes → Middleware (Auth + Authorization) → Controllers → Services → Pr
 | Controller | File Size | Key Responsibilities |
 |-----------|-----------|---------------------|
 | `admin.controller.ts` | 33KB | Dashboard stats, student management, import, provisioning, coordinators, calendar, verifications, update request review |
-| `analytics.controller.ts` | 17KB | Placement overview, department analytics, year comparison, package analysis, funnel, intelligence insights |
+| `analytics.controller.ts` | 6KB | Delegates all analytics endpoints to the `analytics/` service layer |
 | `auth.controller.ts` | 6KB | Login (bcrypt+JWT), Firebase login, register, password change |
 | `drive.controller.ts` | 15KB | Drive CRUD, eligibility check, application status, HR drive review |
 | `hr.controller.ts` | 5KB | HR link generation, validation, draft auto-save, drive submission |
@@ -621,6 +621,7 @@ Routes → Middleware (Auth + Authorization) → Controllers → Services → Pr
 
 | Service | Purpose |
 |---------|---------|
+| `analytics/*.service.ts` | 10 modular services (`overview`, `funnel`, `student-risk`, `insights`, etc.) handling all dashboard aggregations |
 | `eligibility.service.ts` | Checks student eligibility against drive criteria |
 | `notification.service.ts` | Creates and manages notifications |
 | `notification-queue.service.ts` | BullMQ queue for async notification processing |
