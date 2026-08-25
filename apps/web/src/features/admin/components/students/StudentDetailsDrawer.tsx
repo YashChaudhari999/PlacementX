@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Drawer, Tabs, TabItem, Badge, Card, CardContent, Button, Skeleton } from '@/components/ui';
+import { Drawer, Tabs, Badge, Card, CardContent, Button, Skeleton } from '@/components/ui';
+import type { TabItem } from '@/components/ui';
 import { useAdminStudentDetails } from '@/hooks/queries/useAdmin';
 import { format } from 'date-fns';
 import { Mail, Phone, MapPin, Building2, ExternalLink, Calendar, GraduationCap, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
@@ -38,13 +39,13 @@ export const StudentDetailsDrawer: React.FC<StudentDetailsDrawerProps> = ({ stud
     const { importedData, isProvisioned, profile, applications } = data;
 
     const tabs: TabItem[] = [
-      { id: 'profile', label: 'Profile' },
-      { id: 'academic', label: 'Academic' },
-      { id: 'applications', label: 'Applications' },
+      { key: 'profile', label: 'Profile' },
+      { key: 'academic', label: 'Academic' },
+      { key: 'applications', label: 'Applications' },
     ];
 
     if (isProvisioned) {
-      tabs.push({ id: 'verification', label: 'Verification & Offers' });
+      tabs.push({ key: 'verification', label: 'Verification & Offers' });
     }
 
     return (
@@ -68,7 +69,7 @@ export const StudentDetailsDrawer: React.FC<StudentDetailsDrawerProps> = ({ stud
         </div>
 
         <div className="mt-4">
-          <Tabs items={tabs} activeId={activeTab} onChange={setActiveTab} />
+          <Tabs items={tabs} activeKey={activeTab} onChange={setActiveTab} />
         </div>
 
         <div className="mt-4 flex-1 overflow-y-auto pb-8 pr-2">
@@ -110,12 +111,10 @@ export const StudentDetailsDrawer: React.FC<StudentDetailsDrawerProps> = ({ stud
 
               {isProvisioned && profile?.resumeUrl && (
                 <div className="flex justify-start">
-                  <Button variant="outline" asChild>
-                    <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                      <ExternalLink className="h-4 w-4" />
-                      View Resume
-                    </a>
-                  </Button>
+                  <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    View Resume
+                  </a>
                 </div>
               )}
             </div>

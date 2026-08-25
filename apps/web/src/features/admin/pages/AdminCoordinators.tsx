@@ -58,8 +58,8 @@ export default function AdminCoordinators() {
         <div className="flex gap-4">
           <div className="w-64">
             <Input
-              icon={<Search className="w-4 h-4" />}
-              placeholder="Search..."
+              leftIcon={<Search className="w-4 h-4 text-slate-400" />}
+              placeholder="Search coordinators..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

@@ -7,8 +7,8 @@ import { StudentImportService } from '@/features/admin/services/studentImportSer
 import { auth } from '@/lib/firebase/config/firebaseApp';
 import { useAdminStudents, useProvisionStudents } from '@/hooks/queries/useAdmin';
 import { ListSkeleton } from '@/components/common/Skeletons';
-import { StudentDetailsDrawer } from './StudentDetailsDrawer';
-import { BulkActionsToolbar } from './BulkActionsToolbar';
+import { StudentDetailsDrawer } from '@/features/admin/components/students/StudentDetailsDrawer';
+import { BulkActionsToolbar } from '@/features/admin/components/students/BulkActionsToolbar';
 
 export default function AdminStudents() {
   const [search, setSearch] = useState('');
@@ -188,7 +188,7 @@ export default function AdminStudents() {
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="w-full md:w-80 relative">
           <Input
-            icon={<Search className="w-4 h-4 text-slate-400" />}
+            leftIcon={<Search className="w-4 h-4 text-slate-400" />}
             placeholder="Search by student name, ID or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -249,7 +249,7 @@ export default function AdminStudents() {
         )}
 
         {loading ? (
-          <div className="p-8"><ListSkeleton count={8} /></div>
+          <div className="p-8"><ListSkeleton /></div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[900px]">
@@ -291,7 +291,7 @@ export default function AdminStudents() {
                     </td>
                   </tr>
                 ) : (
-                  filteredStudents.map((student) => (
+                  filteredStudents.map((student: any) => (
                     <tr key={student.id} className={`hover:bg-slate-50 transition-colors group ${selectedStudents.includes(student.id) ? 'bg-indigo-50/50' : ''}`}>
                       <td className="px-6 py-4 text-center">
                         <input 

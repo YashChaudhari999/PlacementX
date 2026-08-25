@@ -123,7 +123,7 @@ export default function StudentLogin() {
             
             <FormWrapper onSubmit={handleLogin}>
               <div className="space-y-5">
-                <FieldWrapper label={<span className="text-slate-700 font-medium">University Email</span>} error="">
+                <FieldWrapper label="University Email" error="">
                   <Input 
                     id="email" 
                     name="email" 
@@ -135,7 +135,7 @@ export default function StudentLogin() {
                   />
                 </FieldWrapper>
 
-                <FieldWrapper label={<span className="text-slate-700 font-medium">Password</span>} error="">
+                <FieldWrapper label="Password" error="">
                   <Input 
                     id="password" 
                     name="password" 
