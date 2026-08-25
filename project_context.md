@@ -1296,6 +1296,24 @@ Verified against actual repository structure, source code, and existing document
 
 **Status:** Completed
 
+### 2026-08-25 - Admin UX and Drive Update Fixes
+
+**Type:** Bug Fix / UX Improvement
+
+**Summary:**
+- Fixed the "Admin Drive Duplication" bug by adding an explicit "Edit Drive Details" button to `AdminEventDetails.tsx`, resolving the UX issue where admins mistakenly recreated drives via "Manual Entry".
+- Confirmed `StudentLayout.tsx` already handles dynamic profile logic (Name and Branch fallbacks).
+- Made "View Profile" and "Preferences" buttons functional in the student dropdown menu.
+- Fixed the squished NMIMS logo UI in the admin menu bar (`PlacementCellLayout.tsx`).
+- Vastly improved the UX of the admin sidebar menu by logically grouping items (Overview, Placements, Student Management, System) and adding premium hover/active states.
+
+**Files Affected:**
+- `apps/web/src/features/admin/pages/AdminEventDetails.tsx`
+- `apps/web/src/layouts/StudentLayout.tsx`
+- `apps/web/src/layouts/PlacementCellLayout.tsx`
+
+**Status:** Completed
+
 ---
 
 # 26. Context Health

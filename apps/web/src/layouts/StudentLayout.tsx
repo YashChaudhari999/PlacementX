@@ -4,13 +4,13 @@ import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import { 
   LayoutDashboard, Briefcase, FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download, GraduationCap, Award
+  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download, GraduationCap, Award, Camera
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
-import { useStudentProfile } from '@/hooks/queries/useStudent';
+import { useStudentProfile, useUpdateStudentPhoto } from '@/hooks/queries/useStudent';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 
 export const StudentLayout = () => {
@@ -21,6 +21,7 @@ export const StudentLayout = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const { data: serverProfile } = useStudentProfile(user?.id);
+  const updatePhotoMutation = useUpdateStudentPhoto();
 
   // Register for FCM tokens
   useFCMToken(user);
@@ -204,11 +205,15 @@ export const StudentLayout = () => {
                 className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all"
               >
                 <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
-                  <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
+                  <img src={serverProfile?.photoUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
                 </div>
                 <div className="hidden sm:flex flex-col items-start">
-                  <span className="text-sm font-bold text-slate-800 leading-tight">{user?.email?.split('@')[0]}</span>
-                  <span className="text-xs font-semibold text-slate-400">B.Tech CS</span>
+                  <span className="text-sm font-bold text-slate-800 leading-tight">
+                    {serverProfile?.firstName ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim() : user?.email?.split('@')[0]}
+                  </span>
+                  <span className="text-xs font-semibold text-slate-400">
+                    {serverProfile?.branch || 'B.Tech CS'}
+                  </span>
                 </div>
                 <ChevronDown className="h-4 w-4 text-slate-400 ml-1 hidden sm:block" />
               </button>
@@ -223,17 +228,53 @@ export const StudentLayout = () => {
                     className="absolute right-0 mt-4 w-64 rounded-2xl shadow-2xl bg-white border border-slate-100 overflow-hidden"
                   >
                     <div className="p-5 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white text-center">
-                      <div className="h-16 w-16 mx-auto rounded-2xl bg-slate-100 mb-3 overflow-hidden shadow-inner">
-                        <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
+                      <div className="h-16 w-16 mx-auto rounded-2xl bg-slate-100 mb-3 overflow-hidden shadow-inner relative group">
+                        <img src={serverProfile?.photoUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
+                        <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                          <Camera className="w-5 h-5 mb-0.5" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">Change</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            className="hidden" 
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file && user) {
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  updatePhotoMutation.mutate({ 
+                                    userId: user.id, 
+                                    photoUrl: reader.result as string
+                                  });
+                                };
+                                reader.readAsDataURL(file);
+                              }
+                            }} 
+                          />
+                        </label>
                       </div>
-                      <p className="text-base font-bold text-slate-800">{user?.email?.split('@')[0]}</p>
+                      <p className="text-base font-bold text-slate-800">
+                        {serverProfile?.firstName ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim() : user?.email?.split('@')[0]}
+                      </p>
                       <p className="text-sm font-medium text-slate-500 mt-0.5 truncate">{user?.email}</p>
                     </div>
                     <div className="p-3">
-                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          navigate('/student/profile');
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
+                      >
                         <User className="w-4 h-4 text-slate-400" /> View Profile
                       </button>
-                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          navigate('/student/settings');
+                        }}
+                        className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
+                      >
                         <Settings className="w-4 h-4 text-slate-400" /> Preferences
                       </button>
                       <div className="h-px bg-slate-100 my-2 mx-2" />

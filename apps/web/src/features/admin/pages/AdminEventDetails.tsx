@@ -74,13 +74,22 @@ export default function AdminEventDetails() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/admin/dashboard" className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
-          <ChevronLeft className="w-6 h-6" />
-        </Link>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Link to="/admin/dashboard" className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
+            <ChevronLeft className="w-6 h-6" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800">Drive Tracker</h1>
+            <p className="text-slate-500">Manage applications and track selection progress.</p>
+          </div>
+        </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Drive Tracker</h1>
-          <p className="text-slate-500">Manage applications and track selection progress.</p>
+          <Link to={`/admin/placement-events/edit/${drive.id}`}>
+            <Button variant="outline" className="text-slate-700 bg-white border-slate-200 hover:bg-slate-50 shadow-sm">
+              <FileText className="w-4 h-4 mr-2" /> Edit Drive Details
+            </Button>
+          </Link>
         </div>
       </div>
 

@@ -23,56 +23,85 @@ export const PlacementCellLayout = () => {
     navigate('/admin/login');
   };
 
-  const navItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Analytics', path: '/admin/analytics', icon: LineChart },
-    { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase },
-    { name: 'Students', path: '/admin/students', icon: Users },
-    { name: 'Verifications', path: '/admin/students/verifications', icon: ShieldCheck },
-    { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEdit },
-    { name: 'Reports', path: '/admin/reports', icon: FileText },
-    { name: 'Notifications', path: '/admin/notifications', icon: Bell },
-    { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
-    { name: 'Settings', path: '/admin/settings', icon: Settings },
+  const navGroups = [
+    {
+      title: 'Overview',
+      items: [
+        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Analytics', path: '/admin/analytics', icon: LineChart },
+      ]
+    },
+    {
+      title: 'Placements',
+      items: [
+        { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase },
+        { name: 'Reports', path: '/admin/reports', icon: FileText },
+      ]
+    },
+    {
+      title: 'Student Management',
+      items: [
+        { name: 'Students', path: '/admin/students', icon: Users },
+        { name: 'Verifications', path: '/admin/students/verifications', icon: ShieldCheck },
+        { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEdit },
+      ]
+    },
+    {
+      title: 'System',
+      items: [
+        { name: 'Notifications', path: '/admin/notifications', icon: Bell },
+        { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
+        { name: 'Settings', path: '/admin/settings', icon: Settings },
+      ]
+    }
   ];
 
-  const pageTitle = navItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
+  const allNavItems = navGroups.flatMap(g => g.items);
+  const pageTitle = allNavItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-slate-950 text-slate-300">
       <div className="h-20 flex items-center px-6 border-b border-slate-800">
-        <div className="flex items-center gap-3 justify-center w-full h-full py-3">
-          <div className="bg-white/95 backdrop-blur-sm px-6 py-1.5 rounded-xl h-full w-full flex items-center justify-center shadow-sm">
-            <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain mix-blend-multiply" />
+        <div className="flex items-center gap-4 w-full py-3">
+          <div className="bg-white p-1.5 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] ring-1 ring-white/10 shrink-0">
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-9 w-9 object-contain" />
+          </div>
+          <div className="flex flex-col justify-center">
+            <span className="text-white font-extrabold text-lg leading-none tracking-tight mb-0.5">PlacementX</span>
+            <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em] leading-none">Admin Portal</span>
           </div>
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1.5 scrollbar-thin scrollbar-thumb-slate-800">
-        <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-3 px-2">
-          Administration
-        </div>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={() =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  isActive
-                    ? 'bg-primary/10 text-primary border border-primary/20 shadow-[inset_0px_0px_10px_rgba(var(--color-primary),0.1)]'
-                    : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-                }`
-              }
-            >
-              <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-slate-500'}`} />
-              {item.name}
-            </NavLink>
-          );
-        })}
+      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-800">
+        {navGroups.map((group) => (
+          <div key={group.title} className="flex flex-col gap-1.5">
+            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 px-3">
+              {group.title}
+            </div>
+            {group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = location.pathname.startsWith(item.path);
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={() =>
+                    `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                      isActive
+                        ? 'bg-primary text-white shadow-md shadow-primary/20'
+                        : 'text-slate-400 hover:bg-slate-800/80 hover:text-white'
+                    }`
+                  }
+                >
+                  <Icon className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                  {item.name}
+                </NavLink>
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <div className="p-4 border-t border-slate-800 bg-slate-900/50">
