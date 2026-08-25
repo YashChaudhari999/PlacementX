@@ -82,7 +82,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
                 )}
                 {action.category === 'OPERATIONS' && action.problem.includes('Drives') && (
                   <Link 
-                    to="/admin/drives?tab=pending" 
+                    to="/admin/placement-events?tab=pending" 
                     className={`inline-flex items-center gap-1 text-sm font-bold transition-colors ${
                       isCritical ? 'text-rose-600 hover:text-rose-700' : 'text-amber-600 hover:text-amber-700'
                     }`}

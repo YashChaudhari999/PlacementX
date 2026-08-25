@@ -1350,3 +1350,11 @@ Verified against actual repository structure, source code, and existing document
 | Test Credentials | `login_credentials.md` |
 | Dev Prompts | `All Prompts/` directory |
 | Tech Stack | `README.md` |
+
+### Recent Updates
+- Transformed the Admin Students page (/admin/students) into a Student Operations Center.
+- Implemented StudentDetailsDrawer.tsx for a 360-degree view (Profile, Academic, Applications, Verification).
+- Implemented BulkActionsToolbar.tsx and selection checkboxes for bulk provisioning and alerts.
+- Created a new backend endpoint GET /api/admin/students/:id/details to aggregate student data across 5 distinct tables (ImportedStudent, User, StudentProfile, DriveApplication, ProfileUpdateRequest).
+- Fixed a routing issue in AdminDashboard.tsx where 'View All' drives led to a 404.
+

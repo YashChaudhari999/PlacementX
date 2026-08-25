@@ -12,7 +12,8 @@ import {
   verifyProfile,
   getUpdateRequests,
   reviewUpdateRequest,
-  provisionCurrentYearStudents
+  provisionCurrentYearStudents,
+  getStudentDetails
 } from '../controllers/admin.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -24,6 +25,7 @@ router.use(authenticate, authorize('SUPER_ADMIN', 'COORDINATOR'));
 
 router.get('/dashboard', getAdminDashboard);
 router.get('/students', getStudents);
+router.get('/students/:id/details', getStudentDetails);
 router.post('/students/import', importStudents);
 router.post('/students/provision', provisionCurrentYearStudents);
 router.get('/coordinators', getCoordinators);

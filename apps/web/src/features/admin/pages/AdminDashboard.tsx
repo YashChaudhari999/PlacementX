@@ -187,7 +187,7 @@ export default function AdminDashboard() {
                   icon={Calendar} 
                   trend="Active Today" 
                   colorClass="text-blue-600" bgClass="bg-blue-50" trendColor="text-blue-700"
-                  onClick={() => navigate('/admin/drives')}
+                  onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
                   icon={Clock} 
                   trend="Registration Closed" 
                   colorClass="text-indigo-600" bgClass="bg-indigo-50" trendColor="text-indigo-700"
-                  onClick={() => navigate('/admin/drives')}
+                  onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -207,7 +207,7 @@ export default function AdminDashboard() {
                   icon={Briefcase} 
                   trend="Accepting Applications" 
                   colorClass="text-emerald-600" bgClass="bg-emerald-50" trendColor="text-emerald-700"
-                  onClick={() => navigate('/admin/drives')}
+                  onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
             </div>
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                     {data?.students?.eligibleByCompany?.length > 0 ? (
                       <div className="space-y-3">
                         {data.students.eligibleByCompany.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer" onClick={() => navigate('/admin/drives')}>
+                          <div key={idx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer" onClick={() => navigate('/admin/placement-events')}>
                             <div className="flex items-center gap-3.5">
                               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center text-slate-600 font-black text-sm uppercase shadow-inner border border-slate-200/60">
                                 {item.company.substring(0, 2)}
@@ -289,7 +289,7 @@ export default function AdminDashboard() {
                     {data?.students?.applicationsByCompany?.length > 0 ? (
                       <div className="space-y-3">
                         {data.students.applicationsByCompany.map((item: any, idx: number) => (
-                          <div key={idx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer" onClick={() => navigate('/admin/drives')}>
+                          <div key={idx} className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer" onClick={() => navigate('/admin/placement-events')}>
                             <div className="flex items-center gap-3.5">
                               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center text-slate-600 font-black text-sm uppercase shadow-inner border border-slate-200/60">
                                 {item.company.substring(0, 2)}

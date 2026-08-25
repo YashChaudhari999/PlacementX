@@ -76,3 +76,15 @@ export const useAdminStudents = (filters?: any) => {
     }
   });
 };
+
+export const useAdminStudentDetails = (id: string) => {
+  return useQuery({
+    queryKey: ['adminStudentDetails', id],
+    queryFn: async () => {
+      const { default: api } = await import('@/lib/api');
+      const res = await api.get(`/admin/students/${id}/details`);
+      return res.data;
+    },
+    enabled: !!id
+  });
+};

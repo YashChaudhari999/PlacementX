@@ -994,3 +994,59 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
     return res.status(500).json({ message: 'Error running provisioning', error: error.message });
   }
 };
+
+export const getStudentDetails = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const importedStudent = await prisma.importedStudent.findUnique({
+      where: { id }
+    });
+
+    if (!importedStudent) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    let user = null;
+    let profile = null;
+    let applications: any[] = [];
+    let updateRequests: any[] = [];
+
+    if (importedStudent.email) {
+      user = await prisma.user.findUnique({
+        where: { email: importedStudent.email }
+      });
+
+      if (user) {
+        profile = await prisma.studentProfile.findUnique({
+          where: { userId: user.id }
+        });
+
+        if (profile) {
+          applications = await prisma.driveApplication.findMany({
+            where: { studentId: profile.id },
+            include: { drive: { select: { company: { select: { name: true } }, jobRole: true, status: true, fixedSalary: true } } },
+            orderBy: { appliedAt: 'desc' }
+          });
+          
+          updateRequests = await prisma.profileUpdateRequest.findMany({
+            where: { studentId: profile.id },
+            orderBy: { requestedAt: 'desc' }
+          });
+        }
+      }
+    }
+
+    return res.status(200).json({
+      importedData: importedStudent,
+      isProvisioned: !!user,
+      user: user ? { id: user.id, email: user.email, role: user.role } : null,
+      profile: profile || null,
+      applications: applications,
+      updateRequests: updateRequests
+    });
+  } catch (error: any) {
+    console.error('getStudentDetails error:', error);
+    return res.status(500).json({ message: 'Error fetching student details', error: error.message });
+  }
+};
+
