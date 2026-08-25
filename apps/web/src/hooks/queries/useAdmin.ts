@@ -60,31 +60,17 @@ export const useProvisionStudents = () => {
   });
 };
 
-export const useAdminStudents = (filters?: any) => {
+export const useAdminStudents = (params: Record<string, any> = {}) => {
   return useQuery({
-    queryKey: ['adminStudents', filters],
-    queryFn: async () => {
-      // Assuming getStudents takes filters in query string. Using api directly.
-      const { default: api } = await import('@/lib/api');
-      const params = new URLSearchParams();
-      if (filters?.academic_year) params.append('academic_year', filters.academic_year);
-      if (filters?.department) params.append('department', filters.department);
-      if (filters?.search) params.append('search', filters.search);
-      
-      const res = await api.get(`/admin/students?${params.toString()}`);
-      return res.data;
-    }
+    queryKey: ['adminStudents', params],
+    queryFn: () => adminService.getStudents(params),
+    placeholderData: (prev: any) => prev, // keep previous data while loading new page
   });
 };
 
-export const useAdminStudentDetails = (id: string) => {
+export const useStudentStats = (academicYear?: string) => {
   return useQuery({
-    queryKey: ['adminStudentDetails', id],
-    queryFn: async () => {
-      const { default: api } = await import('@/lib/api');
-      const res = await api.get(`/admin/students/${id}/details`);
-      return res.data;
-    },
-    enabled: !!id
+    queryKey: ['adminStudentStats', academicYear],
+    queryFn: () => adminService.getStudentStats(academicYear),
   });
 };

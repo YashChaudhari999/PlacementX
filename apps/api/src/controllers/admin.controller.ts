@@ -8,7 +8,7 @@ import prisma from '../utils/prisma';
 export const getStudents = async (req: any, res: any) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 25;
     const skip = (page - 1) * limit;
     
     const where: any = {};
@@ -22,6 +22,15 @@ export const getStudents = async (req: any, res: any) => {
     if (req.query.student_status && req.query.student_status !== 'All') {
       where.studentStatus = req.query.student_status;
     }
+    if (req.query.placement_status && req.query.placement_status !== 'All') {
+      where.placementStatus = req.query.placement_status;
+    }
+    if (req.query.min_cgpa) {
+      where.cgpa = { ...(where.cgpa || {}), gte: parseFloat(req.query.min_cgpa) };
+    }
+    if (req.query.max_cgpa) {
+      where.cgpa = { ...(where.cgpa || {}), lte: parseFloat(req.query.max_cgpa) };
+    }
     if (req.query.search) {
       where.OR = [
         { fullName: { contains: req.query.search, mode: 'insensitive' } },
@@ -30,13 +39,22 @@ export const getStudents = async (req: any, res: any) => {
       ];
     }
 
+    // Server-side sorting
+    const sortableFields: Record<string, string> = {
+      name: 'fullName', cgpa: 'cgpa', backlogs: 'activeBacklogs',
+      department: 'department', package: 'fixedSalaryLpa', updated: 'updatedAt',
+      studentId: 'studentId'
+    };
+    const sortBy = sortableFields[req.query.sortBy] || 'fullName';
+    const sortOrder = req.query.sortOrder === 'desc' ? 'desc' : 'asc';
+
     const [total, students] = await Promise.all([
       prisma.importedStudent.count({ where }),
       prisma.importedStudent.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { fullName: 'asc' }
+        orderBy: { [sortBy]: sortOrder }
       })
     ]);
 
@@ -46,9 +64,18 @@ export const getStudents = async (req: any, res: any) => {
       name: s.fullName,
       email: s.email,
       branch: s.department,
-      cgpa: s.cgpa || 0,
+      cgpa: s.cgpa ?? null,
       status: s.placementStatus || 'Unplaced',
-      academicYear: s.academicYear
+      academicYear: s.academicYear,
+      gender: s.gender,
+      activeBacklogs: s.activeBacklogs ?? 0,
+      profileComplete: s.profileComplete,
+      skills: s.skills,
+      companyName: s.companyName,
+      fixedSalaryLpa: s.fixedSalaryLpa,
+      applicationStatus: s.applicationStatus,
+      studentStatus: s.studentStatus,
+      updatedAt: s.updatedAt
     }));
 
     return res.status(200).json({
@@ -62,6 +89,56 @@ export const getStudents = async (req: any, res: any) => {
     });
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching students', error: error.message });
+  }
+};
+
+// Student Stats / KPI endpoint
+export const getStudentStats = async (req: any, res: any) => {
+  try {
+    const where: any = {};
+    if (req.query.academic_year && req.query.academic_year !== 'All Years') {
+      where.academicYear = req.query.academic_year;
+    }
+
+    const [
+      total,
+      placed,
+      profileCompleteCount,
+      departments,
+      avgCgpa
+    ] = await Promise.all([
+      prisma.importedStudent.count({ where }),
+      prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } }),
+      prisma.importedStudent.count({ where: { ...where, profileComplete: 'Yes' } }),
+      prisma.importedStudent.groupBy({
+        by: ['department'],
+        where,
+        _count: { department: true },
+        orderBy: { department: 'asc' }
+      }),
+      prisma.importedStudent.aggregate({
+        where,
+        _avg: { cgpa: true }
+      })
+    ]);
+
+    const unplaced = total - placed;
+    const profileIncomplete = total - profileCompleteCount;
+
+    return res.status(200).json({
+      total,
+      placed,
+      unplaced,
+      profileComplete: profileCompleteCount,
+      profileIncomplete,
+      avgCgpa: avgCgpa._avg.cgpa ? Number(avgCgpa._avg.cgpa.toFixed(2)) : 0,
+      departments: departments.map((d: any) => ({
+        name: d.department,
+        count: d._count.department
+      }))
+    });
+  } catch (error: any) {
+    return res.status(500).json({ message: 'Error fetching student stats', error: error.message });
   }
 };
 
@@ -992,61 +1069,6 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
   } catch (error: any) {
     console.error('Provisioning route error:', error);
     return res.status(500).json({ message: 'Error running provisioning', error: error.message });
-  }
-};
-
-export const getStudentDetails = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const importedStudent = await prisma.importedStudent.findUnique({
-      where: { id }
-    });
-
-    if (!importedStudent) {
-      return res.status(404).json({ message: 'Student not found' });
-    }
-
-    let user = null;
-    let profile = null;
-    let applications: any[] = [];
-    let updateRequests: any[] = [];
-
-    if (importedStudent.email) {
-      user = await prisma.user.findUnique({
-        where: { email: importedStudent.email }
-      });
-
-      if (user) {
-        profile = await prisma.studentProfile.findUnique({
-          where: { userId: user.id }
-        });
-
-        if (profile) {
-          applications = await prisma.driveApplication.findMany({
-            where: { studentId: profile.id },
-            include: { drive: { select: { company: { select: { name: true } }, jobRole: true, status: true, fixedSalary: true } } },
-            orderBy: { appliedAt: 'desc' }
-          });
-          
-          updateRequests = await prisma.profileUpdateRequest.findMany({
-            where: { studentId: profile.id },
-            orderBy: { requestedAt: 'desc' }
-          });
-        }
-      }
-    }
-
-    return res.status(200).json({
-      importedData: importedStudent,
-      isProvisioned: !!user,
-      user: user ? { id: user.id, email: user.email, role: user.role } : null,
-      profile: profile || null,
-      applications: applications,
-      updateRequests: updateRequests
-    });
-  } catch (error: any) {
-    console.error('getStudentDetails error:', error);
-    return res.status(500).json({ message: 'Error fetching student details', error: error.message });
   }
 };
 

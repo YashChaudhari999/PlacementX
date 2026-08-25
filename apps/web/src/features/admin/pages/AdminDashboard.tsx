@@ -171,7 +171,7 @@ export default function AdminDashboard() {
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
               <div className="p-1.5 bg-indigo-100 rounded-md"><Calendar className="w-5 h-5 text-indigo-600" /></div> Drives
             </h2>
-            <button onClick={() => navigate('/admin/drives')} className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1">
+            <button onClick={() => navigate('/admin/placement-events')} className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1">
               View All <ChevronRight className="w-4 h-4" />
             </button>
           </div>
