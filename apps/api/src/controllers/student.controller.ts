@@ -31,6 +31,29 @@ export const getProfile = async (req: any, res: any) => {
   }
 };
 
+export const updatePhoto = async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const { photoUrl } = req.body;
+    
+    if (!photoUrl) {
+      return res.status(400).json({ message: 'Photo URL is required' });
+    }
+
+    const updatedProfile = await prisma.studentProfile.update({
+      where: { userId },
+      data: { photoUrl }
+    });
+
+    return res.status(200).json(updatedProfile);
+  } catch (error: any) {
+    console.error('Update photo error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
 export const updateProfile = async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
@@ -64,6 +87,7 @@ export const updateProfile = async (req: any, res: any) => {
       nationality: data.nationality,
       gender: data.gender,
       resumeUrl: data.resumeUrl,
+      photoUrl: data.photoUrl,
       portfolioUrl: data.portfolioUrl,
       githubUrl: data.githubUrl,
       linkedinUrl: data.linkedinUrl,

@@ -24,6 +24,20 @@ export const useUpdateStudentProfile = () => {
   });
 };
 
+export const useUpdateStudentPhoto = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, photoUrl }: { userId: string, photoUrl: string }) => studentService.updatePhoto(userId, photoUrl),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['studentProfile', variables.userId] });
+      toast.success('Profile picture updated successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || 'Failed to update profile picture');
+    }
+  });
+};
+
 export const useStudentProfileStatus = () => {
   return useQuery({
     queryKey: ['studentProfileStatus'],

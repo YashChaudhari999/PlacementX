@@ -5,9 +5,9 @@ import {
   User, FileText, GraduationCap, CheckCircle, Save, ExternalLink, AlertCircle, Edit2,
   Phone, Calendar, MapPin, Flag, Briefcase, Link as LinkIcon, Code, Award, 
   BookOpen, Clock, Building, Hash, Languages, FileBadge, UserCircle, 
-  X, Plus, CheckCircle2, ShieldCheck, Database, Cloud, Wrench, Monitor, Terminal, Globe, Award as AwardIcon, PlayCircle, AppWindow, Globe2
+  X, Plus, CheckCircle2, ShieldCheck, Database, Cloud, Wrench, Monitor, Terminal, Globe, Award as AwardIcon, PlayCircle, AppWindow, Globe2, Camera
 } from 'lucide-react';
-import { useStudentProfile, useUpdateStudentProfile, useStudentProfileStatus, useRequestProfileUpdate } from '@/hooks/queries/useStudent';
+import { useStudentProfile, useUpdateStudentProfile, useUpdateStudentPhoto, useStudentProfileStatus, useRequestProfileUpdate } from '@/hooks/queries/useStudent';
 import { ProfileSkeleton } from '@/components/common/Skeletons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -88,6 +88,7 @@ export default function StudentProfile() {
   const updateProfileMutation = useUpdateStudentProfile();
   const requestUpdateMutation = useRequestProfileUpdate();
   const { data: statusData } = useStudentProfileStatus();
+  const updatePhotoMutation = useUpdateStudentPhoto();
   
   const [activeTab, setActiveTab] = useState('personal');
   const [completionPercentage, setCompletionPercentage] = useState(0);
@@ -96,6 +97,12 @@ export default function StudentProfile() {
 
   const profileStatus = statusData?.status || 'NOT_COMPLETED';
   const isReadOnly = profileStatus === 'PENDING_VERIFICATION' || profileStatus === 'UPDATE_REQUESTED' || (profileStatus === 'VERIFIED' && !isEditing);
+
+  useEffect(() => {
+    if (statusData?.status && user && user.profileStatus !== statusData.status) {
+      updateUser({ profileStatus: statusData.status });
+    }
+  }, [statusData?.status, user, updateUser]);
 
   const [profile, setProfile] = useState({
     firstName: '',
@@ -109,6 +116,7 @@ export default function StudentProfile() {
     nationality: 'Indian',
     gender: 'Male',
     resumeUrl: '',
+    photoUrl: '',
     portfolioUrl: '',
     githubUrl: '',
     linkedinUrl: '',
@@ -143,6 +151,7 @@ export default function StudentProfile() {
     if (serverProfile) {
       setProfile({
         ...serverProfile,
+        photoUrl: serverProfile.photoUrl || '',
         cgpa: serverProfile.cgpa?.toString() || '',
         passingYear: serverProfile.passingYear?.toString() || '',
         activeBacklogs: serverProfile.activeBacklogs?.toString() || '0',
@@ -232,22 +241,53 @@ export default function StudentProfile() {
       <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/60 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         
-        {/* Circular Progress */}
-        <div className="relative w-32 h-32 shrink-0">
-          <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-            <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="8" className="text-slate-100" />
+        {/* Circular Progress / Avatar Uploader */}
+        <div className="relative w-32 h-32 shrink-0 group">
+          <svg className="absolute inset-0 w-full h-full transform -rotate-90 z-0" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="4" className="text-slate-100" />
             <motion.circle 
-              cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="8" 
+              cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="4" 
               strokeLinecap="round"
               className={completionPercentage === 100 ? "text-emerald-500" : "text-blue-600"}
               initial={{ strokeDasharray: "0 1000" }}
-              animate={{ strokeDasharray: `${(completionPercentage / 100) * 283} 1000` }}
+              animate={{ strokeDasharray: `${(completionPercentage / 100) * 301} 1000` }}
               transition={{ duration: 1.5, ease: "easeOut" }}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-extrabold text-slate-800">{completionPercentage}%</span>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">Complete</span>
+          
+          <div className="absolute inset-2 rounded-full overflow-hidden bg-white flex items-center justify-center border border-slate-100 shadow-inner z-10">
+            {profile.photoUrl ? (
+              <img src={profile.photoUrl} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <span className="text-xl font-extrabold text-slate-800">{completionPercentage}%</span>
+                <span className="text-[8px] uppercase font-bold tracking-wider text-slate-400">Complete</span>
+              </div>
+            )}
+            
+            {!isReadOnly && (
+              <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <Camera className="w-6 h-6 mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Upload</span>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file && user) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        const result = reader.result as string;
+                        setProfile({ ...profile, photoUrl: result });
+                        updatePhotoMutation.mutate({ userId: user.id, photoUrl: result });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }} 
+                />
+              </label>
+            )}
           </div>
         </div>
 

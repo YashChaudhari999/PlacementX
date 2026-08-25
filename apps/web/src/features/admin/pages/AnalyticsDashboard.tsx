@@ -8,14 +8,12 @@ import {
   useAnalyticsDepartments,
   useAnalyticsCompanies,
   useAnalyticsPackages,
-  useAnalyticsYearComparison,
   useStudentRiskAnalytics,
   useSkillGapAnalytics,
   useDriveAnalytics,
   useAnalyticsIntelligence,
   useActionCenter,
-  useOperationalHealth,
-  useForecast
+  useOperationalHealth
 } from '@/hooks/queries/useAnalytics';
 
 import GlobalFilters from '../components/analytics/GlobalFilters';
@@ -32,13 +30,11 @@ import SalaryAnalytics from '../components/analytics/SalaryAnalytics';
 import StudentRiskAnalytics from '../components/analytics/StudentRiskAnalytics';
 import SkillGapAnalytics from '../components/analytics/SkillGapAnalytics';
 import DriveAnalytics from '../components/analytics/DriveAnalytics';
-import YearComparisonChart from '../components/analytics/YearComparisonChart';
-import ForecastChart from '../components/analytics/ForecastChart';
 
 import { Activity, ShieldCheck, Target, GraduationCap, Building2, IndianRupee, Briefcase, Sparkles } from 'lucide-react';
 import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 
-type Tab = 'overview' | 'departments' | 'students' | 'companies' | 'drives' | 'forecast';
+type Tab = 'overview' | 'departments' | 'students' | 'companies' | 'drives';
 
 export default function AnalyticsDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -62,17 +58,12 @@ export default function AnalyticsDashboard() {
   const { data: skillGap } = useSkillGapAnalytics(filters);
   const { data: drives } = useDriveAnalytics(filters);
 
-  // Trends & Forecast
-  const { data: yearComparison } = useAnalyticsYearComparison(filters);
-  const { data: forecast } = useForecast(filters);
-
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
     { id: 'overview', label: 'Command Center', icon: Activity },
     { id: 'students', label: 'Student Readiness', icon: GraduationCap },
     { id: 'departments', label: 'Department Intelligence', icon: Target },
     { id: 'companies', label: 'Recruiter Intelligence', icon: Building2 },
     { id: 'drives', label: 'Drive Analytics', icon: Briefcase },
-    { id: 'forecast', label: 'AI Forecast', icon: Sparkles },
   ];
 
   if (overviewLoading) {
@@ -183,15 +174,6 @@ export default function AnalyticsDashboard() {
           {activeTab === 'drives' && (
             <div className="space-y-6">
               {drives && <DriveAnalytics data={drives} />}
-            </div>
-          )}
-
-          {activeTab === 'forecast' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {forecast && <ForecastChart data={forecast} />}
-                {yearComparison && <YearComparisonChart data={yearComparison} />}
-              </div>
             </div>
           )}
         </motion.div>

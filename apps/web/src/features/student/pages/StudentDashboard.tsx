@@ -21,6 +21,12 @@ export default function StudentDashboard() {
   const { data: profileData } = useStudentProfile(user?.id);
   const { data: mlPrediction } = useStudentMLPrediction(user?.id, profileData);
 
+  const studentName = profileData?.firstName 
+    ? `${profileData.firstName} ${profileData.lastName || ''}`.trim() 
+    : user?.firstName 
+      ? `${user.firstName} ${user.lastName || ''}`.trim() 
+      : user?.email?.split('@')[0] || 'Student';
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting('Good morning');
@@ -65,7 +71,7 @@ export default function StudentDashboard() {
             <span className="text-blue-100 font-medium tracking-wide uppercase text-sm">{greeting}</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
-            Welcome back, {user?.email?.split('@')[0] || 'Student'}!
+            Welcome back, {studentName}!
           </h1>
           <p className="text-blue-100 max-w-lg text-lg">
             Stay on top of your placement journey. You have <strong className="text-white">{drives.length} active drives</strong> available right now.

@@ -12,6 +12,10 @@ export const studentService = {
     const res = await api.put('/student/profile', data);
     return res.data;
   },
+  updatePhoto: async (userId: string, photoUrl: string) => {
+    const res = await api.put('/student/profile/photo', { photoUrl });
+    return res.data;
+  },
   getProfileStatus: async () => {
     const res = await api.get('/student/profile/status');
     return res.data;
