@@ -283,13 +283,45 @@ model Notification {
   image          String?
   isArchived     Boolean   @default(false)
   isDeleted      Boolean   @default(false)
+  campaignId     String?
   user           User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+  campaign       NotificationCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
   @@index([receiverId, isDeleted, createdAt])
   @@index([receiverId, isRead, isDeleted])
   @@index([receiverId, category, isDeleted])
   @@index([receiverId, type, isDeleted])
+  @@index([campaignId])
 }
+
+model NotificationCampaign {
+  id             String    @id @default(uuid())
+  title          String
+  message        String
+  type           String    @default("system")
+  audienceType   String
+  audienceDesc   String
+  channels       Json
+  status         String    @default("SENT") // SENT, SCHEDULED, FAILED
+  scheduledFor   DateTime?
+  sentBy         String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  notifications  Notification[]
+}
+
+model NotificationTemplate {
+  id           String    @id @default(uuid())
+  name         String
+  category     String
+  title        String
+  message      String
+  isFavorite   Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
 
 model NotificationPreference {
   id           String   @id @default(uuid())

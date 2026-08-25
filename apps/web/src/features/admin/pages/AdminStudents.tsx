@@ -5,8 +5,9 @@ import {
   Search, GraduationCap, CheckCircle, XCircle, Upload, Download, UserPlus,
   Eye, Mail, Building2, BookOpen, MoreVertical, ChevronLeft, ChevronRight,
   AlertTriangle, Users, TrendingUp, FileText, X, ArrowUpDown, ArrowUp, ArrowDown,
-  Briefcase, Clock, Copy, ExternalLink, Filter, RotateCcw, ChevronDown
+  Briefcase, Clock, Copy, ExternalLink, Filter, RotateCcw, ChevronDown, Send
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Papa from 'papaparse';
 import { StudentImportService } from '@/features/admin/services/studentImportService';
 import { auth } from '@/lib/firebase/config/firebaseApp';
@@ -72,6 +73,7 @@ const DEFAULT_FILTERS: StudentFilters = {
 // ─── Main Page Component ───────────────────────────────────────────────────────
 
 export default function AdminStudents() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<StudentFilters>(DEFAULT_FILTERS);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -283,6 +285,11 @@ export default function AdminStudents() {
     });
   };
 
+  const handleSendNotification = () => {
+    const ids = Array.from(selectedIds).join(',');
+    navigate(`/admin/notifications?tab=send&selectedStudents=${ids}`);
+  };
+
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
@@ -476,6 +483,9 @@ export default function AdminStudents() {
         <div className="sticky top-0 z-20 bg-indigo-600 text-white rounded-lg px-4 py-2.5 flex items-center justify-between shadow-lg">
           <span className="text-sm font-medium">{selectedIds.size} student{selectedIds.size > 1 ? 's' : ''} selected</span>
           <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="text-xs bg-white text-indigo-600 hover:bg-slate-50 border-white/20 hover:text-indigo-700" onClick={handleSendNotification}>
+              <Send className="w-3.5 h-3.5 mr-1" /> Notify
+            </Button>
             <Button size="sm" variant="outline" className="text-xs bg-white/10 border-white/20 text-white hover:bg-white/20" onClick={handleExportCSV}>
               <Download className="w-3.5 h-3.5 mr-1" /> Export
             </Button>

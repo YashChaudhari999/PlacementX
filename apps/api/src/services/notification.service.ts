@@ -132,7 +132,7 @@ export const createNotification = async (input: CreateNotificationInput) => {
  * Create notifications for multiple users efficiently.
  * Uses queue for push delivery to handle large volumes.
  */
-export const createBulkNotifications = async (input: BroadcastNotificationInput) => {
+export const createBulkNotifications = async (input: BroadcastNotificationInput & { campaignId?: string }) => {
   if (!input.receiverIds.length) return { success: true, count: 0 };
 
   const category = input.category || input.type || 'system';
@@ -152,6 +152,7 @@ export const createBulkNotifications = async (input: BroadcastNotificationInput)
     actionUrl: input.actionUrl,
     deepLinkRoute: input.deepLinkRoute,
     deepLinkParams: input.deepLinkParams || {},
+    campaignId: input.campaignId,
   }));
 
   // Create all notifications in a single batch
@@ -194,7 +195,7 @@ export const createBulkNotifications = async (input: BroadcastNotificationInput)
  * Uses BullMQ delayed jobs.
  */
 export const scheduleNotification = async (
-  input: CreateNotificationInput,
+  input: CreateNotificationInput & { campaignId?: string },
   scheduledAt: Date,
 ) => {
   const delayMs = scheduledAt.getTime() - Date.now();
@@ -218,6 +219,7 @@ export const scheduleNotification = async (
       image: input.image,
       senderId: input.senderId,
       senderRole: input.senderRole,
+      campaignId: input.campaignId,
     },
     delayMs,
   );

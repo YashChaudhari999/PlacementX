@@ -17,6 +17,13 @@ import {
   broadcastNotification,
   scheduleNotificationController,
 } from '../controllers/notification.controller';
+import {
+  getAdminNotificationStats,
+  getAdminNotificationHistory,
+  getAdminScheduledNotifications,
+  getAdminNotificationTemplates,
+  getAdminRecommendations,
+} from '../controllers/admin.notification.controller';
 
 const router = Router();
 
@@ -47,5 +54,11 @@ const adminOnly = authorize('SUPER_ADMIN', 'COORDINATOR');
 
 router.post('/broadcast', authenticate, adminOnly, broadcastNotification);       // POST /notifications/broadcast
 router.post('/schedule', authenticate, adminOnly, scheduleNotificationController); // POST /notifications/schedule
+
+router.get('/admin/stats', authenticate, adminOnly, getAdminNotificationStats);
+router.get('/admin/history', authenticate, adminOnly, getAdminNotificationHistory);
+router.get('/admin/scheduled', authenticate, adminOnly, getAdminScheduledNotifications);
+router.get('/admin/templates', authenticate, adminOnly, getAdminNotificationTemplates);
+router.get('/admin/recommendations', authenticate, adminOnly, getAdminRecommendations);
 
 export default router;

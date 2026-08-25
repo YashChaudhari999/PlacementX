@@ -253,6 +253,20 @@ export const broadcastNotification = async (req: any, res: any) => {
       return res.status(404).json({ message: 'No users found for target audience.' });
     }
 
+    // Create the campaign record
+    const campaign = await prisma.notificationCampaign.create({
+      data: {
+        title,
+        message,
+        type,
+        audienceType: targetAudience,
+        audienceDesc: targetId || 'All Users',
+        channels: { push: true, inApp: true }, // Should be passed from frontend
+        sentBy: req.user.id,
+        status: 'SENT',
+      }
+    });
+
     // For single user, use createNotification for richer processing
     if (receiverIds.length === 1) {
       const notification = await createNotification({
@@ -269,7 +283,14 @@ export const broadcastNotification = async (req: any, res: any) => {
         senderId: req.user.id,
         senderRole: req.user.role,
       });
-      return res.status(201).json({ message: 'Notification sent', notification });
+
+      // Update notification with campaign
+      await prisma.notification.update({
+        where: { id: notification.id },
+        data: { campaignId: campaign.id }
+      });
+
+      return res.status(201).json({ message: 'Notification sent', notification, campaignId: campaign.id });
     }
 
     // For multiple users, use bulk
@@ -286,9 +307,10 @@ export const broadcastNotification = async (req: any, res: any) => {
       receiverIds,
       senderId: req.user.id,
       senderRole: req.user.role,
+      campaignId: campaign.id
     });
 
-    return res.status(201).json({ message: `Broadcasted to ${result.count} users` });
+    return res.status(201).json({ message: `Broadcasted to ${result.count} users`, campaignId: campaign.id });
   } catch (error: any) {
     return res.status(500).json({ message: 'Error broadcasting notification', error: error.message });
   }
@@ -304,6 +326,20 @@ export const scheduleNotificationController = async (req: any, res: any) => {
       return res.status(400).json({ message: 'title, message, receiverId, and scheduledAt are required' });
     }
 
+    const campaign = await prisma.notificationCampaign.create({
+      data: {
+        title,
+        message,
+        type,
+        audienceType: 'STUDENT', // Fallback for single receiver
+        audienceDesc: receiverId,
+        channels: { push: true, inApp: true },
+        sentBy: req.user.id,
+        status: 'SCHEDULED',
+        scheduledFor: new Date(scheduledAt)
+      }
+    });
+
     const result = await scheduleNotification(
       {
         title,
@@ -317,11 +353,12 @@ export const scheduleNotificationController = async (req: any, res: any) => {
         image,
         senderId: req.user.id,
         senderRole: req.user.role,
+        campaignId: campaign.id
       },
       new Date(scheduledAt),
     );
 
-    return res.status(201).json(result);
+    return res.status(201).json({ ...result, campaignId: campaign.id });
   } catch (error: any) {
     return res.status(500).json({ message: 'Error scheduling notification', error: error.message });
   }
