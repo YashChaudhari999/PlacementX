@@ -1,4 +1,5 @@
 import { PrismaClient, PlacementDrive } from '@prisma/client';
+import * as settingsService from './settings.service';
 
 const prisma = new PrismaClient();
 
@@ -7,12 +8,19 @@ export const filterEligibleStudents = async (drive: PlacementDrive) => {
     isProfileComplete: true,
   };
 
+  const minimumCGPA = await settingsService.getSetting('minimumCGPA');
+  const maxBacklogsAllowed = await settingsService.getSetting('maxBacklogsAllowed');
+
   if (drive.minimumCgpa) {
     whereClause.cgpa = { gte: drive.minimumCgpa };
+  } else if (minimumCGPA !== null) {
+    whereClause.cgpa = { gte: minimumCGPA };
   }
 
   if (drive.activeBacklogsAllowed !== null && drive.activeBacklogsAllowed !== undefined) {
     whereClause.activeBacklogs = { lte: drive.activeBacklogsAllowed };
+  } else if (maxBacklogsAllowed !== null) {
+    whereClause.activeBacklogs = { lte: maxBacklogsAllowed };
   }
 
   if (drive.passingYear) {
@@ -42,19 +50,24 @@ export const filterEligibleStudents = async (drive: PlacementDrive) => {
   return eligibleStudents.map(student => student.userId);
 };
 
-export const checkEligibility = (student: any, drive: any) => {
+export const checkEligibility = async (student: any, drive: any) => {
   const reasons: string[] = [];
+  const minimumCGPA = await settingsService.getSetting('minimumCGPA');
+  const maxBacklogsAllowed = await settingsService.getSetting('maxBacklogsAllowed');
+  const requireVerification = await settingsService.getSetting('requireProfileVerification');
 
-  if (!student.isProfileComplete) {
+  if (requireVerification && !student.isProfileComplete) {
     reasons.push("Profile is incomplete");
   }
   
-  if (drive.minimumCgpa && (student.cgpa || 0) < drive.minimumCgpa) {
-    reasons.push(`CGPA is less than required ${drive.minimumCgpa}`);
+  const requiredCgpa = drive.minimumCgpa !== null ? drive.minimumCgpa : minimumCGPA;
+  if (requiredCgpa && (student.cgpa || 0) < requiredCgpa) {
+    reasons.push(`CGPA is less than required ${requiredCgpa}`);
   }
 
-  if (drive.activeBacklogsAllowed !== null && drive.activeBacklogsAllowed !== undefined && (student.activeBacklogs || 0) > drive.activeBacklogsAllowed) {
-    reasons.push(`Active backlogs exceed allowed ${drive.activeBacklogsAllowed}`);
+  const allowedBacklogs = drive.activeBacklogsAllowed !== null ? drive.activeBacklogsAllowed : maxBacklogsAllowed;
+  if (allowedBacklogs !== null && allowedBacklogs !== undefined && (student.activeBacklogs || 0) > allowedBacklogs) {
+    reasons.push(`Active backlogs exceed allowed ${allowedBacklogs}`);
   }
 
   if (drive.passingYear && student.passingYear !== drive.passingYear) {

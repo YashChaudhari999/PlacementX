@@ -279,6 +279,8 @@ export const requestProfileUpdate = async (req: any, res: any) => {
   }
 };
 
+import * as settingsService from '../services/settings.service';
+
 export const applyForDrive = async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
@@ -297,7 +299,31 @@ export const applyForDrive = async (req: any, res: any) => {
     }
 
     if (!student.isProfileComplete) {
-      return res.status(400).json({ message: 'Please complete your profile before applying' });
+      const requireVerification = await settingsService.getSetting('requireProfileVerification');
+      if (requireVerification) {
+        return res.status(400).json({ message: 'Please complete and verify your profile before applying' });
+      }
+    }
+
+    // Check System Settings for Applications
+    const maxApplications = await settingsService.getSetting('maxApplicationsPerStudent');
+    const allowMultipleOffers = await settingsService.getSetting('allowMultipleOffers');
+
+    const totalApplications = await prisma.driveApplication.count({
+      where: { studentId: student.id, status: { not: 'REJECTED' } }
+    });
+
+    if (totalApplications >= parseInt(maxApplications)) {
+      return res.status(400).json({ message: `You have reached the maximum allowed applications (${maxApplications})` });
+    }
+
+    if (!allowMultipleOffers) {
+      const existingOffers = await prisma.driveApplication.count({
+        where: { studentId: student.id, status: 'ACCEPTED' }
+      });
+      if (existingOffers > 0) {
+        return res.status(400).json({ message: 'You have already accepted an offer. Multiple offers are disabled.' });
+      }
     }
 
     // Check if already applied
@@ -319,7 +345,7 @@ export const applyForDrive = async (req: any, res: any) => {
     if (!drive) return res.status(404).json({ message: 'Drive not found' });
 
     const { checkEligibility } = await import('../services/eligibility.service');
-    const eligibility = checkEligibility(student, drive);
+    const eligibility = await checkEligibility(student, drive);
 
     if (!eligibility.isEligible) {
       return res.status(400).json({ message: 'You are not eligible for this drive', reasons: eligibility.reasons });

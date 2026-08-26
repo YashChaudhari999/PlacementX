@@ -1,156 +1,88 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import SettingsSidebar from '../components/settings/SettingsSidebar';
+import GeneralSettings from '../components/settings/GeneralSettings';
+import PlacementSettings from '../components/settings/PlacementSettings';
+import StudentSettings from '../components/settings/StudentSettings';
+import NotificationSettings from '../components/settings/NotificationSettings';
+import SecuritySettings from '../components/settings/SecuritySettings';
+import SystemHealth from '../components/settings/SystemHealth';
+import DangerZone from '../components/settings/DangerZone';
+import { useSettings } from '@/hooks/useSettings';
 import { useAuthStore } from '@/stores/authStore';
-import api from '@/lib/api';
-import { Card, Button, Input } from '@/components/ui';
-import { toast } from 'sonner';
-import { Shield, Key, Save, Server, Globe } from 'lucide-react';
 
 export default function AdminSettings() {
+  const [activeTab, setActiveTab] = useState('general');
+  const [searchQuery, setSearchQuery] = useState('');
+  
   const { user } = useAuthStore();
-  const [passwords, setPasswords] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'security' | 'general'>('general');
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPasswords({ ...passwords, [e.target.name]: e.target.value });
+  const { 
+    settings, 
+    getValue, 
+    handleChange, 
+    saveChanges, 
+    hasUnsavedChanges, 
+    saving, 
+    loading 
+  } = useSettings();
+
+  if (loading) {
+    return <div className="p-8 text-center text-slate-500 animate-pulse">Loading settings...</div>;
+  }
+
+  // Handle unsaved changes warning before switching tabs
+  const handleTabChange = (newTab: string) => {
+    if (hasUnsavedChanges) {
+      if (window.confirm('You have unsaved changes. Are you sure you want to switch tabs without saving?')) {
+        // Discarding could be implemented here or just ignore and keep them in state
+        setActiveTab(newTab);
+      }
+    } else {
+      setActiveTab(newTab);
+    }
   };
 
-  const handleUpdatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwords.newPassword !== passwords.confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
+  const renderContent = () => {
+    const props = { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving };
 
-    try {
-      setLoading(true);
-      await api.put('/auth/password', {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword
-      }, {
-        
-      });
-      toast.success('Password updated successfully');
-      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.response?.data?.message || 'Failed to update password');
-    } finally {
-      setLoading(false);
+    switch (activeTab) {
+      case 'general':
+        return <GeneralSettings {...props} />;
+      case 'placement':
+        return <PlacementSettings {...props} />;
+      case 'students':
+        return <StudentSettings {...props} />;
+      case 'communications':
+        return <NotificationSettings {...props} />;
+      case 'security':
+        return isSuperAdmin ? <SecuritySettings /> : <div className="p-8 text-center text-slate-500">Access Denied</div>;
+      case 'system':
+        return <SystemHealth />;
+      case 'advanced':
+        return isSuperAdmin ? <DangerZone /> : <div className="p-8 text-center text-slate-500">Access Denied</div>;
+      default:
+        return <div className="p-8 text-center text-slate-500">Select a category</div>;
     }
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex justify-between items-end">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">Platform Settings</h1>
-          <p className="text-slate-500">Manage institutional preferences and administrator security.</p>
-        </div>
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800">Administration Control Center</h1>
+        <p className="text-slate-500">Centralized configuration, security, and placement rules.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1 space-y-2">
-          <button 
-            onClick={() => setActiveTab('general')}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${
-              activeTab === 'general' ? 'bg-white text-primary shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
-            }`}
-          >
-            <Globe className="w-4 h-4" /> General Rules
-          </button>
-          
-          <button 
-            onClick={() => setActiveTab('security')}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all ${
-              activeTab === 'security' ? 'bg-white text-primary shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
-            }`}
-          >
-            <Shield className="w-4 h-4" /> Admin Security
-          </button>
-        </div>
-
-        <div className="md:col-span-3">
-          {activeTab === 'general' && (
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                <Server className="w-5 h-5 text-slate-400" />
-                <h3 className="font-bold text-slate-800 text-lg">Platform Configuration</h3>
-              </div>
-              
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Institution Name</label>
-                  <Input defaultValue="NMIMS Placement Cell" />
-                </div>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Support Email (Visible to students)</label>
-                  <Input defaultValue="placements@nmims.edu" />
-                </div>
-
-                <div className="pt-4 flex justify-end">
-                  <Button variant="outline" onClick={() => toast.success('Settings saved!')}>
-                    <Save className="w-4 h-4 mr-2" /> Save Configuration
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          )}
-
-          {activeTab === 'security' && (
-            <Card className="p-6">
-              <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                <Key className="w-5 h-5 text-slate-400" />
-                <h3 className="font-bold text-slate-800 text-lg">Change Admin Password</h3>
-              </div>
-              
-              <form onSubmit={handleUpdatePassword} className="space-y-5">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Current Password</label>
-                  <Input 
-                    type="password" 
-                    name="currentPassword" 
-                    value={passwords.currentPassword} 
-                    onChange={handleChange} 
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">New Password</label>
-                  <Input 
-                    type="password" 
-                    name="newPassword" 
-                    value={passwords.newPassword} 
-                    onChange={handleChange} 
-                    required 
-                    minLength={6}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Confirm New Password</label>
-                  <Input 
-                    type="password" 
-                    name="confirmPassword" 
-                    value={passwords.confirmPassword} 
-                    onChange={handleChange} 
-                    required 
-                    minLength={6}
-                  />
-                </div>
-                
-                <div className="pt-4 flex justify-end">
-                  <Button type="submit" disabled={loading} className="px-8">
-                    {loading ? 'Updating...' : 'Update Password'}
-                  </Button>
-                </div>
-              </form>
-            </Card>
-          )}
+      <div className="flex flex-col md:flex-row gap-6 items-start">
+        <SettingsSidebar 
+          activeTab={activeTab} 
+          setActiveTab={handleTabChange} 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
+        
+        <div className="flex-1 w-full min-w-0">
+          {renderContent()}
         </div>
       </div>
     </div>

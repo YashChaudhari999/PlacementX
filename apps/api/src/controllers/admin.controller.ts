@@ -3,16 +3,15 @@ import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
 
-
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 25;
     const skip = (page - 1) * limit;
-    
+
     const where: any = {};
-    
+
     if (req.query.academic_year && req.query.academic_year !== 'All Years') {
       where.academicYear = req.query.academic_year;
     }
@@ -35,15 +34,19 @@ export const getStudents = async (req: any, res: any) => {
       where.OR = [
         { fullName: { contains: req.query.search, mode: 'insensitive' } },
         { studentId: { contains: req.query.search, mode: 'insensitive' } },
-        { email: { contains: req.query.search, mode: 'insensitive' } }
+        { email: { contains: req.query.search, mode: 'insensitive' } },
       ];
     }
 
     // Server-side sorting
     const sortableFields: Record<string, string> = {
-      name: 'fullName', cgpa: 'cgpa', backlogs: 'activeBacklogs',
-      department: 'department', package: 'fixedSalaryLpa', updated: 'updatedAt',
-      studentId: 'studentId'
+      name: 'fullName',
+      cgpa: 'cgpa',
+      backlogs: 'activeBacklogs',
+      department: 'department',
+      package: 'fixedSalaryLpa',
+      updated: 'updatedAt',
+      studentId: 'studentId',
     };
     const sortBy = sortableFields[req.query.sortBy] || 'fullName';
     const sortOrder = req.query.sortOrder === 'desc' ? 'desc' : 'asc';
@@ -54,8 +57,8 @@ export const getStudents = async (req: any, res: any) => {
         where,
         skip,
         take: limit,
-        orderBy: { [sortBy]: sortOrder }
-      })
+        orderBy: { [sortBy]: sortOrder },
+      }),
     ]);
 
     const formattedStudents = students.map((s: any) => ({
@@ -75,7 +78,7 @@ export const getStudents = async (req: any, res: any) => {
       fixedSalaryLpa: s.fixedSalaryLpa,
       applicationStatus: s.applicationStatus,
       studentStatus: s.studentStatus,
-      updatedAt: s.updatedAt
+      updatedAt: s.updatedAt,
     }));
 
     return res.status(200).json({
@@ -84,8 +87,8 @@ export const getStudents = async (req: any, res: any) => {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching students', error: error.message });
@@ -100,13 +103,7 @@ export const getStudentStats = async (req: any, res: any) => {
       where.academicYear = req.query.academic_year;
     }
 
-    const [
-      total,
-      placed,
-      profileCompleteCount,
-      departments,
-      avgCgpa
-    ] = await Promise.all([
+    const [total, placed, profileCompleteCount, departments, avgCgpa] = await Promise.all([
       prisma.importedStudent.count({ where }),
       prisma.importedStudent.count({ where: { ...where, placementStatus: 'Placed' } }),
       prisma.importedStudent.count({ where: { ...where, profileComplete: 'Yes' } }),
@@ -114,12 +111,12 @@ export const getStudentStats = async (req: any, res: any) => {
         by: ['department'],
         where,
         _count: { department: true },
-        orderBy: { department: 'asc' }
+        orderBy: { department: 'asc' },
       }),
       prisma.importedStudent.aggregate({
         where,
-        _avg: { cgpa: true }
-      })
+        _avg: { cgpa: true },
+      }),
     ]);
 
     const unplaced = total - placed;
@@ -134,8 +131,8 @@ export const getStudentStats = async (req: any, res: any) => {
       avgCgpa: avgCgpa._avg.cgpa ? Number(avgCgpa._avg.cgpa.toFixed(2)) : 0,
       departments: departments.map((d: any) => ({
         name: d.department,
-        count: d._count.department
-      }))
+        count: d._count.department,
+      })),
     });
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching student stats', error: error.message });
@@ -157,21 +154,21 @@ export const importStudents = async (req: any, res: any) => {
       rtdbRecordsProcessed: 0,
       supabaseRecordsCreated: 0,
       supabaseRecordsUpdated: 0,
-      failedRecords: 0
+      failedRecords: 0,
     };
 
     const db = firebaseAdmin.database();
-    
+
     // Process each student sequentially
     for (const student of students) {
-      const email = student["Email"];
-      const firstName = student["First Name"] || '';
-      const lastName = student["Last Name"] || '';
-      const branch = student["Branch"] || '';
-      const phone = student["Phone"] || '';
-      const providedPassword = student["Password"];
-      const rollNumber = student["Roll Number"] || '';
-      const gender = student["Gender"] || '';
+      const email = student['Email'];
+      const firstName = student['First Name'] || '';
+      const lastName = student['Last Name'] || '';
+      const branch = student['Branch'] || '';
+      const phone = student['Phone'] || '';
+      const providedPassword = student['Password'];
+      const rollNumber = student['Roll Number'] || '';
+      const gender = student['Gender'] || '';
 
       const plainPassword = providedPassword || phone || 'student123';
 
@@ -185,14 +182,14 @@ export const importStudents = async (req: any, res: any) => {
 
       if (!email || !firstName) {
         results.push({
-          "Roll Number": rollNumber,
+          'Roll Number': rollNumber,
           Name: `${firstName} ${lastName}`.trim(),
           Email: email,
-          "Firebase Status": 'Failed',
-          "RTDB Status": 'Failed',
-          "Supabase Status": 'Failed',
-          "Overall Status": 'Failed',
-          "Error Reason": 'Missing required fields (Email or First Name)'
+          'Firebase Status': 'Failed',
+          'RTDB Status': 'Failed',
+          'Supabase Status': 'Failed',
+          'Overall Status': 'Failed',
+          'Error Reason': 'Missing required fields (Email or First Name)',
         });
         summary.failedRecords++;
         continue;
@@ -210,7 +207,7 @@ export const importStudents = async (req: any, res: any) => {
             const newUser = await firebaseAdmin.auth().createUser({
               email: email,
               password: plainPassword,
-              displayName: `${firstName} ${lastName}`.trim()
+              displayName: `${firstName} ${lastName}`.trim(),
             });
             firebaseUid = newUser.uid;
             firebaseStatus = 'Created';
@@ -232,39 +229,39 @@ export const importStudents = async (req: any, res: any) => {
         try {
           const studentRecord = {
             id: firebaseUid,
-            role: "student",
-            accountStatus: "active",
+            role: 'student',
+            accountStatus: 'active',
             studentRollNumber: rollNumber,
             emailVerified: false,
             personalInfo: {
               firstName: firstName,
               lastName: lastName,
               gender: gender,
-              dob: ""
+              dob: '',
             },
             academicInfo: {
               departmentId: branch,
               branchId: branch,
               cgpa: 0,
               batch: new Date().getFullYear(),
-              semester: 1
+              semester: 1,
             },
             eligibility: {
               isEligible: true,
               activeBacklogs: 0,
-              totalBacklogs: 0
+              totalBacklogs: 0,
             },
             contactDetails: {
               email: email,
               phone: phone,
-              linkedin: "",
-              github: ""
+              linkedin: '',
+              github: '',
             },
             profileCompletion: 30,
-            resumeVersion: "",
+            resumeVersion: '',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            lastLogin: null
+            lastLogin: null,
           };
 
           await db.ref(`students/${firebaseUid}`).update(studentRecord);
@@ -281,8 +278,10 @@ export const importStudents = async (req: any, res: any) => {
       if (firebaseUid && overallStatus !== 'Partial Failure') {
         try {
           const existingUserByUid = await prisma.user.findUnique({ where: { firebaseUid } });
-          const existingUserByEmail = existingUserByUid ? null : await prisma.user.findUnique({ where: { email } });
-          
+          const existingUserByEmail = existingUserByUid
+            ? null
+            : await prisma.user.findUnique({ where: { email } });
+
           let userIdToUpdate = null;
           if (existingUserByUid) {
             userIdToUpdate = existingUserByUid.id;
@@ -306,18 +305,18 @@ export const importStudents = async (req: any, res: any) => {
                       lastName: lastName,
                       branch: branch,
                       phone: phone,
-                      gender: gender
+                      gender: gender,
                     },
                     update: {
                       firstName,
                       lastName: lastName,
                       branch: branch,
                       phone: phone,
-                      gender: gender
-                    }
-                  }
-                }
-              }
+                      gender: gender,
+                    },
+                  },
+                },
+              },
             });
             supabaseStatus = 'Updated';
             summary.supabaseRecordsUpdated++;
@@ -334,10 +333,10 @@ export const importStudents = async (req: any, res: any) => {
                     lastName: lastName,
                     branch: branch,
                     phone: phone,
-                    gender: gender
-                  }
-                }
-              }
+                    gender: gender,
+                  },
+                },
+              },
             });
             supabaseStatus = 'Created';
             summary.supabaseRecordsCreated++;
@@ -354,21 +353,21 @@ export const importStudents = async (req: any, res: any) => {
       }
 
       results.push({
-        "Roll Number": rollNumber,
+        'Roll Number': rollNumber,
         Name: `${firstName} ${lastName}`.trim(),
         Email: email,
-        "Firebase Status": firebaseStatus,
-        "RTDB Status": rtdbStatus,
-        "Supabase Status": supabaseStatus,
-        "Overall Status": overallStatus,
-        "Error Reason": errorReason || 'None'
+        'Firebase Status': firebaseStatus,
+        'RTDB Status': rtdbStatus,
+        'Supabase Status': supabaseStatus,
+        'Overall Status': overallStatus,
+        'Error Reason': errorReason || 'None',
       });
     }
 
     return res.status(200).json({
       message: 'Import processed.',
       summary,
-      results
+      results,
     });
   } catch (error: any) {
     console.error('Import students error:', error);
@@ -380,7 +379,7 @@ export const importStudents = async (req: any, res: any) => {
 export const getCoordinators = async (req: any, res: any) => {
   try {
     const coordinators = await prisma.user.findMany({
-      where: { role: 'PLACEMENT_COORDINATOR' }
+      where: { role: 'PLACEMENT_COORDINATOR' },
     });
     return res.status(200).json(coordinators);
   } catch (error: any) {
@@ -391,7 +390,7 @@ export const getCoordinators = async (req: any, res: any) => {
 export const addCoordinator = async (req: any, res: any) => {
   try {
     const { firstName, lastName, email, password } = req.body;
-    
+
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists' });
@@ -405,10 +404,10 @@ export const addCoordinator = async (req: any, res: any) => {
         coordinatorProfile: {
           create: {
             firstName,
-            lastName
-          }
-        }
-      }
+            lastName,
+          },
+        },
+      },
     });
 
     return res.status(201).json(coordinator);
@@ -423,25 +422,25 @@ export const addCoordinator = async (req: any, res: any) => {
 export const broadcastNotification = async (req: any, res: any) => {
   try {
     const { title, message, link, type = 'INFO', targetBranch = 'ALL' } = req.body;
-    
+
     // Build query to find target students
     let whereClause: any = { role: 'STUDENT' };
-    
+
     if (targetBranch !== 'ALL') {
       whereClause = {
         role: 'STUDENT',
         studentProfile: {
-          branch: targetBranch
-        }
+          branch: targetBranch,
+        },
       };
     }
 
     // Get targeted students
-    const students = await prisma.user.findMany({ 
+    const students = await prisma.user.findMany({
       where: whereClause,
-      select: { id: true }
+      select: { id: true },
     });
-    
+
     if (students.length === 0) {
       return res.status(404).json({ message: 'No students found matching the selected audience.' });
     }
@@ -453,16 +452,18 @@ export const broadcastNotification = async (req: any, res: any) => {
       message,
       link,
       type,
-      isRead: false
+      isRead: false,
     }));
 
     await prisma.notification.createMany({
-      data: notifications
+      data: notifications,
     });
 
     return res.status(201).json({ message: `Broadcasted to ${students.length} students` });
   } catch (error: any) {
-    return res.status(500).json({ message: 'Error broadcasting notification', error: error.message });
+    return res
+      .status(500)
+      .json({ message: 'Error broadcasting notification', error: error.message });
   }
 };
 
@@ -471,7 +472,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
   try {
     const now = new Date();
     const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
+
     // --- 1. Summary Statistics ---
     const [
       upcomingDrivesCount,
@@ -479,24 +480,24 @@ export const getCalendarEvents = async (req: any, res: any) => {
       closingThisWeekCount,
       interviewsCount,
       offersReleasedCount,
-      completedCount
+      completedCount,
     ] = await Promise.all([
       prisma.placementDrive.count({
-        where: { expectedDriveDate: { gt: now } }
+        where: { expectedDriveDate: { gt: now } },
       }),
       prisma.placementDrive.count({
-        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } }
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } },
       }),
       prisma.placementDrive.count({
-        where: { registrationEnd: { gte: now, lte: oneWeekFromNow } }
+        where: { registrationEnd: { gte: now, lte: oneWeekFromNow } },
       }),
       prisma.selectionRound.count({
-        where: { date: { gte: now } }
+        where: { date: { gte: now } },
       }),
       prisma.offerLetter.count(),
       prisma.placementDrive.count({
-        where: { status: 'COMPLETED' }
-      })
+        where: { status: 'COMPLETED' },
+      }),
     ]);
 
     const summary = {
@@ -505,13 +506,13 @@ export const getCalendarEvents = async (req: any, res: any) => {
       closingThisWeek: closingThisWeekCount,
       interviews: interviewsCount,
       offersReleased: offersReleasedCount,
-      completed: completedCount
+      completed: completedCount,
     };
 
     // --- 2. Dynamic Semester Calculation ---
     let academicYearsData = await prisma.academicYear.findMany({
       include: { semesters: { orderBy: { startDate: 'asc' } } },
-      orderBy: { startDate: 'desc' }
+      orderBy: { startDate: 'desc' },
     });
 
     if (academicYearsData.length === 0) {
@@ -524,12 +525,22 @@ export const getCalendarEvents = async (req: any, res: any) => {
           isActive: true,
           semesters: {
             create: [
-              { name: 'Semester 7', startDate: new Date('2026-07-13'), endDate: new Date('2026-12-05'), isActive: true },
-              { name: 'Semester 8', startDate: new Date('2027-01-02'), endDate: new Date('2027-04-30'), isActive: false }
-            ]
-          }
+              {
+                name: 'Semester 7',
+                startDate: new Date('2026-07-13'),
+                endDate: new Date('2026-12-05'),
+                isActive: true,
+              },
+              {
+                name: 'Semester 8',
+                startDate: new Date('2027-01-02'),
+                endDate: new Date('2027-04-30'),
+                isActive: false,
+              },
+            ],
+          },
         },
-        include: { semesters: { orderBy: { startDate: 'asc' } } }
+        include: { semesters: { orderBy: { startDate: 'asc' } } },
       });
       academicYearsData = [newYear];
     }
@@ -542,7 +553,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
       while (currentStart <= end) {
         let currentEnd = new Date(currentStart);
         currentEnd.setDate(currentEnd.getDate() + 6);
-        
+
         if (currentEnd > end) {
           currentEnd = new Date(end);
         }
@@ -551,7 +562,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
           id: weekNum,
           weekNumber: weekNum,
           start: currentStart.toISOString().split('T')[0],
-          end: currentEnd.toISOString().split('T')[0]
+          end: currentEnd.toISOString().split('T')[0],
         });
 
         currentStart.setDate(currentStart.getDate() + 7);
@@ -563,21 +574,21 @@ export const getCalendarEvents = async (req: any, res: any) => {
     // We build the `semester` dictionary so we don't break existing frontend logic completely
     // while additionally sending the full configuration block
     const semester: any = {};
-    const config = academicYearsData.map(ay => ({
+    const config = academicYearsData.map((ay) => ({
       id: ay.id,
       year: ay.year,
       isActive: ay.isActive,
-      semesters: ay.semesters.map(sem => {
+      semesters: ay.semesters.map((sem) => {
         const weeks = generateWeeks(sem.startDate, sem.endDate);
-        
+
         // Populate the legacy object format
         const legacyKey = sem.name.toLowerCase().replace(' ', ''); // e.g. "semester7"
         semester[legacyKey] = {
-           id: sem.id,
-           name: sem.name,
-           startDate: sem.startDate.toISOString().split('T')[0],
-           endDate: sem.endDate.toISOString().split('T')[0],
-           weeks: weeks
+          id: sem.id,
+          name: sem.name,
+          startDate: sem.startDate.toISOString().split('T')[0],
+          endDate: sem.endDate.toISOString().split('T')[0],
+          weeks: weeks,
         };
         // Also map to ID for newer component logic
         semester[sem.id] = semester[legacyKey];
@@ -588,14 +599,14 @@ export const getCalendarEvents = async (req: any, res: any) => {
           isActive: sem.isActive,
           startDate: sem.startDate.toISOString().split('T')[0],
           endDate: sem.endDate.toISOString().split('T')[0],
-          weeks
+          weeks,
         };
-      })
+      }),
     }));
 
     // --- 3. Events Mapping ---
     const allDrives = await prisma.placementDrive.findMany({
-      include: { company: true }
+      include: { company: true },
     });
 
     let calendarEvents: any[] = [];
@@ -609,7 +620,9 @@ export const getCalendarEvents = async (req: any, res: any) => {
           start: d.registrationStart.toISOString().split('T')[0],
           end: d.registrationEnd.toISOString().split('T')[0],
           allDay: true,
-          color: '#10b981', // green
+          backgroundColor: '#ecfdf5', // emerald-50
+          borderColor: '#34d399', // emerald-400
+          textColor: '#047857', // emerald-700
           extendedProps: {
             driveId: d.id,
             company: d.company?.name,
@@ -618,8 +631,8 @@ export const getCalendarEvents = async (req: any, res: any) => {
             department: d.eligibleBranches ? JSON.parse(d.eligibleBranches) : [],
             package: d.fixedSalary ? `${d.fixedSalary} LPA` : 'N/A',
             location: d.location || d.workMode,
-            description: 'Registration window is currently active.'
-          }
+            description: 'Registration window is currently active.',
+          },
         });
       }
 
@@ -634,7 +647,9 @@ export const getCalendarEvents = async (req: any, res: any) => {
           start: d.expectedDriveDate.toISOString().split('T')[0],
           end: driveEnd.toISOString().split('T')[0],
           allDay: true,
-          color: '#3b82f6', // blue
+          backgroundColor: '#eff6ff', // blue-50
+          borderColor: '#60a5fa', // blue-400
+          textColor: '#1d4ed8', // blue-700
           extendedProps: {
             driveId: d.id,
             company: d.company?.name,
@@ -643,32 +658,34 @@ export const getCalendarEvents = async (req: any, res: any) => {
             department: d.eligibleBranches ? JSON.parse(d.eligibleBranches) : [],
             package: d.fixedSalary ? `${d.fixedSalary} LPA` : 'N/A',
             location: d.location || d.workMode,
-            description: d.jobDescription || ''
-          }
+            description: d.jobDescription || '',
+          },
         });
       }
-      
+
       // 3.3 Application Deadline
       if (d.applicationDeadline) {
-         calendarEvents.push({
+        calendarEvents.push({
           id: `deadline-${d.id}`,
           title: `${d.company?.name} Deadline`,
           start: d.applicationDeadline.toISOString(),
           allDay: true,
-          color: '#ef4444', // red
+          backgroundColor: '#fef2f2', // red-50
+          borderColor: '#f87171', // red-400
+          textColor: '#b91c1c', // red-700
           extendedProps: {
-             driveId: d.id,
-             company: d.company?.name,
-             type: 'Deadline',
-             status: 'Registration Closed'
-          }
-         });
+            driveId: d.id,
+            company: d.company?.name,
+            type: 'Deadline',
+            status: 'Registration Closed',
+          },
+        });
       }
     });
 
     // 3.4 Selection Rounds (Interviews)
     const rounds = await prisma.selectionRound.findMany({
-      include: { drive: { include: { company: true } } }
+      include: { drive: { include: { company: true } } },
     });
 
     rounds.forEach((r: any) => {
@@ -676,17 +693,21 @@ export const getCalendarEvents = async (req: any, res: any) => {
         calendarEvents.push({
           id: `round-${r.id}`,
           title: `${r.drive.company?.name} - ${r.title}`,
-          start: r.time ? `${r.date.toISOString().split('T')[0]}T${r.time}:00` : r.date.toISOString().split('T')[0],
+          start: r.time
+            ? `${r.date.toISOString().split('T')[0]}T${r.time}:00`
+            : r.date.toISOString().split('T')[0],
           allDay: !r.time,
-          color: '#8b5cf6', // purple
+          backgroundColor: '#f3e8ff', // purple-50
+          borderColor: '#c084fc', // purple-400
+          textColor: '#7e22ce', // purple-700
           extendedProps: {
             driveId: r.drive.id,
             company: r.drive.company?.name,
             status: 'Interview',
             type: 'Interview Schedule',
             venue: r.venue || r.platform,
-            description: r.instructions || ''
-          }
+            description: r.instructions || '',
+          },
         });
       }
     });
@@ -706,8 +727,8 @@ export const getCalendarEvents = async (req: any, res: any) => {
           type: c.type,
           status: 'Scheduled',
           description: c.description || '',
-          isCustom: true
-        }
+          isCustom: true,
+        },
       });
     });
 
@@ -715,11 +736,13 @@ export const getCalendarEvents = async (req: any, res: any) => {
       summary,
       semester,
       config,
-      events: calendarEvents
+      events: calendarEvents,
     });
   } catch (error: any) {
     console.error('Calendar Error:', error);
-    return res.status(500).json({ message: 'Error fetching calendar events', error: error.message });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching calendar events', error: error.message });
   }
 };
 
@@ -736,8 +759,8 @@ export const createCustomEvent = async (req: any, res: any) => {
         type,
         color,
         description,
-        isAllDay
-      }
+        isAllDay,
+      },
     });
     res.status(201).json(event);
   } catch (error: any) {
@@ -757,8 +780,8 @@ export const updateCustomEvent = async (req: any, res: any) => {
         type,
         color,
         description,
-        isAllDay
-      }
+        isAllDay,
+      },
     });
     res.status(200).json(event);
   } catch (error: any) {
@@ -780,10 +803,10 @@ export const rescheduleInterview = async (req: any, res: any) => {
     const { date, time } = req.body;
     const round = await prisma.selectionRound.update({
       where: { id: req.params.id },
-      data: { 
-        date: date ? new Date(date) : undefined, 
-        time 
-      }
+      data: {
+        date: date ? new Date(date) : undefined,
+        time,
+      },
     });
     res.status(200).json(round);
   } catch (error: any) {
@@ -797,40 +820,41 @@ export const getAdminDashboard = async (req: any, res: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [
-      totalStudents,
-      placedStudents,
-      salaries,
-      totalDrives,
-      openDrives,
-      totalApplications
-    ] = await Promise.all([
-      prisma.importedStudent.count(),
-      prisma.importedStudent.count({ where: { placementStatus: 'Placed' } }),
-      prisma.importedStudent.aggregate({
-        where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
-        _max: { fixedSalaryLpa: true },
-        _avg: { fixedSalaryLpa: true }
-      }),
-      prisma.placementDrive.count(),
-      prisma.placementDrive.count({ where: { status: 'OPEN' } }),
-      prisma.driveApplication.count()
-    ]);
+    const [totalStudents, placedStudents, salaries, totalDrives, openDrives, totalApplications] =
+      await Promise.all([
+        prisma.importedStudent.count(),
+        prisma.importedStudent.count({ where: { placementStatus: 'Placed' } }),
+        prisma.importedStudent.aggregate({
+          where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+          _max: { fixedSalaryLpa: true },
+          _avg: { fixedSalaryLpa: true },
+        }),
+        prisma.placementDrive.count(),
+        prisma.placementDrive.count({ where: { status: 'OPEN' } }),
+        prisma.driveApplication.count(),
+      ]);
 
-    const placementPercentage = totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
-    
+    const placementPercentage =
+      totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
+
     // Median logic
     const allSalaries = await prisma.importedStudent.findMany({
       where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
       select: { fixedSalaryLpa: true },
-      orderBy: { fixedSalaryLpa: 'asc' }
+      orderBy: { fixedSalaryLpa: 'asc' },
     });
-    
+
     let medianPackage = 0;
     if (allSalaries.length > 0) {
       const mid = Math.floor(allSalaries.length / 2);
       if (allSalaries.length % 2 === 0) {
-        medianPackage = Number((((allSalaries[mid - 1].fixedSalaryLpa as number) + (allSalaries[mid].fixedSalaryLpa as number)) / 2).toFixed(1));
+        medianPackage = Number(
+          (
+            ((allSalaries[mid - 1].fixedSalaryLpa as number) +
+              (allSalaries[mid].fixedSalaryLpa as number)) /
+            2
+          ).toFixed(1)
+        );
       } else {
         medianPackage = Number((allSalaries[mid].fixedSalaryLpa as number).toFixed(1));
       }
@@ -838,14 +862,19 @@ export const getAdminDashboard = async (req: any, res: any) => {
 
     return res.status(200).json({
       drives: { today: 0, open: openDrives, upcomingClosed: 0 },
-      students: { total: totalStudents, placed: placedStudents, eligibleByCompany: [], applicationsByCompany: [] },
-      packages: { 
-        placementPercentage, 
-        highest: salaries._max.fixedSalaryLpa || 0, 
-        average: salaries._avg.fixedSalaryLpa ? Number((salaries._avg.fixedSalaryLpa).toFixed(1)) : 0, 
-        median: medianPackage 
+      students: {
+        total: totalStudents,
+        placed: placedStudents,
+        eligibleByCompany: [],
+        applicationsByCompany: [],
       },
-      overall: { companiesVisited: totalDrives, totalOffers: totalApplications }
+      packages: {
+        placementPercentage,
+        highest: salaries._max.fixedSalaryLpa || 0,
+        average: salaries._avg.fixedSalaryLpa ? Number(salaries._avg.fixedSalaryLpa.toFixed(1)) : 0,
+        median: medianPackage,
+      },
+      overall: { companiesVisited: totalDrives, totalOffers: totalApplications },
     });
   } catch (error: any) {
     console.error('Get admin dashboard error:', error);
@@ -860,14 +889,16 @@ export const getPendingProfiles = async (req: any, res: any) => {
     const profiles = await prisma.studentProfile.findMany({
       where: { profileStatus: 'PENDING_VERIFICATION' },
       include: {
-        user: { select: { email: true } }
+        user: { select: { email: true } },
       },
-      orderBy: { updatedAt: 'asc' }
+      orderBy: { updatedAt: 'asc' },
     });
     return res.status(200).json(profiles);
   } catch (error: any) {
     console.error('Get pending profiles error:', error);
-    return res.status(500).json({ message: 'Error fetching pending profiles', error: error.message });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching pending profiles', error: error.message });
   }
 };
 
@@ -895,8 +926,8 @@ export const verifyProfile = async (req: any, res: any) => {
       data: {
         profileStatus: newStatus,
         verifiedAt: action === 'APPROVE' ? new Date() : null,
-        verifiedBy: action === 'APPROVE' ? adminId : null
-      }
+        verifiedBy: action === 'APPROVE' ? adminId : null,
+      },
     });
 
     await prisma.profileAuditLog.create({
@@ -904,22 +935,27 @@ export const verifyProfile = async (req: any, res: any) => {
         studentId: profile.id,
         action: action === 'APPROVE' ? 'PROFILE_VERIFIED' : 'PROFILE_REJECTED',
         performedBy: adminId,
-        comments: reason || ''
-      }
+        comments: reason || '',
+      },
     });
 
     // Notify Student
     await prisma.notification.create({
       data: {
         title: action === 'APPROVE' ? 'Profile Verified' : 'Profile Changes Requested',
-        message: action === 'APPROVE' ? 'Your profile has been verified successfully.' : `Your profile requires changes: ${reason}`,
+        message:
+          action === 'APPROVE'
+            ? 'Your profile has been verified successfully.'
+            : `Your profile requires changes: ${reason}`,
         type: 'system',
         receiverId: profile.userId,
-        priority: 'HIGH'
-      }
+        priority: 'HIGH',
+      },
     });
 
-    return res.status(200).json({ message: `Profile ${action.toLowerCase()}d successfully`, profile: updatedProfile });
+    return res
+      .status(200)
+      .json({ message: `Profile ${action.toLowerCase()}d successfully`, profile: updatedProfile });
   } catch (error: any) {
     console.error('Verify profile error:', error);
     return res.status(500).json({ message: 'Error verifying profile', error: error.message });
@@ -932,15 +968,17 @@ export const getUpdateRequests = async (req: any, res: any) => {
       where: { status: 'PENDING' },
       include: {
         student: {
-          include: { user: { select: { email: true } } }
-        }
+          include: { user: { select: { email: true } } },
+        },
       },
-      orderBy: { requestedAt: 'asc' }
+      orderBy: { requestedAt: 'asc' },
     });
     return res.status(200).json(requests);
   } catch (error: any) {
     console.error('Get update requests error:', error);
-    return res.status(500).json({ message: 'Error fetching update requests', error: error.message });
+    return res
+      .status(500)
+      .json({ message: 'Error fetching update requests', error: error.message });
   }
 };
 
@@ -957,31 +995,32 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
 
     const request = await prisma.profileUpdateRequest.findUnique({
       where: { id },
-      include: { student: true }
+      include: { student: true },
     });
 
     if (!request) return res.status(404).json({ message: 'Update request not found' });
-    if (request.status !== 'PENDING') return res.status(400).json({ message: 'Request is already processed' });
+    if (request.status !== 'PENDING')
+      return res.status(400).json({ message: 'Request is already processed' });
 
     let updatedProfile = request.student;
 
     if (action === 'APPROVE') {
       // Apply the requested changes
       const changesToApply = request.requestedChanges as any;
-      
+
       // Filter out any restricted fields if necessary, assuming requestedChanges is safe for now
       updatedProfile = await prisma.studentProfile.update({
         where: { id: request.studentId },
         data: {
           ...changesToApply,
-          profileStatus: 'VERIFIED'
-        }
+          profileStatus: 'VERIFIED',
+        },
       });
     } else {
       // Revert status back to VERIFIED without applying changes
       updatedProfile = await prisma.studentProfile.update({
         where: { id: request.studentId },
-        data: { profileStatus: 'VERIFIED' }
+        data: { profileStatus: 'VERIFIED' },
       });
     }
 
@@ -992,8 +1031,8 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
         status: action === 'APPROVE' ? 'APPROVED' : 'REJECTED',
         reviewedAt: new Date(),
         reviewedBy: adminId,
-        adminComment: reason || ''
-      }
+        adminComment: reason || '',
+      },
     });
 
     await prisma.profileAuditLog.create({
@@ -1001,25 +1040,32 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
         studentId: request.studentId,
         action: action === 'APPROVE' ? 'PROFILE_UPDATE_APPROVED' : 'PROFILE_UPDATE_REJECTED',
         performedBy: adminId,
-        comments: reason || ''
-      }
+        comments: reason || '',
+      },
     });
 
     // Notify Student
     await prisma.notification.create({
       data: {
         title: action === 'APPROVE' ? 'Profile Update Approved' : 'Profile Update Rejected',
-        message: action === 'APPROVE' ? 'Your requested profile changes have been approved.' : `Your requested profile changes were rejected: ${reason}`,
+        message:
+          action === 'APPROVE'
+            ? 'Your requested profile changes have been approved.'
+            : `Your requested profile changes were rejected: ${reason}`,
         type: 'system',
         receiverId: request.student.userId,
-        priority: 'HIGH'
-      }
+        priority: 'HIGH',
+      },
     });
 
-    return res.status(200).json({ message: `Update request ${action.toLowerCase()}d`, request: updatedRequest });
+    return res
+      .status(200)
+      .json({ message: `Update request ${action.toLowerCase()}d`, request: updatedRequest });
   } catch (error: any) {
     console.error('Review update request error:', error);
-    return res.status(500).json({ message: 'Error reviewing update request', error: error.message });
+    return res
+      .status(500)
+      .json({ message: 'Error reviewing update request', error: error.message });
   }
 };
 
@@ -1031,11 +1077,13 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseServiceKey) {
-      return res.status(500).json({ message: 'Server configuration error: Missing Supabase keys.' });
+      return res
+        .status(500)
+        .json({ message: 'Server configuration error: Missing Supabase keys.' });
     }
 
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
+      auth: { autoRefreshToken: false, persistSession: false },
     });
 
     const ACADEMIC_YEAR = '2026/2027';
@@ -1047,11 +1095,11 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
       profilesCreated: 0,
       alreadyExisting: 0,
       missingEmail: 0,
-      failed: 0
+      failed: 0,
     };
 
     const importedStudents = await prisma.importedStudent.findMany({
-      where: { academicYear: ACADEMIC_YEAR }
+      where: { academicYear: ACADEMIC_YEAR },
     });
 
     stats.totalStudents = importedStudents.length;
@@ -1065,17 +1113,20 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
         stats.missingEmail++;
         continue;
       }
-      
+
       const email = student.email.trim().toLowerCase();
       let authUserId: string | null = null;
       let isNewAccount = false;
 
       try {
-        const { data: { users }, error: fetchError } = await supabaseAdmin.auth.admin.listUsers();
+        const {
+          data: { users },
+          error: fetchError,
+        } = await supabaseAdmin.auth.admin.listUsers();
         if (fetchError) throw new Error(fetchError.message);
-        
-        let authUser = users.find(u => u.email === email);
-        
+
+        let authUser = users.find((u) => u.email === email);
+
         if (!authUser) {
           const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
             email,
@@ -1083,8 +1134,8 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
             email_confirm: true,
             user_metadata: {
               full_name: student.fullName,
-              student_id: student.studentId
-            }
+              student_id: student.studentId,
+            },
           });
           if (createError) throw new Error(createError.message);
           authUser = newUser.user;
@@ -1095,10 +1146,10 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
         }
 
         authUserId = authUser?.id || null;
-        if (!authUserId) throw new Error("Failed to resolve Auth User ID");
+        if (!authUserId) throw new Error('Failed to resolve Auth User ID');
 
         let user = await prisma.user.findUnique({ where: { email } });
-        
+
         if (!user) {
           user = await prisma.user.create({
             data: {
@@ -1106,25 +1157,25 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
               password: '',
               firebaseUid: authUserId,
               role: 'STUDENT',
-              mustChangePassword: isNewAccount
-            }
+              mustChangePassword: isNewAccount,
+            },
           });
         } else {
           await prisma.user.update({
             where: { email },
-            data: { role: 'STUDENT', firebaseUid: authUserId }
+            data: { role: 'STUDENT', firebaseUid: authUserId },
           });
         }
 
         let profile = await prisma.studentProfile.findUnique({ where: { userId: user.id } });
-        
+
         const firstName = student.fullName?.split(' ')[0] || '';
         const lastName = student.fullName?.split(' ').slice(1).join(' ') || '';
         const branch = student.department;
         const cgpa = student.cgpa;
         const gender = student.gender;
         const activeBacklogs = student.activeBacklogs || 0;
-        
+
         let skillsObj = null;
         if (student.skills) {
           skillsObj = student.skills.split(',').map((s: string) => s.trim());
@@ -1142,8 +1193,8 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
               activeBacklogs,
               skills: skillsObj || [],
               profileStatus: 'PENDING',
-              isProfileComplete: false
-            }
+              isProfileComplete: false,
+            },
           });
           stats.profilesCreated++;
         } else {
@@ -1153,8 +1204,8 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
               branch: profile.branch || branch,
               cgpa: profile.cgpa || cgpa,
               activeBacklogs: activeBacklogs,
-              skills: profile.skills ? profile.skills : (skillsObj || [])
-            }
+              skills: profile.skills ? profile.skills : skillsObj || [],
+            },
           });
         }
       } catch (err: any) {
@@ -1169,4 +1220,3 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
     return res.status(500).json({ message: 'Error running provisioning', error: error.message });
   }
 };
-
