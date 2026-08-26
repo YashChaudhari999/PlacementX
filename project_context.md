@@ -1358,3 +1358,14 @@ Verified against actual repository structure, source code, and existing document
 - Created a new backend endpoint GET /api/admin/students/:id/details to aggregate student data across 5 distinct tables (ImportedStudent, User, StudentProfile, DriveApplication, ProfileUpdateRequest).
 - Fixed a routing issue in AdminDashboard.tsx where 'View All' drives led to a 404.
 
+### 2026-08-25 - Security, Notification & Calendar Polish
+**Type:** Backend/Frontend Polish & Security Updates
+
+**Summary:**
+- Conducted a bulk password reset for all provisioned student accounts, updating both PostgreSQL (Supabase) and Firebase Auth to a unified credential, while preserving specific admin accounts.
+- Updated the `export_users.ts` script to generate a secure `User_Credentials.pdf` that detects bcrypt hashes corresponding to the default password, without exposing unknown hashes.
+- Fully wired the Notification Center to the backend database, replacing mock data. Seeded initial notification templates and history.
+- Fixed critical UI crashes in `NotificationHistory.tsx` caused by unhandled string-parsed JSON arrays.
+- Fixed overlap and responsive alignment issues in the `NotificationComposer.tsx` stepper and Live Preview column.
+- Moved Academic Year / Semester configuration out of static files and into the database.
+

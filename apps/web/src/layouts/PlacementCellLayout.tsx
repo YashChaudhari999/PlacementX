@@ -59,7 +59,7 @@ export const PlacementCellLayout = () => {
   const allNavItems = navGroups.flatMap(g => g.items);
   const pageTitle = allNavItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
-  const SidebarContent = () => (
+  const sidebarContentJSX = (
     <div className="flex flex-col h-full bg-slate-950 text-slate-300">
       <div className="h-20 flex items-center px-6 border-b border-slate-800">
         <div className="flex items-center gap-4 w-full py-3">
@@ -131,7 +131,7 @@ export const PlacementCellLayout = () => {
     <div className="flex min-h-screen bg-slate-50/50">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-72 bg-slate-950 border-r border-slate-800 fixed inset-y-0 z-20 shadow-2xl">
-        <SidebarContent />
+        {sidebarContentJSX}
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -152,7 +152,7 @@ export const PlacementCellLayout = () => {
               transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
               className="fixed inset-y-0 left-0 w-72 bg-slate-950 shadow-2xl z-50 flex flex-col lg:hidden border-r border-slate-800"
             >
-              <SidebarContent />
+              {sidebarContentJSX}
             </motion.aside>
           </>
         )}

@@ -13,7 +13,11 @@ import {
   verifyProfile,
   getUpdateRequests,
   reviewUpdateRequest,
-  provisionCurrentYearStudents
+  provisionCurrentYearStudents,
+  createCustomEvent,
+  updateCustomEvent,
+  deleteCustomEvent,
+  rescheduleInterview
 } from '../controllers/admin.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -33,6 +37,10 @@ router.post('/coordinators', addCoordinator);
 router.get('/reports/data', getReportsData);
 router.post('/notifications/broadcast', broadcastNotification);
 router.get('/calendar', getCalendarEvents);
+router.post('/calendar/custom', createCustomEvent);
+router.put('/calendar/custom/:id', updateCustomEvent);
+router.delete('/calendar/custom/:id', deleteCustomEvent);
+router.put('/calendar/interview/:id/reschedule', rescheduleInterview);
 
 // Verification and Updates
 router.get('/profile-verifications', getPendingProfiles);

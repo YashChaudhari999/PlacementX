@@ -76,8 +76,8 @@ export default function NotificationHistory() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex gap-2">
-                        {item.channels.includes('Push') && <Smartphone className="w-4 h-4 text-slate-400" title="Push" />}
-                        {item.channels.includes('In-App') && <Bell className="w-4 h-4 text-slate-400" title="In-App" />}
+                        {item.channels?.includes?.('Push') && <Smartphone className="w-4 h-4 text-slate-400" title="Push" />}
+                        {item.channels?.includes?.('In-App') && <Bell className="w-4 h-4 text-slate-400" title="In-App" />}
                       </div>
                     </td>
                     <td className="px-4 py-4">

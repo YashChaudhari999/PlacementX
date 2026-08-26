@@ -31,7 +31,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
       transition={{ type: 'spring', stiffness: 200, damping: 24 }}
       className="mb-6"
     >
-      <Card className="p-6 bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white border-blue-800 shadow-2xl overflow-hidden relative">
+      <Card className="p-6 bg-gradient-to-r from-indigo-900 via-violet-900 to-indigo-950 text-white border-indigo-800/50 shadow-xl shadow-indigo-900/20 overflow-hidden relative">
         {/* Background decoration */}
         <div className="absolute -right-16 -top-16 opacity-10 pointer-events-none">
           <Target className="w-56 h-56" />

@@ -440,3 +440,43 @@ model ImportedStudent {
 
   @@map("students")
 }
+
+model CustomCalendarEvent {
+  id          String   @id @default(uuid())
+  title       String
+  start       DateTime
+  end         DateTime
+  type        String   @default("Event")
+  color       String   @default("#4f46e5")
+  description String?
+  isAllDay    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AcademicYear {
+  id        String     @id @default(uuid())
+  year      String     @unique // e.g., "2026-2027"
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean    @default(false)
+  semesters Semester[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Semester {
+  id             String       @id @default(uuid())
+  name           String       // e.g., "Semester 7"
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean      @default(false)
+  academicYearId String
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([academicYearId, name])
+}

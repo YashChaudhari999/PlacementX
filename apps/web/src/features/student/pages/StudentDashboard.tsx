@@ -61,19 +61,19 @@ export default function StudentDashboard() {
       className="space-y-8 max-w-5xl mx-auto p-4 md:p-6 pb-20"
     >
       {/* Hero Welcome Section */}
-      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-800 text-white shadow-xl shadow-blue-900/20">
+      <motion.div variants={itemVariants} className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/20">
         <div className="absolute top-0 right-0 p-8 opacity-10">
           <Briefcase className="w-64 h-64 transform rotate-12 translate-x-16 -translate-y-16" />
         </div>
-        <div className="relative z-10 p-8 md:p-10 flex flex-col justify-center min-h-[200px] backdrop-blur-sm bg-black/10">
+        <div className="relative z-10 p-8 md:p-10 flex flex-col justify-center min-h-[200px] backdrop-blur-sm bg-black/5">
           <div className="flex items-center gap-3 mb-2">
-            {greeting.includes('morning') ? <Sun className="text-yellow-300 w-6 h-6" /> : <Moon className="text-blue-200 w-6 h-6" />}
-            <span className="text-blue-100 font-medium tracking-wide uppercase text-sm">{greeting}</span>
+            {greeting.includes('morning') ? <Sun className="text-yellow-300 w-6 h-6" /> : <Moon className="text-indigo-200 w-6 h-6" />}
+            <span className="text-indigo-100 font-medium tracking-wide uppercase text-sm">{greeting}</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
             Welcome back, {studentName}!
           </h1>
-          <p className="text-blue-100 max-w-lg text-lg">
+          <p className="text-indigo-100 max-w-lg text-lg">
             Stay on top of your placement journey. You have <strong className="text-white">{drives.length} active drives</strong> available right now.
           </p>
         </div>
@@ -103,33 +103,33 @@ export default function StudentDashboard() {
             ) : (
               drives.map((drive: any, idx: number) => (
                 <motion.div key={drive.id} variants={itemVariants} custom={idx}>
-                  <Card className="group p-6 border-slate-200 hover:border-blue-300 hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-md overflow-hidden relative">
-                    <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-600 transform origin-left scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out" />
+                  <Card className="group p-6 border-slate-200 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 bg-white/80 backdrop-blur-md overflow-hidden relative">
+                    <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-600 transform origin-left scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out" />
                     
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-3 mb-1">
                           <h3 className="font-bold text-xl text-slate-900">{drive.company.name}</h3>
-                          <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full border border-green-200 shadow-sm">
+                          <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 shadow-sm">
                             {drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'TBD'}
                           </span>
                         </div>
-                        <p className="text-blue-600 font-semibold mb-4">{drive.jobRole}</p>
+                        <p className="text-indigo-600 font-semibold mb-4">{drive.jobRole}</p>
                         
                         <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                           <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md">
                             <Briefcase className="w-4 h-4 text-slate-400" />
                             {drive.employmentType}
                           </div>
-                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50">
-                            <Bell className="w-4 h-4" />
+                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100">
+                            <Bell className="w-4 h-4 text-red-500" />
                             Deadline: {new Date(drive.registrationEnd).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
                       
                       <div className="w-full sm:w-auto flex-shrink-0 mt-4 sm:mt-0">
-                        <Button className="w-full sm:w-auto bg-slate-900 hover:bg-blue-600 transition-colors shadow-md" onClick={() => window.location.href = `/student/drives/${drive.id}`}>
+                        <Button className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md" onClick={() => window.location.href = `/student/drives/${drive.id}`}>
                           View Details
                         </Button>
                       </div>

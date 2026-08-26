@@ -1,104 +1,285 @@
-import { useState } from 'react';
-import { Filter, X, RefreshCw } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Filter, Calendar, BookOpen, Layers, Check, ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CalendarFiltersProps {
-  semesterConfig: any;
+  semesterConfig: any; // Legacy format
+  fullConfig?: any[];  // New dynamic format from DB
   onFilterChange: (filters: any) => void;
 }
 
-export default function CalendarFilters({ semesterConfig, onFilterChange }: CalendarFiltersProps) {
-  const [academicYear, setAcademicYear] = useState('2026-2027');
-  const [semester, setSemester] = useState('semester7');
-  const [week, setWeek] = useState('ALL');
-  const [eventType, setEventType] = useState('ALL');
+export default function CalendarFilters({ semesterConfig, fullConfig, onFilterChange }: CalendarFiltersProps) {
+  const [filters, setFilters] = useState({
+    academicYear: '',
+    semester: '',
+    week: 'ALL',
+    eventType: 'ALL'
+  });
 
-  const handleApply = () => {
-    // If a specific week is selected, find the start and end dates from the config
-    let weekDates = null;
-    if (week !== 'ALL' && semesterConfig[semester]) {
-      const selectedWeekObj = semesterConfig[semester].weeks.find((w: any) => w.id === parseInt(week));
-      if (selectedWeekObj) {
-        weekDates = { start: selectedWeekObj.start, end: selectedWeekObj.end };
-      }
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+
+  // Initialize filters based on dynamic config
+  useEffect(() => {
+    if (fullConfig && fullConfig.length > 0 && !filters.academicYear) {
+      const activeYear = fullConfig.find(y => y.isActive) || fullConfig[0];
+      const activeSem = activeYear.semesters.find((s: any) => s.isActive) || activeYear.semesters[0];
+      
+      setFilters(prev => ({
+        ...prev,
+        academicYear: activeYear.id,
+        semester: activeSem ? activeSem.id : ''
+      }));
+    }
+  }, [fullConfig]);
+
+  useEffect(() => {
+    // Pass the correct structure back to parent
+    if (filters.academicYear && filters.semester) {
+       onFilterChange(filters);
+    }
+  }, [filters, onFilterChange]);
+
+  const EVENT_TYPES = [
+    { value: 'ALL', label: 'All Events', color: 'bg-slate-200' },
+    { value: 'Placement Drive', label: 'Drives', color: 'bg-indigo-500' },
+    { value: 'Interview Schedule', label: 'Interviews', color: 'bg-emerald-500' },
+    { value: 'Meeting', label: 'Meetings', color: 'bg-blue-500' },
+    { value: 'Deadline', label: 'Deadlines', color: 'bg-red-500' },
+    { value: 'General', label: 'General', color: 'bg-slate-500' },
+    { value: 'Holiday', label: 'Holidays', color: 'bg-amber-500' },
+  ];
+
+  // Derived options based on selections
+  const selectedYearObj = useMemo(() => fullConfig?.find(y => y.id === filters.academicYear), [fullConfig, filters.academicYear]);
+  const availableSemesters = selectedYearObj?.semesters || [];
+  
+  const selectedSemesterObj = useMemo(() => {
+    // If fullConfig is present, use it. Otherwise fallback to legacy
+    if (fullConfig) return availableSemesters.find((s: any) => s.id === filters.semester);
+    return semesterConfig ? semesterConfig[filters.semester] : null;
+  }, [availableSemesters, filters.semester, fullConfig, semesterConfig]);
+
+  const availableWeeks = selectedSemesterObj?.weeks || [];
+
+  const updateFilter = (key: string, value: any) => {
+    let newFilters = { ...filters, [key]: value };
+    
+    // Cascading resets
+    if (key === 'academicYear') {
+      const newYearObj = fullConfig?.find(y => y.id === value);
+      const newSem = newYearObj?.semesters?.[0]?.id || '';
+      newFilters = { ...newFilters, semester: newSem, week: 'ALL' };
+      delete (newFilters as any).weekDates;
+    } else if (key === 'semester') {
+      newFilters = { ...newFilters, week: 'ALL' };
+      delete (newFilters as any).weekDates;
+    } else if (key === 'week' && value !== 'ALL') {
+      const weekConfig = availableWeeks.find((w: any) => w.weekNumber.toString() === value.toString());
+      newFilters = { ...newFilters, weekDates: weekConfig };
+    } else if (key === 'week' && value === 'ALL') {
+      delete (newFilters as any).weekDates;
     }
 
-    onFilterChange({
-      academicYear,
-      semester,
-      week,
-      weekDates,
-      eventType
-    });
+    setFilters(newFilters);
+    setActiveDropdown(null);
   };
 
-  const handleReset = () => {
-    setAcademicYear('2026-2027');
-    setSemester('semester7');
-    setWeek('ALL');
-    setEventType('ALL');
-    onFilterChange({});
+  const dropdownVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 400, damping: 30 } },
+    exit: { opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.15 } }
   };
-
-  const currentSemesterWeeks = semesterConfig && semesterConfig[semester] ? semesterConfig[semester].weeks : [];
 
   return (
-    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center gap-4 mb-6">
-      
-      <div className="flex items-center gap-2 text-slate-500 mr-2">
-        <Filter className="w-4 h-4" />
-        <span className="text-sm font-semibold">Filters:</span>
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.3 }}
+      className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-3 rounded-[24px] mb-6 flex flex-wrap gap-3 items-center relative z-20"
+    >
+      <div className="flex items-center gap-2 pl-3 pr-4 py-2 border-r border-slate-200/60">
+        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+          <Filter className="w-4 h-4" />
+        </div>
+        <span className="text-sm font-bold text-slate-700 tracking-wide uppercase">Filters</span>
       </div>
 
-      <select 
-        className="text-sm border-slate-200 rounded-lg bg-slate-50 py-1.5 px-3 focus:ring-indigo-500 focus:border-indigo-500"
-        value={academicYear}
-        onChange={(e) => setAcademicYear(e.target.value)}
-      >
-        <option value="2026-2027">2026-2027</option>
-        <option value="2027-2028">2027-2028</option>
-      </select>
+      {/* Academic Year Filter */}
+      {fullConfig && (
+        <div className="relative">
+          <button 
+            onClick={() => setActiveDropdown(activeDropdown === 'year' ? null : 'year')}
+            className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'year' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
+          >
+            <BookOpen className={`w-4 h-4 ${activeDropdown === 'year' ? 'text-indigo-200' : 'text-slate-400'}`} />
+            {selectedYearObj?.year || 'Select Year'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'year' ? 'rotate-180 text-white' : 'text-slate-400'}`} />
+          </button>
 
-      <select 
-        className="text-sm border-slate-200 rounded-lg bg-slate-50 py-1.5 px-3 focus:ring-indigo-500 focus:border-indigo-500"
-        value={semester}
-        onChange={(e) => { setSemester(e.target.value); setWeek('ALL'); }}
-      >
-        <option value="semester7">Semester 7</option>
-        <option value="semester8">Semester 8</option>
-      </select>
+          <AnimatePresence>
+            {activeDropdown === 'year' && (
+              <motion.div 
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute top-full left-0 mt-3 w-48 bg-white/90 backdrop-blur-2xl rounded-[20px] border border-white/60 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] p-2 z-50 overflow-hidden"
+              >
+                <div className="space-y-1">
+                  {fullConfig.map(year => (
+                    <button
+                      key={year.id}
+                      onClick={() => updateFilter('academicYear', year.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-colors text-left group ${filters.academicYear === year.id ? 'bg-indigo-50' : 'hover:bg-slate-50'}`}
+                    >
+                      <span className={`text-sm font-bold ${filters.academicYear === year.id ? 'text-indigo-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                        {year.year}
+                      </span>
+                      {filters.academicYear === year.id && <Check className="w-4 h-4 text-indigo-600" />}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
-      <select 
-        className="text-sm border-slate-200 rounded-lg bg-slate-50 py-1.5 px-3 focus:ring-indigo-500 focus:border-indigo-500 max-w-[150px]"
-        value={week}
-        onChange={(e) => setWeek(e.target.value)}
-      >
-        <option value="ALL">All Weeks</option>
-        {currentSemesterWeeks.map((w: any) => (
-          <option key={w.id} value={w.id}>Week {w.id} ({new Date(w.start).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})})</option>
-        ))}
-      </select>
+      {/* Semester Filter */}
+      {availableSemesters.length > 0 && (
+        <div className="relative">
+          <button 
+            onClick={() => setActiveDropdown(activeDropdown === 'semester' ? null : 'semester')}
+            className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'semester' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
+          >
+            <Layers className={`w-4 h-4 ${activeDropdown === 'semester' ? 'text-indigo-200' : 'text-slate-400'}`} />
+            {selectedSemesterObj?.name || 'Select Semester'}
+            <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'semester' ? 'rotate-180 text-white' : 'text-slate-400'}`} />
+          </button>
 
-      <select 
-        className="text-sm border-slate-200 rounded-lg bg-slate-50 py-1.5 px-3 focus:ring-indigo-500 focus:border-indigo-500"
-        value={eventType}
-        onChange={(e) => setEventType(e.target.value)}
-      >
-        <option value="ALL">All Event Types</option>
-        <option value="Placement Drive">Placement Drives</option>
-        <option value="Interview Schedule">Interviews</option>
-        <option value="Deadline">Deadlines</option>
-      </select>
+          <AnimatePresence>
+            {activeDropdown === 'semester' && (
+              <motion.div 
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute top-full left-0 mt-3 w-48 bg-white/90 backdrop-blur-2xl rounded-[20px] border border-white/60 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] p-2 z-50 overflow-hidden"
+              >
+                <div className="space-y-1">
+                  {availableSemesters.map((sem: any) => (
+                    <button
+                      key={sem.id}
+                      onClick={() => updateFilter('semester', sem.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-colors text-left group ${filters.semester === sem.id ? 'bg-indigo-50' : 'hover:bg-slate-50'}`}
+                    >
+                      <span className={`text-sm font-bold ${filters.semester === sem.id ? 'text-indigo-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                        {sem.name}
+                      </span>
+                      {filters.semester === sem.id && <Check className="w-4 h-4 text-indigo-600" />}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
-      <div className="flex-1"></div>
+      {/* Week Filter */}
+      {availableWeeks.length > 0 && (
+        <div className="relative">
+          <button 
+            onClick={() => setActiveDropdown(activeDropdown === 'week' ? null : 'week')}
+            className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'week' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
+          >
+            <Calendar className={`w-4 h-4 ${activeDropdown === 'week' ? 'text-indigo-200' : 'text-slate-400'}`} />
+            {filters.week === 'ALL' ? 'All Weeks' : `Week ${filters.week}`}
+            <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'week' ? 'rotate-180 text-white' : 'text-slate-400'}`} />
+          </button>
 
-      <button onClick={handleReset} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 font-medium px-3 py-1.5">
-        <RefreshCw className="w-3.5 h-3.5" /> Reset
-      </button>
+          <AnimatePresence>
+            {activeDropdown === 'week' && (
+              <motion.div 
+                variants={dropdownVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="absolute top-full left-0 mt-3 w-48 bg-white/90 backdrop-blur-2xl rounded-[20px] border border-white/60 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] p-2 z-50 overflow-hidden max-h-[300px] overflow-y-auto"
+              >
+                <div className="space-y-1">
+                  <button
+                    onClick={() => updateFilter('week', 'ALL')}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-colors text-left group ${filters.week === 'ALL' ? 'bg-indigo-50' : 'hover:bg-slate-50'}`}
+                  >
+                    <span className={`text-sm font-bold ${filters.week === 'ALL' ? 'text-indigo-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                      All Weeks
+                    </span>
+                    {filters.week === 'ALL' && <Check className="w-4 h-4 text-indigo-600" />}
+                  </button>
+                  
+                  {availableWeeks.map((week: any) => (
+                    <button
+                      key={week.weekNumber}
+                      onClick={() => updateFilter('week', week.weekNumber.toString())}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-colors text-left group ${filters.week === week.weekNumber.toString() ? 'bg-indigo-50' : 'hover:bg-slate-50'}`}
+                    >
+                      <span className={`text-sm font-bold ${filters.week === week.weekNumber.toString() ? 'text-indigo-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                        Week {week.weekNumber}
+                      </span>
+                      {filters.week === week.weekNumber.toString() && <Check className="w-4 h-4 text-indigo-600" />}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+      
+      {/* Event Type Filter */}
+      <div className="relative ml-auto">
+        <button 
+          onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')}
+          className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'type' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
+        >
+          <Filter className={`w-4 h-4 ${activeDropdown === 'type' ? 'text-indigo-200' : 'text-slate-400'}`} />
+          {EVENT_TYPES.find(t => t.value === filters.eventType)?.label}
+          <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'type' ? 'rotate-180 text-white' : 'text-slate-400'}`} />
+        </button>
 
-      <button onClick={handleApply} className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-1.5 px-4 rounded-lg shadow-sm transition-colors">
-        Apply Filters
-      </button>
+        <AnimatePresence>
+          {activeDropdown === 'type' && (
+            <motion.div 
+              variants={dropdownVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="absolute top-full right-0 mt-3 w-56 bg-white/90 backdrop-blur-2xl rounded-[20px] border border-white/60 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] p-2 z-50 overflow-hidden"
+            >
+              <div className="space-y-1">
+                {EVENT_TYPES.map(type => (
+                  <button
+                    key={type.value}
+                    onClick={() => updateFilter('eventType', type.value)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-[12px] transition-colors text-left group ${filters.eventType === type.value ? 'bg-indigo-50' : 'hover:bg-slate-50'}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-3 h-3 rounded-full shadow-sm ${type.color}`}></div>
+                      <span className={`text-sm font-bold ${filters.eventType === type.value ? 'text-indigo-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                        {type.label}
+                      </span>
+                    </div>
+                    {filters.eventType === type.value && <Check className="w-4 h-4 text-indigo-600" />}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
-    </div>
+    </motion.div>
   );
 }
+

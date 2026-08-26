@@ -77,7 +77,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
       <div className="flex-1 space-y-6">
         
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start justify-between mb-8">
           {[
             { num: 1, label: 'Audience', icon: Users },
             { num: 2, label: 'Content', icon: MessageSquare },
@@ -85,7 +85,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
             { num: 4, label: 'Schedule', icon: Calendar },
             { num: 5, label: 'Review', icon: CheckCircle },
           ].map((s, idx) => (
-            <div key={s.num} className="flex flex-col items-center gap-2 relative z-10 flex-1">
+            <div key={s.num} className="flex flex-col items-center relative z-10 flex-1 min-w-0">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors border-2 ${
                 step === s.num ? 'bg-indigo-600 text-white border-indigo-600' :
                 step > s.num ? 'bg-indigo-50 text-indigo-600 border-indigo-200' :
@@ -93,14 +93,14 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
               }`}>
                 {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
               </div>
-              <span className={`text-xs font-semibold uppercase tracking-wider ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}>
+              <span className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider text-center mt-2 px-1 truncate w-full ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}>
                 {s.label}
               </span>
               {/* Connector line */}
               {idx < 4 && (
                 <div className={`absolute top-5 left-1/2 w-full h-[2px] -z-10 ${
                   step > s.num ? 'bg-indigo-200' : 'bg-slate-100'
-                }`} style={{ transform: 'translateX(50%)' }} />
+                }`} />
               )}
             </div>
           ))}

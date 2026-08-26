@@ -539,12 +539,30 @@ export const getCalendarEvents = async (req: any, res: any) => {
     };
 
     // --- 2. Dynamic Semester Calculation ---
-    // Hardcoded config as requested
-    const sem7Start = new Date('2026-07-13');
-    const sem7End = new Date('2026-12-05');
-    
-    const sem8Start = new Date('2027-01-02');
-    const sem8End = new Date('2027-04-30');
+    let academicYearsData = await prisma.academicYear.findMany({
+      include: { semesters: { orderBy: { startDate: 'asc' } } },
+      orderBy: { startDate: 'desc' }
+    });
+
+    if (academicYearsData.length === 0) {
+      // Seed default configs if none exist
+      const newYear = await prisma.academicYear.create({
+        data: {
+          year: '2026-2027',
+          startDate: new Date('2026-07-13'),
+          endDate: new Date('2027-04-30'),
+          isActive: true,
+          semesters: {
+            create: [
+              { name: 'Semester 7', startDate: new Date('2026-07-13'), endDate: new Date('2026-12-05'), isActive: true },
+              { name: 'Semester 8', startDate: new Date('2027-01-02'), endDate: new Date('2027-04-30'), isActive: false }
+            ]
+          }
+        },
+        include: { semesters: { orderBy: { startDate: 'asc' } } }
+      });
+      academicYearsData = [newYear];
+    }
 
     const generateWeeks = (start: Date, end: Date) => {
       const weeks = [];
@@ -561,6 +579,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
 
         weeks.push({
           id: weekNum,
+          weekNumber: weekNum,
           start: currentStart.toISOString().split('T')[0],
           end: currentEnd.toISOString().split('T')[0]
         });
@@ -571,18 +590,38 @@ export const getCalendarEvents = async (req: any, res: any) => {
       return weeks;
     };
 
-    const semester = {
-      semester7: {
-        startDate: '2026-07-13',
-        endDate: '2026-12-05',
-        weeks: generateWeeks(sem7Start, sem7End)
-      },
-      semester8: {
-        startDate: '2027-01-02',
-        endDate: '2027-04-30',
-        weeks: generateWeeks(sem8Start, sem8End)
-      }
-    };
+    // We build the `semester` dictionary so we don't break existing frontend logic completely
+    // while additionally sending the full configuration block
+    const semester: any = {};
+    const config = academicYearsData.map(ay => ({
+      id: ay.id,
+      year: ay.year,
+      isActive: ay.isActive,
+      semesters: ay.semesters.map(sem => {
+        const weeks = generateWeeks(sem.startDate, sem.endDate);
+        
+        // Populate the legacy object format
+        const legacyKey = sem.name.toLowerCase().replace(' ', ''); // e.g. "semester7"
+        semester[legacyKey] = {
+           id: sem.id,
+           name: sem.name,
+           startDate: sem.startDate.toISOString().split('T')[0],
+           endDate: sem.endDate.toISOString().split('T')[0],
+           weeks: weeks
+        };
+        // Also map to ID for newer component logic
+        semester[sem.id] = semester[legacyKey];
+
+        return {
+          id: sem.id,
+          name: sem.name,
+          isActive: sem.isActive,
+          startDate: sem.startDate.toISOString().split('T')[0],
+          endDate: sem.endDate.toISOString().split('T')[0],
+          weeks
+        };
+      })
+    }));
 
     // --- 3. Events Mapping ---
     const allDrives = await prisma.placementDrive.findMany({
@@ -682,14 +721,103 @@ export const getCalendarEvents = async (req: any, res: any) => {
       }
     });
 
+    // 3.5 Custom Events
+    const customEvents = await prisma.customCalendarEvent.findMany();
+    customEvents.forEach((c: any) => {
+      calendarEvents.push({
+        id: `custom-${c.id}`,
+        title: c.title,
+        start: c.start.toISOString(),
+        end: c.end ? c.end.toISOString() : undefined,
+        allDay: c.isAllDay,
+        color: c.color || '#4f46e5',
+        extendedProps: {
+          eventId: c.id,
+          type: c.type,
+          status: 'Scheduled',
+          description: c.description || '',
+          isCustom: true
+        }
+      });
+    });
+
     return res.status(200).json({
       summary,
       semester,
+      config,
       events: calendarEvents
     });
   } catch (error: any) {
     console.error('Calendar Error:', error);
     return res.status(500).json({ message: 'Error fetching calendar events', error: error.message });
+  }
+};
+
+// --- 5.1 Calendar Actions ---
+
+export const createCustomEvent = async (req: any, res: any) => {
+  try {
+    const { title, start, end, type, color, description, isAllDay } = req.body;
+    const event = await prisma.customCalendarEvent.create({
+      data: {
+        title,
+        start: new Date(start),
+        end: new Date(end),
+        type,
+        color,
+        description,
+        isAllDay
+      }
+    });
+    res.status(201).json(event);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error creating event', error: error.message });
+  }
+};
+
+export const updateCustomEvent = async (req: any, res: any) => {
+  try {
+    const { title, start, end, type, color, description, isAllDay } = req.body;
+    const event = await prisma.customCalendarEvent.update({
+      where: { id: req.params.id },
+      data: {
+        title,
+        start: start ? new Date(start) : undefined,
+        end: end ? new Date(end) : undefined,
+        type,
+        color,
+        description,
+        isAllDay
+      }
+    });
+    res.status(200).json(event);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error updating event', error: error.message });
+  }
+};
+
+export const deleteCustomEvent = async (req: any, res: any) => {
+  try {
+    await prisma.customCalendarEvent.delete({ where: { id: req.params.id } });
+    res.status(200).json({ message: 'Deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error deleting event', error: error.message });
+  }
+};
+
+export const rescheduleInterview = async (req: any, res: any) => {
+  try {
+    const { date, time } = req.body;
+    const round = await prisma.selectionRound.update({
+      where: { id: req.params.id },
+      data: { 
+        date: date ? new Date(date) : undefined, 
+        time 
+      }
+    });
+    res.status(200).json(round);
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error rescheduling interview', error: error.message });
   }
 };
 

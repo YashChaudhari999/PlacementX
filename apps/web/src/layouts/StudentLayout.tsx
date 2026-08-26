@@ -56,7 +56,7 @@ export const StudentLayout = () => {
 
   const pageTitle = navItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
-  const SidebarContent = () => (
+  const sidebarContentJSX = (
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
         <div className="flex items-center gap-3 justify-center w-full h-full py-4">
@@ -77,15 +77,15 @@ export const StudentLayout = () => {
               className={() =>
                 `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 ${
                   isActive
-                    ? 'bg-primary text-white shadow-lg shadow-primary/30 transform scale-[1.02]'
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                    ? 'bg-[#8B0000] text-white shadow-lg shadow-red-900/30 transform scale-[1.02]'
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                 }`
               }
             >
               <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
               <span className="flex-1 tracking-wide">{item.name}</span>
               {isNotif && unreadCount > 0 && (
-                <span className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full ${isActive ? 'bg-white text-primary' : 'bg-red-500 text-white shadow-sm'}`}>
+                <span className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm'}`}>
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -125,14 +125,15 @@ export const StudentLayout = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-[#F8FAFC] relative overflow-hidden">
-      {/* Abstract Background Elements */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[80px] pointer-events-none translate-y-1/3 -translate-x-1/4" />
+    <div className="flex min-h-screen bg-indigo-50/60 relative overflow-hidden">
+      {/* Abstract Background Elements - Softened for eye comfort */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-400/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-400/10 rounded-full blur-[100px] pointer-events-none translate-y-1/3 -translate-x-1/4" />
+      <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
       {/* Desktop Sidebar (Floating) */}
       <aside className="hidden lg:flex flex-col w-[300px] fixed inset-y-0 z-20 p-6">
-        <SidebarContent />
+        {sidebarContentJSX}
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -153,7 +154,7 @@ export const StudentLayout = () => {
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
               className="fixed inset-y-0 left-0 w-[300px] z-50 flex flex-col lg:hidden p-4"
             >
-              <SidebarContent />
+              {sidebarContentJSX}
             </motion.aside>
           </>
         )}
@@ -162,7 +163,7 @@ export const StudentLayout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:pl-[300px] min-w-0 relative z-10">
         {/* Dynamic Header */}
-        <header className="h-24 px-6 sm:px-10 flex items-center justify-between sticky top-0 z-30 bg-[#F8FAFC]/80 backdrop-blur-md">
+        <header className="h-24 px-6 sm:px-10 flex items-center justify-between sticky top-0 z-30 bg-indigo-50/80 backdrop-blur-md">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
