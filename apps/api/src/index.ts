@@ -14,6 +14,7 @@ import recruiterRoutes from './routes/recruiter.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
 import { initRedis, closeRedis } from './config/redis';
 import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
+import { initReportQueue, initReportWorker } from './services/reports/report-queue.service';
 import { errorHandler } from './middlewares/error.middleware';
 
 dotenv.config();
@@ -43,6 +44,8 @@ initSocket(httpServer);
     if (isRedisConnected()) {
       initQueues();
       initWorkers();
+      initReportQueue();
+      initReportWorker();
     }
   }
 })();
@@ -54,6 +57,8 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/drives', driveRoutes);
 app.use('/api/admin/analytics', analyticsRoutes);
+import reportRoutes from './routes/reports.routes';
+app.use('/api/admin/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/recruiter', recruiterRoutes);

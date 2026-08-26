@@ -418,36 +418,6 @@ export const addCoordinator = async (req: any, res: any) => {
 };
 
 // 3. Reports Module
-export const getReportsData = async (req: any, res: any) => {
-  try {
-    // Generate a structured JSON that the frontend can convert to CSV
-    const applications = await prisma.driveApplication.findMany({
-      include: {
-        student: {
-          include: { user: true }
-        },
-        drive: {
-          include: { company: true }
-        }
-      }
-    });
-
-    const reportData = applications.map((app: any) => ({
-      Student_Name: `${app.student.firstName || ''} ${app.student.lastName || ''}`.trim(),
-      Email: app.student.user.email,
-      Branch: app.student.branch,
-      Company: app.drive.company?.name,
-      Role: app.drive.jobRole,
-      Package_LPA: app.drive.fixedSalary,
-      Status: app.status,
-      Applied_On: app.createdAt
-    }));
-
-    return res.status(200).json(reportData);
-  } catch (error: any) {
-    return res.status(500).json({ message: 'Error generating report', error: error.message });
-  }
-};
 
 // 4. Notifications Module (Broadcast)
 export const broadcastNotification = async (req: any, res: any) => {

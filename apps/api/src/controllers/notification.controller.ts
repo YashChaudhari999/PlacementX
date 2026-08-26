@@ -284,13 +284,15 @@ export const broadcastNotification = async (req: any, res: any) => {
         senderRole: req.user.role,
       });
 
-      // Update notification with campaign
-      await prisma.notification.update({
-        where: { id: notification.id },
-        data: { campaignId: campaign.id }
-      });
-
-      return res.status(201).json({ message: 'Notification sent', notification, campaignId: campaign.id });
+      if (notification) {
+        // Update notification with campaign
+        await prisma.notification.update({
+          where: { id: notification.id },
+          data: { campaignId: campaign.id }
+        });
+        return res.status(201).json({ message: 'Notification sent', notification, campaignId: campaign.id });
+      }
+      return res.status(500).json({ message: 'Failed to create notification' });
     }
 
     // For multiple users, use bulk

@@ -297,6 +297,9 @@ export const mlForecast = async (req: Request, res: Response) => {
     console.error('ML Forecast error:', error);
     // Fallback if ML service is down: Calculate a naive forecast using historical data
     try {
+      const department = req.query.department as string;
+      const year = req.query.year as string;
+      
       const yearWhere: Record<string, unknown> = {};
       if (department && department !== 'All Departments') {
         yearWhere.department = department;

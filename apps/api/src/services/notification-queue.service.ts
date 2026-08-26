@@ -44,6 +44,7 @@ interface ScheduledNotificationJob {
   image?: string;
   senderId?: string;
   senderRole?: string;
+  campaignId?: string;
 }
 
 interface BulkNotificationJob {

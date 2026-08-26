@@ -5,7 +5,6 @@ import {
   importStudents,
   getCoordinators, 
   addCoordinator, 
-  getReportsData, 
   broadcastNotification, 
   getCalendarEvents,
   getAdminDashboard,
@@ -34,7 +33,7 @@ router.post('/students/import', importStudents);
 router.post('/students/provision', provisionCurrentYearStudents);
 router.get('/coordinators', getCoordinators);
 router.post('/coordinators', addCoordinator);
-router.get('/reports/data', getReportsData);
+
 router.post('/notifications/broadcast', broadcastNotification);
 router.get('/calendar', getCalendarEvents);
 router.post('/calendar/custom', createCustomEvent);

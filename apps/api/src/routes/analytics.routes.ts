@@ -17,7 +17,6 @@ import {
   getFilterOptions,
 } from '../controllers/analytics.controller';
 
-import { exportReportExcel } from '../controllers/reports.controller';
 
 import { protect, authorize } from '../middlewares/auth.middleware';
 
@@ -48,7 +47,6 @@ router.get('/placement/operational', getPlacementOperational);
 
 // ── Utilities ─────────────────────────────────────────────
 router.get('/placement/filter-options', getFilterOptions);
-router.get('/export/excel', exportReportExcel);
 
 // ── Legacy fallbacks ──────────────────────────────────────
 router.get('/overview', getPlacementOverview);

@@ -480,3 +480,46 @@ model Semester {
 
   @@unique([academicYearId, name])
 }
+
+model ReportTemplate {
+  id           String   @id @default(uuid())
+  name         String
+  category     String
+  description  String?
+  filters      Json?
+  columns      Json?
+  isFavorite   Boolean  @default(false)
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ReportExportHistory {
+  id           String   @id @default(uuid())
+  reportName   String
+  category     String
+  status       String   @default("PROCESSING") // PENDING, PROCESSING, COMPLETED, FAILED
+  fileUrl      String?
+  format       String   @default("EXCEL") // EXCEL, CSV, PDF
+  recordCount  Int      @default(0)
+  generatedBy  String?
+  filters      Json?
+  errorDetails String?
+  expiresAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model ScheduledReport {
+  id           String   @id @default(uuid())
+  reportName   String
+  frequency    String   // DAILY, WEEKLY, MONTHLY
+  filters      Json?
+  format       String   @default("EXCEL")
+  recipients   Json     // Array of emails or user IDs
+  nextRunAt    DateTime?
+  status       String   @default("ACTIVE") // ACTIVE, PAUSED
+  createdBy    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
