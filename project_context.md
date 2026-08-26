@@ -1369,3 +1369,15 @@ Verified against actual repository structure, source code, and existing document
 - Fixed overlap and responsive alignment issues in the `NotificationComposer.tsx` stepper and Live Preview column.
 - Moved Academic Year / Semester configuration out of static files and into the database.
 
+
+### 2026-08-26 - Admin Control Center & Calendar UI Polish
+**Type:** Feature / UX Improvement
+
+**Summary:**
+- Implemented /admin/settings as a comprehensive Administration Control Center.
+- Added modular frontend components for General, Placement, Student, Security, Notifications, System Health, and Danger Zone settings (pps/web/src/features/admin/components/settings).
+- Created Prisma schema models for SystemSetting and SettingAuditLog backed by PostgreSQL.
+- Implemented settings.service.ts and settings.controller.ts with Redis caching to serve dynamic configurations globally across the app.
+- Updated core controllers (student.controller.ts, eligibility.service.ts) to enforce dynamic global settings (e.g. max applications per student, profile verification requirements).
+- Improved the UI/UX of /admin/calendar (AdminCalendar.tsx) by replacing solid, cluttered blocks with clean, modern badges using soft color palettes and dynamic borders.
+
