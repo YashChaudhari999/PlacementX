@@ -1,6 +1,63 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
+const driveSelectFields = {
+  id: true,
+  companyId: true,
+  status: true,
+  jobRole: true,
+  jobDescription: true,
+  fixedSalary: true,
+  variableSalary: true,
+  internshipStipend: true,
+  employmentType: true,
+  ppoAvailable: true,
+  bondDetails: true,
+  vacancies: true,
+  location: true,
+  workMode: true,
+  eligibleBranches: true,
+  passingYear: true,
+  minimumCgpa: true,
+  activeBacklogsAllowed: true,
+  yearGapAllowed: true,
+  maximumLiveOffers: true,
+  genderRestriction: true,
+  registrationStart: true,
+  registrationEnd: true,
+  nominationLink: true,
+  maximumApplicants: true,
+  resumeMandatory: true,
+  portfolioRequired: true,
+  githubRequired: true,
+  attachments: true,
+  createdAt: true,
+  updatedAt: true,
+  academicYear: true,
+  applicationDeadline: true,
+  benefits: true,
+  campus: true,
+  consentGiven: true,
+  department: true,
+  driveTitle: true,
+  driveType: true,
+  expectedDriveDate: true,
+  historyOfBacklogsAllowed: true,
+  joiningBonus: true,
+  linkedinRequired: true,
+  maximumGapYears: true,
+  minimumAttendance: true,
+  placementSeason: true,
+  preferredSkills: true,
+  remarks: true,
+  requiredSkills: true,
+  semester: true,
+  specialInstructions: true,
+  technologyStack: true,
+  trainingPeriod: true,
+  semanticTags: true,
+};
+
 const prisma = new PrismaClient();
 
 export const createDrive = async (req: any, res: any) => {
@@ -25,6 +82,9 @@ export const createDrive = async (req: any, res: any) => {
     }
 
     const drive = await prisma.placementDrive.create({
+      select: {
+        ...driveSelectFields
+      },
       data: {
         companyId: company.id,
         status: data.isDraft ? 'DRAFT' : 'PUBLISHED',
@@ -107,7 +167,8 @@ export const createDrive = async (req: any, res: any) => {
 export const getDrives = async (req: any, res: any) => {
   try {
     const drives = await prisma.placementDrive.findMany({
-      include: {
+      select: {
+        ...driveSelectFields,
         company: true,
         applications: true
       },
@@ -132,7 +193,10 @@ export const checkEligibilityStatus = async (req: any, res: any) => {
     }
 
     const drive = await prisma.placementDrive.findUnique({
-      where: { id: driveId }
+      where: { id: driveId },
+      select: {
+        ...driveSelectFields
+      }
     });
 
     if (!drive) {
@@ -163,7 +227,8 @@ export const getDriveById = async (req: any, res: any) => {
     const { id } = req.params;
     const drive = await prisma.placementDrive.findUnique({
       where: { id },
-      include: {
+      select: {
+        ...driveSelectFields,
         company: true,
         selectionRounds: true,
       }
@@ -253,7 +318,7 @@ export const approveHrDrive = async (req: any, res: any) => {
     const drive = await prisma.placementDrive.update({
       where: { id },
       data: { status: 'PUBLISHED' },
-      include: { company: true }
+      select: { ...driveSelectFields, company: true }
     });
     
     await prisma.driveAuditLog.create({
@@ -297,7 +362,8 @@ export const rejectHrDrive = async (req: any, res: any) => {
     const { id } = req.params;
     const drive = await prisma.placementDrive.update({
       where: { id },
-      data: { status: 'REJECTED' }
+      data: { status: 'REJECTED' },
+      select: { ...driveSelectFields }
     });
     
     await prisma.driveAuditLog.create({
@@ -317,7 +383,8 @@ export const requestChangesHrDrive = async (req: any, res: any) => {
     
     const drive = await prisma.placementDrive.update({
       where: { id },
-      data: { status: 'CHANGES_REQUESTED' }
+      data: { status: 'CHANGES_REQUESTED' },
+      select: { ...driveSelectFields }
     });
     
     await prisma.driveAuditLog.create({
@@ -368,6 +435,7 @@ export const updateDrive = async (req: any, res: any) => {
 
     const drive = await prisma.placementDrive.update({
       where: { id },
+      select: { ...driveSelectFields },
       data: {
         companyId: company.id,
         status: data.isDraft ? 'DRAFT' : 'PUBLISHED',
