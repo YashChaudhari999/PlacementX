@@ -65,7 +65,10 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           {...props}
         />
         {label && (
-          <label htmlFor={id} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label
+            htmlFor={id}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
             {label}
           </label>
         )}
@@ -93,9 +96,21 @@ export interface RadioGroupProps {
   direction?: 'horizontal' | 'vertical';
 }
 
-export const RadioGroup = ({ name, options, value, onChange, className, direction = 'vertical' }: RadioGroupProps) => {
+export const RadioGroup = ({
+  name,
+  options,
+  value,
+  onChange,
+  className,
+  direction = 'vertical',
+}: RadioGroupProps) => {
   return (
-    <div className={[direction === 'horizontal' ? 'flex items-center space-x-4' : 'flex flex-col space-y-2', className].join(' ')}>
+    <div
+      className={[
+        direction === 'horizontal' ? 'flex items-center space-x-4' : 'flex flex-col space-y-2',
+        className,
+      ].join(' ')}
+    >
       {options.map((opt) => (
         <label key={opt.value} className="flex items-center space-x-2 text-sm">
           <input
@@ -136,7 +151,11 @@ export const Switch = forwardRef<HTMLInputElement, SwitchProps>(
         >
           <span className="pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform" />
         </button>
-        {label && <label htmlFor={id} className="text-sm font-medium">{label}</label>}
+        {label && (
+          <label htmlFor={id} className="text-sm font-medium">
+            {label}
+          </label>
+        )}
       </div>
     );
   }
@@ -154,7 +173,13 @@ export interface AutocompleteProps {
   className?: string;
 }
 
-export const Autocomplete = ({ options, value, onChange, placeholder, className }: AutocompleteProps) => {
+export const Autocomplete = ({
+  options,
+  value,
+  onChange,
+  placeholder,
+  className,
+}: AutocompleteProps) => {
   // Architecture placeholder — will use Headless UI / Downshift in implementation
   return (
     <div className={['relative w-full', className].join(' ')}>

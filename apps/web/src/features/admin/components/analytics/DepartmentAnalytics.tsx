@@ -28,7 +28,7 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
     if (typeof valA === 'string' && typeof valB === 'string') {
       return sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
     }
-    return sortOrder === 'asc' ? (Number(valA) - Number(valB)) : (Number(valB) - Number(valA));
+    return sortOrder === 'asc' ? Number(valA) - Number(valB) : Number(valB) - Number(valA);
   });
 
   return (
@@ -52,10 +52,15 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
       {data.risks?.length > 0 && (
         <div className="mb-6 space-y-2">
           {data.risks.map((risk, i) => (
-            <div key={i} className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+            <div
+              key={i}
+              className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3"
+            >
               <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
-                <h4 className="text-sm font-bold text-rose-900">{risk.department} Needs Intervention</h4>
+                <h4 className="text-sm font-bold text-rose-900">
+                  {risk.department} Needs Intervention
+                </h4>
                 <p className="text-sm text-rose-700 mt-0.5">{risk.description}</p>
               </div>
             </div>
@@ -67,19 +72,34 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
         <table className="w-full text-sm text-left">
           <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
             <tr>
-              <th className="px-4 py-3 rounded-l-xl cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('department')}>
+              <th
+                className="px-4 py-3 rounded-l-xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('department')}
+              >
                 Department {sortField === 'department' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('totalStudents')}>
+              <th
+                className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('totalStudents')}
+              >
                 Students {sortField === 'totalStudents' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('placementRate')}>
+              <th
+                className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('placementRate')}
+              >
                 Placement Rate {sortField === 'placementRate' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('averagePackage')}>
+              <th
+                className="px-4 py-3 cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('averagePackage')}
+              >
                 Avg Package {sortField === 'averagePackage' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-4 py-3 rounded-r-xl cursor-pointer hover:bg-slate-100 transition-colors" onClick={() => handleSort('highestPackage')}>
+              <th
+                className="px-4 py-3 rounded-r-xl cursor-pointer hover:bg-slate-100 transition-colors"
+                onClick={() => handleSort('highestPackage')}
+              >
                 High Package {sortField === 'highestPackage' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
             </tr>
@@ -96,35 +116,49 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`font-black ${isBelowAvg ? 'text-rose-600' : 'text-slate-900'}`}>
+                      <div
+                        className={`font-black ${isBelowAvg ? 'text-rose-600' : 'text-slate-900'}`}
+                      >
                         {dept.placementRate.toFixed(1)}%
                       </div>
                       {dept.placementRateChange !== 0 && (
                         <div className="flex items-center text-[10px] font-bold">
                           {dept.placementRateChange > 0 ? (
-                            <span className="text-emerald-500 flex items-center"><TrendingUp className="w-3 h-3 mr-0.5" />+{dept.placementRateChange.toFixed(1)}%</span>
+                            <span className="text-emerald-500 flex items-center">
+                              <TrendingUp className="w-3 h-3 mr-0.5" />+
+                              {dept.placementRateChange.toFixed(1)}%
+                            </span>
                           ) : (
-                            <span className="text-rose-500 flex items-center"><TrendingDown className="w-3 h-3 mr-0.5" />{dept.placementRateChange.toFixed(1)}%</span>
+                            <span className="text-rose-500 flex items-center">
+                              <TrendingDown className="w-3 h-3 mr-0.5" />
+                              {dept.placementRateChange.toFixed(1)}%
+                            </span>
                           )}
                         </div>
                       )}
                     </div>
                     <div className="w-24 h-1.5 bg-slate-100 rounded-full mt-1.5 overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full ${isBelowAvg ? 'bg-rose-500' : 'bg-emerald-500'}`} 
-                        style={{ width: `${dept.placementRate}%` }} 
+                      <div
+                        className={`h-full rounded-full ${isBelowAvg ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${dept.placementRate}%` }}
                       />
                     </div>
                   </td>
                   <td className="px-4 py-4">
-                    <div className="font-bold text-slate-700">₹{dept.averagePackage.toFixed(2)}L</div>
+                    <div className="font-bold text-slate-700">
+                      ₹{dept.averagePackage.toFixed(2)}L
+                    </div>
                     {dept.packageChange !== 0 && (
-                      <div className={`text-[10px] font-bold ${dept.packageChange > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      <div
+                        className={`text-[10px] font-bold ${dept.packageChange > 0 ? 'text-emerald-500' : 'text-rose-500'}`}
+                      >
                         {dept.packageChange > 0 ? '+' : ''}₹{dept.packageChange.toFixed(2)}L YoY
                       </div>
                     )}
                   </td>
-                  <td className="px-4 py-4 font-bold text-slate-700">₹{dept.highestPackage.toFixed(2)}L</td>
+                  <td className="px-4 py-4 font-bold text-slate-700">
+                    ₹{dept.highestPackage.toFixed(2)}L
+                  </td>
                 </tr>
               );
             })}

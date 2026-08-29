@@ -1,2 +1,13 @@
 import { Outlet } from 'react-router-dom';
-export const RecruiterEventLayout = () => { return (<div className='flex min-h-screen flex-col items-center bg-background py-10'><div className='mb-8 text-2xl font-bold'>Company Logo</div><div className='w-full max-w-3xl rounded-xl border bg-card p-6 shadow-md'><div className='mb-6'>Progress Stepper</div><Outlet /></div><footer className='mt-10'>Footer</footer></div>); };
+export const RecruiterEventLayout = () => {
+  return (
+    <div className="flex min-h-screen flex-col items-center bg-background py-10">
+      <div className="mb-8 text-2xl font-bold">Company Logo</div>
+      <div className="w-full max-w-3xl rounded-xl border bg-card p-6 shadow-md">
+        <div className="mb-6">Progress Stepper</div>
+        <Outlet />
+      </div>
+      <footer className="mt-10">Footer</footer>
+    </div>
+  );
+};

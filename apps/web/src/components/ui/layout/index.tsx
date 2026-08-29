@@ -55,11 +55,23 @@ export interface PageContainerProps {
   className?: string;
 }
 
-const maxWidthMap = { sm: 'max-w-2xl', md: 'max-w-4xl', lg: 'max-w-6xl', xl: 'max-w-7xl', full: 'max-w-full' };
+const maxWidthMap = {
+  sm: 'max-w-2xl',
+  md: 'max-w-4xl',
+  lg: 'max-w-6xl',
+  xl: 'max-w-7xl',
+  full: 'max-w-full',
+};
 
 export const PageContainer = ({ children, maxWidth = 'xl', className }: PageContainerProps) => {
   return (
-    <div className={['mx-auto w-full px-4 py-6 sm:px-6 lg:px-8', maxWidthMap[maxWidth], className].join(' ')}>
+    <div
+      className={[
+        'mx-auto w-full px-4 py-6 sm:px-6 lg:px-8',
+        maxWidthMap[maxWidth],
+        className,
+      ].join(' ')}
+    >
       {children}
     </div>
   );

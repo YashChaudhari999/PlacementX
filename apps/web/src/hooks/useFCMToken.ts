@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getToken, onMessage } from 'firebase/messaging';
+import { getToken, onMessage, type Messaging } from 'firebase/messaging';
 import { messaging } from '../lib/firebase/config/firebaseApp';
 import api from '../lib/api'; // assuming there's an api client in lib
 import { toast } from 'sonner'; // this app uses sonner based on package.json
@@ -16,12 +16,12 @@ export const useFCMToken = (user: any) => {
         if (permission === 'granted') {
           // Register the service worker with the config params
           const swUrl = `/firebase-messaging-sw.js?apiKey=${import.meta.env.VITE_FIREBASE_API_KEY}&authDomain=${import.meta.env.VITE_FIREBASE_AUTH_DOMAIN}&databaseURL=${import.meta.env.VITE_FIREBASE_DATABASE_URL}&projectId=${import.meta.env.VITE_FIREBASE_PROJECT_ID}&storageBucket=${import.meta.env.VITE_FIREBASE_STORAGE_BUCKET}&messagingSenderId=${import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID}&appId=${import.meta.env.VITE_FIREBASE_APP_ID}`;
-          
+
           const registration = await navigator.serviceWorker.register(swUrl);
-          
-          const currentToken = await getToken(messaging as Messaging, { 
+
+          const currentToken = await getToken(messaging as Messaging, {
             vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY, // Needs to be added to .env if web push cert is used, otherwise generic might fail
-            serviceWorkerRegistration: registration 
+            serviceWorkerRegistration: registration,
           });
 
           if (currentToken) {
@@ -42,15 +42,17 @@ export const useFCMToken = (user: any) => {
     requestPermissionAndGetToken();
 
     // Listen for foreground messages
-    const unsubscribe = onMessage(messaging, (payload) => {
+    const unsubscribe = onMessage(messaging as Messaging, (payload) => {
       console.log('Message received. ', payload);
       if (payload.notification) {
         toast(payload.notification.title, {
           description: payload.notification.body,
-          action: payload.data?.url ? {
-            label: 'View',
-            onClick: () => window.location.href = payload.data!.url
-          } : undefined
+          action: payload.data?.url
+            ? {
+                label: 'View',
+                onClick: () => (window.location.href = (payload.data?.url as string) || '/'),
+              }
+            : undefined,
         });
       }
     });

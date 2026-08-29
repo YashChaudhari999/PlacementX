@@ -2,10 +2,22 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import { 
-  LayoutDashboard, LineChart, Briefcase, Users, 
-  FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, CheckCircle, ShieldCheck, FileEdit
+import {
+  LayoutDashboard,
+  LineChart,
+  Briefcase,
+  Users,
+  FileText,
+  Bell,
+  Calendar,
+  Settings,
+  LogOut,
+  Menu,
+  Search,
+  ChevronDown,
+  CheckCircle,
+  ShieldCheck,
+  FileEdit,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
@@ -29,14 +41,14 @@ export const PlacementCellLayout = () => {
       items: [
         { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
         { name: 'Analytics', path: '/admin/analytics', icon: LineChart },
-      ]
+      ],
     },
     {
       title: 'Placements',
       items: [
         { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase },
         { name: 'Reports', path: '/admin/reports', icon: FileText },
-      ]
+      ],
     },
     {
       title: 'Student Management',
@@ -44,7 +56,7 @@ export const PlacementCellLayout = () => {
         { name: 'Students', path: '/admin/students', icon: Users },
         { name: 'Verifications', path: '/admin/students/verifications', icon: ShieldCheck },
         { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEdit },
-      ]
+      ],
     },
     {
       title: 'System',
@@ -52,12 +64,13 @@ export const PlacementCellLayout = () => {
         { name: 'Notifications', path: '/admin/notifications', icon: Bell },
         { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
         { name: 'Settings', path: '/admin/settings', icon: Settings },
-      ]
-    }
+      ],
+    },
   ];
 
-  const allNavItems = navGroups.flatMap(g => g.items);
-  const pageTitle = allNavItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
+  const allNavItems = navGroups.flatMap((g) => g.items);
+  const pageTitle =
+    allNavItems.find((item) => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
   const sidebarContentJSX = (
     <div className="flex flex-col h-full bg-slate-950 text-slate-300">
@@ -67,12 +80,16 @@ export const PlacementCellLayout = () => {
             <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-9 w-9 object-contain" />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="text-white font-extrabold text-lg leading-none tracking-tight mb-0.5">PlacementX</span>
-            <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em] leading-none">Admin Portal</span>
+            <span className="text-white font-extrabold text-lg leading-none tracking-tight mb-0.5">
+              PlacementX
+            </span>
+            <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em] leading-none">
+              Admin Portal
+            </span>
           </div>
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-800">
         {navGroups.map((group) => (
           <div key={group.title} className="flex flex-col gap-1.5">
@@ -95,7 +112,9 @@ export const PlacementCellLayout = () => {
                     }`
                   }
                 >
-                  <Icon className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                  <Icon
+                    className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}
+                  />
                   {item.name}
                 </NavLink>
               );
@@ -106,15 +125,15 @@ export const PlacementCellLayout = () => {
 
       <div className="p-4 border-t border-slate-800 bg-slate-900/50">
         <div className="flex items-center gap-3 px-2 py-3 mb-2 rounded-lg bg-slate-900 border border-slate-800">
-           <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white font-bold">
-              A
-           </div>
-           <div className="flex-1 min-w-0">
-             <p className="text-sm font-semibold text-white truncate">Admin User</p>
-             <p className="text-xs text-slate-500 truncate flex items-center gap-1">
-                <CheckCircle className="w-3 h-3 text-emerald-500" /> Super Admin
-             </p>
-           </div>
+          <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white font-bold">
+            A
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white truncate">Admin User</p>
+            <p className="text-xs text-slate-500 truncate flex items-center gap-1">
+              <CheckCircle className="w-3 h-3 text-emerald-500" /> Super Admin
+            </p>
+          </div>
         </div>
         <button
           onClick={handleLogout}
@@ -182,16 +201,16 @@ export const PlacementCellLayout = () => {
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="hidden md:flex relative w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input 
-                placeholder="Search students, companies, drives..." 
+              <Input
+                placeholder="Search students, companies, drives..."
                 className="pl-10 h-10 bg-slate-100/50 border-transparent hover:border-slate-300 focus:bg-white text-sm focus-visible:ring-primary rounded-full transition-all"
               />
             </div>
-            
+
             <NotificationBell />
 
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 className="flex items-center gap-2 hover:bg-slate-50 p-1.5 pr-3 rounded-full transition-colors border border-slate-200 hover:border-slate-300 bg-white shadow-sm"
               >

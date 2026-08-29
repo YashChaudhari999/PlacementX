@@ -291,7 +291,17 @@ export interface DriveAnalyticsResponse {
 
 // ── Insight Types ─────────────────────────────────────────
 export type InsightSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'POSITIVE' | 'OPPORTUNITY';
-export type InsightCategory = 'PLACEMENT' | 'DEPARTMENT' | 'STUDENT' | 'COMPANY' | 'SKILL' | 'SALARY' | 'DRIVE' | 'RECRUITER' | 'OPERATIONS' | 'FORECAST';
+export type InsightCategory =
+  | 'PLACEMENT'
+  | 'DEPARTMENT'
+  | 'STUDENT'
+  | 'COMPANY'
+  | 'SKILL'
+  | 'SALARY'
+  | 'DRIVE'
+  | 'RECRUITER'
+  | 'OPERATIONS'
+  | 'FORECAST';
 
 export interface PlacementInsight {
   id: string;

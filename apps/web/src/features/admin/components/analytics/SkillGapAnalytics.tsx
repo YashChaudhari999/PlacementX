@@ -37,43 +37,56 @@ export default function SkillGapAnalytics({ data }: { data: SkillGapResponse }) 
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="font-bold text-slate-900">Top Skill Shortages</h3>
-            <p className="text-xs text-slate-500 mt-0.5">Where recruiter demand exceeds student supply</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Where recruiter demand exceeds student supply
+            </p>
           </div>
         </div>
 
         <div className="divide-y divide-slate-100">
           {topShortages.map((skill) => (
-            <div key={skill.skill} className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors">
+            <div
+              key={skill.skill}
+              className="p-4 flex items-center gap-4 hover:bg-slate-50 transition-colors"
+            >
               <div className="w-1/3 min-w-[120px]">
                 <div className="font-bold text-slate-900 truncate">{skill.skill}</div>
-                <div className="text-xs text-rose-600 font-bold mt-0.5">{Math.abs(skill.gap)} shortage</div>
+                <div className="text-xs text-rose-600 font-bold mt-0.5">
+                  {Math.abs(skill.gap)} shortage
+                </div>
               </div>
-              
+
               <div className="flex-1 max-w-sm">
                 <div className="flex justify-between text-[10px] font-bold text-slate-500 uppercase mb-1">
                   <span>Supply: {skill.studentSupply}</span>
                   <span>Demand: {skill.recruiterDemand}</span>
                 </div>
                 <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="absolute top-0 left-0 h-full bg-rose-500 rounded-full"
-                    style={{ width: `${Math.min((skill.studentSupply / skill.recruiterDemand) * 100, 100)}%` }}
+                    style={{
+                      width: `${Math.min((skill.studentSupply / skill.recruiterDemand) * 100, 100)}%`,
+                    }}
                   />
                 </div>
               </div>
 
               <div className="w-24 text-right">
                 <div className="text-lg font-black text-slate-900">{skill.coverage}%</div>
-                <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Coverage</div>
+                <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                  Coverage
+                </div>
               </div>
             </div>
           ))}
-          
+
           {topShortages.length === 0 && (
             <div className="p-8 text-center text-slate-500 flex flex-col items-center">
               <CheckCircle2 className="w-8 h-8 text-emerald-400 mb-2" />
               <p className="font-medium text-slate-900">No Critical Shortages</p>
-              <p className="text-sm">Student supply meets or exceeds recruiter demand for all tracked skills.</p>
+              <p className="text-sm">
+                Student supply meets or exceeds recruiter demand for all tracked skills.
+              </p>
             </div>
           )}
         </div>

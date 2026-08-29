@@ -13,7 +13,7 @@ export const useNotifications = (limit: any = 10, offset: any = 0) => {
     queryFn: async () => {
       const res = await api.get(`/notifications`, {
         params: { limit: parsedLimit, offset: parsedOffset },
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     },
@@ -27,7 +27,7 @@ export const useUnreadCount = () => {
     queryKey: ['notifications', 'unread-count'],
     queryFn: async () => {
       const res = await api.get(`/notifications/unread-count`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       return res.data.count as number;
     },
@@ -41,13 +41,17 @@ export const useMarkAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      await api.patch(`/notifications/read/${id}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.patch(
+        `/notifications/read/${id}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    }
+    },
   });
 };
 
@@ -56,13 +60,17 @@ export const useMarkAllAsRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await api.patch(`/notifications/read-all`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.patch(
+        `/notifications/read-all`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    }
+    },
   });
 };
 
@@ -72,12 +80,12 @@ export const useDeleteNotification = () => {
   return useMutation({
     mutationFn: async (id: string) => {
       await api.delete(`/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    }
+    },
   });
 };
 

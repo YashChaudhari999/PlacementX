@@ -1,9 +1,17 @@
-import { Sparkles, TrendingUp, TrendingDown, AlertTriangle, CheckCircle2, Building2, IndianRupee, Zap } from 'lucide-react';
+import {
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  CheckCircle2,
+  Building2,
+  IndianRupee,
+  Zap,
+} from 'lucide-react';
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
 
 const fmt = (n: number, d = 1) => Number(n).toFixed(d); // v3 – formats numbers to fixed decimals
-
 
 // ── Radial Gauge ─────────────────────────────────────────
 function RadialGauge({ value, max = 100 }: { value: number; max?: number }) {
@@ -18,11 +26,16 @@ function RadialGauge({ value, max = 100 }: { value: number; max?: number }) {
   const fill = dashTotal * pct;
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-[135deg]">
         {/* Track */}
         <circle
-          cx={size / 2} cy={size / 2} r={r}
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
           fill="none"
           stroke="rgba(255,255,255,0.08)"
           strokeWidth={strokeW}
@@ -31,7 +44,9 @@ function RadialGauge({ value, max = 100 }: { value: number; max?: number }) {
         />
         {/* Fill */}
         <motion.circle
-          cx={size / 2} cy={size / 2} r={r}
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
           fill="none"
           stroke="url(#gaugeGrad)"
           strokeWidth={strokeW}
@@ -61,17 +76,26 @@ function RadialGauge({ value, max = 100 }: { value: number; max?: number }) {
 
 // ── Mini Stat Tile ────────────────────────────────────────
 function StatTile({
-  label, value, unit, icon: Icon, accent = 'indigo', delay = 0
+  label,
+  value,
+  unit,
+  icon: Icon,
+  accent = 'indigo',
+  delay = 0,
 }: {
-  label: string; value: string | number; unit?: string;
-  icon: any; accent?: string; delay?: number;
+  label: string;
+  value: string | number;
+  unit?: string;
+  icon: any;
+  accent?: string;
+  delay?: number;
 }) {
   const colors: Record<string, string> = {
     indigo: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
     purple: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
-    emerald:'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
-    amber:  'text-amber-400  bg-amber-500/10  border-amber-500/20',
-    rose:   'text-rose-400   bg-rose-500/10   border-rose-500/20',
+    emerald: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+    amber: 'text-amber-400  bg-amber-500/10  border-amber-500/20',
+    rose: 'text-rose-400   bg-rose-500/10   border-rose-500/20',
   };
   return (
     <motion.div
@@ -103,16 +127,22 @@ function InsightRow({ text, delay }: { text: string; delay: number }) {
       transition={{ delay, duration: 0.3 }}
       className="flex items-start gap-3 py-2.5 border-b border-slate-700/40 last:border-0"
     >
-      <div className={`mt-0.5 shrink-0 p-1 rounded-md ${
-        isPos && !isNeg ? 'bg-emerald-500/15 text-emerald-400'
-        : isNeg ? 'bg-rose-500/15 text-rose-400'
-        : 'bg-blue-500/15 text-blue-400'
-      }`}>
-        {isPos && !isNeg
-          ? <TrendingUp className="w-3.5 h-3.5" />
-          : isNeg
-          ? <AlertTriangle className="w-3.5 h-3.5" />
-          : <CheckCircle2 className="w-3.5 h-3.5" />}
+      <div
+        className={`mt-0.5 shrink-0 p-1 rounded-md ${
+          isPos && !isNeg
+            ? 'bg-emerald-500/15 text-emerald-400'
+            : isNeg
+              ? 'bg-rose-500/15 text-rose-400'
+              : 'bg-blue-500/15 text-blue-400'
+        }`}
+      >
+        {isPos && !isNeg ? (
+          <TrendingUp className="w-3.5 h-3.5" />
+        ) : isNeg ? (
+          <AlertTriangle className="w-3.5 h-3.5" />
+        ) : (
+          <CheckCircle2 className="w-3.5 h-3.5" />
+        )}
       </div>
       <p className="text-sm text-slate-300 leading-relaxed">{text}</p>
     </motion.li>
@@ -126,7 +156,6 @@ export default function AiInsightsPanel({ data }: { data: string[] }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-
       {/* ── Insights ──────────────────────────────── */}
       <Card className="lg:col-span-3 p-6 bg-slate-900 text-white border-slate-800 shadow-xl overflow-hidden relative">
         {/* Glow blobs */}
@@ -140,7 +169,9 @@ export default function AiInsightsPanel({ data }: { data: string[] }) {
             </div>
             <div>
               <h2 className="text-lg font-bold">AI Placement Insights</h2>
-              <p className="text-xs text-slate-500 font-medium">Detected patterns from historical placement data</p>
+              <p className="text-xs text-slate-500 font-medium">
+                Detected patterns from historical placement data
+              </p>
             </div>
           </div>
 
@@ -151,8 +182,6 @@ export default function AiInsightsPanel({ data }: { data: string[] }) {
           </ul>
         </div>
       </Card>
-
-
     </div>
   );
 }

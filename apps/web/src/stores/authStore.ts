@@ -30,9 +30,9 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
       logout: () => set({ user: null, token: null, isAuthenticated: false }),
-      updateUser: (updatedFields) => 
-        set((state) => ({ 
-          user: state.user ? { ...state.user, ...updatedFields } : null 
+      updateUser: (updatedFields) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...updatedFields } : null,
         })),
     }),
     {

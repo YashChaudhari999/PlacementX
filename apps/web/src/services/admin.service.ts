@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from '@/lib/api';
 
 export const adminService = {
@@ -39,5 +40,5 @@ export const adminService = {
   provisionCurrentYearStudents: async () => {
     const res = await api.post('/admin/students/provision');
     return res.data;
-  }
+  },
 };

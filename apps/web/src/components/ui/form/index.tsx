@@ -31,7 +31,15 @@ export interface FieldWrapperProps {
   className?: string;
 }
 
-export const FieldWrapper = ({ label, htmlFor, error, helperText, required, children, className }: FieldWrapperProps) => {
+export const FieldWrapper = ({
+  label,
+  htmlFor,
+  error,
+  helperText,
+  required,
+  children,
+  className,
+}: FieldWrapperProps) => {
   return (
     <div className={['space-y-2', className].join(' ')}>
       {label && (
@@ -58,7 +66,10 @@ export const Label = forwardRef<HTMLLabelElement, LabelProps>(
     return (
       <label
         ref={ref}
-        className={['text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70', className].join(' ')}
+        className={[
+          'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+          className,
+        ].join(' ')}
         {...props}
       >
         {children}
@@ -94,9 +105,5 @@ export interface HelperTextProps {
 }
 
 export const HelperText = ({ children, className }: HelperTextProps) => {
-  return (
-    <p className={['text-sm text-muted-foreground', className].join(' ')}>
-      {children}
-    </p>
-  );
+  return <p className={['text-sm text-muted-foreground', className].join(' ')}>{children}</p>;
 };

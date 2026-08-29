@@ -21,7 +21,9 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">Pending Profiles</div>
+            <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+              Pending Profiles
+            </div>
             <FileWarning className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl font-black text-amber-900">{data.pendingVerifications}</div>
@@ -29,7 +31,9 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
 
         <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-orange-600 uppercase tracking-wider">Pending Drives</div>
+            <div className="text-xs font-bold text-orange-600 uppercase tracking-wider">
+              Pending Drives
+            </div>
             <Clock className="w-4 h-4 text-orange-400" />
           </div>
           <div className="text-2xl font-black text-orange-900">{data.drivesAwaitingApproval}</div>
@@ -37,7 +41,9 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
 
         <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Active Drives</div>
+            <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+              Active Drives
+            </div>
             <Activity className="w-4 h-4 text-emerald-400" />
           </div>
           <div className="text-2xl font-black text-emerald-900">{data.activeDrives}</div>
@@ -45,7 +51,9 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
 
         <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
           <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">Recent Activity</div>
+            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+              Recent Activity
+            </div>
             <Activity className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-2xl font-black text-blue-900">{data.recentDriveActivity}</div>
@@ -58,14 +66,19 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
           <CalendarDays className="w-4 h-4 text-slate-500" />
           <h3 className="font-bold text-sm text-slate-700">Upcoming Events (Next 10)</h3>
         </div>
-        
+
         {data.upcomingEvents?.length > 0 ? (
           <div className="divide-y divide-slate-50">
             {data.upcomingEvents.map((event) => (
-              <div key={event.id} className="p-3 flex items-center justify-between hover:bg-slate-50/50">
+              <div
+                key={event.id}
+                className="p-3 flex items-center justify-between hover:bg-slate-50/50"
+              >
                 <div>
                   <div className="text-sm font-bold text-slate-900">{event.companyName}</div>
-                  <div className="text-xs text-slate-500">{event.title} • {event.driveTitle}</div>
+                  <div className="text-xs text-slate-500">
+                    {event.title} • {event.driveTitle}
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-bold text-indigo-600">

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { GlobalLoader } from './components/GlobalLoader';
 import { NotificationDrawer } from './components/NotificationDrawer';

@@ -20,7 +20,8 @@ export default function HowItWorksPage() {
               How PlacementX Works
             </h1>
             <p className="text-lg text-slate-500 leading-relaxed mb-10">
-              A step-by-step guide to how NMIMS University streamlines the entire campus placement lifecycle, from company onboarding to final offer letter generation.
+              A step-by-step guide to how NMIMS University streamlines the entire campus placement
+              lifecycle, from company onboarding to final offer letter generation.
             </p>
             <Link to="/contact" className={buttonVariants({ variant: 'primary', size: 'lg' })}>
               Request Demo <ArrowRight className="ml-2 h-5 w-5" />
@@ -28,7 +29,7 @@ export default function HowItWorksPage() {
           </motion.div>
         </div>
       </section>
-      
+
       <WorkflowTimeline />
     </PageContainer>
   );

@@ -13,7 +13,7 @@ import {
   useDriveAnalytics,
   useAnalyticsIntelligence,
   useActionCenter,
-  useOperationalHealth
+  useOperationalHealth,
 } from '@/hooks/queries/useAnalytics';
 
 import GlobalFilters from '../components/analytics/GlobalFilters';
@@ -31,7 +31,16 @@ import StudentRiskAnalytics from '../components/analytics/StudentRiskAnalytics';
 import SkillGapAnalytics from '../components/analytics/SkillGapAnalytics';
 import DriveAnalytics from '../components/analytics/DriveAnalytics';
 
-import { Activity, ShieldCheck, Target, GraduationCap, Building2, IndianRupee, Briefcase, Sparkles } from 'lucide-react';
+import {
+  Activity,
+  ShieldCheck,
+  Target,
+  GraduationCap,
+  Building2,
+  IndianRupee,
+  Briefcase,
+  Sparkles,
+} from 'lucide-react';
 import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 
 type Tab = 'overview' | 'departments' | 'students' | 'companies' | 'drives';
@@ -80,14 +89,18 @@ export default function AnalyticsDashboard() {
       <div className="relative isolate overflow-hidden bg-slate-900 rounded-3xl p-8 sm:p-10 shadow-2xl">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/30 via-slate-900 to-slate-900"></div>
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/20 blur-3xl rounded-full pointer-events-none"></div>
-        
+
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4">
               <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">Command Center</span>
+              <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">
+                Command Center
+              </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">Placement Intelligence</h1>
+            <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+              Placement Intelligence
+            </h1>
             <p className="text-indigo-200/80 font-medium mt-2 max-w-xl text-sm sm:text-base">
               AI-driven insights and operational decision support for your campus placements.
             </p>
@@ -102,15 +115,15 @@ export default function AnalyticsDashboard() {
       {/* ── Tab Navigation ──────────────────────── */}
       <div className="flex overflow-x-auto hide-scrollbar py-2">
         <div className="flex gap-2 min-w-max p-1 bg-slate-100 rounded-2xl">
-          {tabs.map(tab => {
+          {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl transition-all relative ${
-                  isActive 
-                    ? 'text-indigo-700 bg-white shadow-sm' 
+                  isActive
+                    ? 'text-indigo-700 bg-white shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-200/50'
                 }`}
               >
@@ -172,9 +185,7 @@ export default function AnalyticsDashboard() {
           )}
 
           {activeTab === 'drives' && (
-            <div className="space-y-6">
-              {drives && <DriveAnalytics data={drives} />}
-            </div>
+            <div className="space-y-6">{drives && <DriveAnalytics data={drives} />}</div>
           )}
         </motion.div>
       </AnimatePresence>

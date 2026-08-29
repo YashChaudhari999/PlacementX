@@ -2,8 +2,14 @@ import React from 'react';
 import { Card, Button, Input } from '@/components/ui';
 import { Database, Save } from 'lucide-react';
 
-
-export default function PlacementSettings({ settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving }: any) {
+export default function PlacementSettings({
+  settings,
+  getValue,
+  handleChange,
+  saveChanges,
+  hasUnsavedChanges,
+  saving,
+}: any) {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
@@ -12,28 +18,36 @@ export default function PlacementSettings({ settings, getValue, handleChange, sa
           <h3 className="font-bold text-slate-800 text-lg">Placement Rules</h3>
         </div>
         {hasUnsavedChanges && (
-          <Button onClick={() => saveChanges(['maxApplicationsPerStudent', 'allowMultipleOffers'])} disabled={saving} size="sm">
+          <Button
+            onClick={() => saveChanges(['maxApplicationsPerStudent', 'allowMultipleOffers'])}
+            disabled={saving}
+            size="sm"
+          >
             <Save className="w-4 h-4 mr-2" /> Save Changes
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-6">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Max Applications Per Student</label>
-          <Input 
+          <Input
             type="number"
             min={1}
-            value={getValue('maxApplicationsPerStudent') || 4} 
-            onChange={(e) => handleChange('maxApplicationsPerStudent', parseInt(e.target.value))} 
+            value={getValue('maxApplicationsPerStudent') || 4}
+            onChange={(e) => handleChange('maxApplicationsPerStudent', parseInt(e.target.value))}
           />
-          <p className="text-xs text-slate-500">The maximum number of ongoing/active applications a student can have at a time.</p>
+          <p className="text-xs text-slate-500">
+            The maximum number of ongoing/active applications a student can have at a time.
+          </p>
         </div>
-        
+
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
           <div>
             <h4 className="text-sm font-medium text-slate-800">Allow Multiple Offers</h4>
-            <p className="text-xs text-slate-500 mt-1">If enabled, students can accept more than one offer.</p>
+            <p className="text-xs text-slate-500 mt-1">
+              If enabled, students can accept more than one offer.
+            </p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input

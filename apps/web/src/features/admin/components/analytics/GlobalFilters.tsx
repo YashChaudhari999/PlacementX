@@ -25,7 +25,8 @@ const filterLabels: Record<string, string> = {
 };
 
 export default function GlobalFilters() {
-  const { filters, updateFilter, clearFilters, hasActiveFilters, activeFilterCount } = useAnalyticsFilters();
+  const { filters, updateFilter, clearFilters, hasActiveFilters, activeFilterCount } =
+    useAnalyticsFilters();
   const { data: options, isLoading: optionsLoading } = useFilterOptions();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -48,7 +49,10 @@ export default function GlobalFilters() {
   };
 
   const activeFilters = Object.entries(filters).filter(
-    ([key, value]) => value !== undefined && value !== '' && !['page', 'pageSize', 'sortBy', 'sortOrder'].includes(key)
+    ([key, value]) =>
+      value !== undefined &&
+      value !== '' &&
+      !['page', 'pageSize', 'sortBy', 'sortOrder'].includes(key)
   );
 
   return (
@@ -65,11 +69,13 @@ export default function GlobalFilters() {
           <select
             className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[140px]"
             value={filters.academicYear || ''}
-            onChange={e => updateFilter('academicYear', e.target.value || undefined)}
+            onChange={(e) => updateFilter('academicYear', e.target.value || undefined)}
           >
             <option value="">All Years</option>
-            {academicYears.map(y => (
-              <option key={y} value={y}>{y}</option>
+            {academicYears.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
 
@@ -77,23 +83,29 @@ export default function GlobalFilters() {
           <select
             className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[140px]"
             value={filters.compareWith || ''}
-            onChange={e => updateFilter('compareWith', e.target.value || undefined)}
+            onChange={(e) => updateFilter('compareWith', e.target.value || undefined)}
           >
             <option value="">Compare with...</option>
-            {academicYears.filter(y => y !== filters.academicYear).map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
+            {academicYears
+              .filter((y) => y !== filters.academicYear)
+              .map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
           </select>
 
           {/* Department */}
           <select
             className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[160px]"
             value={filters.department || ''}
-            onChange={e => updateFilter('department', e.target.value || undefined)}
+            onChange={(e) => updateFilter('department', e.target.value || undefined)}
           >
             <option value="">All Departments</option>
-            {departments.map(d => (
-              <option key={d} value={d}>{d}</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
           </select>
 
@@ -101,7 +113,7 @@ export default function GlobalFilters() {
           <select
             className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[120px]"
             value={filters.placementStatus || ''}
-            onChange={e => updateFilter('placementStatus', e.target.value || undefined)}
+            onChange={(e) => updateFilter('placementStatus', e.target.value || undefined)}
           >
             <option value="">All Status</option>
             <option value="Placed">Placed</option>
@@ -112,7 +124,9 @@ export default function GlobalFilters() {
           <button
             onClick={() => setShowAdvanced(!showAdvanced)}
             className={`px-3 py-2 text-sm font-medium rounded-xl border transition-colors flex items-center gap-1.5 ${
-              showAdvanced ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+              showAdvanced
+                ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
             }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -146,52 +160,66 @@ export default function GlobalFilters() {
           <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3">
             {/* Company */}
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Company</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">
+                Company
+              </label>
               <select
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"
                 value={filters.companyName || ''}
-                onChange={e => updateFilter('companyName', e.target.value || undefined)}
+                onChange={(e) => updateFilter('companyName', e.target.value || undefined)}
               >
                 <option value="">All Companies</option>
-                {companies.map(c => (
-                  <option key={c} value={c}>{c}</option>
+                {companies.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Job Role */}
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Job Role</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">
+                Job Role
+              </label>
               <input
                 type="text"
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
                 placeholder="Filter by role..."
                 value={filters.jobRole || ''}
-                onChange={e => updateFilter('jobRole', e.target.value || undefined)}
+                onChange={(e) => updateFilter('jobRole', e.target.value || undefined)}
               />
             </div>
 
             {/* Min Salary */}
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Min Salary (LPA)</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">
+                Min Salary (LPA)
+              </label>
               <input
                 type="number"
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
                 placeholder="0"
                 value={filters.minSalary || ''}
-                onChange={e => updateFilter('minSalary', e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(e) =>
+                  updateFilter('minSalary', e.target.value ? Number(e.target.value) : undefined)
+                }
               />
             </div>
 
             {/* Max Salary */}
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Max Salary (LPA)</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">
+                Max Salary (LPA)
+              </label>
               <input
                 type="number"
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
                 placeholder="100"
                 value={filters.maxSalary || ''}
-                onChange={e => updateFilter('maxSalary', e.target.value ? Number(e.target.value) : undefined)}
+                onChange={(e) =>
+                  updateFilter('maxSalary', e.target.value ? Number(e.target.value) : undefined)
+                }
               />
             </div>
           </div>

@@ -28,7 +28,8 @@ export default function AboutPage() {
               Empowering the Next Generation of <span className="text-gradient">Professionals</span>
             </h1>
             <p className="text-xl text-slate-500 leading-relaxed">
-              PlacementX is NMIMS University's official, unified platform bridging the gap between exceptional talent and industry-leading organizations.
+              PlacementX is NMIMS University's official, unified platform bridging the gap between
+              exceptional talent and industry-leading organizations.
             </p>
           </motion.div>
         </div>
@@ -39,7 +40,7 @@ export default function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, idx) => (
-              <motion.div 
+              <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -69,7 +70,10 @@ export default function AboutPage() {
             >
               <h2 className="text-3xl md:text-4xl font-bold mb-6">Our Mission</h2>
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">
-                We believe that the campus placement process should be transparent, efficient, and equitable. Our mission is to eliminate administrative friction so that students can focus on showcasing their potential, and recruiters can seamlessly identify the best fit.
+                We believe that the campus placement process should be transparent, efficient, and
+                equitable. Our mission is to eliminate administrative friction so that students can
+                focus on showcasing their potential, and recruiters can seamlessly identify the best
+                fit.
               </p>
               <ul className="space-y-4">
                 <li className="flex gap-3">
@@ -78,7 +82,9 @@ export default function AboutPage() {
                 </li>
                 <li className="flex gap-3">
                   <Sparkles className="h-6 w-6 text-primary shrink-0" />
-                  <span className="text-slate-700">Intelligent matching and automated workflows.</span>
+                  <span className="text-slate-700">
+                    Intelligent matching and automated workflows.
+                  </span>
                 </li>
               </ul>
             </motion.div>
@@ -89,9 +95,9 @@ export default function AboutPage() {
               className="relative aspect-square rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 shadow-xl"
             >
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent mix-blend-multiply" />
-              <img 
-                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80" 
-                alt="Students collaborating" 
+              <img
+                src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80"
+                alt="Students collaborating"
                 className="w-full h-full object-cover"
               />
             </motion.div>

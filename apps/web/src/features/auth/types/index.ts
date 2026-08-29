@@ -1,7 +1,13 @@
 export type Role = 'student' | 'admin';
 
-export type StudentPermission = 'view:profile' | 'update:profile' | 'action:apply' | 'view:notifications';
-export type AdminPermission = 'manage:students' | 'approve:drives' | 'publish:drives' | 'manage:notifications' | 'manage:settings';
+export type StudentPermission =
+  'view:profile' | 'update:profile' | 'action:apply' | 'view:notifications';
+export type AdminPermission =
+  | 'manage:students'
+  | 'approve:drives'
+  | 'publish:drives'
+  | 'manage:notifications'
+  | 'manage:settings';
 export type Permission = StudentPermission | AdminPermission;
 
 export interface Session {
@@ -19,7 +25,8 @@ export interface AuthUser {
   providerId?: 'password' | 'google.com' | 'microsoft.com';
 }
 
-export type AuthErrorType = 'unauthenticated' | 'unauthorized' | 'session_expired' | 'network_error' | 'account_disabled';
+export type AuthErrorType =
+  'unauthenticated' | 'unauthorized' | 'session_expired' | 'network_error' | 'account_disabled';
 
 export interface AuthState {
   user: AuthUser | null;

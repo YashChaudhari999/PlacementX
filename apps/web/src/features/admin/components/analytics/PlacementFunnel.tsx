@@ -1,6 +1,16 @@
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
-import { Filter, Users, UserCheck, Search, Briefcase, FileCheck, XCircle, ChevronRight, AlertTriangle } from 'lucide-react';
+import {
+  Filter,
+  Users,
+  UserCheck,
+  Search,
+  Briefcase,
+  FileCheck,
+  XCircle,
+  ChevronRight,
+  AlertTriangle,
+} from 'lucide-react';
 import type { FunnelResponse } from '@/types/analytics.types';
 
 const stageIcons: Record<string, React.ElementType> = {
@@ -29,7 +39,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
     );
   }
 
-  const maxCount = Math.max(...data.stages.map(s => s.count), 1);
+  const maxCount = Math.max(...data.stages.map((s) => s.count), 1);
 
   return (
     <Card className="p-6 border-slate-200">
@@ -50,7 +60,9 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
             <h4 className="text-sm font-bold text-amber-900">Significant Drop Detected</h4>
             <p className="text-sm text-amber-700 mt-1">{data.insight.description}</p>
             {data.insight.recommendation && (
-              <p className="text-sm font-medium text-amber-800 mt-2">{data.insight.recommendation}</p>
+              <p className="text-sm font-medium text-amber-800 mt-2">
+                {data.insight.recommendation}
+              </p>
             )}
           </div>
         </div>
@@ -76,19 +88,27 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
               )}
 
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm ${color}`}>
+                <div
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 text-white shadow-sm ${color}`}
+                >
                   <Icon className="w-5 h-5" />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-end mb-1.5">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stage.stage}</span>
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      {stage.stage}
+                    </span>
                     <div className="text-right">
-                      <span className="text-sm font-black text-slate-900">{stage.count.toLocaleString()}</span>
-                      <span className="text-xs font-medium text-slate-500 ml-2">({stage.percentage.toFixed(1)}%)</span>
+                      <span className="text-sm font-black text-slate-900">
+                        {stage.count.toLocaleString()}
+                      </span>
+                      <span className="text-xs font-medium text-slate-500 ml-2">
+                        ({stage.percentage.toFixed(1)}%)
+                      </span>
                     </div>
                   </div>
-                  
+
                   <div className="h-3 bg-slate-100 rounded-full overflow-hidden">
                     <motion.div
                       className={`h-full rounded-full ${color}`}

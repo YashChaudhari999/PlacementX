@@ -12,7 +12,7 @@ export default function Login() {
   const [stats, setStats] = useState({
     companies: '500+',
     placementRate: '95%',
-    avgPackage: '12L+'
+    avgPackage: '12L+',
   });
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function Login() {
         setStats({
           companies: `${data.companies}+`,
           placementRate: `${data.placementRate}%`,
-          avgPackage: `${data.avgPackageLPA}L+`
+          avgPackage: `${data.avgPackageLPA}L+`,
         });
       } catch (err) {
         console.error('Failed to fetch stats:', err);
@@ -45,7 +45,7 @@ export default function Login() {
     const isAdmin =
       email.toLowerCase().includes('admin') ||
       email.toLowerCase().endsWith('@placement.nmims.edu') ||
-      email.toLowerCase().endsWith('@nmims.edu') && !email.toLowerCase().includes('student');
+      (email.toLowerCase().endsWith('@nmims.edu') && !email.toLowerCase().includes('student'));
 
     const role = isAdmin ? 'SUPER_ADMIN' : 'STUDENT';
 
@@ -82,24 +82,31 @@ export default function Login() {
           {/* Logo card */}
           <div className="bg-white rounded-3xl px-6 py-5 inline-flex items-center gap-6 shadow-2xl mb-10">
             {/* NMIMS Logo */}
-            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-32 object-contain mix-blend-multiply" />
+            <img
+              src="/nmimslogo.png"
+              alt="NMIMS Logo"
+              className="w-32 object-contain mix-blend-multiply"
+            />
             <div className="border-l border-gray-200 pl-4">
               <div className="text-[11px] font-bold text-gray-800 uppercase leading-tight">
-                PLACEMENT<br />CELL PORTAL
+                PLACEMENT
+                <br />
+                CELL PORTAL
               </div>
             </div>
           </div>
 
           <h1 className="text-3xl font-black text-white mb-3 leading-tight drop-shadow">
-            Launch Your Career.<br />
+            Launch Your Career.
+            <br />
             <span className="text-white/80">Land Your Dream.</span>
           </h1>
           <p className="text-white/70 text-sm font-medium mb-2">
             Welcome to the NMIMS PlacementX Portal.
           </p>
           <p className="text-white/60 text-sm max-w-xs mx-auto leading-relaxed">
-            Your one-stop destination for placement drives, company events,
-            student profiles, and much more.
+            Your one-stop destination for placement drives, company events, student profiles, and
+            much more.
           </p>
 
           {/* Stats row */}
@@ -134,7 +141,9 @@ export default function Login() {
           </div>
 
           <h2 className="text-3xl font-black text-gray-900 text-center mb-1">Login</h2>
-          <p className="text-gray-400 text-sm text-center mb-8">Sign in with your university credentials</p>
+          <p className="text-gray-400 text-sm text-center mb-8">
+            Sign in with your university credentials
+          </p>
 
           {error && (
             <motion.div
@@ -192,7 +201,14 @@ export default function Login() {
               {isLoading ? (
                 <>
                   <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
                   Signing in…
@@ -206,7 +222,10 @@ export default function Login() {
           {/* Help text */}
           <p className="mt-6 text-center text-xs text-gray-400">
             Need help?{' '}
-            <a href="mailto:placement@nmims.edu" className="font-semibold text-[#C8102E] hover:underline">
+            <a
+              href="mailto:placement@nmims.edu"
+              className="font-semibold text-[#C8102E] hover:underline"
+            >
               Contact Placement Cell
             </a>
           </p>

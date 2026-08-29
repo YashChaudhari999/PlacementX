@@ -18,7 +18,8 @@ export default function FeaturesPage() {
               <span className="text-primary">Modern Placements</span>
             </h1>
             <p className="text-lg text-slate-500 leading-relaxed">
-              Explore the comprehensive suite of tools designed to automate, streamline, and enhance the placement experience for everyone involved.
+              Explore the comprehensive suite of tools designed to automate, streamline, and enhance
+              the placement experience for everyone involved.
             </p>
           </motion.div>
         </div>
@@ -40,7 +41,10 @@ export default function FeaturesPage() {
             >
               <h2 className="text-3xl font-bold mb-4">Intelligent Resume Parsing</h2>
               <p className="text-slate-600 mb-6 leading-relaxed">
-                Our advanced AI engine automatically extracts key information from student resumes, standardizing data across the platform. This allows recruiters to filter candidates with pinpoint accuracy based on skills, GPA, projects, and past experiences without manually reading hundreds of documents.
+                Our advanced AI engine automatically extracts key information from student resumes,
+                standardizing data across the platform. This allows recruiters to filter candidates
+                with pinpoint accuracy based on skills, GPA, projects, and past experiences without
+                manually reading hundreds of documents.
               </p>
             </motion.div>
             <motion.div
@@ -56,9 +60,15 @@ export default function FeaturesPage() {
                 <div className="h-4 w-5/6 bg-slate-200 rounded animate-pulse delay-150" />
                 <div className="h-4 w-1/2 bg-slate-200 rounded animate-pulse delay-300" />
                 <div className="mt-8 flex gap-2 flex-wrap">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">React</span>
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">Python</span>
-                  <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">8.5 GPA</span>
+                  <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                    React
+                  </span>
+                  <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold">
+                    Python
+                  </span>
+                  <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold">
+                    8.5 GPA
+                  </span>
                 </div>
               </div>
             </motion.div>
@@ -73,11 +83,26 @@ export default function FeaturesPage() {
             >
               {/* Abstract visualization of analytics */}
               <div className="flex items-end gap-3 h-48 mt-8">
-                <div className="w-full bg-primary/40 hover:bg-primary transition-colors rounded-t-md" style={{ height: '40%' }} />
-                <div className="w-full bg-primary/60 hover:bg-primary transition-colors rounded-t-md" style={{ height: '70%' }} />
-                <div className="w-full bg-primary/80 hover:bg-primary transition-colors rounded-t-md" style={{ height: '55%' }} />
-                <div className="w-full bg-primary hover:bg-primary transition-colors rounded-t-md" style={{ height: '90%' }} />
-                <div className="w-full bg-primary/50 hover:bg-primary transition-colors rounded-t-md" style={{ height: '65%' }} />
+                <div
+                  className="w-full bg-primary/40 hover:bg-primary transition-colors rounded-t-md"
+                  style={{ height: '40%' }}
+                />
+                <div
+                  className="w-full bg-primary/60 hover:bg-primary transition-colors rounded-t-md"
+                  style={{ height: '70%' }}
+                />
+                <div
+                  className="w-full bg-primary/80 hover:bg-primary transition-colors rounded-t-md"
+                  style={{ height: '55%' }}
+                />
+                <div
+                  className="w-full bg-primary hover:bg-primary transition-colors rounded-t-md"
+                  style={{ height: '90%' }}
+                />
+                <div
+                  className="w-full bg-primary/50 hover:bg-primary transition-colors rounded-t-md"
+                  style={{ height: '65%' }}
+                />
               </div>
             </motion.div>
             <motion.div
@@ -88,7 +113,9 @@ export default function FeaturesPage() {
             >
               <h2 className="text-3xl font-bold mb-4">Real-time Analytics Dashboard</h2>
               <p className="text-slate-600 mb-6 leading-relaxed">
-                Make data-driven decisions with real-time insights into placement drives. Track application volumes, interview conversion rates, and historical trends. Generate comprehensive PDF reports for university stakeholders with a single click.
+                Make data-driven decisions with real-time insights into placement drives. Track
+                application volumes, interview conversion rates, and historical trends. Generate
+                comprehensive PDF reports for university stakeholders with a single click.
               </p>
             </motion.div>
           </div>

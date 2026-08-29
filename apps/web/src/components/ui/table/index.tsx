@@ -1,5 +1,15 @@
 import { forwardRef } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, ArrowUpDown, ArrowUp, ArrowDown, Search, X } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  X,
+} from 'lucide-react';
 
 // ============================================
 // DataTable — Enterprise Component
@@ -39,7 +49,11 @@ export function DataTable<T extends Record<string, unknown>>({
   const getSortIcon = (col: ColumnDef<T>) => {
     if (!col.sortable) return null;
     if (sortColumn === col.key) {
-      return sortDirection === 'asc' ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />;
+      return sortDirection === 'asc' ? (
+        <ArrowUp className="h-4 w-4" />
+      ) : (
+        <ArrowDown className="h-4 w-4" />
+      );
     }
     return <ArrowUpDown className="h-4 w-4 opacity-50" />;
   };
@@ -107,23 +121,44 @@ export interface PaginationProps {
   className?: string;
 }
 
-export const Pagination = ({ currentPage, totalPages, onPageChange, className }: PaginationProps) => {
+export const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+  className,
+}: PaginationProps) => {
   return (
     <div className={['flex items-center justify-between px-2 py-4', className].join(' ')}>
       <p className="text-sm text-muted-foreground">
         Page {currentPage} of {totalPages}
       </p>
       <div className="flex items-center space-x-2">
-        <button onClick={() => onPageChange(1)} disabled={currentPage <= 1} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50">
+        <button
+          onClick={() => onPageChange(1)}
+          disabled={currentPage <= 1}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
+        >
           <ChevronsLeft className="h-4 w-4" />
         </button>
-        <button onClick={() => onPageChange(currentPage - 1)} disabled={currentPage <= 1} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
-        <button onClick={() => onPageChange(currentPage + 1)} disabled={currentPage >= totalPages} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50">
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
-        <button onClick={() => onPageChange(totalPages)} disabled={currentPage >= totalPages} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50">
+        <button
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage >= totalPages}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
+        >
           <ChevronsRight className="h-4 w-4" />
         </button>
       </div>
@@ -152,7 +187,17 @@ export const TableLoadingState = ({ columns = 4 }: { columns?: number }) => (
   </div>
 );
 
-export const TableSearch = ({ value, onChange, onClear, placeholder = 'Search...' }: { value: string; onChange: (v: string) => void; onClear: () => void; placeholder?: string }) => (
+export const TableSearch = ({
+  value,
+  onChange,
+  onClear,
+  placeholder = 'Search...',
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onClear: () => void;
+  placeholder?: string;
+}) => (
   <div className="relative w-full max-w-sm">
     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
     <input
@@ -163,7 +208,10 @@ export const TableSearch = ({ value, onChange, onClear, placeholder = 'Search...
       className="flex h-10 w-full rounded-md border border-border bg-background pl-10 pr-10 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     />
     {value && (
-      <button onClick={onClear} className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground">
+      <button
+        onClick={onClear}
+        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
+      >
         <X className="h-4 w-4" />
       </button>
     )}

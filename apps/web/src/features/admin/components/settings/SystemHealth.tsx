@@ -30,15 +30,21 @@ export default function SystemHealth() {
           <Activity className="w-5 h-5 text-slate-400" />
           <h3 className="font-bold text-slate-800 text-lg">System Health & Integrations</h3>
         </div>
-        <button onClick={fetchHealth} disabled={loading} className="text-slate-500 hover:text-primary transition-colors">
+        <button
+          onClick={fetchHealth}
+          disabled={loading}
+          className="text-slate-500 hover:text-primary transition-colors"
+        >
           <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full ${health?.database === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            <div
+              className={`p-2 rounded-full ${health?.database === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}
+            >
               <Database className="w-5 h-5" />
             </div>
             <div>
@@ -46,14 +52,18 @@ export default function SystemHealth() {
               <p className="text-xs text-slate-500">PostgreSQL (Supabase)</p>
             </div>
           </div>
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${health?.database === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded-full ${health?.database === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+          >
             {health?.database === 'up' ? 'OPERATIONAL' : 'OFFLINE'}
           </span>
         </div>
 
         <div className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-full ${health?.redis === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
+            <div
+              className={`p-2 rounded-full ${health?.redis === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}
+            >
               <Server className="w-5 h-5" />
             </div>
             <div>
@@ -61,12 +71,14 @@ export default function SystemHealth() {
               <p className="text-xs text-slate-500">Redis Server</p>
             </div>
           </div>
-          <span className={`text-xs font-bold px-2 py-1 rounded-full ${health?.redis === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          <span
+            className={`text-xs font-bold px-2 py-1 rounded-full ${health?.redis === 'up' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+          >
             {health?.redis === 'up' ? 'OPERATIONAL' : 'OFFLINE'}
           </span>
         </div>
       </div>
-      
+
       {health?.timestamp && (
         <p className="text-xs text-slate-400 mt-6 text-center">
           Last checked: {new Date(health.timestamp).toLocaleString()}

@@ -13,19 +13,12 @@ import { useAuthStore } from '@/stores/authStore';
 export default function AdminSettings() {
   const [activeTab, setActiveTab] = useState('general');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const { user } = useAuthStore();
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
-  const { 
-    settings, 
-    getValue, 
-    handleChange, 
-    saveChanges, 
-    hasUnsavedChanges, 
-    saving, 
-    loading 
-  } = useSettings();
+  const { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving, loading } =
+    useSettings();
 
   if (loading) {
     return <div className="p-8 text-center text-slate-500 animate-pulse">Loading settings...</div>;
@@ -34,7 +27,11 @@ export default function AdminSettings() {
   // Handle unsaved changes warning before switching tabs
   const handleTabChange = (newTab: string) => {
     if (hasUnsavedChanges) {
-      if (window.confirm('You have unsaved changes. Are you sure you want to switch tabs without saving?')) {
+      if (
+        window.confirm(
+          'You have unsaved changes. Are you sure you want to switch tabs without saving?'
+        )
+      ) {
         // Discarding could be implemented here or just ignore and keep them in state
         setActiveTab(newTab);
       }
@@ -56,11 +53,19 @@ export default function AdminSettings() {
       case 'communications':
         return <NotificationSettings {...props} />;
       case 'security':
-        return isSuperAdmin ? <SecuritySettings /> : <div className="p-8 text-center text-slate-500">Access Denied</div>;
+        return isSuperAdmin ? (
+          <SecuritySettings />
+        ) : (
+          <div className="p-8 text-center text-slate-500">Access Denied</div>
+        );
       case 'system':
         return <SystemHealth />;
       case 'advanced':
-        return isSuperAdmin ? <DangerZone /> : <div className="p-8 text-center text-slate-500">Access Denied</div>;
+        return isSuperAdmin ? (
+          <DangerZone />
+        ) : (
+          <div className="p-8 text-center text-slate-500">Access Denied</div>
+        );
       default:
         return <div className="p-8 text-center text-slate-500">Select a category</div>;
     }
@@ -74,16 +79,14 @@ export default function AdminSettings() {
       </div>
 
       <div className="flex flex-col md:flex-row gap-6 items-start">
-        <SettingsSidebar 
-          activeTab={activeTab} 
-          setActiveTab={handleTabChange} 
+        <SettingsSidebar
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
         />
-        
-        <div className="flex-1 w-full min-w-0">
-          {renderContent()}
-        </div>
+
+        <div className="flex-1 w-full min-w-0">{renderContent()}</div>
       </div>
     </div>
   );

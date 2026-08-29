@@ -38,10 +38,10 @@ export const Navbar = () => {
     <>
       <motion.header
         className={twMerge(
-          "fixed top-0 z-50 w-full transition-all duration-300",
-          isScrolled 
-            ? "bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm" 
-            : "bg-transparent border-b border-transparent"
+          'fixed top-0 z-50 w-full transition-all duration-300',
+          isScrolled
+            ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm'
+            : 'bg-transparent border-b border-transparent'
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -57,23 +57,25 @@ export const Navbar = () => {
               Placement<span className="text-primary">X</span>
             </span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {NAV_LINKS.map((link) => {
-              const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+              const isActive =
+                location.pathname === link.path ||
+                (link.path !== '/' && location.pathname.startsWith(link.path));
               return (
-                <Link 
+                <Link
                   key={link.path}
-                  to={link.path} 
+                  to={link.path}
                   className={twMerge(
-                    "text-sm font-medium transition-colors hover:text-primary relative py-2",
-                    isActive ? "text-primary" : "text-slate-600"
+                    'text-sm font-medium transition-colors hover:text-primary relative py-2',
+                    isActive ? 'text-primary' : 'text-slate-600'
                   )}
                 >
                   {link.name}
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="navbar-indicator"
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"
                       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -83,25 +85,19 @@ export const Navbar = () => {
               );
             })}
           </nav>
-          
+
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link 
-              to="/student/login" 
-              className={buttonVariants({ variant: 'ghost', size: 'md' })}
-            >
+            <Link to="/student/login" className={buttonVariants({ variant: 'ghost', size: 'md' })}>
               Student Login
             </Link>
-            <Link 
-              to="/admin/login" 
-              className={buttonVariants({ variant: 'primary', size: 'md' })}
-            >
+            <Link to="/admin/login" className={buttonVariants({ variant: 'primary', size: 'md' })}>
               Placement Cell Login
             </Link>
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="lg:hidden flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
@@ -123,14 +119,16 @@ export const Navbar = () => {
           >
             <nav className="flex flex-col gap-2 mb-8">
               {NAV_LINKS.map((link) => {
-                const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
+                const isActive =
+                  location.pathname === link.path ||
+                  (link.path !== '/' && location.pathname.startsWith(link.path));
                 return (
-                  <Link 
+                  <Link
                     key={link.path}
-                    to={link.path} 
+                    to={link.path}
                     className={twMerge(
-                      "flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-colors",
-                      isActive ? "bg-primary/5 text-primary" : "text-slate-600 hover:bg-slate-50"
+                      'flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-colors',
+                      isActive ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50'
                     )}
                   >
                     {link.name}
@@ -140,15 +138,23 @@ export const Navbar = () => {
               })}
             </nav>
             <div className="flex flex-col gap-3 mt-auto">
-              <Link 
-                to="/student/login" 
-                className={buttonVariants({ variant: 'outline', size: 'lg', className: 'w-full justify-center' })}
+              <Link
+                to="/student/login"
+                className={buttonVariants({
+                  variant: 'outline',
+                  size: 'lg',
+                  className: 'w-full justify-center',
+                })}
               >
                 Student Login
               </Link>
-              <Link 
-                to="/admin/login" 
-                className={buttonVariants({ variant: 'primary', size: 'lg', className: 'w-full justify-center' })}
+              <Link
+                to="/admin/login"
+                className={buttonVariants({
+                  variant: 'primary',
+                  size: 'lg',
+                  className: 'w-full justify-center',
+                })}
               >
                 Placement Cell Login
               </Link>

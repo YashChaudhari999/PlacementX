@@ -7,7 +7,7 @@ export default function NotificationInbox() {
   const [page, setPage] = useState(1);
   const limit = 10;
   const offset = (page - 1) * limit;
-  
+
   const { data, isLoading, isError } = useNotifications(limit, offset);
   const { mutate: markAsRead } = useMarkAsRead();
 
@@ -23,7 +23,7 @@ export default function NotificationInbox() {
           Admin Inbox
         </h3>
       </div>
-      
+
       <div className="divide-y divide-slate-100">
         {isLoading ? (
           <div className="p-8 text-center text-slate-400">Loading your notifications...</div>
@@ -33,12 +33,14 @@ export default function NotificationInbox() {
           <div className="p-8 text-center text-slate-400">No notifications found.</div>
         ) : (
           notifications.map((notification: any) => (
-            <div 
-              key={notification.id} 
+            <div
+              key={notification.id}
               className={`p-4 flex gap-4 transition-colors ${notification.isRead ? 'bg-white' : 'bg-indigo-50/20'}`}
             >
               <div className="shrink-0 mt-1">
-                <div className={`w-2 h-2 rounded-full ${notification.isRead ? 'bg-transparent' : 'bg-indigo-600'}`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${notification.isRead ? 'bg-transparent' : 'bg-indigo-600'}`}
+                />
               </div>
               <div className="flex-1">
                 <h4 className="font-medium text-slate-900 text-sm">{notification.title}</h4>
@@ -53,7 +55,7 @@ export default function NotificationInbox() {
               </div>
               <div className="shrink-0">
                 {!notification.isRead && (
-                  <button 
+                  <button
                     onClick={() => markAsRead(notification.id)}
                     className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
                     title="Mark as read"
@@ -69,9 +71,9 @@ export default function NotificationInbox() {
 
       {totalPages > 1 && (
         <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-white">
-          <button 
+          <button
             disabled={page === 1}
-            onClick={() => setPage(p => p - 1)}
+            onClick={() => setPage((p) => p - 1)}
             className="text-sm font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50"
           >
             Previous
@@ -79,9 +81,9 @@ export default function NotificationInbox() {
           <span className="text-sm text-slate-500 font-medium">
             Page {page} of {totalPages}
           </span>
-          <button 
+          <button
             disabled={page === totalPages}
-            onClick={() => setPage(p => p + 1)}
+            onClick={() => setPage((p) => p + 1)}
             className="text-sm font-medium text-slate-600 hover:text-slate-900 disabled:opacity-50"
           >
             Next

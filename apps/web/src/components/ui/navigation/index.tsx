@@ -18,14 +18,19 @@ export interface BreadcrumbProps {
 
 export const Breadcrumb = ({ items, className }: BreadcrumbProps) => {
   return (
-    <nav aria-label="Breadcrumb" className={['flex items-center space-x-1 text-sm text-muted-foreground', className].join(' ')}>
+    <nav
+      aria-label="Breadcrumb"
+      className={['flex items-center space-x-1 text-sm text-muted-foreground', className].join(' ')}
+    >
       {items.map((item, idx) => (
         <div key={item.href} className="flex items-center">
           {idx > 0 && <ChevronRight className="mx-1 h-4 w-4" />}
           {idx === items.length - 1 ? (
             <span className="font-medium text-foreground">{item.name}</span>
           ) : (
-            <Link to={item.href} className="hover:text-foreground transition-colors">{item.name}</Link>
+            <Link to={item.href} className="hover:text-foreground transition-colors">
+              {item.name}
+            </Link>
           )}
         </div>
       ))}
@@ -52,7 +57,12 @@ export interface TabsProps {
 
 export const Tabs = ({ items, activeKey, onChange, className }: TabsProps) => {
   return (
-    <div className={['inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground', className].join(' ')}>
+    <div
+      className={[
+        'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+        className,
+      ].join(' ')}
+    >
       {items.map((tab) => (
         <button
           key={tab.key}
@@ -153,7 +163,12 @@ export interface MenuProps {
 
 export const Menu = ({ items, className }: MenuProps) => {
   return (
-    <div className={['min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md', className].join(' ')}>
+    <div
+      className={[
+        'min-w-[8rem] overflow-hidden rounded-md border border-border bg-popover p-1 text-popover-foreground shadow-md',
+        className,
+      ].join(' ')}
+    >
       {items.map((item) => (
         <button
           key={item.key}

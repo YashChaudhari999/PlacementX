@@ -13,7 +13,7 @@ export const HrPortalLayout = () => {
 
       {/* Header */}
       <header className="h-16 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 sticky top-0 z-50 shadow-sm px-6 flex items-center justify-between">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-3"
@@ -22,11 +22,14 @@ export const HrPortalLayout = () => {
             <Briefcase className="h-5 w-5" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-slate-800">
-            PlacementX <span className="font-medium text-slate-400 mx-2">|</span> <span className="font-semibold text-slate-600 tracking-normal">HR Collaboration Portal</span>
+            PlacementX <span className="font-medium text-slate-400 mx-2">|</span>{' '}
+            <span className="font-semibold text-slate-600 tracking-normal">
+              HR Collaboration Portal
+            </span>
           </span>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 shadow-inner"
@@ -46,7 +49,7 @@ export const HrPortalLayout = () => {
       <main className="flex-1 w-full mx-auto p-4 sm:p-6 lg:p-8 z-10 relative max-w-[1400px]">
         <Outlet />
       </main>
-      
+
       {/* Footer */}
       <footer className="py-8 z-10">
         <div className="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/60 pt-6">

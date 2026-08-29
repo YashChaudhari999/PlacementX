@@ -1,2 +1,19 @@
 import { Link } from 'react-router-dom';
-export const Navbar = ({ items }: { items: {name: string, href: string}[] }) => { return (<nav className='flex h-16 items-center px-6 border-b bg-background justify-between'><div className='font-bold text-xl text-primary'>PlacementX</div><div className='flex space-x-6'>{items.map(item => (<Link key={item.href} to={item.href} className='text-muted-foreground hover:text-foreground transition-colors'>{item.name}</Link>))}</div></nav>); };
+export const Navbar = ({ items }: { items: { name: string; href: string }[] }) => {
+  return (
+    <nav className="flex h-16 items-center px-6 border-b bg-background justify-between">
+      <div className="font-bold text-xl text-primary">PlacementX</div>
+      <div className="flex space-x-6">
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            to={item.href}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {item.name}
+          </Link>
+        ))}
+      </div>
+    </nav>
+  );
+};

@@ -8,10 +8,15 @@ export default function AdminCoordinators() {
   const [coordinators, setCoordinators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  
+
   // Add modal state
   const [showAdd, setShowAdd] = useState(false);
-  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '' });
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
 
   useEffect(() => {
     fetchCoordinators();
@@ -43,9 +48,10 @@ export default function AdminCoordinators() {
     }
   };
 
-  const filtered = coordinators.filter(c => 
-    (c.firstName + ' ' + c.lastName).toLowerCase().includes(search.toLowerCase()) || 
-    c.email.toLowerCase().includes(search.toLowerCase())
+  const filtered = coordinators.filter(
+    (c) =>
+      (c.firstName + ' ' + c.lastName).toLowerCase().includes(search.toLowerCase()) ||
+      c.email.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -58,7 +64,7 @@ export default function AdminCoordinators() {
         <div className="flex gap-4">
           <div className="w-64">
             <Input
-              icon={<Search className="w-4 h-4" />}
+              leftIcon={<Search className="w-4 h-4" />}
               placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -76,22 +82,42 @@ export default function AdminCoordinators() {
           <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-slate-700">First Name</label>
-              <Input required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} />
+              <Input
+                required
+                value={formData.firstName}
+                onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Last Name</label>
-              <Input required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} />
+              <Input
+                required
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Email Address</label>
-              <Input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              <Input
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
             </div>
             <div>
               <label className="text-sm font-medium text-slate-700">Temporary Password</label>
-              <Input type="password" required value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} />
+              <Input
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
             </div>
             <div className="md:col-span-2 flex justify-end gap-3 mt-4">
-              <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setShowAdd(false)}>
+                Cancel
+              </Button>
               <Button type="submit">Create Account</Button>
             </div>
           </form>
@@ -108,14 +134,20 @@ export default function AdminCoordinators() {
           </div>
         ) : (
           filtered.map((coordinator) => (
-            <Card key={coordinator.id} className="p-6 flex flex-col justify-between hover:shadow-md transition-shadow border border-slate-200">
+            <Card
+              key={coordinator.id}
+              className="p-6 flex flex-col justify-between hover:shadow-md transition-shadow border border-slate-200"
+            >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xl">
-                    {coordinator.firstName[0]}{coordinator.lastName[0]}
+                    {coordinator.firstName[0]}
+                    {coordinator.lastName[0]}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800">{coordinator.firstName} {coordinator.lastName}</h3>
+                    <h3 className="font-bold text-slate-800">
+                      {coordinator.firstName} {coordinator.lastName}
+                    </h3>
                     <div className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full mt-1 w-fit">
                       <Shield className="w-3 h-3" /> Coordinator
                     </div>

@@ -4,25 +4,29 @@ import { Target, Users, Zap, ShieldCheck, Mail, Database } from 'lucide-react';
 const features = [
   {
     title: 'Automated Eligibility',
-    description: 'Instantly filter and match students based on recruiter criteria (CGPA, Branch, Active Backlogs).',
+    description:
+      'Instantly filter and match students based on recruiter criteria (CGPA, Branch, Active Backlogs).',
     icon: <Target className="h-6 w-6 text-primary" />,
     color: 'bg-primary/10',
   },
   {
     title: 'Centralized Database',
-    description: 'Maintain a single source of truth for all student academic and placement records.',
+    description:
+      'Maintain a single source of truth for all student academic and placement records.',
     icon: <Database className="h-6 w-6 text-blue-500" />,
     color: 'bg-blue-500/10',
   },
   {
     title: 'Real-time Notifications',
-    description: 'Keep students updated instantly regarding shortlists, interview schedules, and offers.',
+    description:
+      'Keep students updated instantly regarding shortlists, interview schedules, and offers.',
     icon: <Zap className="h-6 w-6 text-amber-500" />,
     color: 'bg-amber-500/10',
   },
   {
     title: 'Secure Recruiter Portal',
-    description: 'Provide recruiters with token-based, secure access to review candidates without complex logins.',
+    description:
+      'Provide recruiters with token-based, secure access to review candidates without complex logins.',
     icon: <ShieldCheck className="h-6 w-6 text-emerald-500" />,
     color: 'bg-emerald-500/10',
   },
@@ -34,7 +38,8 @@ const features = [
   },
   {
     title: 'Role-Based Access',
-    description: 'Strict separation of concerns between Students, Placement Cell Admins, and Recruiters.',
+    description:
+      'Strict separation of concerns between Students, Placement Cell Admins, and Recruiters.',
     icon: <Users className="h-6 w-6 text-rose-500" />,
     color: 'bg-rose-500/10',
   },
@@ -58,7 +63,8 @@ export const FeaturesGrid = () => {
               Everything you need for seamless placements
             </h3>
             <p className="text-lg text-slate-500 leading-relaxed">
-              PlacementX provides enterprise-grade tools to automate repetitive tasks, allowing the Placement Cell to focus on strategic corporate relations.
+              PlacementX provides enterprise-grade tools to automate repetitive tasks, allowing the
+              Placement Cell to focus on strategic corporate relations.
             </p>
           </motion.div>
         </div>
@@ -69,19 +75,19 @@ export const FeaturesGrid = () => {
               key={feature.title}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
             >
-              <div className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl transition-colors ${feature.color}`}>
+              <div
+                className={`mb-6 inline-flex h-14 w-14 items-center justify-center rounded-xl transition-colors ${feature.color}`}
+              >
                 {feature.icon}
               </div>
               <h4 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">
                 {feature.title}
               </h4>
-              <p className="text-slate-500 leading-relaxed">
-                {feature.description}
-              </p>
+              <p className="text-slate-500 leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
         </div>

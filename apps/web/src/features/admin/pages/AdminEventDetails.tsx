@@ -3,7 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { Users, ChevronLeft, Building2, Calendar, MapPin, IndianRupee, Briefcase, FileText, CheckCircle, XCircle } from 'lucide-react';
+import {
+  Users,
+  ChevronLeft,
+  Building2,
+  Calendar,
+  MapPin,
+  IndianRupee,
+  Briefcase,
+  FileText,
+  CheckCircle,
+  XCircle,
+} from 'lucide-react';
 
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 
@@ -24,7 +35,7 @@ export default function AdminEventDetails() {
       setLoading(true);
       const [driveRes, appsRes] = await Promise.all([
         api.get(`/admin/drives/${id}`),
-        api.get(`/admin/drives/${id}/applications`)
+        api.get(`/admin/drives/${id}/applications`),
       ]);
       setDrive(driveRes.data);
       setApplications(appsRes.data);
@@ -49,7 +60,7 @@ export default function AdminEventDetails() {
   const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
     try {
       await api.put(`/admin/drives/applications/${applicationId}/status`, {
-        status: newStatus
+        status: newStatus,
       });
       toast.success('Status updated successfully');
       fetchApplications(); // Refresh list
@@ -61,7 +72,10 @@ export default function AdminEventDetails() {
 
   const handleDriveReview = async (action: 'approve' | 'reject' | 'request-changes') => {
     try {
-      await api.post(`/admin/drives/${id}/${action}`, action === 'request-changes' ? { comments: 'Please revise criteria.' } : {});
+      await api.post(
+        `/admin/drives/${id}/${action}`,
+        action === 'request-changes' ? { comments: 'Please revise criteria.' } : {}
+      );
       toast.success(`Drive ${action}d successfully`);
       // fetchDriveDetails();
     } catch (error) {
@@ -76,7 +90,10 @@ export default function AdminEventDetails() {
     <div className="max-w-7xl mx-auto space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link to="/admin/dashboard" className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500">
+          <Link
+            to="/admin/dashboard"
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
+          >
             <ChevronLeft className="w-6 h-6" />
           </Link>
           <div>
@@ -86,7 +103,10 @@ export default function AdminEventDetails() {
         </div>
         <div>
           <Link to={`/admin/placement-events/edit/${drive.id}`}>
-            <Button variant="outline" className="text-slate-700 bg-white border-slate-200 hover:bg-slate-50 shadow-sm">
+            <Button
+              variant="outline"
+              className="text-slate-700 bg-white border-slate-200 hover:bg-slate-50 shadow-sm"
+            >
               <FileText className="w-4 h-4 mr-2" /> Edit Drive Details
             </Button>
           </Link>
@@ -98,16 +118,30 @@ export default function AdminEventDetails() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h3 className="text-lg font-bold text-blue-900">HR Submission Pending Review</h3>
-              <p className="text-sm text-blue-700 mt-1">Review the details submitted by {drive.company?.hrName || 'HR'} before publishing to students.</p>
+              <p className="text-sm text-blue-700 mt-1">
+                Review the details submitted by {drive.company?.hrName || 'HR'} before publishing to
+                students.
+              </p>
             </div>
             <div className="flex gap-3">
-              <Button onClick={() => handleDriveReview('reject')} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50">
+              <Button
+                onClick={() => handleDriveReview('reject')}
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50"
+              >
                 <XCircle className="w-4 h-4 mr-2" /> Reject
               </Button>
-              <Button onClick={() => handleDriveReview('request-changes')} variant="outline" className="border-amber-200 text-amber-600 hover:bg-amber-50">
+              <Button
+                onClick={() => handleDriveReview('request-changes')}
+                variant="outline"
+                className="border-amber-200 text-amber-600 hover:bg-amber-50"
+              >
                 Request Changes
               </Button>
-              <Button onClick={() => handleDriveReview('approve')} className="bg-green-600 hover:bg-green-700 text-white">
+              <Button
+                onClick={() => handleDriveReview('approve')}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
                 <CheckCircle className="w-4 h-4 mr-2" /> Approve & Publish
               </Button>
             </div>
@@ -120,10 +154,16 @@ export default function AdminEventDetails() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h3 className="text-lg font-bold text-slate-900">Draft Drive</h3>
-              <p className="text-sm text-slate-700 mt-1">This drive is currently a draft and is not visible to students. Publish it to start accepting applications.</p>
+              <p className="text-sm text-slate-700 mt-1">
+                This drive is currently a draft and is not visible to students. Publish it to start
+                accepting applications.
+              </p>
             </div>
             <div className="flex gap-3">
-              <Button onClick={() => handleDriveReview('approve')} className="bg-primary hover:bg-primary/90 text-white">
+              <Button
+                onClick={() => handleDriveReview('approve')}
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
                 <CheckCircle className="w-4 h-4 mr-2" /> Publish Drive
               </Button>
             </div>
@@ -141,21 +181,34 @@ export default function AdminEventDetails() {
               </div>
               <div>
                 <h2 className="font-bold text-lg text-slate-800">{drive.company?.name}</h2>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${drive.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}>
+                <span
+                  className={`text-xs font-bold px-2 py-1 rounded-full ${drive.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}
+                >
                   {drive.status}
                 </span>
               </div>
             </div>
-            
+
             <div className="space-y-3 pt-4 border-t border-slate-100 text-sm text-slate-600">
-              <div className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-slate-400" /> {drive.jobRole}</div>
-              <div className="flex items-center gap-2"><MapPin className="w-4 h-4 text-slate-400" /> {drive.workMode}</div>
-              <div className="flex items-center gap-2"><IndianRupee className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA</div>
-              <div className="flex items-center gap-2"><Users className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'} Vacancies</div>
-              <div className="flex items-center gap-2"><Calendar className="w-4 h-4 text-slate-400" /> Closes {new Date(drive.registrationEnd).toLocaleDateString()}</div>
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-slate-400" /> {drive.jobRole}
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-slate-400" /> {drive.workMode}
+              </div>
+              <div className="flex items-center gap-2">
+                <IndianRupee className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'} Vacancies
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-slate-400" /> Closes{' '}
+                {new Date(drive.registrationEnd).toLocaleDateString()}
+              </div>
             </div>
           </Card>
-          
+
           <Card className="p-6">
             <h3 className="font-bold text-slate-800 mb-4">Pipeline Stats</h3>
             <div className="space-y-4">
@@ -175,31 +228,54 @@ export default function AdminEventDetails() {
                   <span className="font-bold">{applications.length}</span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: drive.eligibleStudentsCount ? `${(applications.length / drive.eligibleStudentsCount) * 100}%` : '100%' }}></div>
+                  <div
+                    className="bg-blue-500 h-2 rounded-full"
+                    style={{
+                      width: drive.eligibleStudentsCount
+                        ? `${(applications.length / drive.eligibleStudentsCount) * 100}%`
+                        : '100%',
+                    }}
+                  ></div>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-600">Shortlisted</span>
                   <span className="font-bold">
-                    {applications.filter(a => ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(a.status)).length}
+                    {
+                      applications.filter((a) =>
+                        ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(
+                          a.status
+                        )
+                      ).length
+                    }
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(applications.filter(a => ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(a.status)).length / applications.length) * 100}%` }}></div>
+                  <div
+                    className="bg-purple-500 h-2 rounded-full"
+                    style={{
+                      width: `${(applications.filter((a) => ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(a.status)).length / applications.length) * 100}%`,
+                    }}
+                  ></div>
                 </div>
               </div>
-              
+
               <div>
                 <div className="flex justify-between text-sm mb-1">
                   <span className="text-slate-600">Selected</span>
                   <span className="font-bold">
-                    {applications.filter(a => a.status === 'SELECTED').length}
+                    {applications.filter((a) => a.status === 'SELECTED').length}
                   </span>
                 </div>
                 <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(applications.filter(a => a.status === 'SELECTED').length / applications.length) * 100}%` }}></div>
+                  <div
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{
+                      width: `${(applications.filter((a) => a.status === 'SELECTED').length / applications.length) * 100}%`,
+                    }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -212,7 +288,7 @@ export default function AdminEventDetails() {
             <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
               <h3 className="font-bold text-slate-800">Applicants ({applications.length})</h3>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -242,19 +318,30 @@ export default function AdminEventDetails() {
                           <div className="text-xs text-slate-500">{app.student.user.email}</div>
                         </td>
                         <td className="p-4 text-sm text-slate-600">{app.student.branch}</td>
-                        <td className="p-4 text-sm text-slate-600 font-medium">{app.student.cgpa}</td>
+                        <td className="p-4 text-sm text-slate-600 font-medium">
+                          {app.student.cgpa}
+                        </td>
                         <td className="p-4">
-                          <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                            app.status === 'SELECTED' ? 'bg-green-100 text-green-700' :
-                            app.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                            'bg-blue-100 text-blue-700'
-                          }`}>
+                          <span
+                            className={`text-xs font-bold px-2 py-1 rounded-full ${
+                              app.status === 'SELECTED'
+                                ? 'bg-green-100 text-green-700'
+                                : app.status === 'REJECTED'
+                                  ? 'bg-red-100 text-red-700'
+                                  : 'bg-blue-100 text-blue-700'
+                            }`}
+                          >
                             {app.status.replace('_', ' ')}
                           </span>
                         </td>
                         <td className="p-4">
                           {app.student.resumeUrl ? (
-                            <a href={app.student.resumeUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline flex items-center gap-1 text-sm">
+                            <a
+                              href={app.student.resumeUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-primary hover:underline flex items-center gap-1 text-sm"
+                            >
                               <FileText className="w-4 h-4" /> View
                             </a>
                           ) : (
@@ -262,7 +349,7 @@ export default function AdminEventDetails() {
                           )}
                         </td>
                         <td className="p-4 text-right">
-                          <select 
+                          <select
                             className="text-xs border border-slate-200 rounded px-2 py-1 bg-white focus:outline-none focus:border-primary"
                             value={app.status}
                             onChange={(e) => handleUpdateStatus(app.id, e.target.value)}

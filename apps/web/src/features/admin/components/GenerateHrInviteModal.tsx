@@ -16,7 +16,7 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
     hrName: '',
     hrEmail: '',
     companyEmail: '',
-    driveTitle: ''
+    driveTitle: '',
   });
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
@@ -64,32 +64,62 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
             {!generatedLink ? (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <p className="text-sm text-slate-500 mb-4">
-                  Send a secure link to the Company HR to fill out the placement drive details themselves.
+                  Send a secure link to the Company HR to fill out the placement drive details
+                  themselves.
                 </p>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Drive Title / Role</label>
-                  <Input required value={formData.driveTitle} onChange={(e) => setFormData({...formData, driveTitle: e.target.value})} placeholder="e.g. Software Engineer 2026 Hiring" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Drive Title / Role
+                  </label>
+                  <Input
+                    required
+                    value={formData.driveTitle}
+                    onChange={(e) => setFormData({ ...formData, driveTitle: e.target.value })}
+                    placeholder="e.g. Software Engineer 2026 Hiring"
+                  />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
-                  <Input required value={formData.companyName} onChange={(e) => setFormData({...formData, companyName: e.target.value})} placeholder="e.g. Google" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Company Name
+                  </label>
+                  <Input
+                    required
+                    value={formData.companyName}
+                    onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                    placeholder="e.g. Google"
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">HR Name</label>
-                    <Input required value={formData.hrName} onChange={(e) => setFormData({...formData, hrName: e.target.value})} placeholder="e.g. Jane Doe" />
+                    <Input
+                      required
+                      value={formData.hrName}
+                      onChange={(e) => setFormData({ ...formData, hrName: e.target.value })}
+                      placeholder="e.g. Jane Doe"
+                    />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">HR Email</label>
-                    <Input required type="email" value={formData.hrEmail} onChange={(e) => setFormData({...formData, hrEmail: e.target.value})} placeholder="jane@company.com" />
+                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                      HR Email
+                    </label>
+                    <Input
+                      required
+                      type="email"
+                      value={formData.hrEmail}
+                      onChange={(e) => setFormData({ ...formData, hrEmail: e.target.value })}
+                      placeholder="jane@company.com"
+                    />
                   </div>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-3">
-                  <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={onClose}>
+                    Cancel
+                  </Button>
                   <Button type="submit" disabled={loading}>
                     {loading ? 'Generating...' : 'Generate Secure Link'}
                   </Button>
@@ -101,19 +131,36 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
                   <Check className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-slate-900 mb-1">Link Generated Successfully!</h3>
-                  <p className="text-sm text-slate-500">Copy this link and send it to the HR representative.</p>
+                  <h3 className="text-lg font-medium text-slate-900 mb-1">
+                    Link Generated Successfully!
+                  </h3>
+                  <p className="text-sm text-slate-500">
+                    Copy this link and send it to the HR representative.
+                  </p>
                 </div>
-                
+
                 <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                   <LinkIcon className="w-5 h-5 text-slate-400 shrink-0" />
-                  <input readOnly value={generatedLink} className="bg-transparent text-sm w-full outline-none text-slate-600" />
-                  <button onClick={copyToClipboard} className="p-2 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-700 shrink-0">
-                    {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                  <input
+                    readOnly
+                    value={generatedLink}
+                    className="bg-transparent text-sm w-full outline-none text-slate-600"
+                  />
+                  <button
+                    onClick={copyToClipboard}
+                    className="p-2 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-700 shrink-0"
+                  >
+                    {copied ? (
+                      <Check className="w-4 h-4 text-green-600" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
                   </button>
                 </div>
 
-                <Button onClick={onClose} className="w-full">Done</Button>
+                <Button onClick={onClose} className="w-full">
+                  Done
+                </Button>
               </div>
             )}
           </div>
