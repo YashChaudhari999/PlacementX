@@ -46,3 +46,7 @@ apps/api/prisma/dev.db
 apps/api/prisma/dev.db-journal
 redis/
 redis.zip
+
+# Firebase/Google Services configs
+google-services.json
+GoogleService-Info.plist
