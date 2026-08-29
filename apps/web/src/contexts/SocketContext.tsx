@@ -41,13 +41,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
 
     const newSocket = io(socketUrl, {
-<<<<<<< HEAD
       auth: { token },
-=======
-      auth: {
-        token,
-      },
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 2000,
@@ -56,16 +50,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     newSocket.on('connect', () => {
       setIsConnected(true);
-<<<<<<< HEAD
       if (userRole === 'STUDENT' && userBranch) {
         newSocket.emit('notification:join', [`department:${userBranch}`]);
-=======
-
-      // Request to join default rooms based on profile if needed
-      // (The backend already joins user:id, role, etc. automatically)
-      if (user.role === 'STUDENT' && (user as any).studentProfile?.branch) {
-        newSocket.emit('notification:join', [`department:${(user as any).studentProfile.branch}`]);
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
       }
     });
 

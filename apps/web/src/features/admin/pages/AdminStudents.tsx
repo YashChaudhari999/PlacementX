@@ -511,16 +511,7 @@ export default function AdminStudents() {
                   {pendingVerificationCount > 1 ? 's' : ''}
                 </span>
               </div>
-<<<<<<< HEAD
               <Link to="/admin/students/verifications" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap">View →</Link>
-=======
-              <a
-                href="/admin/students/verifications"
-                className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
-              >
-                View →
-              </a>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
             </div>
           )}
           {pendingUpdateCount > 0 && (
@@ -531,16 +522,7 @@ export default function AdminStudents() {
                   {pendingUpdateCount} Update Request{pendingUpdateCount > 1 ? 's' : ''}
                 </span>
               </div>
-<<<<<<< HEAD
               <Link to="/admin/students/update-requests" className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap">View →</Link>
-=======
-              <a
-                href="/admin/students/update-requests"
-                className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap"
-              >
-                View →
-              </a>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
             </div>
           )}
         </div>

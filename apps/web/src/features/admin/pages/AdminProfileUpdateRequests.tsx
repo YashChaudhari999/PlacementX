@@ -85,20 +85,8 @@ export default function AdminProfileUpdateRequests() {
                       </div>
                       <div className="text-xs text-slate-500">{req.student?.user?.email}</div>
                     </td>
-<<<<<<< HEAD
                     <td className="px-6 py-4 text-slate-600">{new Date(req.requestedAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={req.reason}>{req.reason}</td>
-=======
-                    <td className="px-6 py-4 text-slate-600">
-                      {new Date(req.requestedAt).toLocaleDateString()}
-                    </td>
-                    <td
-                      className="px-6 py-4 text-slate-600 max-w-xs truncate"
-                      title={req.studentReason}
-                    >
-                      {req.studentReason}
-                    </td>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
+                    <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={req.studentReason}>{req.studentReason}</td>
                     <td className="px-6 py-4 text-right">
                       <Button
                         size="sm"
@@ -133,15 +121,8 @@ export default function AdminProfileUpdateRequests() {
 
             <div className="p-6 overflow-y-auto space-y-6">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-<<<<<<< HEAD
                 <div className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">Student's Reason for Update</div>
-                <div className="text-blue-900">{selectedRequest.reason}</div>
-=======
-                <div className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">
-                  Student's Reason for Update
-                </div>
                 <div className="text-blue-900">{selectedRequest.studentReason}</div>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
               </div>
 
               <div>
@@ -153,28 +134,14 @@ export default function AdminProfileUpdateRequests() {
                     <thead className="bg-slate-50">
                       <tr>
                         <th className="px-4 py-3 font-medium text-slate-600 w-1/3">Field</th>
-<<<<<<< HEAD
                         <th className="px-4 py-3 font-medium text-slate-600 w-1/3">Current Value</th>
-                        <th className="px-4 py-3 font-medium text-red-600 w-1/3">Requested Value</th>
+                        <th className="px-4 py-3 font-medium text-blue-600 w-1/3">Requested Value</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {Object.keys(selectedRequest.requestedChanges).map(key => {
-                        const hiddenFields = ['id', 'userId', 'createdAt', 'updatedAt', 'profileStatus', 'verifiedAt', 'verifiedBy', 'reason', 'isProfileComplete', 'user', 'applications', 'updateRequests', 'auditLogs'];
+                        const hiddenFields = ['id', 'userId', 'createdAt', 'updatedAt', 'profileStatus', 'verifiedAt', 'verifiedBy', 'reason', 'studentReason', 'isProfileComplete', 'user', 'applications', 'updateRequests', 'auditLogs'];
                         if (hiddenFields.includes(key)) return null;
-
-=======
-                        <th className="px-4 py-3 font-medium text-slate-600 w-1/3">
-                          Current Value
-                        </th>
-                        <th className="px-4 py-3 font-medium text-blue-600 w-1/3">
-                          Requested Value
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {Object.keys(selectedRequest.requestedChanges).map((key) => {
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
                         const currentVal = selectedRequest.student[key];
                         const requestedVal = selectedRequest.requestedChanges[key];
                         
@@ -203,17 +170,8 @@ export default function AdminProfileUpdateRequests() {
                           return (
                             <tr key={key}>
                               <td className="px-4 py-3 font-medium text-slate-900">{key}</td>
-<<<<<<< HEAD
                               <td className="px-4 py-3 text-slate-500 break-all">{currentRendered}</td>
-                              <td className="px-4 py-3 text-red-600 font-medium break-all">{requestedRendered}</td>
-=======
-                              <td className="px-4 py-3 text-slate-500 break-all">
-                                {currentVal?.toString() || 'N/A'}
-                              </td>
-                              <td className="px-4 py-3 text-blue-600 font-medium break-all">
-                                {requestedVal?.toString() || 'N/A'}
-                              </td>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
+                              <td className="px-4 py-3 text-blue-600 font-medium break-all">{requestedRendered}</td>
                             </tr>
                           );
                         }

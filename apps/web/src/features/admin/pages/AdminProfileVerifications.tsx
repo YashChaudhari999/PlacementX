@@ -228,19 +228,12 @@ export default function AdminProfileVerifications() {
                   </div>
                 </div>
                 <div className="col-span-2">
-<<<<<<< HEAD
                   <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Skills</div>
                   <div className="text-slate-900">
                     {Array.isArray(selectedProfile.skills) 
                       ? selectedProfile.skills.join(', ') 
                       : (selectedProfile.skills || 'N/A')}
                   </div>
-=======
-                  <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                    Skills
-                  </div>
-                  <div className="text-slate-900">{selectedProfile.skills || 'N/A'}</div>
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
                 </div>
               </div>
 

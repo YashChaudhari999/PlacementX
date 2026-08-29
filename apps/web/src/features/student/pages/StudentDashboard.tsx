@@ -14,12 +14,7 @@ import { useStudentProfile, useStudentMLPrediction } from '@/hooks/queries/useSt
 export default function StudentDashboard() {
   const user = useAuthStore((state) => state.user);
   const [greeting, setGreeting] = useState('');
-<<<<<<< HEAD
   const navigate = useNavigate();
-  
-=======
-
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
   const { data: notificationsResponse, isPending: notificationsLoading } = useNotifications();
   const notifications = notificationsResponse?.data || [];
   const { data: drives = [], isPending: drivesLoading } = usePublishedDrives();
@@ -148,14 +143,7 @@ export default function StudentDashboard() {
                       </div>
 
                       <div className="w-full sm:w-auto flex-shrink-0 mt-4 sm:mt-0">
-<<<<<<< HEAD
                         <Button className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md" onClick={() => navigate(`/student/drives/${drive.id}`)}>
-=======
-                        <Button
-                          className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md"
-                          onClick={() => (window.location.href = `/student/drives/${drive.id}`)}
-                        >
->>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
                           View Details
                         </Button>
                       </div>
