@@ -84,6 +84,17 @@ export default function AdminEventDetails() {
     }
   };
 
+  const handleUpdateDriveStatus = async (newStatus: string) => {
+    try {
+      await api.put(`/admin/drives/${id}/status`, { status: newStatus });
+      toast.success('Drive status updated');
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to update drive status');
+    }
+  };
+
   if (loading || !drive) return <DashboardSkeleton />;
 
   return (
@@ -181,11 +192,24 @@ export default function AdminEventDetails() {
               </div>
               <div>
                 <h2 className="font-bold text-lg text-slate-800">{drive.company?.name}</h2>
-                <span
-                  className={`text-xs font-bold px-2 py-1 rounded-full ${drive.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'}`}
-                >
-                  {drive.status}
-                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <select
+                    className={`text-xs font-bold px-2 py-1 rounded-full outline-none cursor-pointer border-r-4 border-transparent ${
+                      drive.status === 'PUBLISHED'
+                        ? 'bg-green-100 text-green-700'
+                        : drive.status === 'COMPLETED'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-slate-100 text-slate-700'
+                    }`}
+                    value={drive.status}
+                    onChange={(e) => handleUpdateDriveStatus(e.target.value)}
+                  >
+                    <option value="DRAFT">DRAFT</option>
+                    <option value="PUBLISHED">PUBLISHED</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                    <option value="CANCELLED">CANCELLED</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -204,7 +228,7 @@ export default function AdminEventDetails() {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-slate-400" /> Closes{' '}
-                {new Date(drive.registrationEnd).toLocaleDateString()}
+                {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </div>
             </div>
           </Card>

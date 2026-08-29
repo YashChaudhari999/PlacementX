@@ -137,11 +137,7 @@ export default function StudentInterviews() {
                               {round.date && (
                                 <div className="flex items-center gap-2 font-medium">
                                   <Calendar className="w-4 h-4 text-blue-500" />
-                                  {new Date(round.date).toLocaleDateString(undefined, {
-                                    weekday: 'short',
-                                    month: 'short',
-                                    day: 'numeric',
-                                  })}
+                                  {new Date(round.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </div>
                               )}
                               {round.time && (

@@ -75,7 +75,7 @@ export default function DashboardScreen() {
               <Calendar size={14} color={theme.colors.primary} />
             </View>
             <Text style={styles.detailText}>
-              {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'TBA'}
+              {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'TBA'}
             </Text>
           </View>
         </View>

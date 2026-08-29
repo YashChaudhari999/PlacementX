@@ -99,11 +99,7 @@ export default function NotificationScheduled() {
                         <Clock className="w-4 h-4 text-amber-500" />
                         <div>
                           <div className="text-sm font-bold text-slate-900">
-                            {new Date(item.scheduledFor).toLocaleDateString('en-US', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
+                            {new Date(item.scheduledFor).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </div>
                           <div className="text-xs text-amber-600 font-semibold">
                             {new Date(item.scheduledFor).toLocaleTimeString('en-US', {

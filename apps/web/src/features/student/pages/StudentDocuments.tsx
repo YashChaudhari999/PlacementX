@@ -105,7 +105,7 @@ export default function StudentDocuments() {
                       <h4 className="font-bold text-slate-800">{offer.company}</h4>
                       <p className="text-sm text-slate-600">{offer.role}</p>
                       <p className="text-xs text-slate-400 mt-2">
-                        Issued: {new Date(offer.uploadedAt).toLocaleDateString()}
+                        Issued: {new Date(offer.uploadedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </p>
                     </div>
                     {offer.offerLetterUrl ? (

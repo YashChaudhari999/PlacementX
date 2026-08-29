@@ -10,7 +10,8 @@ import {
   rejectHrDrive,
   requestChangesHrDrive,
   updateDrive,
-  deleteDrive
+  deleteDrive,
+  updateDriveStatus
 } from '../controllers/drive.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -27,6 +28,7 @@ router.get('/:id/eligibility', checkEligibilityStatus);
 router.get('/:id', getDriveById);
 router.put('/:id', adminOnly, updateDrive);
 router.delete('/:id', adminOnly, deleteDrive);
+router.put('/:id/status', adminOnly, updateDriveStatus);
 router.get('/:id/applications', adminOnly, getDriveApplications);
 router.put('/applications/:id/status', adminOnly, updateApplicationStatus);
 

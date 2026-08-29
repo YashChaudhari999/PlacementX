@@ -890,7 +890,7 @@ function Step7Preview() {
                   className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm font-medium text-slate-700 shadow-sm"
                 >
                   {i + 1}. {r.title || 'Round'}{' '}
-                  {r.date ? `(${new Date(r.date).toLocaleDateString()})` : ''}
+                  {r.date ? `(${new Date(r.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })})` : ''}
                 </span>
               ))}
             </div>

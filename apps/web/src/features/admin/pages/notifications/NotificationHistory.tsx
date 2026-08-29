@@ -120,11 +120,7 @@ export default function NotificationHistory() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-sm text-slate-700">
-                        {new Date(item.sentAt).toLocaleDateString('en-US', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
+                        {new Date(item.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </div>
                       <div className="text-xs text-slate-400">
                         {new Date(item.sentAt).toLocaleTimeString('en-US', {

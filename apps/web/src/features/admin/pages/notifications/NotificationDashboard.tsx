@@ -159,10 +159,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
                           <span className="text-[10px] text-slate-400">•</span>
                           <span className="text-xs text-slate-500 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {new Date(item.sentAt).toLocaleDateString('en-US', {
-                              day: 'numeric',
-                              month: 'short',
-                            })}
+                            {new Date(item.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         </div>
                       </td>

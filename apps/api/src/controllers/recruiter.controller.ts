@@ -160,7 +160,7 @@ export const scheduleInterview = async (req: Request, res: Response) => {
     await sendNotification({
       receiverId: application.student.userId,
       title: `Interview Scheduled: ${drive.company.name}`,
-      message: `Your interview is scheduled on ${new Date(date).toLocaleDateString()} at ${time}. Venue/Link: ${venue}`,
+      message: `Your interview is scheduled on ${new Date(date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })} at ${time}. Venue/Link: ${venue}`,
       type: 'interviews',
       category: 'interviews',
       priority: 'HIGH',

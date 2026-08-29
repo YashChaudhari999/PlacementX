@@ -829,7 +829,7 @@ export const getAdminDashboard = async (req: any, res: any) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const [totalStudents, placedStudents, salaries, totalDrives, openDrives, totalApplications] =
+    const [totalStudents, placedStudents, salaries, totalDrives, allDrivesData, totalApplications] =
       await Promise.all([
         prisma.importedStudent.count(),
         prisma.importedStudent.count({ where: { placementStatus: 'Placed' } }),
@@ -839,9 +839,28 @@ export const getAdminDashboard = async (req: any, res: any) => {
           _avg: { fixedSalaryLpa: true },
         }),
         prisma.placementDrive.count(),
-        prisma.placementDrive.count({ where: { status: 'OPEN' } }),
+        prisma.placementDrive.findMany({
+          where: { status: { in: ['PUBLISHED', 'COMPLETED'] } },
+          select: { registrationStart: true, registrationEnd: true, status: true }
+        }),
         prisma.driveApplication.count(),
       ]);
+
+    let openDrives = 0;
+    let upcomingDrives = 0;
+    let closedDrives = 0;
+
+    allDrivesData.forEach((d: any) => {
+      const start = d.registrationStart ? new Date(d.registrationStart) : null;
+      const end = d.registrationEnd ? new Date(d.registrationEnd) : null;
+      const isUpcoming = start ? start > today : false;
+      const isClosed = (end ? end < today : false) || d.status === 'COMPLETED';
+      const isOpen = d.status === 'PUBLISHED' && !isUpcoming && !isClosed;
+
+      if (isOpen) openDrives++;
+      else if (isUpcoming && d.status === 'PUBLISHED') upcomingDrives++;
+      else if (isClosed) closedDrives++;
+    });
 
     const placementPercentage =
       totalStudents > 0 ? Math.round((placedStudents / totalStudents) * 100) : 0;
@@ -870,7 +889,7 @@ export const getAdminDashboard = async (req: any, res: any) => {
     }
 
     return res.status(200).json({
-      drives: { today: 0, open: openDrives, upcomingClosed: 0 },
+      drives: { open: openDrives, upcoming: upcomingDrives, closed: closedDrives },
       students: {
         total: totalStudents,
         placed: placedStudents,

@@ -61,7 +61,7 @@ function timeAgo(dateStr: string | Date | undefined): string {
   const days = Math.floor(hours / 24);
   if (days === 1) return 'Yesterday';
   if (days < 30) return `${days}d ago`;
-  return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 function getInitials(name: string | undefined): string {

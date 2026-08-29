@@ -84,7 +84,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
                 </div>
                 <div className="text-right">
                   <div className="text-sm font-bold text-indigo-600">
-                    {event.date ? format(new Date(event.date), 'MMM d, yyyy') : 'TBD'}
+                    {event.date ? format(new Date(event.date), 'dd/MM/yyyy') : 'TBD'}
                   </div>
                   <div className="text-[10px] text-slate-400 font-medium">
                     {event.date ? format(new Date(event.date), 'h:mm a') : ''}

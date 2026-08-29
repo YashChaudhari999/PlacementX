@@ -130,27 +130,74 @@ export const createDrive = async (req: any, res: any) => {
     if (!data.isDraft) {
       try {
         const { filterEligibleStudents } = await import('../services/eligibility.service');
-        const { createBulkNotifications } = await import('../services/notification.service');
+        const { createBulkNotifications, scheduleBulkNotifications } = await import('../services/notification.service');
+        const { PrismaClient } = await import('@prisma/client');
         
         const eligibleStudentIds = await filterEligibleStudents(drive);
         
         if (eligibleStudentIds.length > 0) {
-          await createBulkNotifications({
-            title: 'New Placement Drive Available',
-            message: `${company.name} is hiring for ${drive.jobRole}. Apply before ${drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'the deadline'}.`,
-            type: 'placement_drive',
-            priority: 'HIGH',
-            actionUrl: `/student/drives/${drive.id}`,
-            receiverIds: eligibleStudentIds,
-            senderId: req.user?.id,
-            senderRole: req.user?.role,
-            metadata: {
-              driveId: drive.id,
-              companyName: company.name,
-              package: drive.fixedSalary,
-              deadline: drive.registrationEnd
+          const isFuture = drive.registrationStart && new Date(drive.registrationStart) > new Date();
+
+          if (isFuture) {
+            await createBulkNotifications({
+              title: 'Upcoming Placement Drive',
+              message: `${company.name} will be hiring for ${drive.jobRole}. Registration starts on ${new Date(drive.registrationStart!).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}.`,
+              type: 'placement_drive',
+              priority: 'MEDIUM',
+              actionUrl: `/student/drives/${drive.id}`,
+              receiverIds: eligibleStudentIds,
+              senderId: req.user?.id,
+              senderRole: req.user?.role,
+              metadata: { driveId: drive.id, companyName: company.name }
+            });
+
+            if (scheduleBulkNotifications) {
+              const prisma = new PrismaClient();
+              const campaign = await prisma.notificationCampaign.create({
+                data: {
+                  title: 'Drive Now Open for Applications',
+                  message: `${company.name} is now accepting applications for ${drive.jobRole}.`,
+                  type: 'placement_drive',
+                  audienceType: 'ELIGIBLE_STUDENTS',
+                  audienceDesc: `Drive ${drive.id}`,
+                  channels: { push: true, inApp: true },
+                  sentBy: req.user?.id || 'system',
+                  status: 'SCHEDULED',
+                  scheduledFor: new Date(drive.registrationStart!)
+                }
+              });
+
+              await scheduleBulkNotifications({
+                title: campaign.title,
+                message: campaign.message,
+                type: 'placement_drive',
+                priority: 'HIGH',
+                actionUrl: `/student/drives/${drive.id}`,
+                receiverIds: eligibleStudentIds,
+                senderId: req.user?.id,
+                senderRole: req.user?.role,
+                campaignId: campaign.id,
+                metadata: { driveId: drive.id, companyName: company.name }
+              }, new Date(drive.registrationStart!));
             }
-          });
+          } else {
+            await createBulkNotifications({
+              title: 'New Placement Drive Available',
+              message: `${company.name} is hiring for ${drive.jobRole}. Apply before ${drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'the deadline'}.`,
+              type: 'placement_drive',
+              priority: 'HIGH',
+              actionUrl: `/student/drives/${drive.id}`,
+              receiverIds: eligibleStudentIds,
+              senderId: req.user?.id,
+              senderRole: req.user?.role,
+              metadata: {
+                driveId: drive.id,
+                companyName: company.name,
+                package: drive.fixedSalary,
+                deadline: drive.registrationEnd
+              }
+            });
+          }
         }
       } catch (err) {
         console.error('Error triggering notifications on create:', err);
@@ -215,7 +262,16 @@ export const checkEligibilityStatus = async (req: any, res: any) => {
     const { checkEligibility } = await import('../services/eligibility.service');
     const result = await checkEligibility(student, drive);
 
-    return res.status(200).json(result);
+    const existingApplication = await prisma.driveApplication.findUnique({
+      where: {
+        driveId_studentId: {
+          driveId,
+          studentId: student.id,
+        },
+      },
+    });
+
+    return res.status(200).json({ ...result, hasApplied: !!existingApplication });
   } catch (error: any) {
     console.error('Eligibility check error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -327,25 +383,72 @@ export const approveHrDrive = async (req: any, res: any) => {
 
     try {
       const { filterEligibleStudents } = await import('../services/eligibility.service');
-      const { createBulkNotifications } = await import('../services/notification.service');
+      const { createBulkNotifications, scheduleBulkNotifications } = await import('../services/notification.service');
+      const { PrismaClient } = await import('@prisma/client');
       
       const eligibleStudentIds = await filterEligibleStudents(drive);
       
       if (eligibleStudentIds.length > 0) {
-        await createBulkNotifications({
-          title: 'New Placement Drive Approved',
-          message: `${drive.company.name} is hiring for ${drive.jobRole}.`,
-          type: 'placement_drive',
-          priority: 'HIGH',
-          actionUrl: `/student/drives/${drive.id}`,
-          receiverIds: eligibleStudentIds,
-          senderId: req.user?.id,
-          senderRole: req.user?.role,
-          metadata: {
-            driveId: drive.id,
-            companyName: drive.company.name,
+        const isFuture = drive.registrationStart && new Date(drive.registrationStart) > new Date();
+
+        if (isFuture) {
+          await createBulkNotifications({
+            title: 'Upcoming Placement Drive Approved',
+            message: `${drive.company.name} will be hiring for ${drive.jobRole}. Registration starts on ${new Date(drive.registrationStart!).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}.`,
+            type: 'placement_drive',
+            priority: 'MEDIUM',
+            actionUrl: `/student/drives/${drive.id}`,
+            receiverIds: eligibleStudentIds,
+            senderId: req.user?.id,
+            senderRole: req.user?.role,
+            metadata: { driveId: drive.id, companyName: drive.company.name }
+          });
+
+          if (scheduleBulkNotifications) {
+            const prisma = new PrismaClient();
+            const campaign = await prisma.notificationCampaign.create({
+              data: {
+                title: 'Drive Now Open for Applications',
+                message: `${drive.company.name} is now accepting applications for ${drive.jobRole}.`,
+                type: 'placement_drive',
+                audienceType: 'ELIGIBLE_STUDENTS',
+                audienceDesc: `Drive ${drive.id}`,
+                channels: { push: true, inApp: true },
+                sentBy: req.user?.id || 'system',
+                status: 'SCHEDULED',
+                scheduledFor: new Date(drive.registrationStart!)
+              }
+            });
+
+            await scheduleBulkNotifications({
+              title: campaign.title,
+              message: campaign.message,
+              type: 'placement_drive',
+              priority: 'HIGH',
+              actionUrl: `/student/drives/${drive.id}`,
+              receiverIds: eligibleStudentIds,
+              senderId: req.user?.id,
+              senderRole: req.user?.role,
+              campaignId: campaign.id,
+              metadata: { driveId: drive.id, companyName: drive.company.name }
+            }, new Date(drive.registrationStart!));
           }
-        });
+        } else {
+          await createBulkNotifications({
+            title: 'New Placement Drive Approved',
+            message: `${drive.company.name} is hiring for ${drive.jobRole}.`,
+            type: 'placement_drive',
+            priority: 'HIGH',
+            actionUrl: `/student/drives/${drive.id}`,
+            receiverIds: eligibleStudentIds,
+            senderId: req.user?.id,
+            senderRole: req.user?.role,
+            metadata: {
+              driveId: drive.id,
+              companyName: drive.company.name,
+            }
+          });
+        }
       }
     } catch (err) {
       console.error('Error triggering notifications on approve:', err);
@@ -493,6 +596,28 @@ export const deleteDrive = async (req: any, res: any) => {
     return res.status(200).json({ message: 'Drive deleted successfully' });
   } catch (error: any) {
     console.error('Delete drive error:', error);
+    return res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+export const updateDriveStatus = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['DRAFT', 'PUBLISHED', 'COMPLETED', 'CANCELLED'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    const drive = await prisma.placementDrive.update({
+      where: { id },
+      data: { status },
+      select: { ...driveSelectFields }
+    });
+
+    return res.status(200).json({ message: 'Drive status updated', drive });
+  } catch (error: any) {
+    console.error('Update drive status error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
