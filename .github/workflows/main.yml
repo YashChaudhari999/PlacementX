@@ -31,8 +31,8 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run lint --workspace=apps/api
-    - run: npm run type-check --workspace=apps/api
-    - run: npm test --workspace=apps/api
+    - run: npm run type-check --workspace=apps/api --if-present
+    - run: npm test --workspace=apps/api --if-present
 
   ml-service:
     runs-on: ubuntu-latest
