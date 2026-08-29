@@ -9,7 +9,6 @@ import {
   FileCheck,
   CheckCircle2,
   Clock,
-  ArrowUpRight,
   Calendar,
   Users,
   Trophy,
@@ -83,23 +82,20 @@ const StatCard = ({
 }: StatCardProps) => (
   <Card
     onClick={onClick}
-    className={`p-6 flex flex-col justify-between transition-all duration-300 group relative overflow-hidden ${
+    className={`p-6 flex flex-col h-full justify-between transition-all duration-300 group relative overflow-hidden ${
       onClick ? 'cursor-pointer hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1' : ''
     }`}
   >
-    {onClick && (
-      <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-        <ChevronRight className="w-5 h-5 text-slate-400" />
-      </div>
-    )}
-    <div className="flex items-start justify-between relative z-10">
-      <div>
+    <div className="flex items-start justify-between relative z-10 flex-1">
+      <div className="pr-6">
         <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
         <p className="text-3xl font-black text-slate-800 mt-2 tracking-tight group-hover:scale-[1.03] transition-transform origin-left">
           {value}
         </p>
       </div>
-      <div className={`p-3 rounded-2xl ${bgClass} transition-colors group-hover:bg-opacity-80`}>
+      <div
+        className={`p-3 rounded-2xl ${bgClass} transition-colors group-hover:bg-opacity-80 shrink-0`}
+      >
         <Icon className={`h-6 w-6 ${colorClass}`} />
       </div>
     </div>

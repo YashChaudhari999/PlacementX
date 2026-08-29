@@ -118,10 +118,7 @@ export default function AdminLogin() {
 
             <FormWrapper onSubmit={handleLogin}>
               <div className="space-y-5">
-                <FieldWrapper
-                  label="Work Email"
-                  error=""
-                >
+                <FieldWrapper label="Work Email" error="">
                   <Input
                     id="email"
                     name="email"
@@ -133,10 +130,7 @@ export default function AdminLogin() {
                   />
                 </FieldWrapper>
 
-                <FieldWrapper
-                  label="Password"
-                  error=""
-                >
+                <FieldWrapper label="Password" error="">
                   <Input
                     id="password"
                     name="password"
