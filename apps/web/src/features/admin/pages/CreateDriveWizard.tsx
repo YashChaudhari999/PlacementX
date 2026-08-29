@@ -218,34 +218,47 @@ export default function CreateDriveWizard() {
       {!isLoading && (
         <>
           {/* Stepper Header */}
-          <div className="mb-12 relative">
-            <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-200 -z-10" />
+          <div className="mb-14 relative px-2">
+            <div className="absolute top-[calc(1.5rem-2px)] left-8 right-8 h-1 bg-slate-200 -z-0 rounded-full" />
             <div
-              className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500 -z-10"
-              style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
+              className="absolute top-[calc(1.5rem-2px)] left-8 h-1 bg-gradient-to-r from-emerald-400 to-primary transition-all duration-500 -z-0 rounded-full"
+              style={{ width: `calc((100% - 4rem) * ${(currentStep - 1) / (STEPS.length - 1)})` }}
             />
 
-            <div className="flex justify-between">
+            <div className="flex justify-between relative z-10">
               {STEPS.map((step) => {
                 const Icon = step.icon;
                 const isCompleted = currentStep > step.id;
                 const isCurrent = currentStep === step.id;
 
                 return (
-                  <div key={step.id} className="flex flex-col items-center">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-colors duration-300 ${
+                  <div 
+                    key={step.id} 
+                    className={`flex flex-col items-center relative group ${isCompleted ? 'cursor-pointer' : ''}`}
+                    onClick={() => {
+                      if (isCompleted) {
+                        setDirection(-1);
+                        setCurrentStep(step.id);
+                      }
+                    }}
+                  >
+                    <motion.div
+                      initial={false}
+                      animate={{ scale: isCurrent ? 1.15 : 1 }}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 border-[3px] ${
                         isCompleted
-                          ? 'border-primary text-primary'
+                          ? 'bg-emerald-500 border-emerald-500 text-white shadow-md'
                           : isCurrent
-                            ? 'border-primary bg-primary text-white'
-                            : 'border-slate-200 text-slate-400'
+                            ? 'bg-white border-primary text-primary shadow-xl shadow-primary/20'
+                            : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'
                       }`}
                     >
-                      {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                    </div>
+                      {isCompleted ? <Check className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
+                    </motion.div>
                     <span
-                      className={`mt-2 text-xs font-medium ${isCurrent || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}
+                      className={`mt-4 text-[10px] sm:text-[11px] font-bold tracking-wider transition-colors duration-300 uppercase text-center ${
+                        isCurrent ? 'text-primary' : isCompleted ? 'text-slate-700' : 'text-slate-400'
+                      }`}
                     >
                       {step.title}
                     </span>
