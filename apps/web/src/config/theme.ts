@@ -2,9 +2,9 @@
  * ============================================
  * PlacementX — Design Tokens
  * ============================================
- * 
+ *
  * Centralized design token constants for use in
- * JS/TS logic (e.g., charts, canvas, React Native 
+ * JS/TS logic (e.g., charts, canvas, React Native
  * or inline styles where Tailwind classes cannot be used).
  */
 
@@ -44,7 +44,7 @@ export const colors = {
     warningForeground: '#1A1A1A',
     info: '#007BFF',
     infoForeground: '#FFFFFF',
-  }
+  },
 } as const;
 
 export const typography = {
@@ -60,7 +60,7 @@ export const typography = {
     caption: '0.875rem',
     label: '0.75rem',
     button: '0.875rem',
-  }
+  },
 } as const;
 
 export const spacing = {
@@ -91,5 +91,5 @@ export const borders = {
     md: '0.5rem',
     lg: '0.75rem',
     xl: '1rem',
-  }
+  },
 } as const;

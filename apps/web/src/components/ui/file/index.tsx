@@ -15,7 +15,15 @@ export interface FileUploadProps {
   className?: string;
 }
 
-export const FileUpload = ({ accept, multiple, onFilesSelected, label = 'Upload File', description, error, className }: FileUploadProps) => {
+export const FileUpload = ({
+  accept,
+  multiple,
+  onFilesSelected,
+  label = 'Upload File',
+  description,
+  error,
+  className,
+}: FileUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div
@@ -54,7 +62,12 @@ export interface AvatarUploadProps {
 
 const avatarSizes = { sm: 'h-16 w-16', md: 'h-24 w-24', lg: 'h-32 w-32' };
 
-export const AvatarUpload = ({ currentUrl, onFileSelected, size = 'md', className }: AvatarUploadProps) => {
+export const AvatarUpload = ({
+  currentUrl,
+  onFileSelected,
+  size = 'md',
+  className,
+}: AvatarUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className={['relative inline-block', className].join(' ')}>
@@ -92,7 +105,12 @@ export interface ResumeUploadProps {
   className?: string;
 }
 
-export const ResumeUpload = ({ currentFileName, onFileSelected, error, className }: ResumeUploadProps) => {
+export const ResumeUpload = ({
+  currentFileName,
+  onFileSelected,
+  error,
+  className,
+}: ResumeUploadProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className={['rounded-lg border border-border bg-card p-4', className].join(' ')}>
@@ -135,7 +153,12 @@ export interface ImagePreviewProps {
 
 export const ImagePreview = ({ src, alt = 'Preview', onRemove, className }: ImagePreviewProps) => {
   return (
-    <div className={['relative inline-block overflow-hidden rounded-md border border-border', className].join(' ')}>
+    <div
+      className={[
+        'relative inline-block overflow-hidden rounded-md border border-border',
+        className,
+      ].join(' ')}
+    >
       <img src={src} alt={alt} className="h-32 w-32 object-cover" />
       {onRemove && (
         <button

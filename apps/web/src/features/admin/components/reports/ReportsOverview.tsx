@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { 
-  FileSpreadsheet, 
-  Download, 
-  CalendarClock, 
-  Users, 
+import {
+  FileSpreadsheet,
+  Download,
+  CalendarClock,
+  Users,
   Briefcase,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -19,7 +19,11 @@ interface KPIs {
   lastExport: string | null;
 }
 
-export default function ReportsOverview({ onNavigateToBuilder }: { onNavigateToBuilder: () => void }) {
+export default function ReportsOverview({
+  onNavigateToBuilder,
+}: {
+  onNavigateToBuilder: () => void;
+}) {
   const [kpis, setKpis] = useState<KPIs | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,18 +42,50 @@ export default function ReportsOverview({ onNavigateToBuilder }: { onNavigateToB
   }, []);
 
   if (loading) {
-    return <div className="animate-pulse space-y-4">
-      <div className="h-32 bg-secondary rounded-xl"></div>
-      <div className="h-64 bg-secondary rounded-xl"></div>
-    </div>;
+    return (
+      <div className="animate-pulse space-y-4">
+        <div className="h-32 bg-secondary rounded-xl"></div>
+        <div className="h-64 bg-secondary rounded-xl"></div>
+      </div>
+    );
   }
 
   const statCards = [
-    { label: 'Total Reports Generated', value: kpis?.reportsGenerated || 0, icon: FileSpreadsheet, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Exports This Month', value: kpis?.exportsThisMonth || 0, icon: Download, color: 'text-green-500', bg: 'bg-green-50' },
-    { label: 'Active Scheduled Reports', value: kpis?.scheduledReports || 0, icon: CalendarClock, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { label: 'Students in Database', value: kpis?.studentsReported || 0, icon: Users, color: 'text-purple-500', bg: 'bg-purple-50' },
-    { label: 'Placement Drives', value: kpis?.placementDrives || 0, icon: Briefcase, color: 'text-pink-500', bg: 'bg-pink-50' },
+    {
+      label: 'Total Reports Generated',
+      value: kpis?.reportsGenerated || 0,
+      icon: FileSpreadsheet,
+      color: 'text-blue-500',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'Exports This Month',
+      value: kpis?.exportsThisMonth || 0,
+      icon: Download,
+      color: 'text-green-500',
+      bg: 'bg-green-50',
+    },
+    {
+      label: 'Active Scheduled Reports',
+      value: kpis?.scheduledReports || 0,
+      icon: CalendarClock,
+      color: 'text-orange-500',
+      bg: 'bg-orange-50',
+    },
+    {
+      label: 'Students in Database',
+      value: kpis?.studentsReported || 0,
+      icon: Users,
+      color: 'text-purple-500',
+      bg: 'bg-purple-50',
+    },
+    {
+      label: 'Placement Drives',
+      value: kpis?.placementDrives || 0,
+      icon: Briefcase,
+      color: 'text-pink-500',
+      bg: 'bg-pink-50',
+    },
   ];
 
   return (
@@ -75,7 +111,10 @@ export default function ReportsOverview({ onNavigateToBuilder }: { onNavigateToB
           {statCards.map((stat, index) => {
             const Icon = stat.icon;
             return (
-              <div key={index} className="bg-card border rounded-xl p-5 flex flex-col items-start shadow-sm hover:shadow-md transition-shadow">
+              <div
+                key={index}
+                className="bg-card border rounded-xl p-5 flex flex-col items-start shadow-sm hover:shadow-md transition-shadow"
+              >
                 <div className={`p-3 rounded-lg ${stat.bg} ${stat.color} mb-4`}>
                   <Icon className="h-6 w-6" />
                 </div>
@@ -98,14 +137,17 @@ export default function ReportsOverview({ onNavigateToBuilder }: { onNavigateToB
           </h4>
           <div className="text-sm">
             {kpis?.lastExport ? (
-              <p>The last report was generated on <span className="font-semibold">{new Date(kpis.lastExport).toLocaleString()}</span>.</p>
+              <p>
+                The last report was generated on{' '}
+                <span className="font-semibold">{new Date(kpis.lastExport).toLocaleString()}</span>.
+              </p>
             ) : (
               <p className="text-muted-foreground">No reports have been generated yet.</p>
             )}
           </div>
         </div>
         <div className="bg-card border rounded-xl p-6 shadow-sm">
-           <h4 className="font-medium flex items-center mb-4">
+          <h4 className="font-medium flex items-center mb-4">
             <FileSpreadsheet className="h-5 w-5 mr-2 text-primary" />
             Available Report Types
           </h4>

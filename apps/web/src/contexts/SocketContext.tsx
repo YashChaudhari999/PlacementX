@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
 
@@ -38,9 +39,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    
+
     const newSocket = io(socketUrl, {
+<<<<<<< HEAD
       auth: { token },
+=======
+      auth: {
+        token,
+      },
+>>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 2000,
@@ -49,8 +56,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     newSocket.on('connect', () => {
       setIsConnected(true);
+<<<<<<< HEAD
       if (userRole === 'STUDENT' && userBranch) {
         newSocket.emit('notification:join', [`department:${userBranch}`]);
+=======
+
+      // Request to join default rooms based on profile if needed
+      // (The backend already joins user:id, role, etc. automatically)
+      if (user.role === 'STUDENT' && (user as any).studentProfile?.branch) {
+        newSocket.emit('notification:join', [`department:${(user as any).studentProfile.branch}`]);
+>>>>>>> f85e2cd8ecf38ea6ee820203cd917adcf9b68528
       }
     });
 
@@ -67,10 +82,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       // Use react-hot-toast for a global popup
       toast(
         (t) => (
-          <div className="flex flex-col cursor-pointer" onClick={() => {
+          <div
+            className="flex flex-col cursor-pointer"
+            onClick={() => {
               if (notification.actionUrl) window.location.href = notification.actionUrl;
               toast.dismiss(t.id);
-          }}>
+            }}
+          >
             <strong className="text-sm font-semibold">{notification.title}</strong>
             <span className="text-sm text-gray-600 line-clamp-2">{notification.message}</span>
           </div>
@@ -79,8 +97,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           duration: 5000,
           position: 'top-right',
           style: {
-            borderLeft: notification.priority === 'HIGH' ? '4px solid #ef4444' : '4px solid #3b82f6',
-          }
+            borderLeft:
+              notification.priority === 'HIGH' ? '4px solid #ef4444' : '4px solid #3b82f6',
+          },
         }
       );
     });

@@ -15,7 +15,7 @@ export const useAdminCalendar = () => {
 
 export const useCreateCustomEvent = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (data: any) => {
       const response = await api.post('/admin/calendar/custom', data);
@@ -27,15 +27,15 @@ export const useCreateCustomEvent = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to add event');
-    }
+    },
   });
 };
 
 export const useUpdateCustomEvent = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, ...data }: { id: string, [key: string]: any }) => {
+    mutationFn: async ({ id, ...data }: { id: string; [key: string]: any }) => {
       const response = await api.put(`/admin/calendar/custom/${id}`, data);
       return response.data;
     },
@@ -45,13 +45,13 @@ export const useUpdateCustomEvent = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to update event');
-    }
+    },
   });
 };
 
 export const useDeleteCustomEvent = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (id: string) => {
       const response = await api.delete(`/admin/calendar/custom/${id}`);
@@ -63,15 +63,15 @@ export const useDeleteCustomEvent = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to delete event');
-    }
+    },
   });
 };
 
 export const useRescheduleInterview = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ id, date, time }: { id: string, date: string, time?: string }) => {
+    mutationFn: async ({ id, date, time }: { id: string; date: string; time?: string }) => {
       const response = await api.put(`/admin/calendar/interview/${id}/reschedule`, { date, time });
       return response.data;
     },
@@ -81,6 +81,6 @@ export const useRescheduleInterview = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to reschedule interview');
-    }
+    },
   });
 };

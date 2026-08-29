@@ -1,18 +1,27 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
-import { Users, CheckCircle2, Clock, MapPin, Search, Calendar, FileText, XCircle } from 'lucide-react';
+import {
+  Users,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Search,
+  Calendar,
+  FileText,
+  XCircle,
+} from 'lucide-react';
 import api from '@/lib/api';
 
 export default function RecruiterEventDashboard() {
   const { token } = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [eventData, setEventData] = useState<any>(null);
   const [stats, setStats] = useState<any>(null);
   const [candidates, setCandidates] = useState<any[]>([]);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
@@ -22,14 +31,17 @@ export default function RecruiterEventDashboard() {
         setLoading(true);
         const [detailsRes, candidatesRes] = await Promise.all([
           api.get(`/recruiter/event/${token}`),
-          api.get(`/recruiter/event/${token}/candidates`)
+          api.get(`/recruiter/event/${token}/candidates`),
         ]);
 
         setEventData(detailsRes.data.drive);
         setStats(detailsRes.data.stats);
         setCandidates(candidatesRes.data);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load event data. Link might be invalid or expired.');
+        setError(
+          err.response?.data?.message ||
+            'Failed to load event data. Link might be invalid or expired.'
+        );
       } finally {
         setLoading(false);
       }
@@ -42,12 +54,12 @@ export default function RecruiterEventDashboard() {
     try {
       await api.post(`/recruiter/event/${token}/shortlist`, {
         applicationId,
-        status: newStatus
+        status: newStatus,
       });
-      
+
       // Update local state
-      setCandidates(prev => 
-        prev.map(c => c.id === applicationId ? { ...c, status: newStatus } : c)
+      setCandidates((prev) =>
+        prev.map((c) => (c.id === applicationId ? { ...c, status: newStatus } : c))
       );
 
       // Update stats
@@ -77,17 +89,21 @@ export default function RecruiterEventDashboard() {
         applicationId,
         date,
         time,
-        venue
+        venue,
       });
 
-      setCandidates(prev => 
-        prev.map(c => c.id === applicationId ? { 
-          ...c, 
-          status: 'INTERVIEW_SCHEDULED',
-          interviewSchedule: { date, time, venue }
-        } : c)
+      setCandidates((prev) =>
+        prev.map((c) =>
+          c.id === applicationId
+            ? {
+                ...c,
+                status: 'INTERVIEW_SCHEDULED',
+                interviewSchedule: { date, time, venue },
+              }
+            : c
+        )
       );
-      
+
       alert('Interview scheduled successfully');
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to schedule interview');
@@ -114,8 +130,10 @@ export default function RecruiterEventDashboard() {
     );
   }
 
-  const filteredCandidates = candidates.filter(c => {
-    const matchesSearch = `${c.student.firstName} ${c.student.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredCandidates = candidates.filter((c) => {
+    const matchesSearch = `${c.student.firstName} ${c.student.lastName}`
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -130,16 +148,21 @@ export default function RecruiterEventDashboard() {
               {eventData.company.name.charAt(0)}
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">{eventData.company.name} Hiring Drive</h1>
-              <p className="text-sm text-slate-500 font-medium">Recruiter Portal • {eventData.title}</p>
+              <h1 className="text-xl font-bold text-slate-900">
+                {eventData.company.name} Hiring Drive
+              </h1>
+              <p className="text-sm text-slate-500 font-medium">
+                Recruiter Portal • {eventData.title}
+              </p>
             </div>
           </div>
-          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 py-1">Active Event</Badge>
+          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 py-1">
+            Active Event
+          </Badge>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-4 border-slate-200 shadow-sm flex items-center gap-4">
@@ -228,17 +251,29 @@ export default function RecruiterEventDashboard() {
                       <div className="font-bold text-slate-800">
                         {app.student.firstName} {app.student.lastName}
                       </div>
-                      <div className="text-xs text-slate-500 truncate max-w-[200px] mt-1" title={app.student.skills?.join(', ')}>
-                        {app.student.skills?.slice(0, 3).join(', ')}{app.student.skills?.length > 3 ? '...' : ''}
+                      <div
+                        className="text-xs text-slate-500 truncate max-w-[200px] mt-1"
+                        title={app.student.skills?.join(', ')}
+                      >
+                        {app.student.skills?.slice(0, 3).join(', ')}
+                        {app.student.skills?.length > 3 ? '...' : ''}
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-700">{app.student.branch}</div>
-                      <div className="text-xs text-slate-500">CGPA: <span className="font-semibold text-slate-700">{app.student.cgpa}</span></div>
+                      <div className="text-xs text-slate-500">
+                        CGPA:{' '}
+                        <span className="font-semibold text-slate-700">{app.student.cgpa}</span>
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       {app.student.resumeUrl ? (
-                        <a href={app.student.resumeUrl} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1">
+                        <a
+                          href={app.student.resumeUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1"
+                        >
                           <FileText className="w-4 h-4" /> View Resume
                         </a>
                       ) : (
@@ -246,35 +281,78 @@ export default function RecruiterEventDashboard() {
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <Badge className={
-                        app.status === 'APPLIED' ? 'bg-slate-100 text-slate-700' :
-                        app.status === 'SHORTLISTED' ? 'bg-amber-100 text-amber-700' :
-                        app.status === 'INTERVIEW_SCHEDULED' ? 'bg-purple-100 text-purple-700' :
-                        app.status === 'SELECTED' ? 'bg-emerald-100 text-emerald-700' :
-                        'bg-rose-100 text-rose-700'
-                      }>
+                      <Badge
+                        className={
+                          app.status === 'APPLIED'
+                            ? 'bg-slate-100 text-slate-700'
+                            : app.status === 'SHORTLISTED'
+                              ? 'bg-amber-100 text-amber-700'
+                              : app.status === 'INTERVIEW_SCHEDULED'
+                                ? 'bg-purple-100 text-purple-700'
+                                : app.status === 'SELECTED'
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : 'bg-rose-100 text-rose-700'
+                        }
+                      >
                         {app.status.replace('_', ' ')}
                       </Badge>
                       {app.interviewSchedule && (
                         <div className="mt-1 flex flex-col gap-0.5 text-[10px] text-slate-500">
-                          <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(app.interviewSchedule.date).toLocaleDateString()}</span>
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {app.interviewSchedule.time}</span>
-                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {app.interviewSchedule.venue.slice(0,15)}</span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />{' '}
+                            {new Date(app.interviewSchedule.date).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" /> {app.interviewSchedule.time}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />{' '}
+                            {app.interviewSchedule.venue.slice(0, 15)}
+                          </span>
                         </div>
                       )}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
                       {app.status === 'APPLIED' && (
-                        <Button size="sm" variant="outline" className="text-indigo-600 border-indigo-200 hover:bg-indigo-50" onClick={() => handleUpdateStatus(app.id, 'SHORTLISTED')}>Shortlist</Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                          onClick={() => handleUpdateStatus(app.id, 'SHORTLISTED')}
+                        >
+                          Shortlist
+                        </Button>
                       )}
-                      {(app.status === 'APPLIED' || app.status === 'SHORTLISTED' || app.status === 'INTERVIEW_SCHEDULED') && (
-                        <Button size="sm" variant="ghost" className="text-rose-600 hover:bg-rose-50" onClick={() => handleUpdateStatus(app.id, 'REJECTED')}>Reject</Button>
+                      {(app.status === 'APPLIED' ||
+                        app.status === 'SHORTLISTED' ||
+                        app.status === 'INTERVIEW_SCHEDULED') && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-rose-600 hover:bg-rose-50"
+                          onClick={() => handleUpdateStatus(app.id, 'REJECTED')}
+                        >
+                          Reject
+                        </Button>
                       )}
                       {app.status === 'SHORTLISTED' && (
-                        <Button size="sm" variant="primary" onClick={() => handleScheduleInterview(app.id)}>Schedule Int.</Button>
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          onClick={() => handleScheduleInterview(app.id)}
+                        >
+                          Schedule Int.
+                        </Button>
                       )}
                       {app.status === 'INTERVIEW_SCHEDULED' && (
-                        <Button size="sm" variant="primary" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleUpdateStatus(app.id, 'SELECTED')}>Select</Button>
+                        <Button
+                          size="sm"
+                          variant="primary"
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          onClick={() => handleUpdateStatus(app.id, 'SELECTED')}
+                        >
+                          Select
+                        </Button>
                       )}
                     </td>
                   </tr>
@@ -290,7 +368,6 @@ export default function RecruiterEventDashboard() {
             </table>
           </div>
         </Card>
-
       </main>
     </div>
   );

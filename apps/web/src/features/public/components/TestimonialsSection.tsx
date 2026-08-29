@@ -3,21 +3,24 @@ import { Star, Quote } from 'lucide-react';
 
 const testimonials = [
   {
-    quote: "PlacementX completely transformed our recruitment process. We've reduced administrative overhead by 60% and improved our placement rates significantly.",
-    author: "Dr. Sharma",
-    role: "Director of Placements, NMIMS",
+    quote:
+      "PlacementX completely transformed our recruitment process. We've reduced administrative overhead by 60% and improved our placement rates significantly.",
+    author: 'Dr. Sharma',
+    role: 'Director of Placements, NMIMS',
     rating: 5,
   },
   {
-    quote: "The automated eligibility matching saved me hours of manual filtering. The recruiter portal is intuitive and very well designed.",
-    author: "Priya Desai",
-    role: "University Relations, TCS",
+    quote:
+      'The automated eligibility matching saved me hours of manual filtering. The recruiter portal is intuitive and very well designed.',
+    author: 'Priya Desai',
+    role: 'University Relations, TCS',
     rating: 5,
   },
   {
-    quote: "I loved how easy it was to track my applications and receive real-time notifications for my interview rounds.",
-    author: "Rahul Patel",
-    role: "Computer Engineering, Class of 2026",
+    quote:
+      'I loved how easy it was to track my applications and receive real-time notifications for my interview rounds.',
+    author: 'Rahul Patel',
+    role: 'Computer Engineering, Class of 2026',
     rating: 5,
   },
 ];
@@ -51,7 +54,7 @@ export const TestimonialsSection = () => {
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: '-50px' }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative"
             >

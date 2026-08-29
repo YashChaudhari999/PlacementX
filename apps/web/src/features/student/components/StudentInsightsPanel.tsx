@@ -1,5 +1,12 @@
 import { Card } from '@/components/ui';
-import { Target, TrendingUp, TrendingDown, AlertCircle, Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  Target,
+  TrendingUp,
+  TrendingDown,
+  AlertCircle,
+  Sparkles,
+  CheckCircle2,
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface MLPrediction {
@@ -16,9 +23,30 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
   const rate = typeof predictedSuccessRate === 'number' ? predictedSuccessRate : 0;
 
   const riskConfig = {
-    LOW: { label: 'LOW RISK', bgClass: 'bg-emerald-500/20', textClass: 'text-emerald-300', borderClass: 'border-emerald-500/30', barClass: 'from-emerald-400 to-teal-500', Icon: CheckCircle2 },
-    MEDIUM: { label: 'MEDIUM RISK', bgClass: 'bg-amber-500/20', textClass: 'text-amber-300', borderClass: 'border-amber-500/30', barClass: 'from-amber-400 to-orange-500', Icon: AlertCircle },
-    HIGH: { label: 'HIGH RISK', bgClass: 'bg-rose-500/20', textClass: 'text-rose-300', borderClass: 'border-rose-500/30', barClass: 'from-rose-400 to-red-500', Icon: AlertCircle },
+    LOW: {
+      label: 'LOW RISK',
+      bgClass: 'bg-emerald-500/20',
+      textClass: 'text-emerald-300',
+      borderClass: 'border-emerald-500/30',
+      barClass: 'from-emerald-400 to-teal-500',
+      Icon: CheckCircle2,
+    },
+    MEDIUM: {
+      label: 'MEDIUM RISK',
+      bgClass: 'bg-amber-500/20',
+      textClass: 'text-amber-300',
+      borderClass: 'border-amber-500/30',
+      barClass: 'from-amber-400 to-orange-500',
+      Icon: AlertCircle,
+    },
+    HIGH: {
+      label: 'HIGH RISK',
+      bgClass: 'bg-rose-500/20',
+      textClass: 'text-rose-300',
+      borderClass: 'border-rose-500/30',
+      barClass: 'from-rose-400 to-red-500',
+      Icon: AlertCircle,
+    },
   };
 
   const config = riskConfig[riskLevel] ?? riskConfig.MEDIUM;
@@ -49,7 +77,9 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
               </div>
               <div>
                 <h2 className="text-lg font-bold leading-tight">Placement Readiness Score</h2>
-                <p className="text-xs text-blue-300 font-medium">AI-powered analysis of your profile</p>
+                <p className="text-xs text-blue-300 font-medium">
+                  AI-powered analysis of your profile
+                </p>
               </div>
             </div>
 
@@ -81,7 +111,11 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
                         : 'bg-rose-500/15 text-rose-300 border border-rose-500/25'
                     }`}
                   >
-                    {f.impact === 'positive' ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                    {f.impact === 'positive' ? (
+                      <TrendingUp className="w-3 h-3" />
+                    ) : (
+                      <TrendingDown className="w-3 h-3" />
+                    )}
                     {f.feature}
                   </span>
                 ))}
@@ -92,7 +126,9 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
           {/* Right: Score + risk pill */}
           <div className="flex items-center gap-4 shrink-0 bg-black/20 p-5 rounded-2xl border border-white/10 backdrop-blur-sm">
             <div className="text-center">
-              <p className="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-1">Score</p>
+              <p className="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-1">
+                Score
+              </p>
               <div className="flex items-end justify-center gap-1">
                 <span className="text-4xl font-black">{rate.toFixed(0)}</span>
                 <span className="text-lg font-bold text-blue-300 mb-0.5">%</span>
@@ -102,8 +138,12 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
             <div className="w-px h-12 bg-white/10" />
 
             <div className="text-center">
-              <p className="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-2">Risk</p>
-              <div className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border ${config.bgClass} ${config.textClass} ${config.borderClass}`}>
+              <p className="text-xs text-blue-300 font-semibold uppercase tracking-wider mb-2">
+                Risk
+              </p>
+              <div
+                className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border ${config.bgClass} ${config.textClass} ${config.borderClass}`}
+              >
                 <RiskIcon className="w-3.5 h-3.5" />
                 {config.label}
               </div>
@@ -119,7 +159,8 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
           <div className="relative z-10 mt-4 border-t border-white/10 pt-4">
             <p className="text-xs text-rose-300 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
-              Complete your profile, add more skills, and apply to active drives to improve your score.
+              Complete your profile, add more skills, and apply to active drives to improve your
+              score.
             </p>
           </div>
         )}

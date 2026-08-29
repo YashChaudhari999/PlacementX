@@ -3,14 +3,36 @@ import { useSearchParams } from 'react-router-dom';
 import type { AnalyticsFilters } from '../types/analytics.types';
 
 const FILTER_KEYS: (keyof AnalyticsFilters)[] = [
-  'academicYear', 'compareWith', 'placementSeason', 'startDate', 'endDate',
-  'department', 'branch', 'graduationYear', 'companyId', 'companyName',
-  'jobRole', 'driveId', 'applicationStatus', 'placementStatus',
-  'minSalary', 'maxSalary', 'page', 'pageSize', 'sortBy', 'sortOrder', 'limit',
+  'academicYear',
+  'compareWith',
+  'placementSeason',
+  'startDate',
+  'endDate',
+  'department',
+  'branch',
+  'graduationYear',
+  'companyId',
+  'companyName',
+  'jobRole',
+  'driveId',
+  'applicationStatus',
+  'placementStatus',
+  'minSalary',
+  'maxSalary',
+  'page',
+  'pageSize',
+  'sortBy',
+  'sortOrder',
+  'limit',
 ];
 
 const NUMBER_KEYS = new Set<string>([
-  'graduationYear', 'minSalary', 'maxSalary', 'page', 'pageSize', 'limit',
+  'graduationYear',
+  'minSalary',
+  'maxSalary',
+  'page',
+  'pageSize',
+  'limit',
 ]);
 
 /**
@@ -44,40 +66,46 @@ export function useAnalyticsFilters() {
 
   const updateFilter = useCallback(
     (key: keyof AnalyticsFilters, value: string | number | undefined) => {
-      setSearchParams(prev => {
-        const next = new URLSearchParams(prev);
-        if (value === undefined || value === '' || value === null) {
-          next.delete(String(key));
-        } else {
-          next.set(String(key), String(value));
-        }
-        // Reset page when filters change (except for page itself)
-        if (key !== 'page' && key !== 'pageSize') {
-          next.delete('page');
-        }
-        return next;
-      }, { replace: true });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          if (value === undefined || value === '' || value === null) {
+            next.delete(String(key));
+          } else {
+            next.set(String(key), String(value));
+          }
+          // Reset page when filters change (except for page itself)
+          if (key !== 'page' && key !== 'pageSize') {
+            next.delete('page');
+          }
+          return next;
+        },
+        { replace: true }
+      );
     },
     [setSearchParams]
   );
 
   const updateFilters = useCallback(
     (updates: Partial<AnalyticsFilters>) => {
-      setSearchParams(prev => {
-        const next = new URLSearchParams(prev);
-        for (const [key, value] of Object.entries(updates)) {
-          if (value === undefined || value === '' || value === null) {
-            next.delete(key);
-          } else {
-            next.set(key, String(value));
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          for (const [key, value] of Object.entries(updates)) {
+            if (value === undefined || value === '' || value === null) {
+              next.delete(key);
+            } else {
+              next.set(key, String(value));
+            }
           }
-        }
-        // Reset page when filters change
-        if (!('page' in updates)) {
-          next.delete('page');
-        }
-        return next;
-      }, { replace: true });
+          // Reset page when filters change
+          if (!('page' in updates)) {
+            next.delete('page');
+          }
+          return next;
+        },
+        { replace: true }
+      );
     },
     [setSearchParams]
   );
@@ -87,11 +115,11 @@ export function useAnalyticsFilters() {
   }, [setSearchParams]);
 
   const hasActiveFilters = useMemo(() => {
-    return FILTER_KEYS.some(key => searchParams.has(key));
+    return FILTER_KEYS.some((key) => searchParams.has(key));
   }, [searchParams]);
 
   const activeFilterCount = useMemo(() => {
-    return FILTER_KEYS.filter(key => searchParams.has(key)).length;
+    return FILTER_KEYS.filter((key) => searchParams.has(key)).length;
   }, [searchParams]);
 
   return {

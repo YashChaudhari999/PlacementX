@@ -2,8 +2,14 @@ import React from 'react';
 import { Card, Button, Input } from '@/components/ui';
 import { GraduationCap, Save } from 'lucide-react';
 
-
-export default function StudentSettings({ settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving }: any) {
+export default function StudentSettings({
+  settings,
+  getValue,
+  handleChange,
+  saveChanges,
+  hasUnsavedChanges,
+  saving,
+}: any) {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
@@ -12,17 +18,25 @@ export default function StudentSettings({ settings, getValue, handleChange, save
           <h3 className="font-bold text-slate-800 text-lg">Student Configurations</h3>
         </div>
         {hasUnsavedChanges && (
-          <Button onClick={() => saveChanges(['requireProfileVerification', 'minimumCGPA', 'maxBacklogsAllowed'])} disabled={saving} size="sm">
+          <Button
+            onClick={() =>
+              saveChanges(['requireProfileVerification', 'minimumCGPA', 'maxBacklogsAllowed'])
+            }
+            disabled={saving}
+            size="sm"
+          >
             <Save className="w-4 h-4 mr-2" /> Save Changes
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-6">
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
           <div>
             <h4 className="text-sm font-medium text-slate-800">Require Profile Verification</h4>
-            <p className="text-xs text-slate-500 mt-1">Students must have their profile verified by an admin before applying.</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Students must have their profile verified by an admin before applying.
+            </p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input
@@ -36,25 +50,29 @@ export default function StudentSettings({ settings, getValue, handleChange, save
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-medium text-slate-700">Default Minimum CGPA (System-wide)</label>
-          <Input 
+          <label className="text-sm font-medium text-slate-700">
+            Default Minimum CGPA (System-wide)
+          </label>
+          <Input
             type="number"
             step="0.01"
             min={0}
             max={10}
-            value={getValue('minimumCGPA') || 0} 
-            onChange={(e) => handleChange('minimumCGPA', parseFloat(e.target.value))} 
+            value={getValue('minimumCGPA') || 0}
+            onChange={(e) => handleChange('minimumCGPA', parseFloat(e.target.value))}
           />
-          <p className="text-xs text-slate-500">Fallback minimum CGPA required if a drive doesn't specify one.</p>
+          <p className="text-xs text-slate-500">
+            Fallback minimum CGPA required if a drive doesn't specify one.
+          </p>
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Default Max Active Backlogs</label>
-          <Input 
+          <Input
             type="number"
             min={0}
-            value={getValue('maxBacklogsAllowed') || 0} 
-            onChange={(e) => handleChange('maxBacklogsAllowed', parseInt(e.target.value))} 
+            value={getValue('maxBacklogsAllowed') || 0}
+            onChange={(e) => handleChange('maxBacklogsAllowed', parseInt(e.target.value))}
           />
         </div>
       </div>

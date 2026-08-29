@@ -10,7 +10,7 @@ export default function StudentSettings() {
   const [passwords, setPasswords] = useState({
     currentPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -27,12 +27,14 @@ export default function StudentSettings() {
 
     try {
       setLoading(true);
-      await api.put('/auth/password', {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword
-      }, {
-        
-      });
+      await api.put(
+        '/auth/password',
+        {
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword,
+        },
+        {}
+      );
       toast.success('Password updated successfully');
       setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error: any) {
@@ -70,41 +72,41 @@ export default function StudentSettings() {
               <Key className="w-5 h-5 text-slate-400" />
               <h3 className="font-bold text-slate-800 text-lg">Change Password</h3>
             </div>
-            
+
             <form onSubmit={handleUpdatePassword} className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Current Password</label>
-                <Input 
-                  type="password" 
-                  name="currentPassword" 
-                  value={passwords.currentPassword} 
-                  onChange={handleChange} 
-                  required 
+                <Input
+                  type="password"
+                  name="currentPassword"
+                  value={passwords.currentPassword}
+                  onChange={handleChange}
+                  required
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">New Password</label>
-                <Input 
-                  type="password" 
-                  name="newPassword" 
-                  value={passwords.newPassword} 
-                  onChange={handleChange} 
-                  required 
+                <Input
+                  type="password"
+                  name="newPassword"
+                  value={passwords.newPassword}
+                  onChange={handleChange}
+                  required
                   minLength={6}
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-slate-700">Confirm New Password</label>
-                <Input 
-                  type="password" 
-                  name="confirmPassword" 
-                  value={passwords.confirmPassword} 
-                  onChange={handleChange} 
-                  required 
+                <Input
+                  type="password"
+                  name="confirmPassword"
+                  value={passwords.confirmPassword}
+                  onChange={handleChange}
+                  required
                   minLength={6}
                 />
               </div>
-              
+
               <div className="pt-4 flex justify-end">
                 <Button type="submit" disabled={loading}>
                   {loading ? 'Updating...' : 'Update Password'}

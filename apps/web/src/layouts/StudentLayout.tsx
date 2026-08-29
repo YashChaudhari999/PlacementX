@@ -2,9 +2,21 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import { 
-  LayoutDashboard, Briefcase, FileText, Bell, Calendar, Settings, 
-  LogOut, Menu, Search, ChevronDown, User, CheckCircle, Download, GraduationCap, Award, Camera
+import {
+  LayoutDashboard,
+  Briefcase,
+  FileText,
+  Bell,
+  Calendar,
+  Settings,
+  LogOut,
+  Menu,
+  Search,
+  User,
+  Award,
+  ChevronDown,
+  Camera,
+  Download,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
@@ -30,7 +42,7 @@ export const StudentLayout = () => {
   if (serverProfile) {
     const requiredFields = ['firstName', 'lastName', 'phone', 'branch', 'cgpa', 'passingYear'];
     let filled = 0;
-    requiredFields.forEach(field => {
+    requiredFields.forEach((field) => {
       if (serverProfile[field as keyof typeof serverProfile]) filled++;
     });
     if (serverProfile.resumeUrl) filled += 1;
@@ -54,16 +66,21 @@ export const StudentLayout = () => {
     { name: 'Settings', path: '/student/settings', icon: Settings },
   ];
 
-  const pageTitle = navItems.find(item => location.pathname.startsWith(item.path))?.name || 'Dashboard';
+  const pageTitle =
+    navItems.find((item) => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
   const sidebarContentJSX = (
     <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
         <div className="flex items-center gap-3 justify-center w-full h-full py-4">
-          <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-full w-auto object-contain mix-blend-multiply" />
+          <img
+            src="/nmimslogo.png"
+            alt="NMIMS Logo"
+            className="h-full w-auto object-contain mix-blend-multiply"
+          />
         </div>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2 scrollbar-hide">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -85,7 +102,9 @@ export const StudentLayout = () => {
               <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
               <span className="flex-1 tracking-wide">{item.name}</span>
               {isNotif && unreadCount > 0 && (
-                <span className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm'}`}>
+                <span
+                  className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm'}`}
+                >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -93,7 +112,7 @@ export const StudentLayout = () => {
           );
         })}
       </div>
-      
+
       {/* Profile Completion Widget */}
       <div className="px-4 py-6 border-t border-slate-100/50 bg-slate-50/50 rounded-b-3xl">
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
@@ -105,7 +124,7 @@ export const StudentLayout = () => {
             <span className="text-xs font-black text-emerald-600">{completionPercentage}%</span>
           </div>
           <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${completionPercentage}%` }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -175,19 +194,21 @@ export const StudentLayout = () => {
               <h1 className="text-2xl font-extrabold text-slate-900 hidden sm:block tracking-tight">
                 {pageTitle}
               </h1>
-              <p className="text-sm font-medium text-slate-500 hidden sm:block mt-0.5">Let's find your dream job today.</p>
+              <p className="text-sm font-medium text-slate-500 hidden sm:block mt-0.5">
+                Let's find your dream job today.
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
             <div className="hidden md:flex relative w-72">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input 
-                placeholder="Search jobs, companies..." 
+              <Input
+                placeholder="Search jobs, companies..."
                 className="pl-11 h-12 bg-white border-slate-200 hover:border-slate-300 focus:bg-white text-sm focus-visible:ring-primary focus-visible:border-primary rounded-2xl shadow-sm transition-all font-medium"
               />
             </div>
-            
+
             {/* Download App Button */}
             <a
               href="/placementx-student-app.apk"
@@ -201,16 +222,25 @@ export const StudentLayout = () => {
             <NotificationBell />
 
             <div className="relative">
-              <button 
+              <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
                 className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all"
               >
                 <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
-                  <img src={serverProfile?.photoUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
+                  <img
+                    src={
+                      serverProfile?.photoUrl ||
+                      `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`
+                    }
+                    alt="avatar"
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <div className="hidden sm:flex flex-col items-start">
                   <span className="text-sm font-bold text-slate-800 leading-tight">
-                    {serverProfile?.firstName ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim() : user?.email?.split('@')[0]}
+                    {serverProfile?.firstName
+                      ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim()
+                      : user?.email?.split('@')[0]}
                   </span>
                   <span className="text-xs font-semibold text-slate-400">
                     {serverProfile?.branch || 'B.Tech CS'}
@@ -230,37 +260,50 @@ export const StudentLayout = () => {
                   >
                     <div className="p-5 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white text-center">
                       <div className="h-16 w-16 mx-auto rounded-2xl bg-slate-100 mb-3 overflow-hidden shadow-inner relative group">
-                        <img src={serverProfile?.photoUrl || `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`} alt="avatar" className="h-full w-full object-cover" />
+                        <img
+                          src={
+                            serverProfile?.photoUrl ||
+                            `https://api.dicebear.com/7.x/notionists/svg?seed=${user?.email}&backgroundColor=f1f5f9`
+                          }
+                          alt="avatar"
+                          className="h-full w-full object-cover"
+                        />
                         <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                           <Camera className="w-5 h-5 mb-0.5" />
-                          <span className="text-[9px] font-bold uppercase tracking-wider">Change</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
+                          <span className="text-[9px] font-bold uppercase tracking-wider">
+                            Change
+                          </span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file && user) {
                                 const reader = new FileReader();
                                 reader.onloadend = () => {
-                                  updatePhotoMutation.mutate({ 
-                                    userId: user.id, 
-                                    photoUrl: reader.result as string
+                                  updatePhotoMutation.mutate({
+                                    userId: user.id,
+                                    photoUrl: reader.result as string,
                                   });
                                 };
                                 reader.readAsDataURL(file);
                               }
-                            }} 
+                            }}
                           />
                         </label>
                       </div>
                       <p className="text-base font-bold text-slate-800">
-                        {serverProfile?.firstName ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim() : user?.email?.split('@')[0]}
+                        {serverProfile?.firstName
+                          ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim()
+                          : user?.email?.split('@')[0]}
                       </p>
-                      <p className="text-sm font-medium text-slate-500 mt-0.5 truncate">{user?.email}</p>
+                      <p className="text-sm font-medium text-slate-500 mt-0.5 truncate">
+                        {user?.email}
+                      </p>
                     </div>
                     <div className="p-3">
-                      <button 
+                      <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
                           navigate('/student/profile');
@@ -269,7 +312,7 @@ export const StudentLayout = () => {
                       >
                         <User className="w-4 h-4 text-slate-400" /> View Profile
                       </button>
-                      <button 
+                      <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
                           navigate('/student/settings');

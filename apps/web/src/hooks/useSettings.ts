@@ -23,16 +23,19 @@ export const useSettings = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchSettings();
   }, []);
 
   const handleChange = (key: string, value: any) => {
-    setUnsavedChanges(prev => ({ ...prev, [key]: value }));
+    setUnsavedChanges((prev) => ({ ...prev, [key]: value }));
   };
 
   const saveChanges = async (keysToSave?: string[]) => {
-    const updates = keysToSave 
-      ? Object.fromEntries(Object.entries(unsavedChanges).filter(([key]) => keysToSave.includes(key)))
+    const updates = keysToSave
+      ? Object.fromEntries(
+          Object.entries(unsavedChanges).filter(([key]) => keysToSave.includes(key))
+        )
       : unsavedChanges;
 
     if (Object.keys(updates).length === 0) return;
@@ -41,14 +44,14 @@ export const useSettings = () => {
       setSaving(true);
       const { data } = await api.patch('/admin/settings', updates);
       setSettings(data.settings);
-      
+
       // Remove saved keys from unsavedChanges
-      setUnsavedChanges(prev => {
+      setUnsavedChanges((prev) => {
         const next = { ...prev };
-        Object.keys(updates).forEach(key => delete next[key]);
+        Object.keys(updates).forEach((key) => delete next[key]);
         return next;
       });
-      
+
       toast.success('Settings saved successfully');
     } catch (error) {
       console.error('Error saving settings:', error);
@@ -59,10 +62,10 @@ export const useSettings = () => {
   };
 
   const discardChanges = (keysToDiscard?: string[]) => {
-    setUnsavedChanges(prev => {
+    setUnsavedChanges((prev) => {
       if (!keysToDiscard) return {};
       const next = { ...prev };
-      keysToDiscard.forEach(key => delete next[key]);
+      keysToDiscard.forEach((key) => delete next[key]);
       return next;
     });
   };
@@ -81,6 +84,6 @@ export const useSettings = () => {
     handleChange,
     saveChanges,
     discardChanges,
-    hasUnsavedChanges: Object.keys(unsavedChanges).length > 0
+    hasUnsavedChanges: Object.keys(unsavedChanges).length > 0,
   };
 };

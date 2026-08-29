@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, ChevronLeft, Check, Plus, Trash2, Building2, Briefcase, GraduationCap, CalendarDays, ClipboardCheck, Paperclip, Eye, Loader2 } from 'lucide-react';
+import {
+  ChevronRight,
+  ChevronLeft,
+  Check,
+  Plus,
+  Trash2,
+  Building2,
+  Briefcase,
+  GraduationCap,
+  CalendarDays,
+  ClipboardCheck,
+  Paperclip,
+  Eye,
+  Loader2,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { useEffect, useState as useState2 } from 'react';
@@ -62,33 +76,38 @@ export default function CreateDriveWizard() {
       resumeMandatory: true,
       portfolioRequired: false,
       githubRequired: false,
-      selectionRounds: [{ title: 'Online Assessment', date: '', time: '', duration: '', venue: '' }]
-    }
+      selectionRounds: [
+        { title: 'Online Assessment', date: '', time: '', duration: '', venue: '' },
+      ],
+    },
   });
 
   const nextStep = async () => {
     if (currentStep < 7) {
       setDirection(1);
-      setCurrentStep(s => s + 1);
+      setCurrentStep((s) => s + 1);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 1) {
       setDirection(-1);
-      setCurrentStep(s => s - 1);
+      setCurrentStep((s) => s - 1);
     }
   };
 
   useEffect(() => {
     if (isEditMode && id) {
       setIsLoading(true);
-      api.get(`/admin/drives/${id}`)
-        .then(res => {
+      api
+        .get(`/admin/drives/${id}`)
+        .then((res) => {
           const d = res.data;
           let branches = [];
-          try { branches = JSON.parse(d.eligibleBranches || '[]'); } catch(e) {}
-          
+          try {
+            branches = JSON.parse(d.eligibleBranches || '[]');
+          } catch (e) {}
+
           methods.reset({
             companyName: d.company?.name || '',
             logoUrl: d.company?.logoUrl || '',
@@ -99,7 +118,7 @@ export default function CreateDriveWizard() {
             jobRole: d.jobRole || '',
             jobDescription: d.jobDescription || '',
             employmentType: d.employmentType || 'Full Time',
-            package: d.fixedSalary ? String(d.fixedSalary) : '', 
+            package: d.fixedSalary ? String(d.fixedSalary) : '',
             ctc: d.fixedSalary ? String(d.fixedSalary) : '',
             variablePay: '', // Usually not stored unless we add to schema
             internshipStipend: '',
@@ -121,18 +140,20 @@ export default function CreateDriveWizard() {
             resumeMandatory: d.resumeMandatory !== false,
             portfolioRequired: false,
             githubRequired: false,
-            selectionRounds: d.selectionRounds?.length ? d.selectionRounds.map((r: any) => ({
-              title: r.title || '',
-              date: r.date ? r.date.split('T')[0] : '',
-              time: r.time || '',
-              duration: r.duration || '',
-              venue: r.venue || ''
-            })) : [{ title: 'Online Assessment', date: '', time: '', duration: '', venue: '' }]
+            selectionRounds: d.selectionRounds?.length
+              ? d.selectionRounds.map((r: any) => ({
+                  title: r.title || '',
+                  date: r.date ? r.date.split('T')[0] : '',
+                  time: r.time || '',
+                  duration: r.duration || '',
+                  venue: r.venue || '',
+                }))
+              : [{ title: 'Online Assessment', date: '', time: '', duration: '', venue: '' }],
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
-          toast.error("Failed to load drive details");
+          toast.error('Failed to load drive details');
         })
         .finally(() => setIsLoading(false));
     }
@@ -147,7 +168,7 @@ export default function CreateDriveWizard() {
         cgpa: data.minimumCgpa,
         backlogs: data.activeBacklogs,
       };
-      
+
       if (isEditMode) {
         await api.put(`/admin/drives/${id}`, payload);
         toast.success('Drive Updated Successfully!');
@@ -165,23 +186,29 @@ export default function CreateDriveWizard() {
   const slideVariants = {
     enter: (direction: number) => ({
       x: direction > 0 ? '100%' : '-100%',
-      opacity: 0
+      opacity: 0,
     }),
     center: {
       x: 0,
-      opacity: 1
+      opacity: 1,
     },
     exit: (direction: number) => ({
       x: direction < 0 ? '100%' : '-100%',
-      opacity: 0
-    })
+      opacity: 0,
+    }),
   };
 
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">{isEditMode ? 'Edit Placement Drive' : 'Create Placement Drive'}</h1>
-        <p className="text-slate-500 mt-1">{isEditMode ? 'Update company visit details.' : 'Configure a new company visit and recruitment process.'}</p>
+        <h1 className="text-2xl font-bold text-slate-800">
+          {isEditMode ? 'Edit Placement Drive' : 'Create Placement Drive'}
+        </h1>
+        <p className="text-slate-500 mt-1">
+          {isEditMode
+            ? 'Update company visit details.'
+            : 'Configure a new company visit and recruitment process.'}
+        </p>
       </div>
 
       {isLoading && (
@@ -191,92 +218,104 @@ export default function CreateDriveWizard() {
       {!isLoading && (
         <>
           {/* Stepper Header */}
-      <div className="mb-12 relative">
-        <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-200 -z-10" />
-        <div className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500 -z-10" 
-             style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }} />
-        
-        <div className="flex justify-between">
-          {STEPS.map((step) => {
-            const Icon = step.icon;
-            const isCompleted = currentStep > step.id;
-            const isCurrent = currentStep === step.id;
-            
-            return (
-              <div key={step.id} className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-colors duration-300 ${
-                  isCompleted ? 'border-primary text-primary' : 
-                  isCurrent ? 'border-primary bg-primary text-white' : 
-                  'border-slate-200 text-slate-400'
-                }`}>
-                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                </div>
-                <span className={`mt-2 text-xs font-medium ${isCurrent || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}>
-                  {step.title}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          <div className="mb-12 relative">
+            <div className="absolute top-5 left-0 w-full h-0.5 bg-slate-200 -z-10" />
+            <div
+              className="absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500 -z-10"
+              style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 100}%` }}
+            />
 
-      {/* Form Container */}
-      <Card className="p-8 min-h-[500px] flex flex-col">
-        <FormProvider {...methods}>
-          <form onSubmit={methods.handleSubmit(onSubmit)} className="flex-1 flex flex-col relative overflow-hidden">
-            
-            <div className="flex-1">
-              <AnimatePresence custom={direction} mode="wait">
-                <motion.div
-                  key={currentStep}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  className="w-full"
-                >
-                  {currentStep === 1 && <Step1Company />}
-                  {currentStep === 2 && <Step2Job />}
-                  {currentStep === 3 && <Step3Eligibility />}
-                  {currentStep === 4 && <Step4Registration />}
-                  {currentStep === 5 && <Step5Selection />}
-                  {currentStep === 6 && <Step6Attachments />}
-                  {currentStep === 7 && <Step7Preview />}
-                </motion.div>
-              </AnimatePresence>
+            <div className="flex justify-between">
+              {STEPS.map((step) => {
+                const Icon = step.icon;
+                const isCompleted = currentStep > step.id;
+                const isCurrent = currentStep === step.id;
+
+                return (
+                  <div key={step.id} className="flex flex-col items-center">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 bg-white transition-colors duration-300 ${
+                        isCompleted
+                          ? 'border-primary text-primary'
+                          : isCurrent
+                            ? 'border-primary bg-primary text-white'
+                            : 'border-slate-200 text-slate-400'
+                      }`}
+                    >
+                      {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                    </div>
+                    <span
+                      className={`mt-2 text-xs font-medium ${isCurrent || isCompleted ? 'text-slate-800' : 'text-slate-400'}`}
+                    >
+                      {step.title}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+          </div>
 
-            {/* Footer Navigation */}
-            <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={prevStep}
-                disabled={currentStep === 1}
+          {/* Form Container */}
+          <Card className="p-8 min-h-[500px] flex flex-col">
+            <FormProvider {...methods}>
+              <form
+                onSubmit={methods.handleSubmit(onSubmit)}
+                className="flex-1 flex flex-col relative overflow-hidden"
               >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
-              
-              {currentStep < 7 ? (
-                <Button type="button" onClick={nextStep}>
-                  Next Step
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              ) : (
-                <Button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                  <Check className="w-4 h-4 mr-2" />
-                  Publish Drive
-                </Button>
-              )}
-            </div>
-            
-          </form>
-        </FormProvider>
-      </Card>
-      </>
+                <div className="flex-1">
+                  <AnimatePresence custom={direction} mode="wait">
+                    <motion.div
+                      key={currentStep}
+                      custom={direction}
+                      variants={slideVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      className="w-full"
+                    >
+                      {currentStep === 1 && <Step1Company />}
+                      {currentStep === 2 && <Step2Job />}
+                      {currentStep === 3 && <Step3Eligibility />}
+                      {currentStep === 4 && <Step4Registration />}
+                      {currentStep === 5 && <Step5Selection />}
+                      {currentStep === 6 && <Step6Attachments />}
+                      {currentStep === 7 && <Step7Preview />}
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+
+                {/* Footer Navigation */}
+                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-between">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={prevStep}
+                    disabled={currentStep === 1}
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+
+                  {currentStep < 7 ? (
+                    <Button type="button" onClick={nextStep}>
+                      Next Step
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      Publish Drive
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </FormProvider>
+          </Card>
+        </>
       )}
     </div>
   );
@@ -315,18 +354,16 @@ function Step1Company() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-800">Company Information</h2>
-        <p className="text-slate-500 text-sm mt-1">Basic details about the visiting organization.</p>
+        <p className="text-slate-500 text-sm mt-1">
+          Basic details about the visiting organization.
+        </p>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2 flex flex-col items-start space-y-3">
           <label className="text-sm font-medium text-slate-700">Company Logo</label>
           <div className="relative">
-            <AvatarUpload
-              currentUrl={logoUrl}
-              onFileSelected={handleLogoUpload}
-              size="lg"
-            />
+            <AvatarUpload currentUrl={logoUrl} onFileSelected={handleLogoUpload} size="lg" />
             {isUploadingLogo && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full backdrop-blur-sm z-10">
                 <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
@@ -341,7 +378,10 @@ function Step1Company() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Industry</label>
-          <select {...register('industry')} className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
+          <select
+            {...register('industry')}
+            className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+          >
             <option value="">Select Industry</option>
             <option value="IT">Information Technology</option>
             <option value="Finance">Finance & Banking</option>
@@ -354,7 +394,12 @@ function Step1Company() {
         </div>
         <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium text-slate-700">Company Profile *</label>
-          <textarea {...register('companyProfile')} rows={3} className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent" placeholder="Brief description of the company..." />
+          <textarea
+            {...register('companyProfile')}
+            rows={3}
+            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+            placeholder="Brief description of the company..."
+          />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">HR Name</label>
@@ -366,7 +411,10 @@ function Step1Company() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Work Mode</label>
-          <select {...register('workMode')} className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
+          <select
+            {...register('workMode')}
+            className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+          >
             <option value="On Campus">On Campus</option>
             <option value="Off Campus">Off Campus</option>
             <option value="Hybrid">Hybrid</option>
@@ -386,19 +434,30 @@ function Step2Job() {
         <h2 className="text-xl font-semibold text-slate-800">Job Details</h2>
         <p className="text-slate-500 text-sm mt-1">Role, package, and employment type specifics.</p>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium text-slate-700">Job Role *</label>
-          <Input {...register('jobRole')} placeholder="e.g. Software Development Engineer (SDE-1)" />
+          <Input
+            {...register('jobRole')}
+            placeholder="e.g. Software Development Engineer (SDE-1)"
+          />
         </div>
         <div className="col-span-2 space-y-2">
           <label className="text-sm font-medium text-slate-700">Job Description *</label>
-          <textarea {...register('jobDescription')} rows={4} className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent" placeholder="Key responsibilities and requirements..." />
+          <textarea
+            {...register('jobDescription')}
+            rows={4}
+            className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+            placeholder="Key responsibilities and requirements..."
+          />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Employment Type</label>
-          <select {...register('employmentType')} className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
+          <select
+            {...register('employmentType')}
+            className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+          >
             <option value="Full Time">Full Time</option>
             <option value="Internship">Internship</option>
             <option value="Internship + PPO">Internship + PPO</option>
@@ -414,11 +473,20 @@ function Step2Job() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Internship Stipend (/mo)</label>
-          <Input {...register('internshipStipend')} type="number" step="1000" placeholder="e.g. 40000" />
+          <Input
+            {...register('internshipStipend')}
+            type="number"
+            step="1000"
+            placeholder="e.g. 40000"
+          />
         </div>
         <div className="space-y-2 pt-8">
           <label className="flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" {...register('ppoAvailable')} className="rounded border-slate-300 text-primary focus:ring-primary/20" />
+            <input
+              type="checkbox"
+              {...register('ppoAvailable')}
+              className="rounded border-slate-300 text-primary focus:ring-primary/20"
+            />
             PPO Available
           </label>
         </div>
@@ -428,7 +496,11 @@ function Step2Job() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">No. of Vacancies</label>
-          <Input {...register('vacancies')} type="number" placeholder="Leave empty if unspecified" />
+          <Input
+            {...register('vacancies')}
+            type="number"
+            placeholder="Leave empty if unspecified"
+          />
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Job Location</label>
@@ -445,20 +517,28 @@ function Step3Eligibility() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-800">Eligibility Criteria</h2>
-        <p className="text-slate-500 text-sm mt-1">Set academic and branch requirements for applicants.</p>
+        <p className="text-slate-500 text-sm mt-1">
+          Set academic and branch requirements for applicants.
+        </p>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2 space-y-2">
-          <label className="text-sm font-medium text-slate-700">Eligible Branches (Hold Ctrl/Cmd to select multiple)</label>
-          <select multiple {...register('eligibleBranches')} className="w-full h-32 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
+          <label className="text-sm font-medium text-slate-700">
+            Eligible Branches (Hold Ctrl/Cmd to select multiple)
+          </label>
+          <select
+            multiple
+            {...register('eligibleBranches')}
+            className="w-full h-32 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+          >
             <option value="Information Technology">Information Technology</option>
             <option value="Computer Science">Computer Science</option>
             <option value="Computer Engineering">Computer Engineering</option>
             <option value="AI/ML">AI/ML</option>
           </select>
         </div>
-        
+
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Minimum CGPA</label>
           <Input {...register('minimumCgpa')} type="number" step="0.01" placeholder="e.g. 7.5" />
@@ -477,7 +557,10 @@ function Step3Eligibility() {
         </div>
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Gender Restriction</label>
-          <select {...register('genderRestriction')} className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent">
+          <select
+            {...register('genderRestriction')}
+            className="w-full h-10 rounded-md border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 bg-transparent"
+          >
             <option value="ANY">Any</option>
             <option value="MALE">Male Only</option>
             <option value="FEMALE">Female Only</option>
@@ -498,49 +581,81 @@ function Step4Registration() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-800">Registration Timeline</h2>
-        <p className="text-slate-500 text-sm mt-1">Manage application windows and document requirements.</p>
+        <p className="text-slate-500 text-sm mt-1">
+          Manage application windows and document requirements.
+        </p>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Registration Start Date *</label>
+              <label className="text-sm font-medium text-slate-700">
+                Registration Start Date *
+              </label>
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <Input type="date" className="pl-10" {...register('registrationStart', { required: true })} />
+                <Input
+                  type="date"
+                  className="pl-10"
+                  {...register('registrationStart', { required: true })}
+                />
               </div>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Registration End Date *</label>
               <div className="relative">
                 <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-                <Input type="date" className="pl-10" {...register('registrationEnd', { required: true })} />
+                <Input
+                  type="date"
+                  className="pl-10"
+                  {...register('registrationEnd', { required: true })}
+                />
               </div>
             </div>
           </div>
           <div className="space-y-2 pt-4">
-            <label className="text-sm font-medium text-slate-700">Nomination Link (External form, if any)</label>
+            <label className="text-sm font-medium text-slate-700">
+              Nomination Link (External form, if any)
+            </label>
             <Input placeholder="https://forms.gle/..." {...register('nominationLink')} />
           </div>
           <div className="space-y-2 pt-4">
             <label className="text-sm font-medium text-slate-700">Maximum Applicants</label>
-            <Input type="number" placeholder="Leave empty for unlimited" {...register('maximumApplicants')} />
+            <Input
+              type="number"
+              placeholder="Leave empty for unlimited"
+              {...register('maximumApplicants')}
+            />
           </div>
         </div>
         <div className="col-span-2 space-y-2 mt-4">
-          <h3 className="text-sm font-semibold text-slate-800 mb-2 border-b pb-2">Required Documents</h3>
+          <h3 className="text-sm font-semibold text-slate-800 mb-2 border-b pb-2">
+            Required Documents
+          </h3>
           <div className="flex flex-col gap-3">
             <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" {...register('resumeMandatory')} className="rounded border-slate-300 text-primary focus:ring-primary/20" />
+              <input
+                type="checkbox"
+                {...register('resumeMandatory')}
+                className="rounded border-slate-300 text-primary focus:ring-primary/20"
+              />
               Resume / CV
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" {...register('portfolioRequired')} className="rounded border-slate-300 text-primary focus:ring-primary/20" />
+              <input
+                type="checkbox"
+                {...register('portfolioRequired')}
+                className="rounded border-slate-300 text-primary focus:ring-primary/20"
+              />
               Portfolio Link
             </label>
             <label className="flex items-center gap-2 text-sm text-slate-700">
-              <input type="checkbox" {...register('githubRequired')} className="rounded border-slate-300 text-primary focus:ring-primary/20" />
+              <input
+                type="checkbox"
+                {...register('githubRequired')}
+                className="rounded border-slate-300 text-primary focus:ring-primary/20"
+              />
               GitHub Profile
             </label>
           </div>
@@ -554,7 +669,7 @@ function Step5Selection() {
   const { register, control } = useFormContext();
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "selectionRounds"
+    name: 'selectionRounds',
   });
 
   return (
@@ -563,12 +678,15 @@ function Step5Selection() {
         <h2 className="text-xl font-semibold text-slate-800">Selection Process</h2>
         <p className="text-slate-500 text-sm mt-1">Define the interview rounds and assessments.</p>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto pr-2 space-y-4">
         {fields.map((field, index) => (
-          <div key={field.id} className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group">
-            <button 
-              type="button" 
+          <div
+            key={field.id}
+            className="p-4 border border-slate-200 rounded-xl bg-slate-50 relative group"
+          >
+            <button
+              type="button"
               onClick={() => remove(index)}
               className="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
             >
@@ -578,7 +696,10 @@ function Step5Selection() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-2 col-span-2">
                 <label className="text-xs font-medium text-slate-600">Round Title</label>
-                <Input {...register(`selectionRounds.${index}.title` as const)} placeholder="e.g. Technical Interview" />
+                <Input
+                  {...register(`selectionRounds.${index}.title` as const)}
+                  placeholder="e.g. Technical Interview"
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600">Expected Date</label>
@@ -590,19 +711,25 @@ function Step5Selection() {
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-medium text-slate-600">Duration</label>
-                <Input {...register(`selectionRounds.${index}.duration` as const)} placeholder="e.g. 60 mins" />
+                <Input
+                  {...register(`selectionRounds.${index}.duration` as const)}
+                  placeholder="e.g. 60 mins"
+                />
               </div>
               <div className="space-y-2 col-span-3">
                 <label className="text-xs font-medium text-slate-600">Venue / Link</label>
-                <Input {...register(`selectionRounds.${index}.venue` as const)} placeholder="e.g. Room 402 or MS Teams link" />
+                <Input
+                  {...register(`selectionRounds.${index}.venue` as const)}
+                  placeholder="e.g. Room 402 or MS Teams link"
+                />
               </div>
             </div>
           </div>
         ))}
-        
-        <Button 
-          type="button" 
-          variant="outline" 
+
+        <Button
+          type="button"
+          variant="outline"
           onClick={() => append({ title: '', date: '', time: '', duration: '', venue: '' })}
           className="w-full border-dashed py-8 text-slate-500 hover:text-slate-800"
         >
@@ -619,9 +746,11 @@ function Step6Attachments() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-slate-800">Attachments</h2>
-        <p className="text-slate-500 text-sm mt-1">Upload JD PDFs, PPTs, or preparation material.</p>
+        <p className="text-slate-500 text-sm mt-1">
+          Upload JD PDFs, PPTs, or preparation material.
+        </p>
       </div>
-      
+
       <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 flex flex-col items-center justify-center text-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 text-primary">
           <Paperclip className="w-8 h-8" />
@@ -643,56 +772,78 @@ function Step7Preview() {
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-xl font-semibold text-slate-800">Preview Drive</h2>
-          <p className="text-slate-500 text-sm mt-1">Review the details before publishing to students.</p>
+          <p className="text-slate-500 text-sm mt-1">
+            Review the details before publishing to students.
+          </p>
         </div>
         <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-full uppercase tracking-wider">
           Draft Mode
         </span>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto border border-slate-200 rounded-xl p-6 bg-slate-50 space-y-8">
-        
         {/* Header Preview */}
         <div className="flex items-center gap-4 border-b border-slate-200 pb-6">
           <div className="w-16 h-16 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400">
             <Building2 className="w-8 h-8" />
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-slate-800">{data.companyName || 'Company Name'}</h3>
-            <p className="text-slate-600 font-medium">{data.jobRole || 'Job Role'} • {data.employmentType}</p>
+            <h3 className="text-2xl font-bold text-slate-800">
+              {data.companyName || 'Company Name'}
+            </h3>
+            <p className="text-slate-600 font-medium">
+              {data.jobRole || 'Job Role'} • {data.employmentType}
+            </p>
           </div>
         </div>
 
         {/* Details Grid */}
         <div className="grid grid-cols-2 gap-y-6 gap-x-12">
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Package (CTC)</p>
-            <p className="font-medium text-slate-800">{data.package ? `${data.package} LPA` : 'Not specified'}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Package (CTC)
+            </p>
+            <p className="font-medium text-slate-800">
+              {data.package ? `${data.package} LPA` : 'Not specified'}
+            </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Work Mode</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Work Mode
+            </p>
             <p className="font-medium text-slate-800">{data.workMode}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Minimum CGPA</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Minimum CGPA
+            </p>
             <p className="font-medium text-slate-800">{data.minimumCgpa || 'No minimum'}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Eligible Branches</p>
-            <p className="font-medium text-slate-800">{data.eligibleBranches?.length ? data.eligibleBranches.join(', ') : 'All Branches'}</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">
+              Eligible Branches
+            </p>
+            <p className="font-medium text-slate-800">
+              {data.eligibleBranches?.length ? data.eligibleBranches.join(', ') : 'All Branches'}
+            </p>
           </div>
           <div className="col-span-2">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Selection Rounds</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              Selection Rounds
+            </p>
             <div className="flex flex-wrap gap-2">
               {data.selectionRounds?.map((r: any, i: number) => (
-                <span key={i} className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm font-medium text-slate-700 shadow-sm">
-                  {i+1}. {r.title || 'Round'} {r.date ? `(${new Date(r.date).toLocaleDateString()})` : ''}
+                <span
+                  key={i}
+                  className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm font-medium text-slate-700 shadow-sm"
+                >
+                  {i + 1}. {r.title || 'Round'}{' '}
+                  {r.date ? `(${new Date(r.date).toLocaleDateString()})` : ''}
                 </span>
               ))}
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

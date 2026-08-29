@@ -3,16 +3,26 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button } from '@/components/ui';
-import { Building2, MapPin, CalendarDays, IndianRupee, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import {
+  Building2,
+  MapPin,
+  CalendarDays,
+  IndianRupee,
+  AlertCircle,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function StudentDriveDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const user = useAuthStore(state => state.user);
-  
+  const user = useAuthStore((state) => state.user);
+
   const [drive, setDrive] = useState<any>(null);
-  const [eligibility, setEligibility] = useState<{ isEligible: boolean; reasons: string[] } | null>(null);
+  const [eligibility, setEligibility] = useState<{ isEligible: boolean; reasons: string[] } | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,9 +44,7 @@ export default function StudentDriveDetails() {
   const checkEligibility = async () => {
     if (!user) return;
     try {
-      const res = await api.get(`/admin/drives/${id}/eligibility`, {
-        
-      });
+      const res = await api.get(`/admin/drives/${id}/eligibility`, {});
       setEligibility(res.data);
     } catch (error) {
       console.error('Eligibility check failed', error);
@@ -48,10 +56,7 @@ export default function StudentDriveDetails() {
   const handleApply = async () => {
     try {
       setLoading(true);
-      await api.post('/student/applications', 
-        { driveId: id },
-        {  }
-      );
+      await api.post('/student/applications', { driveId: id }, {});
       toast.success('Successfully applied to the drive!');
       navigate('/student/applications');
     } catch (error: any) {
@@ -76,15 +81,24 @@ export default function StudentDriveDetails() {
             <div>
               <h1 className="text-3xl font-bold text-slate-800">{drive.company?.name}</h1>
               <p className="text-lg text-slate-600 mt-1 font-medium">{drive.jobRole}</p>
-              
+
               <div className="flex flex-wrap gap-4 mt-4 text-sm text-slate-500">
-                <div className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {drive.workMode}</div>
-                <div className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> Deadline: {new Date(drive.registrationEnd).toLocaleDateString()}</div>
-                {drive.fixedSalary && <div className="flex items-center gap-1.5"><IndianRupee className="w-4 h-4" /> {drive.fixedSalary} LPA</div>}
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4" /> {drive.workMode}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CalendarDays className="w-4 h-4" /> Deadline:{' '}
+                  {new Date(drive.registrationEnd).toLocaleDateString()}
+                </div>
+                {drive.fixedSalary && (
+                  <div className="flex items-center gap-1.5">
+                    <IndianRupee className="w-4 h-4" /> {drive.fixedSalary} LPA
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          
+
           <div className="flex flex-col items-end gap-3">
             {eligibility ? (
               eligibility.isEligible ? (
@@ -97,7 +111,13 @@ export default function StudentDriveDetails() {
                 </div>
               )
             ) : null}
-            <Button onClick={handleApply} disabled={!eligibility?.isEligible} className={eligibility?.isEligible ? 'bg-primary hover:bg-primary-dark text-white' : ''}>
+            <Button
+              onClick={handleApply}
+              disabled={!eligibility?.isEligible}
+              className={
+                eligibility?.isEligible ? 'bg-primary hover:bg-primary-dark text-white' : ''
+              }
+            >
               Apply Now
             </Button>
           </div>
@@ -112,10 +132,12 @@ export default function StudentDriveDetails() {
             <div className="prose prose-slate max-w-none">
               <p className="whitespace-pre-wrap text-slate-600">{drive.jobDescription}</p>
             </div>
-            
+
             {drive.company?.profile && (
               <div className="mt-8">
-                <h3 className="text-lg font-bold text-slate-800 mb-3">About {drive.company.name}</h3>
+                <h3 className="text-lg font-bold text-slate-800 mb-3">
+                  About {drive.company.name}
+                </h3>
                 <p className="whitespace-pre-wrap text-slate-600">{drive.company.profile}</p>
               </div>
             )}
@@ -165,19 +187,27 @@ export default function StudentDriveDetails() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-slate-500">Fixed CTC</span>
-                <span className="font-medium text-slate-800">{drive.fixedSalary ? `${drive.fixedSalary} LPA` : '-'}</span>
+                <span className="font-medium text-slate-800">
+                  {drive.fixedSalary ? `${drive.fixedSalary} LPA` : '-'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Variable Pay</span>
-                <span className="font-medium text-slate-800">{drive.variablePay ? `${drive.variablePay} LPA` : '-'}</span>
+                <span className="font-medium text-slate-800">
+                  {drive.variablePay ? `${drive.variablePay} LPA` : '-'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Stipend (Internship)</span>
-                <span className="font-medium text-slate-800">{drive.internshipStipend ? `₹${drive.internshipStipend}/mo` : '-'}</span>
+                <span className="font-medium text-slate-800">
+                  {drive.internshipStipend ? `₹${drive.internshipStipend}/mo` : '-'}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">PPO Available</span>
-                <span className="font-medium text-slate-800">{drive.ppoAvailable ? 'Yes' : 'No'}</span>
+                <span className="font-medium text-slate-800">
+                  {drive.ppoAvailable ? 'Yes' : 'No'}
+                </span>
               </div>
               {drive.bondDetails && (
                 <div className="pt-3 border-t mt-3">

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 
-export const Sidebar = ({ items }: { items: { name: string, href: string, icon: any }[] }) => {
+export const Sidebar = ({ items }: { items: { name: string; href: string; icon: any }[] }) => {
   const location = useLocation();
 
   return (

@@ -4,7 +4,7 @@ import { cva } from 'class-variance-authority';
  * ============================================
  * PlacementX — Reusable Variant Definitions
  * ============================================
- * 
+ *
  * Reusable component variants using class-variance-authority.
  * Tailwind V4 uses the custom CSS variables defined in index.css.
  */
@@ -41,10 +41,12 @@ export const badgeVariants = cva(
     variants: {
       variant: {
         default: 'border-transparent bg-primary text-primary-foreground hover:bg-primary/80',
-        secondary: 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        destructive: 'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
+        secondary:
+          'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        destructive:
+          'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
         outline: 'text-foreground',
-        
+
         // Status Variants
         approved: 'border-transparent bg-success text-success-foreground',
         pending: 'border-transparent bg-warning text-warning-foreground',
@@ -59,18 +61,15 @@ export const badgeVariants = cva(
   }
 );
 
-export const cardVariants = cva(
-  'rounded-lg border border-border bg-card text-card-foreground',
-  {
-    variants: {
-      variant: {
-        default: 'shadow-card',
-        interactive: 'shadow-card hover:shadow-md transition-shadow cursor-pointer',
-        flat: 'shadow-none',
-      },
+export const cardVariants = cva('rounded-lg border border-border bg-card text-card-foreground', {
+  variants: {
+    variant: {
+      default: 'shadow-card',
+      interactive: 'shadow-card hover:shadow-md transition-shadow cursor-pointer',
+      flat: 'shadow-none',
     },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});

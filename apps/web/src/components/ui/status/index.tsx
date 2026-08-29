@@ -22,8 +22,7 @@ export const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
 
 export const Badge = ({ className, variant, ...props }: BadgeProps) => {
   return <div className={badgeVariants({ variant, className })} {...props} />;
@@ -32,9 +31,13 @@ export const Badge = ({ className, variant, ...props }: BadgeProps) => {
 // ============================================
 // StatusChip — semantic status display
 // ============================================
-export type StatusType = 'active' | 'inactive' | 'pending' | 'approved' | 'rejected' | 'draft' | 'completed';
+export type StatusType =
+  'active' | 'inactive' | 'pending' | 'approved' | 'rejected' | 'draft' | 'completed';
 
-const statusMap: Record<StatusType, { label: string; variant: NonNullable<BadgeProps['variant']> }> = {
+const statusMap: Record<
+  StatusType,
+  { label: string; variant: NonNullable<BadgeProps['variant']> }
+> = {
   active: { label: 'Active', variant: 'success' },
   inactive: { label: 'Inactive', variant: 'secondary' },
   pending: { label: 'Pending', variant: 'warning' },
@@ -51,7 +54,11 @@ export interface StatusChipProps {
 
 export const StatusChip = ({ status, className }: StatusChipProps) => {
   const config = statusMap[status];
-  return <Badge variant={config.variant} className={className}>{config.label}</Badge>;
+  return (
+    <Badge variant={config.variant} className={className}>
+      {config.label}
+    </Badge>
+  );
 };
 
 // ============================================
@@ -65,10 +72,18 @@ export interface TagProps {
 
 export const Tag = ({ label, onRemove, className }: TagProps) => {
   return (
-    <span className={['inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium', className].join(' ')}>
+    <span
+      className={[
+        'inline-flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium',
+        className,
+      ].join(' ')}
+    >
       {label}
       {onRemove && (
-        <button onClick={onRemove} className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer">
+        <button
+          onClick={onRemove}
+          className="ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+        >
           <span className="text-muted-foreground hover:text-foreground">×</span>
         </button>
       )}
@@ -100,17 +115,23 @@ export const Timeline = ({ items, className }: TimelineProps) => {
           {idx < items.length - 1 && (
             <div className="absolute left-[11px] top-6 h-full w-px bg-border" />
           )}
-          <div className={[
-            'relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
-            item.status === 'completed' ? 'border-success bg-success text-success-foreground' :
-            item.status === 'active' ? 'border-primary bg-primary text-primary-foreground' :
-            'border-border bg-muted',
-          ].join(' ')}>
+          <div
+            className={[
+              'relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2',
+              item.status === 'completed'
+                ? 'border-success bg-success text-success-foreground'
+                : item.status === 'active'
+                  ? 'border-primary bg-primary text-primary-foreground'
+                  : 'border-border bg-muted',
+            ].join(' ')}
+          >
             {item.icon || <span className="h-2 w-2 rounded-full bg-current" />}
           </div>
           <div className="flex-1 pt-0.5">
             <p className="text-sm font-medium">{item.title}</p>
-            {item.description && <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>}
+            {item.description && (
+              <p className="mt-0.5 text-xs text-muted-foreground">{item.description}</p>
+            )}
             {item.time && <p className="mt-1 text-xs text-muted-foreground">{item.time}</p>}
           </div>
         </div>

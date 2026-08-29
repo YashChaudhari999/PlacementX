@@ -58,7 +58,7 @@ export const DashboardSkeleton = () => (
 export const AnalyticsSkeleton = () => (
   <div className="space-y-6 animate-pulse">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {[1, 2, 3, 4].map(i => (
+      {[1, 2, 3, 4].map((i) => (
         <Card key={i} className="p-6 h-[120px]" />
       ))}
     </div>

@@ -5,33 +5,29 @@ import { cva, type VariantProps } from 'class-variance-authority';
 // Card — Enterprise Component
 // ============================================
 
-export const cardVariants = cva(
-  'rounded-lg border border-border bg-card text-card-foreground',
-  {
-    variants: {
-      variant: {
-        default: 'shadow-card',
-        interactive: 'shadow-card hover:shadow-md transition-shadow cursor-pointer',
-        flat: 'shadow-none',
-        elevated: 'shadow-md',
-      },
-      padding: {
-        none: '',
-        sm: 'p-4',
-        md: 'p-6',
-        lg: 'p-8',
-      },
+export const cardVariants = cva('rounded-lg border border-border bg-card text-card-foreground', {
+  variants: {
+    variant: {
+      default: 'shadow-card',
+      interactive: 'shadow-card hover:shadow-md transition-shadow cursor-pointer',
+      flat: 'shadow-none',
+      elevated: 'shadow-md',
     },
-    defaultVariants: {
-      variant: 'default',
-      padding: 'md',
+    padding: {
+      none: '',
+      sm: 'p-4',
+      md: 'p-6',
+      lg: 'p-8',
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: 'default',
+    padding: 'md',
+  },
+});
 
 export interface CardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {}
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {}
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, padding, ...props }, ref) => {
@@ -49,22 +45,25 @@ CardHeader.displayName = 'CardHeader';
 
 export const CardTitle = forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={['text-lg font-semibold leading-none tracking-tight', className].join(' ')} {...props} />
+    <h3
+      ref={ref}
+      className={['text-lg font-semibold leading-none tracking-tight', className].join(' ')}
+      {...props}
+    />
   )
 );
 CardTitle.displayName = 'CardTitle';
 
-export const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
-  ({ className, ...props }, ref) => (
-    <p ref={ref} className={['text-sm text-muted-foreground', className].join(' ')} {...props} />
-  )
-);
+export const CardDescription = forwardRef<
+  HTMLParagraphElement,
+  React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => (
+  <p ref={ref} className={['text-sm text-muted-foreground', className].join(' ')} {...props} />
+));
 CardDescription.displayName = 'CardDescription';
 
 export const CardContent = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
-    <div ref={ref} className={className} {...props} />
-  )
+  ({ className, ...props }, ref) => <div ref={ref} className={className} {...props} />
 );
 CardContent.displayName = 'CardContent';
 
@@ -87,7 +86,14 @@ export interface StatisticCardProps {
   className?: string;
 }
 
-export const StatisticCard = ({ title, value, description, icon, trend, className }: StatisticCardProps) => {
+export const StatisticCard = ({
+  title,
+  value,
+  description,
+  icon,
+  trend,
+  className,
+}: StatisticCardProps) => {
   return (
     <Card className={className}>
       <div className="flex items-center justify-between">
@@ -96,7 +102,12 @@ export const StatisticCard = ({ title, value, description, icon, trend, classNam
           <p className="text-2xl font-bold">{value}</p>
           {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
           {trend && (
-            <p className={['text-xs font-medium mt-1', trend.direction === 'up' ? 'text-success' : 'text-destructive'].join(' ')}>
+            <p
+              className={[
+                'text-xs font-medium mt-1',
+                trend.direction === 'up' ? 'text-success' : 'text-destructive',
+              ].join(' ')}
+            >
               {trend.direction === 'up' ? '↑' : '↓'} {trend.value}%
             </p>
           )}
@@ -118,7 +129,13 @@ export interface InformationCardProps {
   className?: string;
 }
 
-export const InformationCard = ({ title, subtitle, children, action, className }: InformationCardProps) => {
+export const InformationCard = ({
+  title,
+  subtitle,
+  children,
+  action,
+  className,
+}: InformationCardProps) => {
   return (
     <Card className={className}>
       <CardHeader>
@@ -147,12 +164,23 @@ export interface CompanyCardProps {
   className?: string;
 }
 
-export const CompanyCard = ({ name, industry, logoUrl, status, onClick, className }: CompanyCardProps) => {
+export const CompanyCard = ({
+  name,
+  industry,
+  logoUrl,
+  status,
+  onClick,
+  className,
+}: CompanyCardProps) => {
   return (
     <Card variant="interactive" className={className} onClick={onClick}>
       <div className="flex items-center space-x-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
-          {logoUrl ? <img src={logoUrl} alt={name} className="h-8 w-8 object-contain" /> : <span className="text-lg font-bold text-muted-foreground">{name[0]}</span>}
+          {logoUrl ? (
+            <img src={logoUrl} alt={name} className="h-8 w-8 object-contain" />
+          ) : (
+            <span className="text-lg font-bold text-muted-foreground">{name[0]}</span>
+          )}
         </div>
         <div className="flex-1">
           <p className="font-semibold">{name}</p>
@@ -177,12 +205,24 @@ export interface StudentCardProps {
   className?: string;
 }
 
-export const StudentCard = ({ name, email, branch, cgpa, avatarUrl, onClick, className }: StudentCardProps) => {
+export const StudentCard = ({
+  name,
+  email,
+  branch,
+  cgpa,
+  avatarUrl,
+  onClick,
+  className,
+}: StudentCardProps) => {
   return (
     <Card variant="interactive" className={className} onClick={onClick}>
       <div className="flex items-center space-x-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary font-semibold">
-          {avatarUrl ? <img src={avatarUrl} alt={name} className="h-10 w-10 rounded-full object-cover" /> : name[0]}
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={name} className="h-10 w-10 rounded-full object-cover" />
+          ) : (
+            name[0]
+          )}
         </div>
         <div className="flex-1">
           <p className="font-semibold">{name}</p>
@@ -209,7 +249,14 @@ export interface NotificationCardProps {
   className?: string;
 }
 
-export const NotificationCard = ({ title, message, time, read, onClick, className }: NotificationCardProps) => {
+export const NotificationCard = ({
+  title,
+  message,
+  time,
+  read,
+  onClick,
+  className,
+}: NotificationCardProps) => {
   return (
     <Card
       variant="interactive"
@@ -219,10 +266,19 @@ export const NotificationCard = ({ title, message, time, read, onClick, classNam
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className={['text-sm', !read ? 'font-semibold' : 'font-medium text-muted-foreground'].join(' ')}>{title}</p>
+          <p
+            className={[
+              'text-sm',
+              !read ? 'font-semibold' : 'font-medium text-muted-foreground',
+            ].join(' ')}
+          >
+            {title}
+          </p>
           <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{message}</p>
         </div>
-        {time && <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{time}</span>}
+        {time && (
+          <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{time}</span>
+        )}
       </div>
     </Card>
   );

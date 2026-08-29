@@ -9,7 +9,12 @@ interface CreateEventModalProps {
   editEvent?: any;
 }
 
-export default function CreateEventModal({ isOpen, onClose, selectedDate, editEvent }: CreateEventModalProps) {
+export default function CreateEventModal({
+  isOpen,
+  onClose,
+  selectedDate,
+  editEvent,
+}: CreateEventModalProps) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -26,19 +31,19 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
     if (editEvent) {
       setTitle(editEvent.title || '');
       const sDate = new Date(editEvent.start);
-      setDate(sDate.toISOString().split('T')[0]);
+      setDate(sDate.toISOString().split('T')[0] || '');
       setIsAllDay(editEvent.allDay || false);
       if (!editEvent.allDay) {
         setStartTime(sDate.toTimeString().slice(0, 5));
         if (editEvent.end) {
-           setEndTime(new Date(editEvent.end).toTimeString().slice(0, 5));
+          setEndTime(new Date(editEvent.end).toTimeString().slice(0, 5));
         }
       }
       setType(editEvent.extendedProps?.type || 'Event');
       setColor(editEvent.color || '#4f46e5');
       setDescription(editEvent.extendedProps?.description || '');
     } else if (selectedDate) {
-      setDate(selectedDate.toISOString().split('T')[0]);
+      setDate(selectedDate.toISOString().split('T')[0] || '');
       setStartTime('09:00');
       setEndTime('10:00');
       setIsAllDay(false);
@@ -61,16 +66,19 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
       isAllDay,
       type,
       color,
-      description
+      description,
     };
 
     if (editEvent) {
-      updateEvent.mutate({ id: editEvent.extendedProps.eventId, ...payload }, {
-        onSuccess: onClose
-      });
+      updateEvent.mutate(
+        { id: editEvent.extendedProps.eventId, ...payload },
+        {
+          onSuccess: onClose,
+        }
+      );
     } else {
       createEvent.mutate(payload, {
-        onSuccess: onClose
+        onSuccess: onClose,
       });
     }
   };
@@ -86,7 +94,10 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
           <h2 className="text-lg font-bold text-slate-800">
             {editEvent ? 'Edit Event' : 'Create Custom Event'}
           </h2>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+          <button
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -128,7 +139,7 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
                     All Day
                   </label>
                 </div>
-                
+
                 {!isAllDay && (
                   <div className="flex items-center gap-2">
                     <Clock className="w-4 h-4 text-slate-400" />
@@ -166,7 +177,7 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
                   <option value="Reminder">Reminder</option>
                   <option value="Holiday">Holiday</option>
                 </select>
-                
+
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-500">Color:</span>
                   <input
@@ -190,7 +201,6 @@ export default function CreateEventModal({ isOpen, onClose, selectedDate, editEv
                 className="w-full border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 resize-none"
               ></textarea>
             </div>
-
           </form>
         </div>
 

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { AuthProvider } from '@/features/auth/contexts/AuthContext';
 import { SessionProvider } from '@/features/auth/contexts/SessionContext';
 import { RoleProvider } from '@/features/auth/contexts/RoleContext';
@@ -30,9 +30,7 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
               <PermissionProvider>
                 <AppShellProvider>
                   <ToastProvider>
-                    <DialogProvider>
-                      {children}
-                    </DialogProvider>
+                    <DialogProvider>{children}</DialogProvider>
                   </ToastProvider>
                 </AppShellProvider>
               </PermissionProvider>

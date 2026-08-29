@@ -76,7 +76,9 @@ export const analyticsService = {
 
   // ── Year Comparison ───────────────────────────────────────
   getYearComparison: async (params?: AnalyticsFilters): Promise<YearComparisonRow[]> => {
-    const { data } = await api.get(`${BASE}/placement/year-comparison`, { params: toParams(params) });
+    const { data } = await api.get(`${BASE}/placement/year-comparison`, {
+      params: toParams(params),
+    });
     return data;
   },
 

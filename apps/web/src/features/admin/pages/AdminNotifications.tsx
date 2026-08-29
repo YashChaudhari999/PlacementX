@@ -10,7 +10,7 @@ import NotificationInbox from './notifications/NotificationInbox';
 
 export default function AdminNotifications() {
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Default to overview tab
   const currentTab = searchParams.get('tab') || 'overview';
 
@@ -33,7 +33,10 @@ export default function AdminNotifications() {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Notification Center</h1>
-          <p className="text-slate-500 text-sm mt-0.5">Communicate placement updates and important alerts to the right students at the right time.</p>
+          <p className="text-slate-500 text-sm mt-0.5">
+            Communicate placement updates and important alerts to the right students at the right
+            time.
+          </p>
         </div>
         {currentTab !== 'send' && (
           <button
@@ -58,9 +61,10 @@ export default function AdminNotifications() {
                 onClick={() => setTab(tab.id)}
                 className={`
                   flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors
-                  ${isActive
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
+                  ${
+                    isActive
+                      ? 'border-indigo-600 text-indigo-600'
+                      : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'
                   }
                 `}
               >

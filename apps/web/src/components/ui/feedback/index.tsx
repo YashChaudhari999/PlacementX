@@ -4,25 +4,21 @@ import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
 // ============================================
 // Alert
 // ============================================
-export const alertVariants = cva(
-  'relative w-full rounded-lg border p-4 text-sm',
-  {
-    variants: {
-      variant: {
-        default: 'bg-background text-foreground border-border',
-        info: 'border-info/50 text-info bg-info/10',
-        success: 'border-success/50 text-success bg-success/10',
-        warning: 'border-warning/50 text-warning bg-warning/10',
-        destructive: 'border-destructive/50 text-destructive bg-destructive/10',
-      },
+export const alertVariants = cva('relative w-full rounded-lg border p-4 text-sm', {
+  variants: {
+    variant: {
+      default: 'bg-background text-foreground border-border',
+      info: 'border-info/50 text-info bg-info/10',
+      success: 'border-success/50 text-success bg-success/10',
+      warning: 'border-warning/50 text-warning bg-warning/10',
+      destructive: 'border-destructive/50 text-destructive bg-destructive/10',
     },
-    defaultVariants: { variant: 'default' },
-  }
-);
+  },
+  defaultVariants: { variant: 'default' },
+});
 
 export interface AlertProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof alertVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof alertVariants> {
   title?: string;
   onClose?: () => void;
 }
@@ -71,7 +67,13 @@ export const Banner = ({ message, variant = 'info', onDismiss, className }: Bann
     destructive: 'bg-destructive/10 text-destructive border-destructive/30',
   };
   return (
-    <div className={['flex items-center justify-between border-b px-4 py-2 text-sm', bgMap[variant], className].join(' ')}>
+    <div
+      className={[
+        'flex items-center justify-between border-b px-4 py-2 text-sm',
+        bgMap[variant],
+        className,
+      ].join(' ')}
+    >
       <span>{message}</span>
       {onDismiss && (
         <button onClick={onDismiss} className="cursor-pointer opacity-70 hover:opacity-100">
@@ -94,8 +96,13 @@ export interface ProgressProps {
 export const Progress = ({ value, max = 100, className }: ProgressProps) => {
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
   return (
-    <div className={['relative h-2 w-full overflow-hidden rounded-full bg-muted', className].join(' ')}>
-      <div className="h-full bg-primary transition-all duration-300 ease-in-out rounded-full" style={{ width: `${pct}%` }} />
+    <div
+      className={['relative h-2 w-full overflow-hidden rounded-full bg-muted', className].join(' ')}
+    >
+      <div
+        className="h-full bg-primary transition-all duration-300 ease-in-out rounded-full"
+        style={{ width: `${pct}%` }}
+      />
     </div>
   );
 };
@@ -120,9 +127,18 @@ export interface SpinnerProps {
 export const Spinner = ({ size = 'md', className }: SpinnerProps) => {
   const sizeMap = { sm: 'h-4 w-4', md: 'h-6 w-6', lg: 'h-8 w-8' };
   return (
-    <svg className={['animate-spin text-primary', sizeMap[size], className].join(' ')} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+    <svg
+      className={['animate-spin text-primary', sizeMap[size], className].join(' ')}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+    >
       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <path
+        className="opacity-75"
+        fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+      />
     </svg>
   );
 };

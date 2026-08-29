@@ -3,14 +3,13 @@ import { Bell } from 'lucide-react';
 import { useUnreadCount } from '@/hooks/queries/useNotifications';
 import NotificationDropdown from './NotificationDropdown';
 
-
 export default function NotificationBell() {
   const { data: unreadCount = 0 } = useUnreadCount();
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
     <div className="relative">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
       >

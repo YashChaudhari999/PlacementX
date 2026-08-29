@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { 
-  BarChart3, 
-  FileSpreadsheet, 
-  History, 
-  Bookmark,
-  ChevronRight
-} from 'lucide-react';
+import { BarChart3, FileSpreadsheet, History, Bookmark, ChevronRight } from 'lucide-react';
 import ReportsOverview from '../components/reports/ReportsOverview';
 import ReportBuilder from '../components/reports/ReportBuilder';
 import ReportHistory from '../components/reports/ReportHistory';
 
 const AdminReports = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'builder' | 'history' | 'saved'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'builder' | 'history' | 'saved'>(
+    'overview'
+  );
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -42,13 +38,16 @@ const AdminReports = () => {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`
                   whitespace-nowrap flex items-center py-4 px-1 border-b-2 font-medium text-sm
-                  ${isActive
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                  ${
+                    isActive
+                      ? 'border-primary text-primary'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                   }
                 `}
               >
-                <Icon className={`mr-2 h-4 w-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                <Icon
+                  className={`mr-2 h-4 w-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`}
+                />
                 {tab.label}
               </button>
             );
@@ -58,7 +57,9 @@ const AdminReports = () => {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'overview' && <ReportsOverview onNavigateToBuilder={() => setActiveTab('builder')} />}
+        {activeTab === 'overview' && (
+          <ReportsOverview onNavigateToBuilder={() => setActiveTab('builder')} />
+        )}
         {activeTab === 'builder' && <ReportBuilder />}
         {activeTab === 'history' && <ReportHistory />}
         {activeTab === 'saved' && (

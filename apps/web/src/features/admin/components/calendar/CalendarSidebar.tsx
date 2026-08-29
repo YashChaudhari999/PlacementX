@@ -2,8 +2,18 @@ import { useState } from 'react';
 import { format, addDays, isAfter, isBefore } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { Calendar as CalendarIcon, Briefcase, Users, FileText, ChevronRight, Bell, AlertCircle, Sparkles } from 'lucide-react';
+import {
+  Calendar as CalendarIcon,
+  Briefcase,
+  Users,
+  FileText,
+  ChevronRight,
+  Bell,
+  AlertCircle,
+  Sparkles,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import type { Variants } from 'framer-motion';
 import { motion } from 'framer-motion';
 
 interface CalendarSidebarProps {
@@ -27,36 +37,40 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
 
   // Upcoming Events (Next 5 events)
   const upcomingEvents = events
-    .filter(e => isAfter(new Date(e.start), now))
+    .filter((e) => isAfter(new Date(e.start), now))
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
     .slice(0, 5);
 
   // Deadlines closing in the next 7 days
   const upcomingDeadlines = events
-    .filter(e => e.extendedProps?.type === 'Deadline' && isAfter(new Date(e.start), now) && isBefore(new Date(e.start), next7Days))
+    .filter(
+      (e) =>
+        e.extendedProps?.type === 'Deadline' &&
+        isAfter(new Date(e.start), now) &&
+        isBefore(new Date(e.start), next7Days)
+    )
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
+      transition: { staggerChildren: 0.1 },
+    },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 15 },
-    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
   };
 
   return (
     <div className="w-full xl:w-[340px] space-y-6 shrink-0 relative">
-      
       {/* Decorative Blur behind sidebar */}
       <div className="absolute top-1/4 left-0 w-full h-[300px] bg-indigo-500/5 rounded-full blur-[60px] -z-10 pointer-events-none"></div>
 
       {/* Mini Calendar */}
-      <motion.div 
+      <motion.div
         variants={itemVariants}
         className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6 overflow-hidden relative group"
       >
@@ -88,32 +102,48 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
       </motion.div>
 
       {/* Summary Stats */}
-      <motion.div variants={itemVariants} className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6">
+      <motion.div
+        variants={itemVariants}
+        className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6"
+      >
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-amber-500" /> Quick Snapshot
         </h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-indigo-50 to-white rounded-[16px] p-4 border border-indigo-100/50 shadow-sm hover:shadow-md transition-shadow group">
-             <div className="text-3xl font-black text-indigo-600 tracking-tight group-hover:scale-105 transition-transform origin-left">{summary?.upcomingDrives || 0}</div>
-             <div className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-wide">Drives</div>
+            <div className="text-3xl font-black text-indigo-600 tracking-tight group-hover:scale-105 transition-transform origin-left">
+              {summary?.upcomingDrives || 0}
+            </div>
+            <div className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-wide">
+              Drives
+            </div>
           </div>
           <div className="bg-gradient-to-br from-emerald-50 to-white rounded-[16px] p-4 border border-emerald-100/50 shadow-sm hover:shadow-md transition-shadow group">
-             <div className="text-3xl font-black text-emerald-600 tracking-tight group-hover:scale-105 transition-transform origin-left">{summary?.upcomingInterviews || 0}</div>
-             <div className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-wide">Interviews</div>
+            <div className="text-3xl font-black text-emerald-600 tracking-tight group-hover:scale-105 transition-transform origin-left">
+              {summary?.upcomingInterviews || 0}
+            </div>
+            <div className="text-xs font-bold text-slate-500 mt-2 uppercase tracking-wide">
+              Interviews
+            </div>
           </div>
         </div>
       </motion.div>
 
       {/* Upcoming Events List */}
-      <motion.div variants={itemVariants} className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6">
+      <motion.div
+        variants={itemVariants}
+        className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6"
+      >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
             <Bell className="w-4 h-4 text-indigo-500" /> Upcoming
           </h3>
-          <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-wider">Next 5</span>
+          <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-wider">
+            Next 5
+          </span>
         </div>
 
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="show"
@@ -127,23 +157,25 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
             upcomingEvents.map((event, idx) => {
               const isDrive = event.extendedProps?.type === 'Placement Drive';
               const isInterview = event.extendedProps?.type === 'Interview Schedule';
-              
+
               let Icon = CalendarIcon;
               if (isDrive) Icon = Briefcase;
               if (isInterview) Icon = Users;
 
               return (
-                <motion.div 
+                <motion.div
                   key={event.id || idx}
                   variants={itemVariants}
                   className="group flex gap-4 p-3 -mx-3 rounded-[16px] hover:bg-slate-50/80 transition-all cursor-pointer relative overflow-hidden hover:shadow-sm"
                 >
-                  <div className="w-11 h-11 rounded-[12px] flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110"
-                       style={{ 
-                         backgroundColor: `${event.backgroundColor || '#4f46e5'}15`, 
-                         color: event.backgroundColor || '#4f46e5',
-                         borderColor: `${event.backgroundColor || '#4f46e5'}30`
-                       }}>
+                  <div
+                    className="w-11 h-11 rounded-[12px] flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110"
+                    style={{
+                      backgroundColor: `${event.backgroundColor || '#4f46e5'}15`,
+                      color: event.backgroundColor || '#4f46e5',
+                      borderColor: `${event.backgroundColor || '#4f46e5'}30`,
+                    }}
+                  >
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0 flex flex-col justify-center">
@@ -155,7 +187,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
                     </div>
                   </div>
                   {event.extendedProps?.driveId && (
-                    <Link 
+                    <Link
                       to={`/admin/drives/${event.extendedProps.driveId}`}
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                     >
@@ -171,16 +203,22 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
 
       {/* Deadlines closing soon */}
       {upcomingDeadlines.length > 0 && (
-        <motion.div variants={itemVariants} className="bg-gradient-to-br from-rose-500 to-red-600 rounded-[24px] shadow-lg shadow-red-500/20 p-6 text-white relative overflow-hidden group">
+        <motion.div
+          variants={itemVariants}
+          className="bg-gradient-to-br from-rose-500 to-red-600 rounded-[24px] shadow-lg shadow-red-500/20 p-6 text-white relative overflow-hidden group"
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
-          
+
           <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider mb-5 flex items-center gap-2 relative z-10">
             <AlertCircle className="w-4 h-4" /> Deadlines Closing Soon
           </h3>
-          
+
           <div className="space-y-4 relative z-10">
             {upcomingDeadlines.map((deadline, idx) => (
-              <div key={idx} className="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-[16px] transition-colors cursor-pointer border border-white/10">
+              <div
+                key={idx}
+                className="bg-white/10 hover:bg-white/20 backdrop-blur-sm p-4 rounded-[16px] transition-colors cursor-pointer border border-white/10"
+              >
                 <h4 className="text-sm font-bold line-clamp-1">{deadline.title}</h4>
                 <div className="text-xs font-semibold text-red-100 mt-1.5 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-200 animate-pulse"></div>
@@ -191,7 +229,6 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
           </div>
         </motion.div>
       )}
-
     </div>
   );
 }

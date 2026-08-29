@@ -2,8 +2,8 @@
  * ============================================
  * PlacementX — Navigation Configuration
  * ============================================
- * 
- * Centralized navigation maps for Sidebars, Navbars, 
+ *
+ * Centralized navigation maps for Sidebars, Navbars,
  * and Breadcrumb generation.
  */
 
@@ -18,7 +18,7 @@ import {
   Calendar,
   ClipboardList,
   BarChart,
-  Bot
+  Bot,
 } from 'lucide-react';
 
 export const studentNavigation = [

@@ -4,11 +4,36 @@ import { ShieldCheck, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import type { HealthScoreResponse } from '@/types/analytics.types';
 
 const colorMap: Record<string, { ring: string; text: string; bg: string; grad: string[] }> = {
-  emerald: { ring: '#10b981', text: 'text-emerald-400', bg: 'bg-emerald-500/15', grad: ['#34d399', '#10b981'] },
-  blue:    { ring: '#3b82f6', text: 'text-blue-400',    bg: 'bg-blue-500/15',    grad: ['#60a5fa', '#3b82f6'] },
-  amber:   { ring: '#f59e0b', text: 'text-amber-400',   bg: 'bg-amber-500/15',   grad: ['#fbbf24', '#f59e0b'] },
-  orange:  { ring: '#f97316', text: 'text-orange-400',  bg: 'bg-orange-500/15',  grad: ['#fb923c', '#f97316'] },
-  rose:    { ring: '#f43f5e', text: 'text-rose-400',    bg: 'bg-rose-500/15',    grad: ['#fb7185', '#f43f5e'] },
+  emerald: {
+    ring: '#10b981',
+    text: 'text-emerald-400',
+    bg: 'bg-emerald-500/15',
+    grad: ['#34d399', '#10b981'],
+  },
+  blue: {
+    ring: '#3b82f6',
+    text: 'text-blue-400',
+    bg: 'bg-blue-500/15',
+    grad: ['#60a5fa', '#3b82f6'],
+  },
+  amber: {
+    ring: '#f59e0b',
+    text: 'text-amber-400',
+    bg: 'bg-amber-500/15',
+    grad: ['#fbbf24', '#f59e0b'],
+  },
+  orange: {
+    ring: '#f97316',
+    text: 'text-orange-400',
+    bg: 'bg-orange-500/15',
+    grad: ['#fb923c', '#f97316'],
+  },
+  rose: {
+    ring: '#f43f5e',
+    text: 'text-rose-400',
+    bg: 'bg-rose-500/15',
+    grad: ['#fb7185', '#f43f5e'],
+  },
 };
 
 function RadialGauge({ value, color }: { value: number; color: string }) {
@@ -21,21 +46,32 @@ function RadialGauge({ value, color }: { value: number; color: string }) {
   const pct = Math.min(value / 100, 1);
   const fill = dashTotal * pct;
   const gradId = `healthGaugeGrad-${color}`;
-  const colors = colorMap[color] || colorMap.blue;
+  const colors = colorMap[color] || colorMap.blue!;
 
   return (
-    <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
+    <div
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
+    >
       <svg width={size} height={size} className="-rotate-[135deg]">
         <circle
-          cx={size / 2} cy={size / 2} r={r}
-          fill="none" stroke="rgba(255,255,255,0.06)"
-          strokeWidth={strokeW} strokeDasharray={`${dashTotal} ${circ}`}
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke="rgba(255,255,255,0.06)"
+          strokeWidth={strokeW}
+          strokeDasharray={`${dashTotal} ${circ}`}
           strokeLinecap="round"
         />
         <motion.circle
-          cx={size / 2} cy={size / 2} r={r}
-          fill="none" stroke={`url(#${gradId})`}
-          strokeWidth={strokeW} strokeLinecap="round"
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          stroke={`url(#${gradId})`}
+          strokeWidth={strokeW}
+          strokeLinecap="round"
           strokeDasharray={`${dashTotal} ${circ}`}
           initial={{ strokeDashoffset: dashTotal }}
           animate={{ strokeDashoffset: dashTotal - fill }}
@@ -66,25 +102,34 @@ function RadialGauge({ value, color }: { value: number; color: string }) {
 export default function PlacementHealthScore({ data }: { data: HealthScoreResponse }) {
   if (!data) return null;
 
-  const colors = colorMap[data.color] || colorMap.blue;
+  const colors = colorMap[data.color] || colorMap.blue!;
 
   return (
     <Card className="p-6 bg-slate-900 text-white border-slate-800 shadow-xl overflow-hidden relative">
       {/* Glow */}
-      <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none"
-        style={{ background: `${colors.ring}10` }} />
+      <div
+        className="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none"
+        style={{ background: `${colors.ring}10` }}
+      />
 
       <div className="relative z-10">
         <div className="flex items-center gap-3 mb-6">
-          <div className={`p-2 rounded-xl ring-1 ${colors.bg}`} style={{ '--tw-ring-color': `${colors.ring}30` } as any}>
+          <div
+            className={`p-2 rounded-xl ring-1 ${colors.bg}`}
+            style={{ '--tw-ring-color': `${colors.ring}30` } as any}
+          >
             <ShieldCheck className={`w-5 h-5 ${colors.text}`} />
           </div>
           <div>
             <h2 className="text-lg font-bold">Placement Health Score</h2>
-            <p className="text-xs text-slate-500 font-medium">Composite score across 6 dimensions</p>
+            <p className="text-xs text-slate-500 font-medium">
+              Composite score across 6 dimensions
+            </p>
           </div>
           <div className="ml-auto">
-            <span className={`px-3 py-1 rounded-full text-xs font-black ${colors.bg} ${colors.text}`}>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-black ${colors.bg} ${colors.text}`}
+            >
               {data.label}
             </span>
           </div>
@@ -108,11 +153,15 @@ export default function PlacementHealthScore({ data }: { data: HealthScoreRespon
                   transition={{ delay: 0.3 + i * 0.08 }}
                   className="flex items-center gap-3"
                 >
-                  <span className="text-xs font-semibold text-slate-400 w-36 shrink-0 truncate">{comp.label}</span>
+                  <span className="text-xs font-semibold text-slate-400 w-36 shrink-0 truncate">
+                    {comp.label}
+                  </span>
                   <div className="flex-1 h-2.5 bg-slate-800 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
-                      style={{ background: `linear-gradient(90deg, ${colors.grad[0]}, ${colors.grad[1]})` }}
+                      style={{
+                        background: `linear-gradient(90deg, ${colors.grad[0]}, ${colors.grad[1]})`,
+                      }}
                       initial={{ width: 0 }}
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 1, delay: 0.5 + i * 0.1 }}

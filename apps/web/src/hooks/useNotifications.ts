@@ -24,9 +24,7 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
     try {
-      const res = await api.get('/notifications', {
-        
-      });
+      const res = await api.get('/notifications', {});
       const sorted = res.data.sort(
         (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
@@ -60,6 +58,7 @@ export function useNotifications() {
   }, [user?.id, navigate]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications();
     const interval = setInterval(fetchNotifications, POLL_INTERVAL);
     return () => clearInterval(interval);

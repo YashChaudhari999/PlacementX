@@ -1,4 +1,5 @@
-import { createContext, useState, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { createContext, useState } from 'react';
 
 export interface AppShellState {
   sidebarCollapsed: boolean;
@@ -23,13 +24,20 @@ export const AppShellProvider = ({ children }: { children: ReactNode }) => {
   const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
 
   return (
-    <AppShellContext.Provider value={{
-      sidebarCollapsed, setSidebarCollapsed,
-      pageTitle, setPageTitle,
-      themeMode, setThemeMode,
-      globalLoading, setGlobalLoading,
-      notificationDrawerOpen, setNotificationDrawerOpen
-    }}>
+    <AppShellContext.Provider
+      value={{
+        sidebarCollapsed,
+        setSidebarCollapsed,
+        pageTitle,
+        setPageTitle,
+        themeMode,
+        setThemeMode,
+        globalLoading,
+        setGlobalLoading,
+        notificationDrawerOpen,
+        setNotificationDrawerOpen,
+      }}
+    >
       {children}
     </AppShellContext.Provider>
   );

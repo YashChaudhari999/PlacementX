@@ -54,13 +54,11 @@ export const useNotificationTemplates = () => {
 
 export const useSendNotification = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (payload: any) => {
-      const endpoint = payload.scheduledAt 
-        ? '/notifications/schedule' 
-        : '/notifications/broadcast';
-      
+      const endpoint = payload.scheduledAt ? '/notifications/schedule' : '/notifications/broadcast';
+
       const response = await api.post(endpoint, payload);
       return response.data;
     },
@@ -72,6 +70,6 @@ export const useSendNotification = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to send notification');
-    }
+    },
   });
 };

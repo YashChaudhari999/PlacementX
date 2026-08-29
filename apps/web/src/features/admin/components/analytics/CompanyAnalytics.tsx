@@ -54,7 +54,10 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
 
       <div className="grid gap-3">
         {displayCompanies.map((company, idx) => (
-          <div key={company.companyName} className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/50 transition-colors">
+          <div
+            key={company.companyName}
+            className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/50 transition-colors"
+          >
             <div className="flex items-center gap-4 min-w-[240px]">
               <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs shrink-0">
                 #{idx + 1}
@@ -74,19 +77,23 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
                 </div>
                 <div className="font-black text-slate-900">{company.offers}</div>
               </div>
-              
+
               <div>
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <IndianRupee className="w-3 h-3" /> Avg Pkg
                 </div>
-                <div className="font-bold text-emerald-600">₹{company.averagePackage.toFixed(2)}L</div>
+                <div className="font-bold text-emerald-600">
+                  ₹{company.averagePackage.toFixed(2)}L
+                </div>
               </div>
 
               <div>
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
                   <IndianRupee className="w-3 h-3" /> High Pkg
                 </div>
-                <div className="font-bold text-indigo-600">₹{company.highestPackage.toFixed(2)}L</div>
+                <div className="font-bold text-indigo-600">
+                  ₹{company.highestPackage.toFixed(2)}L
+                </div>
               </div>
             </div>
           </div>

@@ -12,15 +12,22 @@ export const usePendingProfiles = () => {
 export const useVerifyProfile = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, action, reason }: { id: string, action: 'APPROVE' | 'REJECT', reason?: string }) => 
-      adminService.verifyProfile(id, action, reason),
+    mutationFn: ({
+      id,
+      action,
+      reason,
+    }: {
+      id: string;
+      action: 'APPROVE' | 'REJECT';
+      reason?: string;
+    }) => adminService.verifyProfile(id, action, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminPendingProfiles'] });
       toast.success('Profile verification updated');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to verify profile');
-    }
+    },
   });
 };
 
@@ -34,15 +41,22 @@ export const useUpdateRequests = () => {
 export const useReviewUpdateRequest = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, action, reason }: { id: string, action: 'APPROVE' | 'REJECT', reason?: string }) => 
-      adminService.reviewUpdateRequest(id, action, reason),
+    mutationFn: ({
+      id,
+      action,
+      reason,
+    }: {
+      id: string;
+      action: 'APPROVE' | 'REJECT';
+      reason?: string;
+    }) => adminService.reviewUpdateRequest(id, action, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminUpdateRequests'] });
       toast.success('Update request processed');
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to review update request');
-    }
+    },
   });
 };
 
@@ -56,7 +70,7 @@ export const useProvisionStudents = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to provision students');
-    }
+    },
   });
 };
 

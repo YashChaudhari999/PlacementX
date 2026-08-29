@@ -1,4 +1,4 @@
-import { createContext, ReactNode } from 'react';
+import { createContext, type ReactNode } from 'react';
 import type { PermissionState } from '../types';
 
 export const PermissionContext = createContext<PermissionState | undefined>(undefined);

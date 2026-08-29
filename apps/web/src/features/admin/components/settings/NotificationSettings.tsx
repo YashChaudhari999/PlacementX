@@ -2,8 +2,14 @@ import React from 'react';
 import { Card, Button } from '@/components/ui';
 import { Bell, Save } from 'lucide-react';
 
-
-export default function NotificationSettings({ settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving }: any) {
+export default function NotificationSettings({
+  settings,
+  getValue,
+  handleChange,
+  saveChanges,
+  hasUnsavedChanges,
+  saving,
+}: any) {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
@@ -12,12 +18,16 @@ export default function NotificationSettings({ settings, getValue, handleChange,
           <h3 className="font-bold text-slate-800 text-lg">Communication Preferences</h3>
         </div>
         {hasUnsavedChanges && (
-          <Button onClick={() => saveChanges(['emailNotificationsEnabled', 'pushNotificationsEnabled'])} disabled={saving} size="sm">
+          <Button
+            onClick={() => saveChanges(['emailNotificationsEnabled', 'pushNotificationsEnabled'])}
+            disabled={saving}
+            size="sm"
+          >
             <Save className="w-4 h-4 mr-2" /> Save Changes
           </Button>
         )}
       </div>
-      
+
       <div className="space-y-4">
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
           <div>
@@ -38,7 +48,9 @@ export default function NotificationSettings({ settings, getValue, handleChange,
         <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
           <div>
             <h4 className="text-sm font-medium text-slate-800">Push Notifications</h4>
-            <p className="text-xs text-slate-500 mt-1">Allow system to send in-app and browser push notifications.</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Allow system to send in-app and browser push notifications.
+            </p>
           </div>
           <label className="relative inline-flex items-center cursor-pointer">
             <input

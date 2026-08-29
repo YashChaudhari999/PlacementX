@@ -1,18 +1,24 @@
 import { Card } from '@/components/ui';
 import {
-  Users, GraduationCap, IndianRupee, Building2, Briefcase,
-  TrendingUp, TrendingDown, Minus, FileCheck, Target, Medal,
+  Users,
+  GraduationCap,
+  IndianRupee,
+  Building2,
+  Briefcase,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  FileCheck,
+  Target,
+  Medal,
 } from 'lucide-react';
 import type { OverviewResponse } from '@/types/analytics.types';
 
-const fmt = (n: number | null | undefined) =>
-  n != null ? n.toLocaleString('en-IN') : '—';
+const fmt = (n: number | null | undefined) => (n != null ? n.toLocaleString('en-IN') : '—');
 
-const fmtPct = (n: number | null | undefined) =>
-  n != null ? `${n.toFixed(1)}%` : '—';
+const fmtPct = (n: number | null | undefined) => (n != null ? `${n.toFixed(1)}%` : '—');
 
-const fmtLpa = (n: number | null | undefined) =>
-  n != null ? `₹${n.toFixed(2)} L` : '—';
+const fmtLpa = (n: number | null | undefined) => (n != null ? `₹${n.toFixed(2)} L` : '—');
 
 interface KPICardProps {
   label: string;
@@ -28,17 +34,27 @@ interface KPICardProps {
 }
 
 function KPICard({
-  label, value, subtitle, icon: Icon, iconBg, iconColor,
-  change, changeLabel, tooltip, size = 'default',
+  label,
+  value,
+  subtitle,
+  icon: Icon,
+  iconBg,
+  iconColor,
+  change,
+  changeLabel,
+  tooltip,
+  size = 'default',
 }: KPICardProps) {
   const isPositive = change != null && change > 0;
   const isNegative = change != null && change < 0;
   const isNeutral = change != null && change === 0;
 
   return (
-    <Card className={`p-5 border-slate-200 hover:shadow-md transition-shadow group relative ${
-      size === 'large' ? 'col-span-1 md:col-span-2 lg:col-span-1' : ''
-    }`}>
+    <Card
+      className={`p-5 border-slate-200 hover:shadow-md transition-shadow group relative ${
+        size === 'large' ? 'col-span-1 md:col-span-2 lg:col-span-1' : ''
+      }`}
+    >
       {tooltip && (
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <div className="text-[10px] text-slate-400 bg-slate-50 rounded-md px-2 py-1 max-w-[200px]">
@@ -48,13 +64,17 @@ function KPICard({
       )}
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">{label}</p>
-          <p className={`font-black text-slate-900 mt-1 tabular-nums ${
-            size === 'large' ? 'text-3xl' : 'text-2xl'
-          }`}>{value}</p>
-          {subtitle && (
-            <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>
-          )}
+          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">
+            {label}
+          </p>
+          <p
+            className={`font-black text-slate-900 mt-1 tabular-nums ${
+              size === 'large' ? 'text-3xl' : 'text-2xl'
+            }`}
+          >
+            {value}
+          </p>
+          {subtitle && <p className="text-xs text-slate-500 font-medium mt-0.5">{subtitle}</p>}
         </div>
         <div className={`p-2.5 rounded-xl ${iconBg} shrink-0`}>
           <Icon className={`w-5 h-5 ${iconColor}`} />
@@ -66,10 +86,13 @@ function KPICard({
           {isPositive && <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />}
           {isNegative && <TrendingDown className="w-3.5 h-3.5 text-rose-500" />}
           {isNeutral && <Minus className="w-3.5 h-3.5 text-slate-400" />}
-          <span className={`text-xs font-bold tabular-nums ${
-            isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-500'
-          }`}>
-            {isPositive ? '+' : ''}{change.toFixed(1)}
+          <span
+            className={`text-xs font-bold tabular-nums ${
+              isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-500'
+            }`}
+          >
+            {isPositive ? '+' : ''}
+            {change.toFixed(1)}
           </span>
           <span className="text-xs text-slate-400 font-medium">
             {changeLabel || 'vs previous year'}
@@ -144,7 +167,8 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
     {
       label: 'Companies',
       value: fmt(c.participatingCompanies),
-      subtitle: c.recruiterRetentionRate != null ? `Retention: ${c.recruiterRetentionRate}%` : undefined,
+      subtitle:
+        c.recruiterRetentionRate != null ? `Retention: ${c.recruiterRetentionRate}%` : undefined,
       icon: Building2,
       iconBg: 'bg-teal-100',
       iconColor: 'text-teal-600',

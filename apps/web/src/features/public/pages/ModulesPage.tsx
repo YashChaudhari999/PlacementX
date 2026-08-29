@@ -20,11 +20,13 @@ export default function ModulesPage() {
               <span className="text-gradient">Every Stakeholder</span>
             </h1>
             <p className="text-lg text-slate-500 leading-relaxed">
-              PlacementX is built on a modular architecture, ensuring that students, placement officers, and recruiters each have a dedicated, optimized portal tailored to their specific needs.
+              PlacementX is built on a modular architecture, ensuring that students, placement
+              officers, and recruiters each have a dedicated, optimized portal tailored to their
+              specific needs.
             </p>
           </motion.div>
         </div>
-        
+
         <PlatformModules />
       </section>
     </PageContainer>

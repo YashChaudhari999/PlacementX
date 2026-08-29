@@ -31,7 +31,8 @@ export default function ContactPage() {
               Get in Touch
             </h1>
             <p className="text-lg text-slate-500 leading-relaxed">
-              Whether you're a recruiter looking to partner with NMIMS University, or a student needing assistance, our team is here to help.
+              Whether you're a recruiter looking to partner with NMIMS University, or a student
+              needing assistance, our team is here to help.
             </p>
           </motion.div>
         </div>
@@ -40,7 +41,6 @@ export default function ContactPage() {
       <section className="py-24 -mt-10">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid lg:grid-cols-3 gap-8">
-            
             {/* Contact Info */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -50,7 +50,7 @@ export default function ContactPage() {
             >
               <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl relative z-20">
                 <h3 className="text-2xl font-bold text-slate-900 mb-8">Contact Information</h3>
-                
+
                 <div className="space-y-6">
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -62,7 +62,7 @@ export default function ContactPage() {
                       <p className="text-slate-600 text-sm">support@placementx.com</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <Phone className="h-5 w-5 text-primary" />
@@ -73,7 +73,7 @@ export default function ContactPage() {
                       <p className="text-slate-600 text-sm">Mon-Fri, 9am to 6pm IST</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <MapPin className="h-5 w-5 text-primary" />
@@ -81,7 +81,8 @@ export default function ContactPage() {
                     <div>
                       <p className="text-sm font-semibold text-slate-900 mb-1">Visit Us</p>
                       <p className="text-slate-600 text-sm leading-relaxed">
-                        V. L. Mehta Road, Vile Parle (West),<br />
+                        V. L. Mehta Road, Vile Parle (West),
+                        <br />
                         Mumbai, Maharashtra, India - 400 056
                       </p>
                     </div>
@@ -106,7 +107,8 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-4">Message Sent!</h3>
                     <p className="text-slate-600 text-lg mb-8 max-w-md">
-                      Thank you for reaching out. We have received your message and will get back to you within 24 hours.
+                      Thank you for reaching out. We have received your message and will get back to
+                      you within 24 hours.
                     </p>
                     <Button onClick={() => setIsSuccess(false)} variant="outline">
                       Send Another Message
@@ -126,15 +128,18 @@ export default function ContactPage() {
                           <Input placeholder="Doe" required />
                         </div>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">Email Address</label>
                         <Input type="email" placeholder="john.doe@example.com" required />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">Inquiry Type</label>
-                        <select className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2" required>
+                        <select
+                          className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                          required
+                        >
                           <option value="">Select a topic...</option>
                           <option value="recruiter">Recruiter Partnership</option>
                           <option value="student">Student Support</option>
@@ -142,22 +147,17 @@ export default function ContactPage() {
                           <option value="other">Other</option>
                         </select>
                       </div>
-                      
+
                       <div className="space-y-2">
                         <label className="text-sm font-medium text-slate-700">Message</label>
-                        <Textarea 
-                          placeholder="How can we help you?" 
-                          className="min-h-[150px] resize-none" 
-                          required 
+                        <Textarea
+                          placeholder="How can we help you?"
+                          className="min-h-[150px] resize-none"
+                          required
                         />
                       </div>
-                      
-                      <Button 
-                        type="submit" 
-                        size="lg" 
-                        className="w-full"
-                        disabled={isSubmitting}
-                      >
+
+                      <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
                         {isSubmitting ? 'Sending...' : 'Send Message'}
                       </Button>
                     </form>
@@ -165,7 +165,6 @@ export default function ContactPage() {
                 )}
               </div>
             </motion.div>
-            
           </div>
         </div>
       </section>
