@@ -18,7 +18,6 @@ import {
   RefreshCw,
   ChevronRight,
 } from 'lucide-react';
-import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/common/EmptyState';
 import { adminService } from '@/services/admin.service';
@@ -88,50 +87,54 @@ const StatCard = ({
 }: StatCardProps) => (
   <Card
     onClick={onClick}
-    className={`p-6 flex flex-col h-full justify-between transition-all duration-300 group relative overflow-hidden ${
+    className={`p-6 flex flex-col h-full min-h-[160px] justify-between transition-all duration-300 group relative overflow-hidden bg-white border-slate-200 rounded-2xl ${
       onClick ? 'cursor-pointer hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1' : ''
     }`}
   >
-    {chartData && chartData.length > 0 && (
-      <div className="absolute inset-x-0 bottom-0 h-24 opacity-20 pointer-events-none translate-y-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id={`color-${label.replace(/\s+/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={chartColor} stopOpacity={0.8} />
-                <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke={chartColor}
-              fillOpacity={1}
-              fill={`url(#color-${label.replace(/\s+/g, '-')})`}
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
-    )}
+    {/* Animated Wave Background */}
+    <div className="absolute inset-x-0 bottom-0 overflow-hidden h-24 rounded-b-2xl pointer-events-none z-0">
+      <motion.svg
+        className="absolute bottom-0 w-[200%] h-full origin-bottom"
+        viewBox="0 0 1200 120"
+        preserveAspectRatio="none"
+        initial={{ x: "0%" }}
+        animate={{ x: "-50%" }}
+        transition={{
+          repeat: Infinity,
+          ease: "linear",
+          duration: 10
+        }}
+      >
+        <path
+          d="M0,40 C300,100 300,0 600,40 C900,80 900,0 1200,40 L1200,120 L0,120 Z"
+          fill={chartColor}
+          opacity="0.1"
+        />
+        <path
+          d="M0,60 C300,20 300,120 600,60 C900,0 900,100 1200,60 L1200,120 L0,120 Z"
+          fill={chartColor}
+          opacity="0.15"
+        />
+      </motion.svg>
+    </div>
 
-    <div className="flex items-start justify-between relative z-10 flex-1">
-      <div className="pr-6">
-        <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-        <p className="text-3xl font-black text-slate-800 mt-2 tracking-tight group-hover:scale-[1.03] transition-transform origin-left">
+    <div className="flex items-start justify-between relative z-10">
+      <div className="flex flex-col">
+        <p className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2">{label}</p>
+        <p className="text-4xl font-black text-slate-900 tracking-tight group-hover:scale-[1.03] transition-transform origin-left">
           {value}
         </p>
       </div>
       <div
-        className={`p-3 rounded-2xl ${bgClass} transition-colors group-hover:bg-opacity-80 shrink-0`}
+        className={`w-14 h-14 rounded-full ${bgClass} transition-colors group-hover:bg-opacity-80 flex items-center justify-center shrink-0 shadow-sm`}
       >
         <Icon className={`h-6 w-6 ${colorClass}`} />
       </div>
     </div>
     {trend && (
-      <div className="mt-5 flex items-center text-sm relative z-10">
+      <div className="mt-6 flex items-center text-sm relative z-10">
         <span
-          className={`${trendColor} font-semibold bg-slate-50/80 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs inline-flex items-center gap-1`}
+          className={`${trendColor} font-bold bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1 shadow-sm border border-slate-100/50`}
         >
           {trend}
         </span>
