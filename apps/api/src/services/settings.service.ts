@@ -48,8 +48,12 @@ export const getSettings = async () => {
     }
 
     return finalSettings;
-  } catch (error) {
-    console.error('Error fetching settings:', error);
+  } catch (error: any) {
+    // Silently fall back to defaults on DB connectivity issues (P1001 = can't reach DB)
+    // This prevents log spam when Supabase pooler is temporarily unreachable
+    if (error?.code !== 'P1001' && error?.code !== 'P1017') {
+      console.error('Error fetching settings:', error);
+    }
     return DEFAULT_SETTINGS;
   }
 };

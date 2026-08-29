@@ -739,6 +739,15 @@ export const getCalendarEvents = async (req: any, res: any) => {
       events: calendarEvents,
     });
   } catch (error: any) {
+    // For DB connectivity errors, return an empty-state response instead of a 500
+    if (error?.code === 'P1001' || error?.code === 'P1017') {
+      return res.status(200).json({
+        summary: { upcomingDrives: 0, registrationOpen: 0, closingThisWeek: 0, interviews: 0, offersReleased: 0, completed: 0 },
+        semester: {},
+        config: [],
+        events: [],
+      });
+    }
     console.error('Calendar Error:', error);
     return res
       .status(500)
@@ -887,7 +896,14 @@ export const getAdminDashboard = async (req: any, res: any) => {
 export const getPendingProfiles = async (req: any, res: any) => {
   try {
     const profiles = await prisma.studentProfile.findMany({
-      where: { profileStatus: 'PENDING_VERIFICATION' },
+      where: {
+        OR: [
+          // Normal path: student submitted profile for verification
+          { profileStatus: 'PENDING_VERIFICATION' },
+          // Fallback: provisioned students whose profile is complete but stuck in 'PENDING'
+          { profileStatus: 'PENDING', isProfileComplete: true },
+        ]
+      },
       include: {
         user: { select: { email: true } },
       },
@@ -895,6 +911,10 @@ export const getPendingProfiles = async (req: any, res: any) => {
     });
     return res.status(200).json(profiles);
   } catch (error: any) {
+    // Silently return empty array for DB connectivity errors
+    if (error?.code === 'P1001' || error?.code === 'P1017') {
+      return res.status(200).json([]);
+    }
     console.error('Get pending profiles error:', error);
     return res
       .status(500)
@@ -915,7 +935,7 @@ export const verifyProfile = async (req: any, res: any) => {
 
     const profile = await prisma.studentProfile.findUnique({ where: { id } });
     if (!profile) return res.status(404).json({ message: 'Profile not found' });
-    if (profile.profileStatus !== 'PENDING_VERIFICATION') {
+    if (profile.profileStatus !== 'PENDING_VERIFICATION' && profile.profileStatus !== 'PENDING') {
       return res.status(400).json({ message: 'Profile is not pending verification' });
     }
 
@@ -1005,16 +1025,40 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
     let updatedProfile = request.student;
 
     if (action === 'APPROVE') {
-      // Apply the requested changes
-      const changesToApply = request.requestedChanges as any;
+      // Apply the requested changes safely
+      const rawChanges = request.requestedChanges as any;
+      const safeData: any = { profileStatus: 'VERIFIED' };
+      
+      const allowedFields = [
+        'firstName', 'lastName', 'phone', 'branch', 'cgpa', 'passingYear', 
+        'activeBacklogs', 'yearGap', 'nationality', 'gender', 'resumeUrl', 
+        'photoUrl', 'portfolioUrl', 'githubUrl', 'linkedinUrl', 'skills', 
+        'programmingLanguages', 'projects', 'codingProfiles', 'educationDetails', 
+        'dateOfBirth', 'address', 'alternatePhone', 'category', 'tenthBoard', 
+        'tenthYear', 'tenthPercentage', 'twelfthBoard', 'twelfthYear', 
+        'twelfthPercentage', 'diplomaBoard', 'diplomaYear', 'diplomaPercentage', 
+        'currentSemester', 'totalBacklogs', 'certifications', 'experience', 'languages'
+      ];
+      
+      const floatFields = ['cgpa', 'tenthPercentage', 'twelfthPercentage', 'diplomaPercentage'];
+      const intFields = ['passingYear', 'activeBacklogs', 'yearGap', 'tenthYear', 'twelfthYear', 'diplomaYear', 'currentSemester', 'totalBacklogs'];
+      const dateFields = ['dateOfBirth'];
+      
+      for (const key of Object.keys(rawChanges)) {
+        if (allowedFields.includes(key)) {
+          let val = rawChanges[key];
+          if (val !== null && val !== undefined) {
+             if (floatFields.includes(key)) val = parseFloat(val);
+             else if (intFields.includes(key)) val = parseInt(val);
+             else if (dateFields.includes(key)) val = new Date(val);
+          }
+          safeData[key] = val;
+        }
+      }
 
-      // Filter out any restricted fields if necessary, assuming requestedChanges is safe for now
       updatedProfile = await prisma.studentProfile.update({
         where: { id: request.studentId },
-        data: {
-          ...changesToApply,
-          profileStatus: 'VERIFIED',
-        },
+        data: safeData,
       });
     } else {
       // Revert status back to VERIFIED without applying changes
@@ -1108,6 +1152,32 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
       return res.status(200).json({ message: 'No students found to provision.', stats });
     }
 
+    // Pre-fetch all existing users from Supabase to avoid pagination limits and slow loops
+    const allSupabaseUsers = new Map<string, any>();
+    try {
+      let page = 1;
+      let hasMore = true;
+      while (hasMore) {
+        const { data, error: fetchError } = await supabaseAdmin.auth.admin.listUsers({
+          page,
+          perPage: 1000,
+        });
+        if (fetchError) throw new Error(fetchError.message);
+        
+        data.users.forEach((u) => {
+          if (u.email) allSupabaseUsers.set(u.email.toLowerCase(), u);
+        });
+        
+        if (data.users.length < 1000) {
+          hasMore = false;
+        } else {
+          page++;
+        }
+      }
+    } catch (err: any) {
+      console.warn('Warning: Could not pre-fetch Supabase users:', err.message);
+    }
+
     for (const student of importedStudents) {
       if (!student.email || student.email.trim() === '') {
         stats.missingEmail++;
@@ -1119,13 +1189,7 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
       let isNewAccount = false;
 
       try {
-        const {
-          data: { users },
-          error: fetchError,
-        } = await supabaseAdmin.auth.admin.listUsers();
-        if (fetchError) throw new Error(fetchError.message);
-
-        let authUser = users.find((u) => u.email === email);
+        let authUser = allSupabaseUsers.get(email);
 
         if (!authUser) {
           const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({

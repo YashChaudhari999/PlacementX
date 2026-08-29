@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '@/components/ui';
 import { Bell, Briefcase, ExternalLink, Check, Sun, Moon, MapPin } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
@@ -13,6 +14,7 @@ import { useStudentProfile, useStudentMLPrediction } from '@/hooks/queries/useSt
 export default function StudentDashboard() {
   const user = useAuthStore(state => state.user);
   const [greeting, setGreeting] = useState('');
+  const navigate = useNavigate();
   
   const { data: notificationsResponse, isPending: notificationsLoading } = useNotifications();
   const notifications = notificationsResponse?.data || [];
@@ -129,7 +131,7 @@ export default function StudentDashboard() {
                       </div>
                       
                       <div className="w-full sm:w-auto flex-shrink-0 mt-4 sm:mt-0">
-                        <Button className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md" onClick={() => window.location.href = `/student/drives/${drive.id}`}>
+                        <Button className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md" onClick={() => navigate(`/student/drives/${drive.id}`)}>
                           View Details
                         </Button>
                       </div>

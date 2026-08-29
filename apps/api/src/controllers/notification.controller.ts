@@ -49,6 +49,10 @@ export const getMyNotifications = async (req: any, res: any) => {
 
     return res.status(200).json(result);
   } catch (error: any) {
+    // For DB connectivity errors, return empty notifications instead of 500 + stack trace
+    if (error?.code === 'P1001' || error?.code === 'P1017') {
+      return res.status(200).json({ notifications: [], total: 0, unreadCount: 0 });
+    }
     console.error('Error fetching notifications:', error);
     return res.status(500).json({ message: 'Error fetching notifications', error: error.message });
   }

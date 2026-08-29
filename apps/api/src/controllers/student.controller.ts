@@ -123,7 +123,9 @@ export const updateProfile = async (req: any, res: any) => {
 
     // Determine the next status
     let nextStatus = existingProfile?.profileStatus || 'NOT_COMPLETED';
-    if (isProfileComplete && (nextStatus === 'NOT_COMPLETED' || nextStatus === 'UPDATE_REJECTED')) {
+    // Promote to PENDING_VERIFICATION when profile is complete.
+    // Handles all pre-verified statuses: NOT_COMPLETED, PENDING (provisioned), and UPDATE_REJECTED
+    if (isProfileComplete && (nextStatus === 'NOT_COMPLETED' || nextStatus === 'PENDING' || nextStatus === 'UPDATE_REJECTED')) {
       nextStatus = 'PENDING_VERIFICATION';
     }
 
@@ -228,15 +230,20 @@ export const requestProfileUpdate = async (req: any, res: any) => {
     // Determine changed fields
     const changedFields: any = {};
     const previousValues: any = {};
+    const excludeFields = ['id', 'userId', 'createdAt', 'updatedAt', 'profileStatus', 'verifiedAt', 'verifiedBy', 'reason', 'isProfileComplete', 'user', 'applications', 'updateRequests', 'auditLogs'];
     
     Object.keys(data).forEach(key => {
-      if (data[key] !== undefined) {
-        const newValue = typeof data[key] === 'object' ? JSON.stringify(data[key]) : data[key];
-        const oldValue = typeof (profile as any)[key] === 'object' ? JSON.stringify((profile as any)[key]) : (profile as any)[key];
+      if (!excludeFields.includes(key) && data[key] !== undefined) {
+        let normalizedNew = typeof data[key] === 'object' && data[key] !== null ? JSON.stringify(data[key]) : data[key];
+        let normalizedOld = typeof (profile as any)[key] === 'object' && (profile as any)[key] !== null ? JSON.stringify((profile as any)[key]) : (profile as any)[key];
         
-        if (newValue !== oldValue) {
+        // Treat empty string from frontend as equal to null in DB to prevent false positives
+        if (normalizedNew === '') normalizedNew = null;
+        if (normalizedOld === undefined) normalizedOld = null;
+        
+        if (normalizedNew !== normalizedOld) {
           changedFields[key] = data[key];
-          previousValues[key] = (profile as any)[key];
+          previousValues[key] = normalizedOld;
         }
       }
     });

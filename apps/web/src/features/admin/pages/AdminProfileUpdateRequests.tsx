@@ -77,7 +77,7 @@ export default function AdminProfileUpdateRequests() {
                       <div className="text-xs text-slate-500">{req.student?.user?.email}</div>
                     </td>
                     <td className="px-6 py-4 text-slate-600">{new Date(req.requestedAt).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={req.studentReason}>{req.studentReason}</td>
+                    <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={req.reason}>{req.reason}</td>
                     <td className="px-6 py-4 text-right">
                       <Button 
                         size="sm" 
@@ -111,7 +111,7 @@ export default function AdminProfileUpdateRequests() {
             <div className="p-6 overflow-y-auto space-y-6">
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
                 <div className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1">Student's Reason for Update</div>
-                <div className="text-blue-900">{selectedRequest.studentReason}</div>
+                <div className="text-blue-900">{selectedRequest.reason}</div>
               </div>
 
               <div>
@@ -122,20 +122,44 @@ export default function AdminProfileUpdateRequests() {
                       <tr>
                         <th className="px-4 py-3 font-medium text-slate-600 w-1/3">Field</th>
                         <th className="px-4 py-3 font-medium text-slate-600 w-1/3">Current Value</th>
-                        <th className="px-4 py-3 font-medium text-blue-600 w-1/3">Requested Value</th>
+                        <th className="px-4 py-3 font-medium text-red-600 w-1/3">Requested Value</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {Object.keys(selectedRequest.requestedChanges).map(key => {
+                        const hiddenFields = ['id', 'userId', 'createdAt', 'updatedAt', 'profileStatus', 'verifiedAt', 'verifiedBy', 'reason', 'isProfileComplete', 'user', 'applications', 'updateRequests', 'auditLogs'];
+                        if (hiddenFields.includes(key)) return null;
+
                         const currentVal = selectedRequest.student[key];
                         const requestedVal = selectedRequest.requestedChanges[key];
+                        
+                        const renderValue = (val: any, fieldKey: string) => {
+                          if (val === null || val === undefined || val === '') return 'N/A';
+                          
+                          // Normalize dates so they don't trigger false positives due to timestamps
+                          if (fieldKey === 'dateOfBirth' || fieldKey.toLowerCase().includes('date')) {
+                            try {
+                              const d = new Date(val);
+                              if (!isNaN(d.getTime())) {
+                                return d.toISOString().split('T')[0];
+                              }
+                            } catch {}
+                          }
+
+                          if (typeof val === 'object') return JSON.stringify(val);
+                          return String(val);
+                        };
+
+                        const currentRendered = renderValue(currentVal, key);
+                        const requestedRendered = renderValue(requestedVal, key);
+
                         // Only show fields that actually changed
-                        if (currentVal !== requestedVal && key !== 'profileStatus') {
+                        if (currentRendered !== requestedRendered) {
                           return (
                             <tr key={key}>
                               <td className="px-4 py-3 font-medium text-slate-900">{key}</td>
-                              <td className="px-4 py-3 text-slate-500 break-all">{currentVal?.toString() || 'N/A'}</td>
-                              <td className="px-4 py-3 text-blue-600 font-medium break-all">{requestedVal?.toString() || 'N/A'}</td>
+                              <td className="px-4 py-3 text-slate-500 break-all">{currentRendered}</td>
+                              <td className="px-4 py-3 text-red-600 font-medium break-all">{requestedRendered}</td>
                             </tr>
                           );
                         }

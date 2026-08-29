@@ -213,7 +213,7 @@ export const checkEligibilityStatus = async (req: any, res: any) => {
 
     // Call service
     const { checkEligibility } = await import('../services/eligibility.service');
-    const result = checkEligibility(student, drive);
+    const result = await checkEligibility(student, drive);
 
     return res.status(200).json(result);
   } catch (error: any) {

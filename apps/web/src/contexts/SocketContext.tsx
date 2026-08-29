@@ -22,8 +22,13 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
+  // Use stable primitive values as deps to avoid reconnect loops on every render
+  const userId = user?.id;
+  const userRole = user?.role;
+  const userBranch = (user as any)?.studentProfile?.branch;
+
   useEffect(() => {
-    if (!token || !user) {
+    if (!token || !userId) {
       if (socket) {
         socket.disconnect();
         setSocket(null);
@@ -35,28 +40,26 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
     
     const newSocket = io(socketUrl, {
-      auth: {
-        token
-      },
+      auth: { token },
       reconnection: true,
       reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 10000,
     });
 
     newSocket.on('connect', () => {
-      console.log('Socket connected:', newSocket.id);
       setIsConnected(true);
-      
-      // Request to join default rooms based on profile if needed
-      // (The backend already joins user:id, role, etc. automatically)
-      if (user.role === 'STUDENT' && (user as any).studentProfile?.branch) {
-         newSocket.emit('notification:join', [`department:${(user as any).studentProfile.branch}`]);
+      if (userRole === 'STUDENT' && userBranch) {
+        newSocket.emit('notification:join', [`department:${userBranch}`]);
       }
     });
 
     newSocket.on('disconnect', () => {
-      console.log('Socket disconnected');
       setIsConnected(false);
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.warn('Socket connection error:', err.message);
     });
 
     // Global listener for new notifications to trigger toast
@@ -87,7 +90,9 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       newSocket.disconnect();
     };
-  }, [token, user]);
+  // Depend only on stable primitives, not the whole user object
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, userId, userRole, userBranch]);
 
   const joinRooms = (rooms: string[]) => {
     if (socket && isConnected) {

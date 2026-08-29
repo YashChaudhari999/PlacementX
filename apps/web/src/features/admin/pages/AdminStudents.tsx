@@ -7,7 +7,7 @@ import {
   AlertTriangle, Users, TrendingUp, FileText, X, ArrowUpDown, ArrowUp, ArrowDown,
   Briefcase, Clock, Copy, ExternalLink, Filter, RotateCcw, ChevronDown, Send
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { StudentImportService } from '@/features/admin/services/studentImportService';
 import { auth } from '@/lib/firebase/config/firebaseApp';
@@ -351,7 +351,7 @@ export default function AdminStudents() {
                 <AlertTriangle className="w-4 h-4" />
                 <span>{pendingVerificationCount} Pending Verification{pendingVerificationCount > 1 ? 's' : ''}</span>
               </div>
-              <a href="/admin/students/verifications" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap">View →</a>
+              <Link to="/admin/students/verifications" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap">View →</Link>
             </div>
           )}
           {pendingUpdateCount > 0 && (
@@ -360,7 +360,7 @@ export default function AdminStudents() {
                 <FileText className="w-4 h-4" />
                 <span>{pendingUpdateCount} Update Request{pendingUpdateCount > 1 ? 's' : ''}</span>
               </div>
-              <a href="/admin/students/update-requests" className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap">View →</a>
+              <Link to="/admin/students/update-requests" className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap">View →</Link>
             </div>
           )}
         </div>
