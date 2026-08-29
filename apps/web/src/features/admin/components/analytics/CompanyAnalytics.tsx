@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { Building2, IndianRupee, Users, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Building02Icon, Money01Icon, UserMultipleIcon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon } from 'hugeicons-react';
 import type { CompanyResponse } from '@/types/analytics.types';
 import { useState } from 'react';
 
@@ -17,7 +17,7 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
-            <Building2 className="w-5 h-5" />
+            <Building02Icon className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Recruiter Intelligence</h2>
@@ -30,21 +30,21 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
             <div className="text-center">
               <div className="text-sm font-bold text-slate-900 flex items-center justify-center gap-1">
                 {retention.returningCount}
-                <TrendingUp className="w-3 h-3 text-emerald-500" />
+                <ArrowUp01Icon className="w-3 h-3 text-emerald-500" />
               </div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">Returning</div>
             </div>
             <div className="text-center">
               <div className="text-sm font-bold text-slate-900 flex items-center justify-center gap-1">
                 {retention.newCount}
-                <TrendingUp className="w-3 h-3 text-emerald-500" />
+                <ArrowUp01Icon className="w-3 h-3 text-emerald-500" />
               </div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">New</div>
             </div>
             <div className="text-center">
               <div className="text-sm font-bold text-slate-900 flex items-center justify-center gap-1">
                 {retention.lostCount}
-                <TrendingDown className="w-3 h-3 text-rose-500" />
+                <ArrowDown01Icon className="w-3 h-3 text-rose-500" />
               </div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wider">Lost</div>
             </div>
@@ -73,14 +73,14 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
             <div className="flex-1 grid grid-cols-3 gap-4">
               <div>
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <Users className="w-3 h-3" /> Offers
+                  <UserMultipleIcon className="w-3 h-3" /> Offers
                 </div>
                 <div className="font-black text-slate-900">{company.offers}</div>
               </div>
 
               <div>
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <IndianRupee className="w-3 h-3" /> Avg Pkg
+                  <Money01Icon className="w-3 h-3" /> Avg Pkg
                 </div>
                 <div className="font-bold text-emerald-600">
                   ₹{company.averagePackage.toFixed(2)}L
@@ -89,7 +89,7 @@ export default function CompanyAnalytics({ data }: { data: CompanyResponse }) {
 
               <div>
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                  <IndianRupee className="w-3 h-3" /> High Pkg
+                  <Money01Icon className="w-3 h-3" /> High Pkg
                 </div>
                 <div className="font-bold text-indigo-600">
                   ₹{company.highestPackage.toFixed(2)}L

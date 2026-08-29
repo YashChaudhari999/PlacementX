@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
-import {
-  Users,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Search,
-  Calendar,
-  FileText,
-  XCircle,
-} from 'lucide-react';
+import { UserMultipleIcon, TickDouble02Icon, Clock01Icon, Location01Icon, Search01Icon, Calendar01Icon, Note01Icon, CancelCircleIcon } from 'hugeicons-react';
 import api from '@/lib/api';
 
 export default function RecruiterEventDashboard() {
@@ -122,7 +113,7 @@ export default function RecruiterEventDashboard() {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50 p-6 text-center">
         <Card className="max-w-md p-8">
-          <XCircle className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+          <CancelCircleIcon className="w-16 h-16 text-rose-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Access Denied</h1>
           <p className="text-slate-600">{error}</p>
         </Card>
@@ -167,7 +158,7 @@ export default function RecruiterEventDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-4 border-slate-200 shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-              <Users className="w-6 h-6" />
+              <UserMultipleIcon className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Total Applicants</p>
@@ -176,7 +167,7 @@ export default function RecruiterEventDashboard() {
           </Card>
           <Card className="p-4 border-slate-200 shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-              <FileText className="w-6 h-6" />
+              <Note01Icon className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Shortlisted</p>
@@ -185,7 +176,7 @@ export default function RecruiterEventDashboard() {
           </Card>
           <Card className="p-4 border-slate-200 shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-              <Calendar className="w-6 h-6" />
+              <Calendar01Icon className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Interviews</p>
@@ -194,7 +185,7 @@ export default function RecruiterEventDashboard() {
           </Card>
           <Card className="p-4 border-slate-200 shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6" />
+              <TickDouble02Icon className="w-6 h-6" />
             </div>
             <div>
               <p className="text-sm font-medium text-slate-500">Selected</p>
@@ -209,10 +200,10 @@ export default function RecruiterEventDashboard() {
             <h2 className="text-lg font-bold text-slate-800">Candidate Management</h2>
             <div className="flex items-center gap-3">
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search01Icon className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Search candidates..."
+                  placeholder="Search01Icon candidates..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600"
@@ -274,7 +265,7 @@ export default function RecruiterEventDashboard() {
                           rel="noreferrer"
                           className="text-indigo-600 hover:text-indigo-800 font-medium text-sm flex items-center gap-1"
                         >
-                          <FileText className="w-4 h-4" /> View Resume
+                          <Note01Icon className="w-4 h-4" /> View Resume
                         </a>
                       ) : (
                         <span className="text-slate-400 text-xs italic">Not uploaded</span>
@@ -299,14 +290,14 @@ export default function RecruiterEventDashboard() {
                       {app.interviewSchedule && (
                         <div className="mt-1 flex flex-col gap-0.5 text-[10px] text-slate-500">
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />{' '}
+                            <Calendar01Icon className="w-3 h-3" />{' '}
                             {new Date(app.interviewSchedule.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" /> {app.interviewSchedule.time}
+                            <Clock01Icon className="w-3 h-3" /> {app.interviewSchedule.time}
                           </span>
                           <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />{' '}
+                            <Location01Icon className="w-3 h-3" />{' '}
                             {app.interviewSchedule.venue.slice(0, 15)}
                           </span>
                         </div>

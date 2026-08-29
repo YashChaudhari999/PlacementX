@@ -1,15 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  icon: React.ElementType;
   title: string;
   description: string;
   actionLabel?: string;
   onAction?: () => void;
-  actionIcon?: LucideIcon;
+  actionIcon?: React.ElementType;
   variant?: 'default' | 'card';
 }
 

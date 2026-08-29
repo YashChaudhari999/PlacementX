@@ -2,22 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import {
-  LayoutDashboard,
-  LineChart,
-  Briefcase,
-  Users,
-  FileText,
-  Bell,
-  Calendar,
-  Settings,
-  LogOut,
-  Menu,
-  ChevronDown,
-  CheckCircle,
-  ShieldCheck,
-  FileEdit,
-} from 'lucide-react';
+import { DashboardSquare01Icon, ChartLineData01Icon, Briefcase01Icon, UserMultipleIcon, Note01Icon, Notification01Icon, Calendar01Icon, Settings01Icon, Logout01Icon, Menu01Icon, ArrowDown01Icon, Tick02Icon, Shield01Icon, FileEditIcon } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 
@@ -37,31 +22,31 @@ export const PlacementCellLayout = () => {
     {
       title: 'Overview',
       items: [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-        { name: 'Analytics', path: '/admin/analytics', icon: LineChart },
+        { name: 'Dashboard', path: '/admin/dashboard', icon: DashboardSquare01Icon },
+        { name: 'Analytics', path: '/admin/analytics', icon: ChartLineData01Icon },
       ],
     },
     {
       title: 'Placements',
       items: [
-        { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase },
-        { name: 'Reports', path: '/admin/reports', icon: FileText },
+        { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase01Icon },
+        { name: 'Reports', path: '/admin/reports', icon: Note01Icon },
       ],
     },
     {
       title: 'Student Management',
       items: [
-        { name: 'Students', path: '/admin/students', icon: Users },
-        { name: 'Verifications', path: '/admin/students/verifications', icon: ShieldCheck },
-        { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEdit },
+        { name: 'Students', path: '/admin/students', icon: UserMultipleIcon },
+        { name: 'Verifications', path: '/admin/students/verifications', icon: Shield01Icon },
+        { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEditIcon },
       ],
     },
     {
       title: 'System',
       items: [
-        { name: 'Notifications', path: '/admin/notifications', icon: Bell },
-        { name: 'Calendar', path: '/admin/calendar', icon: Calendar },
-        { name: 'Settings', path: '/admin/settings', icon: Settings },
+        { name: 'Notifications', path: '/admin/notifications', icon: Notification01Icon },
+        { name: 'Calendar', path: '/admin/calendar', icon: Calendar01Icon },
+        { name: 'Settings', path: '/admin/settings', icon: Settings01Icon },
       ],
     },
   ];
@@ -129,7 +114,7 @@ export const PlacementCellLayout = () => {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white truncate">Admin User</p>
             <p className="text-xs text-slate-500 truncate flex items-center gap-1">
-              <CheckCircle className="w-3 h-3 text-emerald-500" /> Super Admin
+              <Tick02Icon className="w-3 h-3 text-emerald-500" /> Super Admin
             </p>
           </div>
         </div>
@@ -137,7 +122,7 @@ export const PlacementCellLayout = () => {
           onClick={handleLogout}
           className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
         >
-          <LogOut className="h-5 w-5 text-slate-500 group-hover:text-red-400" />
+          <Logout01Icon className="h-5 w-5 text-slate-500 group-hover:text-red-400" />
           Secure Sign Out
         </button>
       </div>
@@ -184,7 +169,7 @@ export const PlacementCellLayout = () => {
               onClick={() => setIsMobileMenuOpen(true)}
               className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-md"
             >
-              <Menu className="h-6 w-6" />
+              <Menu01Icon className="h-6 w-6" />
             </button>
             <div>
               <h1 className="text-xl font-bold text-slate-800 hidden sm:block tracking-tight">
@@ -208,7 +193,7 @@ export const PlacementCellLayout = () => {
                   A
                 </div>
                 <span className="text-sm font-semibold text-slate-700 hidden sm:block">Admin</span>
-                <ChevronDown className="h-4 w-4 text-slate-400 hidden sm:block" />
+                <ArrowDown01Icon className="h-4 w-4 text-slate-400 hidden sm:block" />
               </button>
 
               <AnimatePresence>
@@ -232,14 +217,14 @@ export const PlacementCellLayout = () => {
                         }}
                         className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center gap-2"
                       >
-                        <Settings className="w-4 h-4 text-slate-400" /> Account Settings
+                        <Settings01Icon className="w-4 h-4 text-slate-400" /> Account Settings
                       </button>
                       <div className="h-px bg-slate-100 my-1 mx-2" />
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 font-medium rounded-md transition-colors flex items-center gap-2"
                       >
-                        <LogOut className="w-4 h-4 text-red-500" /> Sign out
+                        <Logout01Icon className="w-4 h-4 text-red-500" /> Sign out
                       </button>
                     </div>
                   </motion.div>

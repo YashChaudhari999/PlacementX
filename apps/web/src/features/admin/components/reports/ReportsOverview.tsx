@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import {
-  FileSpreadsheet,
-  Download,
-  CalendarClock,
-  Users,
-  Briefcase,
-  ArrowRight,
-} from 'lucide-react';
+import { Note01Icon, Download01Icon, Calendar01Icon, UserMultipleIcon, Briefcase01Icon, ArrowRight01Icon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 
 interface KPIs {
@@ -54,35 +47,35 @@ export default function ReportsOverview({
     {
       label: 'Total Reports Generated',
       value: kpis?.reportsGenerated || 0,
-      icon: FileSpreadsheet,
+      icon: Note01Icon,
       color: 'text-blue-500',
       bg: 'bg-blue-50',
     },
     {
       label: 'Exports This Month',
       value: kpis?.exportsThisMonth || 0,
-      icon: Download,
+      icon: Download01Icon,
       color: 'text-green-500',
       bg: 'bg-green-50',
     },
     {
       label: 'Active Scheduled Reports',
       value: kpis?.scheduledReports || 0,
-      icon: CalendarClock,
+      icon: Calendar01Icon,
       color: 'text-orange-500',
       bg: 'bg-orange-50',
     },
     {
       label: 'Students in Database',
       value: kpis?.studentsReported || 0,
-      icon: Users,
+      icon: UserMultipleIcon,
       color: 'text-purple-500',
       bg: 'bg-purple-50',
     },
     {
       label: 'Placement Drives',
       value: kpis?.placementDrives || 0,
-      icon: Briefcase,
+      icon: Briefcase01Icon,
       color: 'text-pink-500',
       bg: 'bg-pink-50',
     },
@@ -100,7 +93,7 @@ export default function ReportsOverview({
         </div>
         <Button onClick={onNavigateToBuilder} className="mt-4 md:mt-0 shadow-sm" size="lg">
           Open Report Builder
-          <ArrowRight className="ml-2 h-4 w-4" />
+          <ArrowRight01Icon className="ml-2 h-4 w-4" />
         </Button>
       </div>
 
@@ -132,7 +125,7 @@ export default function ReportsOverview({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card border rounded-xl p-6 shadow-sm">
           <h4 className="font-medium flex items-center mb-4">
-            <CalendarClock className="h-5 w-5 mr-2 text-primary" />
+            <Calendar01Icon className="h-5 w-5 mr-2 text-primary" />
             Last Export Details
           </h4>
           <div className="text-sm">
@@ -148,7 +141,7 @@ export default function ReportsOverview({
         </div>
         <div className="bg-card border rounded-xl p-6 shadow-sm">
           <h4 className="font-medium flex items-center mb-4">
-            <FileSpreadsheet className="h-5 w-5 mr-2 text-primary" />
+            <Note01Icon className="h-5 w-5 mr-2 text-primary" />
             Available Report Types
           </h4>
           <ul className="text-sm space-y-2 text-muted-foreground list-disc list-inside">

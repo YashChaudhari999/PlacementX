@@ -3,15 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { Card, Button } from '@/components/ui';
-import {
-  Building2,
-  MapPin,
-  CalendarDays,
-  IndianRupee,
-  AlertCircle,
-  CheckCircle2,
-  XCircle,
-} from 'lucide-react';
+import { Building02Icon, Location01Icon, Calendar01Icon, Money01Icon, Alert02Icon, TickDouble02Icon, CancelCircleIcon } from 'hugeicons-react';
 import { toast } from 'sonner';
 
 export default function StudentDriveDetails() {
@@ -80,7 +72,7 @@ export default function StudentDriveDetails() {
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 relative z-10">
           <div className="flex flex-col sm:flex-row gap-6">
             <div className="w-20 h-20 shrink-0 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm">
-              <Building2 className="w-10 h-10 text-indigo-400" />
+              <Building02Icon className="w-10 h-10 text-indigo-400" />
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{drive.company?.name}</h1>
@@ -88,15 +80,15 @@ export default function StudentDriveDetails() {
               
               <div className="flex flex-wrap gap-3 mt-5 text-sm font-medium text-slate-600">
                 <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
-                  <MapPin className="w-4 h-4 text-slate-400" /> {drive.workMode}
+                  <Location01Icon className="w-4 h-4 text-slate-400" /> {drive.workMode}
                 </div>
                 <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
-                  <CalendarDays className="w-4 h-4 text-slate-400" /> Deadline:{' '}
+                  <Calendar01Icon className="w-4 h-4 text-slate-400" /> Deadline:{' '}
                   {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </div>
                 {drive.fixedSalary && (
                   <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm font-bold">
-                    <IndianRupee className="w-4 h-4" /> {drive.fixedSalary} LPA
+                    <Money01Icon className="w-4 h-4" /> {drive.fixedSalary} LPA
                   </div>
                 )}
               </div>
@@ -106,24 +98,24 @@ export default function StudentDriveDetails() {
           <div className="flex flex-col items-end gap-3">
             {eligibility?.hasApplied ? (
               <div className="flex items-center gap-2 text-indigo-700 bg-indigo-50 px-4 py-2 rounded-full font-semibold border border-indigo-200">
-                <CheckCircle2 className="w-5 h-5" /> Already Applied
+                <TickDouble02Icon className="w-5 h-5" /> Already Applied
               </div>
             ) : isRegistrationNotStarted ? (
               <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2 rounded-full font-semibold border border-blue-200">
-                <CalendarDays className="w-5 h-5" /> Starts {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                <Calendar01Icon className="w-5 h-5" /> Starts {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </div>
             ) : isDeadlinePassed ? (
               <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2 rounded-full font-semibold border border-amber-200">
-                <AlertCircle className="w-5 h-5" /> Deadline Passed
+                <Alert02Icon className="w-5 h-5" /> Deadline Passed
               </div>
             ) : eligibility ? (
               eligibility.isEligible ? (
                 <div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-2 rounded-full font-semibold border border-green-200">
-                  <CheckCircle2 className="w-5 h-5" /> Eligible to Apply
+                  <TickDouble02Icon className="w-5 h-5" /> Eligible to Apply
                 </div>
               ) : (
                 <div className="flex items-center gap-2 text-red-700 bg-red-50 px-4 py-2 rounded-full font-semibold border border-red-200">
-                  <XCircle className="w-5 h-5" /> Not Eligible
+                  <CancelCircleIcon className="w-5 h-5" /> Not Eligible
                 </div>
               )
             ) : null}
@@ -200,7 +192,7 @@ export default function StudentDriveDetails() {
           {eligibility && !eligibility.isEligible && (
             <Card className="p-5 border-red-200 bg-red-50">
               <h3 className="font-bold text-red-800 flex items-center gap-2 mb-2">
-                <AlertCircle className="w-5 h-5" /> Why am I not eligible?
+                <Alert02Icon className="w-5 h-5" /> Why am I not eligible?
               </h3>
               <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
                 {eligibility.reasons.map((reason, i) => (

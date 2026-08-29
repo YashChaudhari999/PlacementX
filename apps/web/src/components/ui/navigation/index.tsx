@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
+import { ArrowRight01Icon } from 'hugeicons-react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
 // ============================================
@@ -24,7 +24,7 @@ export const Breadcrumb = ({ items, className }: BreadcrumbProps) => {
     >
       {items.map((item, idx) => (
         <div key={item.href} className="flex items-center">
-          {idx > 0 && <ChevronRight className="mx-1 h-4 w-4" />}
+          {idx > 0 && <ArrowRight01Icon className="mx-1 h-4 w-4" />}
           {idx === items.length - 1 ? (
             <span className="font-medium text-foreground">{item.name}</span>
           ) : (

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { PageContainer, Input, Textarea, Button } from '@/components/ui';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail01Icon, CallIcon, Location01Icon, SentIcon } from 'hugeicons-react';
 import { type FormEvent, useState } from 'react';
 
 export default function ContactPage() {
@@ -54,7 +54,7 @@ export default function ContactPage() {
                 <div className="space-y-6">
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Mail className="h-5 w-5 text-primary" />
+                      <Mail01Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-900 mb-1">Email Us</p>
@@ -65,7 +65,7 @@ export default function ContactPage() {
 
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Phone className="h-5 w-5 text-primary" />
+                      <CallIcon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-900 mb-1">Call Us</p>
@@ -76,7 +76,7 @@ export default function ContactPage() {
 
                   <div className="flex gap-4 items-start">
                     <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <MapPin className="h-5 w-5 text-primary" />
+                      <Location01Icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-slate-900 mb-1">Visit Us</p>
@@ -103,7 +103,7 @@ export default function ContactPage() {
                 {isSuccess ? (
                   <div className="h-full min-h-[400px] flex flex-col items-center justify-center text-center">
                     <div className="h-20 w-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6">
-                      <Send className="h-10 w-10" />
+                      <SentIcon className="h-10 w-10" />
                     </div>
                     <h3 className="text-3xl font-bold text-slate-900 mb-4">Message Sent!</h3>
                     <p className="text-slate-600 text-lg mb-8 max-w-md">
@@ -111,12 +111,12 @@ export default function ContactPage() {
                       you within 24 hours.
                     </p>
                     <Button onClick={() => setIsSuccess(false)} variant="outline">
-                      Send Another Message
+                      SentIcon Another Message
                     </Button>
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-8">Send us a Message</h3>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-8">SentIcon us a Message</h3>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
@@ -158,7 +158,7 @@ export default function ContactPage() {
                       </div>
 
                       <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? 'Sending...' : 'Send Message'}
+                        {isSubmitting ? 'Sending...' : 'SentIcon Message'}
                       </Button>
                     </form>
                   </>

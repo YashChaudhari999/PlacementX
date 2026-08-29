@@ -1,38 +1,7 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Card, Input, Button, Badge } from '@/components/ui';
 import { toast } from 'sonner';
-import {
-  Search,
-  GraduationCap,
-  CheckCircle,
-  XCircle,
-  Upload,
-  Download,
-  UserPlus,
-  Eye,
-  Mail,
-  Building2,
-  BookOpen,
-  MoreVertical,
-  ChevronLeft,
-  ChevronRight,
-  AlertTriangle,
-  Users,
-  TrendingUp,
-  FileText,
-  X,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Briefcase,
-  Clock,
-  Copy,
-  ExternalLink,
-  Filter,
-  RotateCcw,
-  ChevronDown,
-  Send,
-} from 'lucide-react';
+import { Search01Icon, Mortarboard01Icon, Tick02Icon, CancelCircleIcon, Upload01Icon, Download01Icon, UserAdd01Icon, ViewIcon, Mail01Icon, Building02Icon, BookOpen01Icon, MoreVerticalIcon, ArrowLeft01Icon, ArrowRight01Icon, Alert01Icon, UserMultipleIcon, ArrowUp01Icon, Note01Icon, Cancel01Icon, ArrowUpDownIcon, ArrowDown01Icon, Briefcase01Icon, Clock01Icon, Copy01Icon, Link02Icon, FilterIcon, RotateLeft01Icon, SentIcon } from 'hugeicons-react';
 import { useNavigate, Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { StudentImportService } from '@/features/admin/services/studentImportService';
@@ -195,7 +164,7 @@ export default function AdminStudents() {
   const pendingVerificationCount = Array.isArray(pendingProfiles) ? pendingProfiles.length : 0;
   const pendingUpdateCount = Array.isArray(updateRequests) ? updateRequests.length : 0;
 
-  // ─── Filter helpers ────────────────────────────────────────────────────────
+  // ─── FilterIcon helpers ────────────────────────────────────────────────────────
   const updateFilter = useCallback((key: keyof StudentFilters, value: any) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: key === 'page' ? value : 1 }));
     setSelectedIds(new Set());
@@ -257,12 +226,12 @@ export default function AdminStudents() {
   const SortIcon = ({ col }: { col: string }) => {
     if (filters.sortBy !== col)
       return (
-        <ArrowUpDown className="w-3 h-3 text-slate-400 opacity-0 group-hover/th:opacity-100 transition-opacity" />
+        <ArrowUpDownIcon className="w-3 h-3 text-slate-400 opacity-0 group-hover/th:opacity-100 transition-opacity" />
       );
     return filters.sortOrder === 'asc' ? (
-      <ArrowUp className="w-3 h-3 text-indigo-600" />
+      <ArrowUp01Icon className="w-3 h-3 text-indigo-600" />
     ) : (
-      <ArrowDown className="w-3 h-3 text-indigo-600" />
+      <ArrowDown01Icon className="w-3 h-3 text-indigo-600" />
     );
   };
 
@@ -397,7 +366,7 @@ export default function AdminStudents() {
             className="text-xs gap-1.5"
             onClick={handleDownloadTemplate}
           >
-            <Download className="w-3.5 h-3.5" /> Template
+            <Download01Icon className="w-3.5 h-3.5" /> Template
           </Button>
           <Button
             variant="outline"
@@ -406,10 +375,10 @@ export default function AdminStudents() {
             onClick={() => fileInputRef.current?.click()}
             disabled={importing}
           >
-            <Upload className="w-3.5 h-3.5" /> {importing ? 'Importing…' : 'Import'}
+            <Upload01Icon className="w-3.5 h-3.5" /> {importing ? 'Importing…' : 'Import'}
           </Button>
           <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={handleExportCSV}>
-            <Download className="w-3.5 h-3.5" /> Export
+            <Download01Icon className="w-3.5 h-3.5" /> Export
           </Button>
           <Button
             size="sm"
@@ -417,7 +386,7 @@ export default function AdminStudents() {
             onClick={handleProvisionAccounts}
             disabled={isProvisioning}
           >
-            <UserPlus className="w-3.5 h-3.5" />{' '}
+            <UserAdd01Icon className="w-3.5 h-3.5" />{' '}
             {isProvisioning ? 'Provisioning…' : 'Provision Accounts'}
           </Button>
           <input
@@ -436,7 +405,7 @@ export default function AdminStudents() {
           {
             label: 'Total Students',
             value: stats?.total,
-            icon: Users,
+            icon: UserMultipleIcon,
             color: 'text-slate-700',
             bg: 'bg-white',
             filter: {},
@@ -444,7 +413,7 @@ export default function AdminStudents() {
           {
             label: 'Placed',
             value: stats?.placed,
-            icon: CheckCircle,
+            icon: Tick02Icon,
             color: 'text-emerald-700',
             bg: 'bg-emerald-50',
             filter: { placement_status: 'Placed' },
@@ -452,7 +421,7 @@ export default function AdminStudents() {
           {
             label: 'Unplaced',
             value: stats?.unplaced,
-            icon: XCircle,
+            icon: CancelCircleIcon,
             color: 'text-amber-700',
             bg: 'bg-amber-50',
             filter: { placement_status: 'Unplaced' },
@@ -460,7 +429,7 @@ export default function AdminStudents() {
           {
             label: 'Profile Complete',
             value: stats?.profileComplete,
-            icon: FileText,
+            icon: Note01Icon,
             color: 'text-blue-700',
             bg: 'bg-blue-50',
             filter: {},
@@ -468,7 +437,7 @@ export default function AdminStudents() {
           {
             label: 'Avg CGPA',
             value: stats?.avgCgpa,
-            icon: TrendingUp,
+            icon: ArrowUp01Icon,
             color: 'text-violet-700',
             bg: 'bg-violet-50',
             filter: {},
@@ -505,7 +474,7 @@ export default function AdminStudents() {
           {pendingVerificationCount > 0 && (
             <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 flex-1">
               <div className="flex items-center gap-2 text-amber-800 text-sm font-medium">
-                <AlertTriangle className="w-4 h-4" />
+                <Alert01Icon className="w-4 h-4" />
                 <span>
                   {pendingVerificationCount} Pending Verification
                   {pendingVerificationCount > 1 ? 's' : ''}
@@ -517,7 +486,7 @@ export default function AdminStudents() {
           {pendingUpdateCount > 0 && (
             <div className="flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 flex-1">
               <div className="flex items-center gap-2 text-blue-800 text-sm font-medium">
-                <FileText className="w-4 h-4" />
+                <Note01Icon className="w-4 h-4" />
                 <span>
                   {pendingUpdateCount} Update Request{pendingUpdateCount > 1 ? 's' : ''}
                 </span>
@@ -528,16 +497,16 @@ export default function AdminStudents() {
         </div>
       )}
 
-      {/* ─── Search + Filters Toolbar ──────────────────────────────────── */}
+      {/* ─── Search01Icon + Filters Toolbar ──────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-start md:items-center">
-          {/* Search */}
+          {/* Search01Icon */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               ref={searchRef}
               type="text"
-              placeholder="Search by name, ID or email…"
+              placeholder="Search01Icon by name, ID or email…"
               value={filters.search}
               onChange={(e) => updateFilter('search', e.target.value)}
               className="w-full h-9 pl-9 pr-8 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors"
@@ -547,7 +516,7 @@ export default function AdminStudents() {
                 onClick={() => updateFilter('search', '')}
                 className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                <X className="w-3.5 h-3.5" />
+                <Cancel01Icon className="w-3.5 h-3.5" />
               </button>
             )}
             <kbd
@@ -573,7 +542,7 @@ export default function AdminStudents() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <ArrowDown01Icon className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             <div className="relative">
@@ -586,14 +555,14 @@ export default function AdminStudents() {
                 <option value="Placed">Placed</option>
                 <option value="Unplaced">Unplaced</option>
               </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
+              <ArrowDown01Icon className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
 
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`h-9 px-3 text-xs font-medium border rounded-lg flex items-center gap-1.5 transition-colors ${showFilters ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
             >
-              <Filter className="w-3.5 h-3.5" /> More Filters
+              <FilterIcon className="w-3.5 h-3.5" /> More Filters
             </button>
 
             {hasActiveFilters && (
@@ -601,7 +570,7 @@ export default function AdminStudents() {
                 onClick={clearAllFilters}
                 className="h-9 px-3 text-xs font-medium text-slate-500 hover:text-slate-700 flex items-center gap-1.5"
               >
-                <RotateCcw className="w-3.5 h-3.5" /> Clear All
+                <RotateLeft01Icon className="w-3.5 h-3.5" /> Clear All
               </button>
             )}
           </div>
@@ -649,7 +618,7 @@ export default function AdminStudents() {
           </div>
         )}
 
-        {/* Active Filter Chips */}
+        {/* Active FilterIcon Chips */}
         {activeFilterChips.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
             {activeFilterChips.map((chip) => (
@@ -662,7 +631,7 @@ export default function AdminStudents() {
                   onClick={() => updateFilter(chip.key, '')}
                   className="hover:text-indigo-900"
                 >
-                  <X className="w-3 h-3" />
+                  <Cancel01Icon className="w-3 h-3" />
                 </button>
               </span>
             ))}
@@ -683,7 +652,7 @@ export default function AdminStudents() {
               className="text-xs bg-white text-indigo-600 hover:bg-slate-50 border-white/20 hover:text-indigo-700"
               onClick={handleSendNotification}
             >
-              <Send className="w-3.5 h-3.5 mr-1" /> Notify
+              <SentIcon className="w-3.5 h-3.5 mr-1" /> Notify
             </Button>
             <Button
               size="sm"
@@ -691,7 +660,7 @@ export default function AdminStudents() {
               className="text-xs bg-white/10 border-white/20 text-white hover:bg-white/20"
               onClick={handleExportCSV}
             >
-              <Download className="w-3.5 h-3.5 mr-1" /> Export
+              <Download01Icon className="w-3.5 h-3.5 mr-1" /> Export
             </Button>
             <Button
               size="sm"
@@ -699,7 +668,7 @@ export default function AdminStudents() {
               className="text-xs bg-white/10 border-white/20 text-white hover:bg-white/20"
               onClick={handleProvisionAccounts}
             >
-              <UserPlus className="w-3.5 h-3.5 mr-1" /> Provision
+              <UserAdd01Icon className="w-3.5 h-3.5 mr-1" /> Provision
             </Button>
             <Button
               size="sm"
@@ -718,7 +687,7 @@ export default function AdminStudents() {
         <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
           <div className="flex justify-between text-sm text-slate-600 mb-2">
             <span className="font-medium flex items-center gap-2">
-              <Upload className="w-4 h-4 animate-bounce" /> Importing students…
+              <Upload01Icon className="w-4 h-4 animate-bounce" /> Importing students…
             </span>
             <span className="font-mono text-xs">{importProgress}%</span>
           </div>
@@ -739,7 +708,7 @@ export default function AdminStudents() {
           </div>
         ) : isError ? (
           <div className="p-16 text-center">
-            <AlertTriangle className="w-10 h-10 mx-auto mb-3 text-red-400" />
+            <Alert01Icon className="w-10 h-10 mx-auto mb-3 text-red-400" />
             <p className="text-base font-semibold text-slate-800">Unable to load students</p>
             <p className="text-sm text-slate-500 mt-1">
               Something went wrong while loading student data.
@@ -791,7 +760,7 @@ export default function AdminStudents() {
                   {students.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="p-16 text-center">
-                        <GraduationCap className="w-10 h-10 mx-auto mb-3 text-slate-300" />
+                        <Mortarboard01Icon className="w-10 h-10 mx-auto mb-3 text-slate-300" />
                         <p className="text-base font-semibold text-slate-700">
                           No students match your filters
                         </p>
@@ -890,7 +859,7 @@ export default function AdminStudents() {
                         <td className="px-4 py-3">
                           {student.status === 'Placed' ? (
                             <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
-                              <CheckCircle className="w-3 h-3" /> Placed
+                              <Tick02Icon className="w-3 h-3" /> Placed
                             </span>
                           ) : (
                             <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5">
@@ -926,7 +895,7 @@ export default function AdminStudents() {
                               className="p-1 rounded hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
                               aria-label={`Actions for ${student.name}`}
                             >
-                              <MoreVertical className="w-4 h-4" />
+                              <MoreVerticalIcon className="w-4 h-4" />
                             </button>
                             {actionMenuId === student.id && (
                               <div
@@ -940,7 +909,7 @@ export default function AdminStudents() {
                                     setActionMenuId(null);
                                   }}
                                 >
-                                  <Eye className="w-3.5 h-3.5" /> View Profile
+                                  <ViewIcon className="w-3.5 h-3.5" /> View Profile
                                 </button>
                                 {student.email && (
                                   <button
@@ -951,7 +920,7 @@ export default function AdminStudents() {
                                       setActionMenuId(null);
                                     }}
                                   >
-                                    <Copy className="w-3.5 h-3.5" /> Copy Email
+                                    <Copy01Icon className="w-3.5 h-3.5" /> Copy01Icon Email
                                   </button>
                                 )}
                                 {student.email && (
@@ -959,7 +928,7 @@ export default function AdminStudents() {
                                     href={`mailto:${student.email}`}
                                     className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 block"
                                   >
-                                    <Mail className="w-3.5 h-3.5" /> Send Email
+                                    <Mail01Icon className="w-3.5 h-3.5" /> SentIcon Email
                                   </a>
                                 )}
                               </div>
@@ -1005,7 +974,7 @@ export default function AdminStudents() {
                       className="h-8 w-8 flex items-center justify-center border border-slate-200 rounded-l-md bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label="Previous page"
                     >
-                      <ChevronLeft className="w-4 h-4 text-slate-600" />
+                      <ArrowLeft01Icon className="w-4 h-4 text-slate-600" />
                     </button>
                     <span className="h-8 px-3 flex items-center text-xs font-medium text-slate-600 border-y border-slate-200 bg-white">
                       {pagination.page} / {pagination.totalPages}
@@ -1016,7 +985,7 @@ export default function AdminStudents() {
                       className="h-8 w-8 flex items-center justify-center border border-slate-200 rounded-r-md bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
                       aria-label="Next page"
                     >
-                      <ChevronRight className="w-4 h-4 text-slate-600" />
+                      <ArrowRight01Icon className="w-4 h-4 text-slate-600" />
                     </button>
                   </div>
                 </div>
@@ -1053,14 +1022,14 @@ export default function AdminStudents() {
                   onClick={() => setSelectedStudent(null)}
                   className="text-slate-400 hover:text-slate-600 transition-colors p-1"
                 >
-                  <X className="w-5 h-5" />
+                  <Cancel01Icon className="w-5 h-5" />
                 </button>
               </div>
               {/* Status Strip */}
               <div className="flex items-center gap-2 mt-4">
                 {selectedStudent.status === 'Placed' ? (
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1">
-                    <CheckCircle className="w-3.5 h-3.5" /> Placed
+                    <Tick02Icon className="w-3.5 h-3.5" /> Placed
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1">

@@ -1,14 +1,4 @@
-import {
-  X,
-  Calendar as CalendarIcon,
-  Clock,
-  MapPin,
-  Building,
-  Info,
-  ExternalLink,
-  Edit2,
-  Trash2,
-} from 'lucide-react';
+import { Cancel01Icon, Calendar01Icon, Clock01Icon, Location01Icon, Building01Icon, InformationCircleIcon, Link02Icon, Edit02Icon, Delete01Icon } from 'hugeicons-react';
 import { format } from 'date-fns';
 import { useDeleteCustomEvent } from '@/hooks/queries/useAdminCalendar';
 import { Link } from 'react-router-dom';
@@ -53,7 +43,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
             onClick={onClose}
             className="relative z-10 p-1 text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-colors"
           >
-            <X className="w-5 h-5" />
+            <Cancel01Icon className="w-5 h-5" />
           </button>
         </div>
 
@@ -61,14 +51,14 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
           {/* Time & Date */}
           <div className="flex gap-3">
             <div className="mt-0.5 p-2 bg-slate-50 rounded-lg text-slate-500">
-              <CalendarIcon className="w-5 h-5" />
+              <Calendar01Icon className="w-5 h-5" />
             </div>
             <div>
               <div className="text-sm font-semibold text-slate-800">
                 {format(start, 'EEEE, MMMM d, yyyy')}
               </div>
               <div className="text-sm text-slate-500 mt-0.5 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5" />
+                <Clock01Icon className="w-3.5 h-3.5" />
                 {allDay ? (
                   'All Day'
                 ) : (
@@ -85,7 +75,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
           {extendedProps?.venue && (
             <div className="flex gap-3">
               <div className="mt-0.5 p-2 bg-slate-50 rounded-lg text-slate-500">
-                <MapPin className="w-5 h-5" />
+                <Location01Icon className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-slate-800">Location / Platform</div>
@@ -98,7 +88,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
           {extendedProps?.company && (
             <div className="flex gap-3">
               <div className="mt-0.5 p-2 bg-slate-50 rounded-lg text-slate-500">
-                <Building className="w-5 h-5" />
+                <Building01Icon className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-slate-800">Company</div>
@@ -111,7 +101,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
           {extendedProps?.description && (
             <div className="flex gap-3">
               <div className="mt-0.5 p-2 bg-slate-50 rounded-lg text-slate-500">
-                <Info className="w-5 h-5" />
+                <InformationCircleIcon className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-slate-800">Details</div>
@@ -132,7 +122,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
                 className="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors"
                 title="Delete Event"
               >
-                <Trash2 className="w-4 h-4" />
+                <Delete01Icon className="w-4 h-4" />
               </button>
               <button
                 onClick={() => {
@@ -142,7 +132,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
                 className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors"
                 title="Edit Event"
               >
-                <Edit2 className="w-4 h-4" />
+                <Edit02Icon className="w-4 h-4" />
               </button>
             </div>
           ) : (
@@ -162,7 +152,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
                 to={`/admin/drives/${extendedProps.driveId}`}
                 className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2"
               >
-                View Drive <ExternalLink className="w-4 h-4" />
+                View Drive <Link02Icon className="w-4 h-4" />
               </Link>
             )}
           </div>

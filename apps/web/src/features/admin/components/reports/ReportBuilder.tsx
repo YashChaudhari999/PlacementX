@@ -1,15 +1,7 @@
 import { useState } from 'react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import {
-  ChevronRight,
-  ChevronLeft,
-  Check,
-  FileDown,
-  Eye,
-  AlertCircle,
-  FileSpreadsheet,
-} from 'lucide-react';
+import { ArrowRight01Icon, ArrowLeft01Icon, Tick01Icon, Note01Icon, ViewIcon, Alert02Icon } from 'hugeicons-react';
 
 const REPORT_TYPES = [
   {
@@ -116,14 +108,14 @@ export default function ReportBuilder() {
                 ${step > i + 1 ? 'bg-primary text-primary-foreground' : step === i + 1 ? 'border-2 border-primary text-primary' : 'bg-secondary text-muted-foreground'}
               `}
               >
-                {step > i + 1 ? <Check className="w-4 h-4" /> : i + 1}
+                {step > i + 1 ? <Tick01Icon className="w-4 h-4" /> : i + 1}
               </div>
               <span
                 className={`ml-2 text-sm font-medium ${step === i + 1 ? 'text-foreground' : 'text-muted-foreground'}`}
               >
                 {label}
               </span>
-              {i < 3 && <ChevronRight className="w-4 h-4 mx-3 text-muted-foreground/50" />}
+              {i < 3 && <ArrowRight01Icon className="w-4 h-4 mx-3 text-muted-foreground/50" />}
             </div>
           ))}
         </div>
@@ -207,7 +199,7 @@ export default function ReportBuilder() {
             </div>
 
             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-lg p-4 flex mt-6">
-              <AlertCircle className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+              <Alert02Icon className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
               <p className="text-sm text-amber-800 dark:text-amber-200">
                 You are about to query the database. Depending on the size of the dataset,
                 generating the preview might take a few seconds.
@@ -288,7 +280,7 @@ export default function ReportBuilder() {
             {!historyId ? (
               <>
                 <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <FileDown className="w-10 h-10" />
+                  <Note01Icon className="w-10 h-10" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold mb-2">Export Data</h2>
@@ -303,7 +295,7 @@ export default function ReportBuilder() {
                   {generating ? (
                     <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
                   ) : (
-                    <Check className="w-10 h-10" />
+                    <Tick01Icon className="w-10 h-10" />
                   )}
                 </div>
                 <div>
@@ -328,7 +320,7 @@ export default function ReportBuilder() {
                   onClick={() => handleExport('EXCEL')}
                   disabled={generating || !!historyId}
                 >
-                  <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" /> Excel
+                  <Note01Icon className="mr-2 h-4 w-4 text-green-600" /> Excel
                 </Button>
                 <Button
                   variant="outline"
@@ -336,7 +328,7 @@ export default function ReportBuilder() {
                   onClick={() => handleExport('CSV')}
                   disabled={generating || !!historyId}
                 >
-                  <FileDown className="mr-2 h-4 w-4 text-blue-600" /> CSV
+                  <Note01Icon className="mr-2 h-4 w-4 text-blue-600" /> CSV
                 </Button>
                 <Button
                   variant="outline"
@@ -344,7 +336,7 @@ export default function ReportBuilder() {
                   onClick={() => handleExport('PDF')}
                   disabled={generating || !!historyId}
                 >
-                  <FileDown className="mr-2 h-4 w-4 text-red-600" /> PDF
+                  <Note01Icon className="mr-2 h-4 w-4 text-red-600" /> PDF
                 </Button>
               </div>
 
@@ -364,12 +356,12 @@ export default function ReportBuilder() {
       {step < 4 && (
         <div className="px-6 py-4 bg-muted/30 border-t flex items-center justify-between">
           <Button variant="outline" onClick={handleBack} disabled={step === 1}>
-            <ChevronLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft01Icon className="w-4 h-4 mr-2" />
             Back
           </Button>
           <Button onClick={handleNext}>
             {step === 3 ? 'Proceed to Export' : 'Next Step'}
-            {step !== 3 && <ChevronRight className="w-4 h-4 ml-2" />}
+            {step !== 3 && <ArrowRight01Icon className="w-4 h-4 ml-2" />}
           </Button>
         </div>
       )}

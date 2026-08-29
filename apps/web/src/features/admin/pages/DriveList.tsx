@@ -1,15 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Plus,
-  Search,
-  Filter,
-  MoreHorizontal,
-  Building2,
-  Calendar,
-  Users,
-  Briefcase,
-  Link as LinkIcon,
-} from 'lucide-react';
+import { PlusSignIcon, Search01Icon, FilterIcon, MoreHorizontalIcon, Building02Icon, Calendar01Icon, UserMultipleIcon, Briefcase01Icon, Link01Icon } from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
 import { useDrives } from '@/hooks/queries/useDrives';
@@ -78,12 +68,12 @@ export default function DriveList() {
             variant="outline"
             className="border-primary text-primary hover:bg-primary/5"
           >
-            <LinkIcon className="w-4 h-4 mr-2" />
+            <Link01Icon className="w-4 h-4 mr-2" />
             Invite HR
           </Button>
           <Link to="/admin/placement-events/create">
             <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm">
-              <Plus className="w-4 h-4 mr-2" />
+              <PlusSignIcon className="w-4 h-4 mr-2" />
               Manual Entry
             </Button>
           </Link>
@@ -93,9 +83,9 @@ export default function DriveList() {
       {/* Filters Bar */}
       <Card className="p-4 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search by company or role..."
+            placeholder="Search01Icon by company or role..."
             className="pl-9 bg-slate-50 border-slate-200"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -114,7 +104,7 @@ export default function DriveList() {
             <option value="closed">Closed</option>
           </select>
           <Button variant="outline" className="text-slate-600">
-            <Filter className="w-4 h-4 mr-2" />
+            <FilterIcon className="w-4 h-4 mr-2" />
             More Filters
           </Button>
         </div>
@@ -135,8 +125,8 @@ export default function DriveList() {
               drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
               
             const now = new Date();
-            const regStart = drive.registrationStart ? new Date(drive.registrationStart) : null;
-            const regEnd = drive.registrationEnd ? new Date(drive.registrationEnd) : null;
+            const regStart = (drive as any).registrationStart ? new Date((drive as any).registrationStart) : null;
+            const regEnd = (drive as any).registrationEnd ? new Date((drive as any).registrationEnd) : null;
             
             const isUpcoming = regStart ? regStart > now : false;
             const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
@@ -180,7 +170,7 @@ export default function DriveList() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
-                        <Building2 className="w-6 h-6" />
+                        <Building02Icon className="w-6 h-6" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-slate-800 line-clamp-1">
@@ -199,7 +189,7 @@ export default function DriveList() {
                         }}
                         className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <MoreHorizontal className="w-5 h-5" />
+                        <MoreHorizontalIcon className="w-5 h-5" />
                       </button>
                       {activeMenuId === drive.id && (
                         <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-slate-200 z-10 py-1">
@@ -222,17 +212,17 @@ export default function DriveList() {
 
                   <div className="space-y-3 mb-6 flex-1">
                     <div className="flex items-center text-sm text-slate-600">
-                      <Briefcase className="w-4 h-4 mr-2 text-slate-400" />
+                      <Briefcase01Icon className="w-4 h-4 mr-2 text-slate-400" />
                       {drive.jobRole} • {drive.employmentType}
                     </div>
                     <div className="flex items-center text-sm text-slate-600">
-                      <Calendar className="w-4 h-4 mr-2 text-slate-400" />
-                      {drive.registrationEnd
-                        ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                      <Calendar01Icon className="w-4 h-4 mr-2 text-slate-400" />
+                      {(drive as any).registrationEnd
+                        ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
                         : 'N/A'}
                     </div>
                     <div className="flex items-center text-sm text-slate-600">
-                      <Users className="w-4 h-4 mr-2 text-slate-400" />
+                      <UserMultipleIcon className="w-4 h-4 mr-2 text-slate-400" />
                       {drive.applications?.length || 0} Applicants
                     </div>
                   </div>
@@ -240,8 +230,8 @@ export default function DriveList() {
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     {(() => {
                       const now = new Date();
-                      const regStart = drive.registrationStart ? new Date(drive.registrationStart) : null;
-                      const regEnd = drive.registrationEnd ? new Date(drive.registrationEnd) : null;
+                      const regStart = (drive as any).registrationStart ? new Date((drive as any).registrationStart) : null;
+                      const regEnd = (drive as any).registrationEnd ? new Date((drive as any).registrationEnd) : null;
                       
                       const isUpcoming = regStart ? regStart > now : false;
                       const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';

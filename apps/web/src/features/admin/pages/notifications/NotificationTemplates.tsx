@@ -1,6 +1,6 @@
 import { Card, Button, Input } from '@/components/ui';
 import { useNotificationTemplates } from '@/hooks/queries/useAdminNotifications';
-import { LayoutTemplate, Search, Plus, Edit2, Copy, Trash2, Star } from 'lucide-react';
+import { Layout01Icon, Search01Icon, PlusSignIcon, Edit02Icon, Copy01Icon, Delete01Icon, StarIcon } from 'hugeicons-react';
 import { useState } from 'react';
 
 export default function NotificationTemplates() {
@@ -18,16 +18,16 @@ export default function NotificationTemplates() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search templates..."
+            placeholder="Search01Icon templates..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 bg-white"
           />
         </div>
         <Button className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white flex gap-2">
-          <Plus className="w-4 h-4" /> Create Template
+          <PlusSignIcon className="w-4 h-4" /> Create Template
         </Button>
       </div>
 
@@ -43,7 +43,7 @@ export default function NotificationTemplates() {
           </div>
         ) : filteredTemplates.length === 0 ? (
           <div className="col-span-full p-16 text-center text-slate-500 flex flex-col items-center justify-center">
-            <LayoutTemplate className="w-10 h-10 mb-3 text-slate-300" />
+            <Layout01Icon className="w-10 h-10 mb-3 text-slate-300" />
             <h4 className="text-base font-semibold text-slate-700">No templates found</h4>
             <p className="text-sm mt-1">Create a reusable template for common notifications.</p>
           </div>
@@ -63,7 +63,7 @@ export default function NotificationTemplates() {
                 <button
                   className={`p-1.5 rounded-full ${template.isFavorite ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-amber-500 hover:bg-amber-50'}`}
                 >
-                  <Star className="w-4 h-4" fill={template.isFavorite ? 'currentColor' : 'none'} />
+                  <StarIcon className="w-4 h-4" fill={template.isFavorite ? 'currentColor' : 'none'} />
                 </button>
               </div>
               <div className="p-5 flex-1 bg-slate-50/50">
@@ -95,19 +95,19 @@ export default function NotificationTemplates() {
                     className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"
                     title="Edit"
                   >
-                    <Edit2 className="w-3.5 h-3.5" />
+                    <Edit02Icon className="w-3.5 h-3.5" />
                   </button>
                   <button
                     className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded"
                     title="Duplicate"
                   >
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy01Icon className="w-3.5 h-3.5" />
                   </button>
                   <button
                     className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded"
                     title="Delete"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Delete01Icon className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>

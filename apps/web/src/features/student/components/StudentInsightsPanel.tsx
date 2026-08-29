@@ -1,13 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui';
-import {
-  Target,
-  TrendingUp,
-  TrendingDown,
-  AlertCircle,
-  Sparkles,
-  CheckCircle2,
-} from 'lucide-react';
+import { Target01Icon, ArrowUp01Icon, ArrowDown01Icon, Alert02Icon, SparklesIcon, TickDouble02Icon } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MLPrediction {
@@ -32,7 +25,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
       textClass: 'text-emerald-300',
       borderClass: 'border-emerald-500/30',
       barClass: 'from-emerald-400 to-teal-500',
-      Icon: CheckCircle2,
+      Icon: TickDouble02Icon,
     },
     MEDIUM: {
       label: 'MEDIUM RISK',
@@ -40,7 +33,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
       textClass: 'text-amber-300',
       borderClass: 'border-amber-500/30',
       barClass: 'from-amber-400 to-orange-500',
-      Icon: AlertCircle,
+      Icon: Alert02Icon,
     },
     HIGH: {
       label: 'HIGH RISK',
@@ -48,7 +41,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
       textClass: 'text-rose-300',
       borderClass: 'border-rose-500/30',
       barClass: 'from-rose-400 to-red-500',
-      Icon: AlertCircle,
+      Icon: Alert02Icon,
     },
   };
 
@@ -65,10 +58,10 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
       <Card className="p-6 bg-gradient-to-r from-indigo-900 via-violet-900 to-indigo-950 text-white border-indigo-800/50 shadow-xl shadow-indigo-900/20 overflow-hidden relative">
         {/* Background decoration */}
         <div className="absolute -right-16 -top-16 opacity-10 pointer-events-none">
-          <Target className="w-56 h-56" />
+          <Target01Icon className="w-56 h-56" />
         </div>
         <div className="absolute -left-8 -bottom-8 opacity-5 pointer-events-none">
-          <Sparkles className="w-40 h-40" />
+          <SparklesIcon className="w-40 h-40" />
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start gap-6">
@@ -76,7 +69,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-3">
               <div className="p-2 bg-blue-500/30 rounded-xl ring-1 ring-blue-400/30">
-                <Sparkles className="w-5 h-5 text-blue-300" />
+                <SparklesIcon className="w-5 h-5 text-blue-300" />
               </div>
               <div>
                 <h2 className="text-lg font-bold leading-tight">Placement Readiness Score</h2>
@@ -115,7 +108,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-xs font-semibold text-indigo-300 hover:text-white transition-colors flex items-center gap-1 bg-indigo-900/50 px-3 py-1.5 rounded-full border border-indigo-700/50"
             >
-              <Sparkles className="w-3 h-3" />
+              <SparklesIcon className="w-3 h-3" />
               {isExpanded ? "Hide tips" : "How to boost your score"}
             </button>
             
@@ -160,9 +153,9 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
                     }`}
                   >
                     {f.impact === 'positive' ? (
-                      <TrendingUp className="w-3 h-3" />
+                      <ArrowUp01Icon className="w-3 h-3" />
                     ) : (
-                      <TrendingDown className="w-3 h-3" />
+                      <ArrowDown01Icon className="w-3 h-3" />
                     )}
                     {f.feature}
                   </span>
@@ -206,7 +199,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
         {riskLevel === 'HIGH' && (
           <div className="relative z-10 mt-4 border-t border-white/10 pt-4">
             <p className="text-xs text-rose-300 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+              <Alert02Icon className="w-4 h-4 shrink-0" />
               Complete your profile, add more skills, and apply to active drives to improve your
               score.
             </p>

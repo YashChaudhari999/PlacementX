@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Briefcase, ShieldCheck } from 'lucide-react';
+import { Briefcase01Icon, Shield01Icon } from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
 export const HrPortalLayout = () => {
@@ -19,7 +19,7 @@ export const HrPortalLayout = () => {
           className="flex items-center gap-3"
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white shadow-md shadow-slate-900/20">
-            <Briefcase className="h-5 w-5" />
+            <Briefcase01Icon className="h-5 w-5" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-slate-800">
             PlacementX <span className="font-medium text-slate-400 mx-2">|</span>{' '}
@@ -41,7 +41,7 @@ export const HrPortalLayout = () => {
           <span className="text-xs font-bold text-emerald-700 tracking-wide uppercase">
             Secure Session
           </span>
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 ml-1" />
+          <Shield01Icon className="w-3.5 h-3.5 text-emerald-600 ml-1" />
         </motion.div>
       </header>
 
@@ -54,7 +54,7 @@ export const HrPortalLayout = () => {
       <footer className="py-8 z-10">
         <div className="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/60 pt-6">
           <div className="flex items-center gap-2 opacity-50">
-            <Briefcase className="w-4 h-4" />
+            <Briefcase01Icon className="w-4 h-4" />
             <span className="text-sm font-bold tracking-tight">PlacementX</span>
           </div>
           <p className="text-slate-400 text-sm font-medium">

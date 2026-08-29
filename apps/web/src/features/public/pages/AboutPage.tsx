@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { PageContainer } from '@/components/ui';
-import { Building2, GraduationCap, Users, Target, ShieldCheck, Sparkles } from 'lucide-react';
+import { Building02Icon, Mortarboard01Icon, UserMultipleIcon, Target01Icon, Shield01Icon, SparklesIcon } from 'hugeicons-react';
 
 const stats = [
-  { label: 'Students Placed', value: '10,000+', icon: GraduationCap },
-  { label: 'Recruiting Partners', value: '500+', icon: Building2 },
-  { label: 'Placement Rate', value: '98%', icon: Target },
-  { label: 'Active Users', value: '15,000+', icon: Users },
+  { label: 'Students Placed', value: '10,000+', icon: Mortarboard01Icon },
+  { label: 'Recruiting Partners', value: '500+', icon: Building02Icon },
+  { label: 'Placement Rate', value: '98%', icon: Target01Icon },
+  { label: 'Active UserMultipleIcon', value: '15,000+', icon: UserMultipleIcon },
 ];
 
 export default function AboutPage() {
@@ -77,11 +77,11 @@ export default function AboutPage() {
               </p>
               <ul className="space-y-4">
                 <li className="flex gap-3">
-                  <ShieldCheck className="h-6 w-6 text-primary shrink-0" />
+                  <Shield01Icon className="h-6 w-6 text-primary shrink-0" />
                   <span className="text-slate-700">Data-driven and secure decision making.</span>
                 </li>
                 <li className="flex gap-3">
-                  <Sparkles className="h-6 w-6 text-primary shrink-0" />
+                  <SparklesIcon className="h-6 w-6 text-primary shrink-0" />
                   <span className="text-slate-700">
                     Intelligent matching and automated workflows.
                   </span>

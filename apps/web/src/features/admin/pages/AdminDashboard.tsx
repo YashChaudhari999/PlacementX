@@ -1,23 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import {
-  Building2,
-  GraduationCap,
-  Briefcase,
-  TrendingUp,
-  FileCheck,
-  CheckCircle2,
-  Clock,
-  Calendar,
-  Users,
-  Trophy,
-  Activity,
-  IndianRupee,
-  Building,
-  RefreshCw,
-  ChevronRight,
-} from 'lucide-react';
+import { Building02Icon, Mortarboard01Icon, Briefcase01Icon, ArrowUp01Icon, Note01Icon, TickDouble02Icon, Clock01Icon, Calendar01Icon, UserMultipleIcon, Award01Icon, Activity01Icon, Money01Icon, Building01Icon, RefreshIcon, ArrowRight01Icon } from 'hugeicons-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/common/EmptyState';
 import { adminService } from '@/services/admin.service';
@@ -187,7 +171,7 @@ export default function AdminDashboard() {
     return (
       <div className="p-10 text-center flex flex-col items-center justify-center min-h-[400px]">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-6 ring-8 ring-red-50/50">
-          <Activity className="h-10 w-10 text-red-500" />
+          <Activity01Icon className="h-10 w-10 text-red-500" />
         </div>
         <h2 className="text-2xl font-bold text-slate-800">Failed to load dashboard</h2>
         <p className="text-slate-500 mt-3 max-w-md">
@@ -197,7 +181,7 @@ export default function AdminDashboard() {
           onClick={() => refetch()}
           className="mt-6 px-6 py-2.5 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
         >
-          <RefreshCw className="w-4 h-4" /> Try Again
+          <RefreshIcon className="w-4 h-4" /> Try Again
         </button>
       </div>
     );
@@ -219,7 +203,7 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-4">
           {dataUpdatedAt && (
             <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
-              <Clock className="w-3.5 h-3.5" />
+              <Clock01Icon className="w-3.5 h-3.5" />
               Last updated:{' '}
               {new Date(dataUpdatedAt).toLocaleTimeString([], {
                 hour: '2-digit',
@@ -233,7 +217,7 @@ export default function AdminDashboard() {
             className="p-2.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 text-sm font-bold border border-slate-200 hover:border-indigo-200 hover:shadow-sm bg-white"
             title="Refresh Dashboard"
           >
-            <RefreshCw
+            <RefreshIcon
               className={`w-4 h-4 ${isRefetching ? 'animate-spin text-indigo-600' : ''}`}
             />
             <span className="hidden sm:inline">Refresh</span>
@@ -252,7 +236,7 @@ export default function AdminDashboard() {
           <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
               <div className="p-1.5 bg-indigo-100 rounded-md">
-                <Calendar className="w-5 h-5 text-indigo-600" />
+                <Calendar01Icon className="w-5 h-5 text-indigo-600" />
               </div>{' '}
               Drives
             </h2>
@@ -260,7 +244,7 @@ export default function AdminDashboard() {
               onClick={() => navigate('/admin/placement-events')}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
             >
-              View All <ChevronRight className="w-4 h-4" />
+              View All <ArrowRight01Icon className="w-4 h-4" />
             </button>
           </div>
 
@@ -272,7 +256,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Open Drives"
                   value={formatNum(data?.drives?.open || 0)}
-                  icon={Briefcase}
+                  icon={Briefcase01Icon}
                   trend="Accepting Applications"
                   colorClass="text-emerald-600"
                   bgClass="bg-emerald-50"
@@ -286,7 +270,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Upcoming Drives"
                   value={formatNum(data?.drives?.upcoming || 0)}
-                  icon={Calendar}
+                  icon={Calendar01Icon}
                   trend="Registration Starts Soon"
                   colorClass="text-blue-600"
                   bgClass="bg-blue-50"
@@ -300,7 +284,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Closed Drives"
                   value={formatNum(data?.drives?.closed || 0)}
-                  icon={Clock}
+                  icon={Clock01Icon}
                   trend="Registration Closed"
                   colorClass="text-indigo-600"
                   bgClass="bg-indigo-50"
@@ -319,7 +303,7 @@ export default function AdminDashboard() {
           <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
               <div className="p-1.5 bg-amber-100 rounded-md">
-                <Users className="w-5 h-5 text-amber-600" />
+                <UserMultipleIcon className="w-5 h-5 text-amber-600" />
               </div>{' '}
               Students
             </h2>
@@ -327,7 +311,7 @@ export default function AdminDashboard() {
               onClick={() => navigate('/admin/students')}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
             >
-              Manage Students <ChevronRight className="w-4 h-4" />
+              Manage Students <ArrowRight01Icon className="w-4 h-4" />
             </button>
           </div>
 
@@ -348,7 +332,7 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <CheckCircle2 className="w-5 h-5 text-slate-600" />
+                      <TickDouble02Icon className="w-5 h-5 text-slate-600" />
                     </div>
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
@@ -371,7 +355,7 @@ export default function AdminDashboard() {
                               <span className="font-black text-lg text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100/50">
                                 {formatNum(item.count)}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
+                              <ArrowRight01Icon className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
                             </div>
                           </motion.div>
                         ))}
@@ -379,7 +363,7 @@ export default function AdminDashboard() {
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center py-10">
                         <EmptyState
-                          icon={CheckCircle2}
+                          icon={TickDouble02Icon}
                           title="No active drives"
                           description="When drives are open or upcoming, eligible student counts will appear here."
                         />
@@ -399,7 +383,7 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <Building2 className="w-5 h-5 text-slate-600" />
+                      <Building02Icon className="w-5 h-5 text-slate-600" />
                     </div>
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
@@ -422,7 +406,7 @@ export default function AdminDashboard() {
                               <span className="font-black text-lg text-emerald-600 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100/50">
                                 {formatNum(item.applications)}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
+                              <ArrowRight01Icon className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
                             </div>
                           </motion.div>
                         ))}
@@ -430,7 +414,7 @@ export default function AdminDashboard() {
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center py-10">
                         <EmptyState
-                          icon={FileCheck}
+                          icon={Note01Icon}
                           title="No applications yet"
                           description="When students apply to drives, the top companies will appear here."
                         />
@@ -448,7 +432,7 @@ export default function AdminDashboard() {
           <div className="mb-5 pb-3 border-b border-slate-100">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
               <div className="p-1.5 bg-rose-100 rounded-md">
-                <Trophy className="w-5 h-5 text-rose-600" />
+                <Award01Icon className="w-5 h-5 text-rose-600" />
               </div>{' '}
               Placement Packages
             </h2>
@@ -462,7 +446,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Placement Percentage"
                   value={`${data?.packages?.placementPercentage || 0}%`}
-                  icon={GraduationCap}
+                  icon={Mortarboard01Icon}
                   trend="Target: 95%"
                   colorClass="text-rose-600"
                   bgClass="bg-rose-50"
@@ -473,7 +457,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Highest Package"
                   value={`${data?.packages?.highest || 0} LPA`}
-                  icon={TrendingUp}
+                  icon={ArrowUp01Icon}
                   trend="Maximum Offer"
                   colorClass="text-purple-600"
                   bgClass="bg-purple-50"
@@ -484,7 +468,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Average Package"
                   value={`${data?.packages?.average || 0} LPA`}
-                  icon={Activity}
+                  icon={Activity01Icon}
                   trend="Across all offers"
                   colorClass="text-fuchsia-600"
                   bgClass="bg-fuchsia-50"
@@ -495,7 +479,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Median Package"
                   value={`${data?.packages?.median || 0} LPA`}
-                  icon={IndianRupee}
+                  icon={Money01Icon}
                   trend="Middle value"
                   colorClass="text-pink-600"
                   bgClass="bg-pink-50"
@@ -511,7 +495,7 @@ export default function AdminDashboard() {
           <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
               <div className="p-1.5 bg-cyan-100 rounded-md">
-                <Building className="w-5 h-5 text-cyan-600" />
+                <Building01Icon className="w-5 h-5 text-cyan-600" />
               </div>{' '}
               Overall Statistics
             </h2>
@@ -519,7 +503,7 @@ export default function AdminDashboard() {
               onClick={() => navigate('/admin/reports')}
               className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
             >
-              View Reports <ChevronRight className="w-4 h-4" />
+              View Reports <ArrowRight01Icon className="w-4 h-4" />
             </button>
           </div>
 
@@ -531,7 +515,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Total Companies Visited"
                   value={formatNum(data?.overall?.companiesVisited || 0)}
-                  icon={Building2}
+                  icon={Building02Icon}
                   trend="Across all seasons"
                   colorClass="text-cyan-600"
                   bgClass="bg-cyan-50"
@@ -542,7 +526,7 @@ export default function AdminDashboard() {
                 <StatCard
                   label="Total Offers"
                   value={formatNum(data?.overall?.totalOffers || 0)}
-                  icon={FileCheck}
+                  icon={Note01Icon}
                   trend="Dream, Super Dream, PPO"
                   colorClass="text-teal-600"
                   bgClass="bg-teal-50"

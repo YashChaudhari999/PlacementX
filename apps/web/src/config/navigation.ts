@@ -7,39 +7,27 @@
  * and Breadcrumb generation.
  */
 
-import {
-  LayoutDashboard,
-  UserCircle,
-  Briefcase,
-  FileText,
-  Bell,
-  Settings,
-  Users,
-  Calendar,
-  ClipboardList,
-  BarChart,
-  Bot,
-} from 'lucide-react';
+import { DashboardSquare01Icon, UserCircleIcon, Briefcase01Icon, Note01Icon, Notification01Icon, Settings01Icon, UserMultipleIcon, Calendar01Icon, Task01Icon, BarChartIcon, BotIcon } from 'hugeicons-react';
 
 export const studentNavigation = [
-  { name: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
-  { name: 'Profile', href: '/student/profile', icon: UserCircle },
-  { name: 'Placement Drives', href: '/student/placements', icon: Briefcase },
-  { name: 'Applications', href: '/student/applications', icon: FileText },
-  { name: 'Notifications', href: '/student/notifications', icon: Bell },
-  { name: 'AI Assistant', href: '/student/ai-assistant', icon: Bot }, // Future AI
-  { name: 'Settings', href: '/student/settings', icon: Settings },
+  { name: 'Dashboard', href: '/student/dashboard', icon: DashboardSquare01Icon },
+  { name: 'Profile', href: '/student/profile', icon: UserCircleIcon },
+  { name: 'Placement Drives', href: '/student/placements', icon: Briefcase01Icon },
+  { name: 'Applications', href: '/student/applications', icon: Note01Icon },
+  { name: 'Notifications', href: '/student/notifications', icon: Notification01Icon },
+  { name: 'AI Assistant', href: '/student/ai-assistant', icon: BotIcon }, // Future AI
+  { name: 'Settings', href: '/student/settings', icon: Settings01Icon },
 ];
 
 export const adminNavigation = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-  { name: 'Students', href: '/admin/students', icon: Users },
-  { name: 'Placement Events', href: '/admin/placement-events', icon: Calendar },
-  { name: 'Recruiter Submissions', href: '/admin/recruiter-submissions', icon: ClipboardList },
-  { name: 'Notifications', href: '/admin/notifications', icon: Bell },
-  { name: 'Reports', href: '/admin/reports', icon: BarChart },
-  { name: 'AI Analytics', href: '/admin/ai-analytics', icon: Bot }, // Future AI
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
+  { name: 'Dashboard', href: '/admin/dashboard', icon: DashboardSquare01Icon },
+  { name: 'Students', href: '/admin/students', icon: UserMultipleIcon },
+  { name: 'Placement Events', href: '/admin/placement-events', icon: Calendar01Icon },
+  { name: 'Recruiter Submissions', href: '/admin/recruiter-submissions', icon: Task01Icon },
+  { name: 'Notifications', href: '/admin/notifications', icon: Notification01Icon },
+  { name: 'Reports', href: '/admin/reports', icon: BarChartIcon },
+  { name: 'AI Analytics', href: '/admin/ai-analytics', icon: BotIcon }, // Future AI
+  { name: 'Settings', href: '/admin/settings', icon: Settings01Icon },
 ];
 
 export const publicNavigation = [

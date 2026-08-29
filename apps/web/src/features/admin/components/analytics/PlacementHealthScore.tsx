@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
-import { ShieldCheck, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Shield01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon } from 'hugeicons-react';
 import type { HealthScoreResponse } from '@/types/analytics.types';
 
 const colorMap: Record<string, { ring: string; text: string; bg: string; grad: string[] }> = {
@@ -118,7 +118,7 @@ export default function PlacementHealthScore({ data }: { data: HealthScoreRespon
             className={`p-2 rounded-xl ring-1 shrink-0 mt-0.5 ${colors.bg}`}
             style={{ '--tw-ring-color': `${colors.ring}30` } as any}
           >
-            <ShieldCheck className={`w-5 h-5 ${colors.text}`} />
+            <Shield01Icon className={`w-5 h-5 ${colors.text}`} />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="text-lg font-bold leading-tight">Placement Health Score</h2>

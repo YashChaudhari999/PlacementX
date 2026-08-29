@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import { Calendar, Building2, Clock, MapPin, Video, ExternalLink } from 'lucide-react';
+import { Calendar01Icon, Building02Icon, Clock01Icon, Location01Icon, Video01Icon, Link02Icon } from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
@@ -66,7 +66,7 @@ export default function StudentInterviews() {
           <motion.div variants={itemVariants}>
             <Card className="p-16 text-center border-dashed border-2 border-slate-300 shadow-md bg-slate-50/50 backdrop-blur-md">
               <div className="text-slate-300 mb-6 flex justify-center">
-                <Calendar className="w-20 h-20 opacity-50" />
+                <Calendar01Icon className="w-20 h-20 opacity-50" />
               </div>
               <h3 className="text-2xl font-bold text-slate-700">No upcoming rounds</h3>
               <p className="text-slate-500 mt-2 text-lg">
@@ -82,7 +82,7 @@ export default function StudentInterviews() {
                 <div className="bg-gradient-to-r from-slate-50 to-white p-6 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center gap-5">
                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
-                      <Building2 className="w-8 h-8" />
+                      <Building02Icon className="w-8 h-8" />
                     </div>
                     <div>
                       <h3 className="font-extrabold text-2xl text-slate-900">{app.company}</h3>
@@ -136,28 +136,28 @@ export default function StudentInterviews() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-600 bg-slate-50 p-4 rounded-xl">
                               {round.date && (
                                 <div className="flex items-center gap-2 font-medium">
-                                  <Calendar className="w-4 h-4 text-blue-500" />
+                                  <Calendar01Icon className="w-4 h-4 text-blue-500" />
                                   {new Date(round.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                                 </div>
                               )}
                               {round.time && (
                                 <div className="flex items-center gap-2 font-medium">
-                                  <Clock className="w-4 h-4 text-blue-500" />
+                                  <Clock01Icon className="w-4 h-4 text-blue-500" />
                                   {round.time}
                                 </div>
                               )}
                               {round.duration && (
                                 <div className="flex items-center gap-2 font-medium">
-                                  <Clock className="w-4 h-4 text-slate-400" />
+                                  <Clock01Icon className="w-4 h-4 text-slate-400" />
                                   {round.duration}
                                 </div>
                               )}
                               {round.venue && (
                                 <div className="flex items-center gap-2 font-medium">
                                   {round.venue.includes('http') ? (
-                                    <Video className="w-4 h-4 text-purple-500" />
+                                    <Video01Icon className="w-4 h-4 text-purple-500" />
                                   ) : (
-                                    <MapPin className="w-4 h-4 text-red-500" />
+                                    <Location01Icon className="w-4 h-4 text-red-500" />
                                   )}
                                   {round.venue.includes('http') ? (
                                     <a
@@ -166,7 +166,7 @@ export default function StudentInterviews() {
                                       rel="noreferrer"
                                       className="text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
                                     >
-                                      Join Meeting <ExternalLink className="w-3 h-3" />
+                                      Join Meeting <Link02Icon className="w-3 h-3" />
                                     </a>
                                   ) : (
                                     <span className="truncate" title={round.venue}>

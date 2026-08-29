@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input, FormWrapper, FieldWrapper, Checkbox } from '@/components/ui';
-import { GraduationCap, ArrowLeft, Rocket, Briefcase, Award } from 'lucide-react';
+import { Mortarboard01Icon, ArrowLeft01Icon, RocketIcon, Briefcase01Icon, Award01Icon } from 'hugeicons-react';
 import { authService } from '@/lib/authService';
 
 export default function StudentLogin() {
@@ -47,7 +47,7 @@ export default function StudentLogin() {
               to="/"
               className="inline-flex items-center text-sm font-medium text-white/80 hover:text-white transition-colors bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Home
+              <ArrowLeft01Icon className="mr-2 h-4 w-4" /> Back to Home
             </Link>
           </div>
 
@@ -58,7 +58,7 @@ export default function StudentLogin() {
               transition={{ delay: 0.2 }}
             >
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white text-primary mb-8 shadow-xl">
-                <GraduationCap className="w-8 h-8" />
+                <Mortarboard01Icon className="w-8 h-8" />
               </div>
               <h1 className="text-4xl font-extrabold mb-6 leading-tight">
                 Launch Your <br />
@@ -73,7 +73,7 @@ export default function StudentLogin() {
               <div className="space-y-4">
                 <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10">
                   <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center shrink-0">
-                    <Briefcase className="w-6 h-6 text-white" />
+                    <Briefcase01Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h4 className="font-bold text-lg">500+ Offers</h4>
@@ -82,7 +82,7 @@ export default function StudentLogin() {
                 </div>
                 <div className="flex items-center gap-4 bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10">
                   <div className="w-12 h-12 bg-blue-400/30 rounded-full flex items-center justify-center shrink-0">
-                    <Rocket className="w-6 h-6 text-blue-100" />
+                    <RocketIcon className="w-6 h-6 text-blue-100" />
                   </div>
                   <div>
                     <h4 className="font-bold text-lg">Highest CTC</h4>
@@ -94,7 +94,7 @@ export default function StudentLogin() {
           </div>
 
           <div className="flex items-center gap-4 text-sm text-white/70 font-medium">
-            <Award className="w-5 h-5 text-yellow-300" />
+            <Award01Icon className="w-5 h-5 text-yellow-300" />
             <p>NMIMS Official Placement Portal</p>
           </div>
         </div>

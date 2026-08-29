@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button, Input } from '@/components/ui';
-import { Database, Save } from 'lucide-react';
+import { DatabaseIcon, FloppyDiskIcon } from 'hugeicons-react';
 
 export default function PlacementSettings({
   settings,
@@ -14,7 +14,7 @@ export default function PlacementSettings({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2">
-          <Database className="w-5 h-5 text-slate-400" />
+          <DatabaseIcon className="w-5 h-5 text-slate-400" />
           <h3 className="font-bold text-slate-800 text-lg">Placement Rules</h3>
         </div>
         {hasUnsavedChanges && (
@@ -23,7 +23,7 @@ export default function PlacementSettings({
             disabled={saving}
             size="sm"
           >
-            <Save className="w-4 h-4 mr-2" /> Save Changes
+            <FloppyDiskIcon className="w-4 h-4 mr-2" /> FloppyDiskIcon Changes
           </Button>
         )}
       </div>

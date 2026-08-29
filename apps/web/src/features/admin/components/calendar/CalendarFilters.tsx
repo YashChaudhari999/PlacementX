@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Filter, Calendar, BookOpen, Layers, Check, ChevronDown } from 'lucide-react';
+import { FilterIcon, Calendar01Icon, BookOpen01Icon, Layers01Icon, Tick01Icon, ArrowDown01Icon } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CalendarFiltersProps {
@@ -120,23 +120,23 @@ export default function CalendarFilters({
     >
       <div className="flex items-center gap-2 pl-3 pr-4 py-2 border-r border-slate-200/60">
         <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-          <Filter className="w-4 h-4" />
+          <FilterIcon className="w-4 h-4" />
         </div>
         <span className="text-sm font-bold text-slate-700 tracking-wide uppercase">Filters</span>
       </div>
 
-      {/* Academic Year Filter */}
+      {/* Academic Year FilterIcon */}
       {fullConfig && (
         <div className="relative">
           <button
             onClick={() => setActiveDropdown(activeDropdown === 'year' ? null : 'year')}
             className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'year' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
           >
-            <BookOpen
+            <BookOpen01Icon
               className={`w-4 h-4 ${activeDropdown === 'year' ? 'text-indigo-200' : 'text-slate-400'}`}
             />
             {selectedYearObj?.year || 'Select Year'}
-            <ChevronDown
+            <ArrowDown01Icon
               className={`w-4 h-4 transition-transform ${activeDropdown === 'year' ? 'rotate-180 text-white' : 'text-slate-400'}`}
             />
           </button>
@@ -163,7 +163,7 @@ export default function CalendarFilters({
                         {year.year}
                       </span>
                       {filters.academicYear === year.id && (
-                        <Check className="w-4 h-4 text-indigo-600" />
+                        <Tick01Icon className="w-4 h-4 text-indigo-600" />
                       )}
                     </button>
                   ))}
@@ -174,18 +174,18 @@ export default function CalendarFilters({
         </div>
       )}
 
-      {/* Semester Filter */}
+      {/* Semester FilterIcon */}
       {availableSemesters.length > 0 && (
         <div className="relative">
           <button
             onClick={() => setActiveDropdown(activeDropdown === 'semester' ? null : 'semester')}
             className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'semester' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
           >
-            <Layers
+            <Layers01Icon
               className={`w-4 h-4 ${activeDropdown === 'semester' ? 'text-indigo-200' : 'text-slate-400'}`}
             />
             {selectedSemesterObj?.name || 'Select Semester'}
-            <ChevronDown
+            <ArrowDown01Icon
               className={`w-4 h-4 transition-transform ${activeDropdown === 'semester' ? 'rotate-180 text-white' : 'text-slate-400'}`}
             />
           </button>
@@ -211,7 +211,7 @@ export default function CalendarFilters({
                       >
                         {sem.name}
                       </span>
-                      {filters.semester === sem.id && <Check className="w-4 h-4 text-indigo-600" />}
+                      {filters.semester === sem.id && <Tick01Icon className="w-4 h-4 text-indigo-600" />}
                     </button>
                   ))}
                 </div>
@@ -221,18 +221,18 @@ export default function CalendarFilters({
         </div>
       )}
 
-      {/* Week Filter */}
+      {/* Week FilterIcon */}
       {availableWeeks.length > 0 && (
         <div className="relative">
           <button
             onClick={() => setActiveDropdown(activeDropdown === 'week' ? null : 'week')}
             className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'week' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
           >
-            <Calendar
+            <Calendar01Icon
               className={`w-4 h-4 ${activeDropdown === 'week' ? 'text-indigo-200' : 'text-slate-400'}`}
             />
             {filters.week === 'ALL' ? 'All Weeks' : `Week ${filters.week}`}
-            <ChevronDown
+            <ArrowDown01Icon
               className={`w-4 h-4 transition-transform ${activeDropdown === 'week' ? 'rotate-180 text-white' : 'text-slate-400'}`}
             />
           </button>
@@ -256,7 +256,7 @@ export default function CalendarFilters({
                     >
                       All Weeks
                     </span>
-                    {filters.week === 'ALL' && <Check className="w-4 h-4 text-indigo-600" />}
+                    {filters.week === 'ALL' && <Tick01Icon className="w-4 h-4 text-indigo-600" />}
                   </button>
 
                   {availableWeeks.map((week: any) => (
@@ -271,7 +271,7 @@ export default function CalendarFilters({
                         Week {week.weekNumber}
                       </span>
                       {filters.week === week.weekNumber.toString() && (
-                        <Check className="w-4 h-4 text-indigo-600" />
+                        <Tick01Icon className="w-4 h-4 text-indigo-600" />
                       )}
                     </button>
                   ))}
@@ -282,17 +282,17 @@ export default function CalendarFilters({
         </div>
       )}
 
-      {/* Event Type Filter */}
+      {/* Event Type FilterIcon */}
       <div className="relative ml-auto">
         <button
           onClick={() => setActiveDropdown(activeDropdown === 'type' ? null : 'type')}
           className={`flex items-center gap-2 px-5 py-3 rounded-[16px] text-sm font-semibold transition-all shadow-sm ${activeDropdown === 'type' ? 'bg-indigo-500 text-white ring-4 ring-indigo-500/20' : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200'}`}
         >
-          <Filter
+          <FilterIcon
             className={`w-4 h-4 ${activeDropdown === 'type' ? 'text-indigo-200' : 'text-slate-400'}`}
           />
           {EVENT_TYPES.find((t) => t.value === filters.eventType)?.label}
-          <ChevronDown
+          <ArrowDown01Icon
             className={`w-4 h-4 transition-transform ${activeDropdown === 'type' ? 'rotate-180 text-white' : 'text-slate-400'}`}
           />
         </button>
@@ -322,7 +322,7 @@ export default function CalendarFilters({
                       </span>
                     </div>
                     {filters.eventType === type.value && (
-                      <Check className="w-4 h-4 text-indigo-600" />
+                      <Tick01Icon className="w-4 h-4 text-indigo-600" />
                     )}
                   </button>
                 ))}

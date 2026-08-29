@@ -1,5 +1,5 @@
 import { forwardRef, useRef } from 'react';
-import { Upload, User, FileText, Image as ImageIcon, X } from 'lucide-react';
+import { Upload01Icon, UserIcon, Note01Icon, Image01Icon, Cancel01Icon } from 'hugeicons-react';
 
 // ============================================
 // FileUpload
@@ -19,7 +19,7 @@ export const FileUpload = ({
   accept,
   multiple,
   onFilesSelected,
-  label = 'Upload File',
+  label = 'Upload01Icon File',
   description,
   error,
   className,
@@ -34,7 +34,7 @@ export const FileUpload = ({
       ].join(' ')}
       onClick={() => inputRef.current?.click()}
     >
-      <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+      <Upload01Icon className="mb-2 h-8 w-8 text-muted-foreground" />
       <p className="text-sm font-medium">{label}</p>
       {description && <p className="mt-1 text-xs text-muted-foreground">{description}</p>}
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
@@ -81,7 +81,7 @@ export const AvatarUpload = ({
         {currentUrl ? (
           <img src={currentUrl} alt="Avatar" className="h-full w-full object-cover" />
         ) : (
-          <User className="h-8 w-8 text-muted-foreground" />
+          <UserIcon className="h-8 w-8 text-muted-foreground" />
         )}
       </div>
       <input
@@ -116,7 +116,7 @@ export const ResumeUpload = ({
     <div className={['rounded-lg border border-border bg-card p-4', className].join(' ')}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <FileText className="h-8 w-8 text-muted-foreground" />
+          <Note01Icon className="h-8 w-8 text-muted-foreground" />
           <div>
             <p className="text-sm font-medium">{currentFileName || 'No resume uploaded'}</p>
             <p className="text-xs text-muted-foreground">PDF, DOC, DOCX (max 5MB)</p>
@@ -126,7 +126,7 @@ export const ResumeUpload = ({
           onClick={() => inputRef.current?.click()}
           className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-3 text-sm font-medium hover:bg-accent cursor-pointer"
         >
-          {currentFileName ? 'Replace' : 'Upload'}
+          {currentFileName ? 'Replace' : 'Upload01Icon'}
         </button>
       </div>
       {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
@@ -165,7 +165,7 @@ export const ImagePreview = ({ src, alt = 'Preview', onRemove, className }: Imag
           onClick={onRemove}
           className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground cursor-pointer"
         >
-          <X className="h-3 w-3" />
+          <Cancel01Icon className="h-3 w-3" />
         </button>
       )}
     </div>

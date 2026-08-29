@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card, Button, Input } from '@/components/ui';
 import { toast } from 'sonner';
-import { Shield, Key } from 'lucide-react';
+import { Shield01Icon, Key01Icon } from 'hugeicons-react';
 
 export default function StudentSettings() {
   const { user } = useAuthStore();
@@ -60,7 +60,7 @@ export default function StudentSettings() {
           <Card className="p-4 bg-white/90 backdrop-blur-xl border border-slate-200/60 shadow-lg shadow-slate-200/40">
             <nav className="space-y-1">
               <button className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium bg-white text-primary rounded-lg shadow-sm border border-slate-200">
-                <Shield className="w-4 h-4" /> Security
+                <Shield01Icon className="w-4 h-4" /> Security
               </button>
               {/* Future settings tabs can go here */}
             </nav>
@@ -70,7 +70,7 @@ export default function StudentSettings() {
         <div className="md:col-span-2 space-y-6">
           <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl">
             <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-              <Key className="w-5 h-5 text-slate-400" />
+              <Key01Icon className="w-5 h-5 text-slate-400" />
               <h3 className="font-bold text-slate-800 text-lg">Change Password</h3>
             </div>
 

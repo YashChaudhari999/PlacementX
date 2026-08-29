@@ -1,4 +1,4 @@
-import { X, Filter, RefreshCcw, Download, SlidersHorizontal } from 'lucide-react';
+import { Cancel01Icon, FilterIcon, RefreshIcon, Download01Icon, Settings02Icon } from 'hugeicons-react';
 import { useFilterOptions } from '@/hooks/queries/useAnalytics';
 import { useAnalyticsFilters } from '@/hooks/useAnalyticsFilters';
 import { analyticsService } from '@/services/analytics.service';
@@ -57,11 +57,11 @@ export default function GlobalFilters() {
 
   return (
     <div className="space-y-3">
-      {/* ── Primary Filter Bar ──────────────────────── */}
+      {/* ── Primary FilterIcon Bar ──────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-slate-600 shrink-0">
-            <Filter className="w-4 h-4" />
+            <FilterIcon className="w-4 h-4" />
             <span className="text-sm font-bold">Filters</span>
           </div>
 
@@ -129,7 +129,7 @@ export default function GlobalFilters() {
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
             }`}
           >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <Settings02Icon className="w-3.5 h-3.5" />
             Advanced
           </button>
 
@@ -144,7 +144,7 @@ export default function GlobalFilters() {
               }}
               className="px-3 py-2 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors flex items-center gap-1.5"
             >
-              <RefreshCcw className="w-3.5 h-3.5" />
+              <RefreshIcon className="w-3.5 h-3.5" />
               Clear ({activeFilterCount})
             </button>
           )}
@@ -153,7 +153,7 @@ export default function GlobalFilters() {
             onClick={handleExport}
             className="px-3 py-2 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center gap-1.5 shadow-sm"
           >
-            <Download className="w-3.5 h-3.5" />
+            <Download01Icon className="w-3.5 h-3.5" />
             Export
           </button>
         </div>
@@ -188,7 +188,7 @@ export default function GlobalFilters() {
               <input
                 type="text"
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
-                placeholder="Filter by role..."
+                placeholder="FilterIcon by role..."
                 value={filters.jobRole || ''}
                 onChange={(e) => updateFilter('jobRole', e.target.value || undefined)}
               />
@@ -229,7 +229,7 @@ export default function GlobalFilters() {
         )}
       </div>
 
-      {/* ── Active Filter Chips ─────────────────────── */}
+      {/* ── Active FilterIcon Chips ─────────────────────── */}
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {activeFilters.map(([key, value]) => (
@@ -245,7 +245,7 @@ export default function GlobalFilters() {
                 onClick={() => updateFilter(key as any, undefined)}
                 className="ml-0.5 hover:opacity-70 transition-opacity"
               >
-                <X className="w-3 h-3" />
+                <Cancel01Icon className="w-3 h-3" />
               </button>
             </span>
           ))}

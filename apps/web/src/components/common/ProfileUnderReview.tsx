@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { ShieldCheck, Clock, AlertTriangle, FileText, ArrowRight, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Shield01Icon, Clock01Icon, Alert01Icon, Note01Icon, ArrowRight01Icon, RefreshIcon, TickDouble02Icon } from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
 const STATUS_CONFIG: Record<string, {
@@ -15,7 +15,7 @@ const STATUS_CONFIG: Record<string, {
   ctaPath: string;
 }> = {
   NOT_COMPLETED: {
-    icon: FileText,
+    icon: Note01Icon,
     iconColor: 'text-amber-600',
     iconBg: 'bg-amber-50 border border-amber-200',
     badge: 'Incomplete',
@@ -26,7 +26,7 @@ const STATUS_CONFIG: Record<string, {
     ctaPath: '/student/profile',
   },
   PENDING: {
-    icon: Clock,
+    icon: Clock01Icon,
     iconColor: 'text-blue-600',
     iconBg: 'bg-blue-50 border border-blue-200',
     badge: 'Pending Submission',
@@ -37,7 +37,7 @@ const STATUS_CONFIG: Record<string, {
     ctaPath: '/student/profile',
   },
   PENDING_VERIFICATION: {
-    icon: ShieldCheck,
+    icon: Shield01Icon,
     iconColor: 'text-indigo-600',
     iconBg: 'bg-indigo-50 border border-indigo-200',
     badge: 'Under Review',
@@ -48,7 +48,7 @@ const STATUS_CONFIG: Record<string, {
     ctaPath: '/student/profile',
   },
   UPDATE_REJECTED: {
-    icon: AlertTriangle,
+    icon: Alert01Icon,
     iconColor: 'text-red-600',
     iconBg: 'bg-red-50 border border-red-200',
     badge: 'Changes Requested',
@@ -61,10 +61,10 @@ const STATUS_CONFIG: Record<string, {
 };
 
 const STEPS = [
-  { label: 'Fill in all required profile details', icon: FileText },
-  { label: 'Submit profile for admin verification', icon: ShieldCheck },
-  { label: 'Admin reviews and verifies your profile', icon: CheckCircle2 },
-  { label: 'Full portal access unlocked', icon: ArrowRight },
+  { label: 'Fill in all required profile details', icon: Note01Icon },
+  { label: 'Submit profile for admin verification', icon: Shield01Icon },
+  { label: 'Admin reviews and verifies your profile', icon: TickDouble02Icon },
+  { label: 'Full portal access unlocked', icon: ArrowRight01Icon },
 ];
 
 export const ProfileUnderReview = () => {
@@ -134,7 +134,7 @@ export const ProfileUnderReview = () => {
                         <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
                           ${isDone ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}
                         >
-                          {isDone ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
+                          {isDone ? <TickDouble02Icon className="w-4 h-4" /> : i + 1}
                         </div>
                         <span className={`text-sm font-medium ${isDone ? 'text-emerald-700 line-through' : 'text-slate-700'}`}>
                           {step.label}
@@ -152,13 +152,13 @@ export const ProfileUnderReview = () => {
                   className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-300 hover:-translate-y-0.5"
                 >
                   {config.ctaLabel}
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight01Icon className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => window.location.reload()}
                   className="flex items-center justify-center gap-2 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-2xl transition-all text-sm"
                 >
-                  <RefreshCw className="w-4 h-4" />
+                  <RefreshIcon className="w-4 h-4" />
                   Refresh
                 </button>
               </div>

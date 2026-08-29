@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button, Input } from '@/components/ui';
-import { Globe, Save } from 'lucide-react';
+import { GlobalIcon, FloppyDiskIcon } from 'hugeicons-react';
 
 export default function GeneralSettings({
   settings,
@@ -14,7 +14,7 @@ export default function GeneralSettings({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2">
-          <Globe className="w-5 h-5 text-slate-400" />
+          <GlobalIcon className="w-5 h-5 text-slate-400" />
           <h3 className="font-bold text-slate-800 text-lg">General Settings</h3>
         </div>
         {hasUnsavedChanges && (
@@ -23,7 +23,7 @@ export default function GeneralSettings({
             disabled={saving}
             size="sm"
           >
-            <Save className="w-4 h-4 mr-2" /> Save Changes
+            <FloppyDiskIcon className="w-4 h-4 mr-2" /> FloppyDiskIcon Changes
           </Button>
         )}
       </div>

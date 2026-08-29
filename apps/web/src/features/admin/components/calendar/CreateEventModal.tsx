@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Calendar as CalendarIcon, Clock, AlignLeft, Tag, Loader2 } from 'lucide-react';
+import { Cancel01Icon, Calendar01Icon, Clock01Icon, AlignLeftIcon, Tag01Icon, Loading02Icon } from 'hugeicons-react';
 import { useCreateCustomEvent, useUpdateCustomEvent } from '@/hooks/queries/useAdminCalendar';
 
 interface CreateEventModalProps {
@@ -98,7 +98,7 @@ export default function CreateEventModal({
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
           >
-            <X className="w-5 h-5" />
+            <Cancel01Icon className="w-5 h-5" />
           </button>
         </div>
 
@@ -119,7 +119,7 @@ export default function CreateEventModal({
 
             {/* Date & Time */}
             <div className="flex gap-4 items-start">
-              <CalendarIcon className="w-5 h-5 text-slate-400 mt-2.5 shrink-0" />
+              <Calendar01Icon className="w-5 h-5 text-slate-400 mt-2.5 shrink-0" />
               <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-4">
                   <input
@@ -142,7 +142,7 @@ export default function CreateEventModal({
 
                 {!isAllDay && (
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-400" />
+                    <Clock01Icon className="w-4 h-4 text-slate-400" />
                     <input
                       type="time"
                       value={startTime}
@@ -165,7 +165,7 @@ export default function CreateEventModal({
 
             {/* Type & Color */}
             <div className="flex gap-4 items-center">
-              <Tag className="w-5 h-5 text-slate-400 shrink-0" />
+              <Tag01Icon className="w-5 h-5 text-slate-400 shrink-0" />
               <div className="flex-1 flex gap-4">
                 <select
                   value={type}
@@ -192,7 +192,7 @@ export default function CreateEventModal({
 
             {/* Description */}
             <div className="flex gap-4 items-start">
-              <AlignLeft className="w-5 h-5 text-slate-400 mt-2.5 shrink-0" />
+              <AlignLeftIcon className="w-5 h-5 text-slate-400 mt-2.5 shrink-0" />
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -218,7 +218,7 @@ export default function CreateEventModal({
             disabled={isPending || !title}
             className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all disabled:opacity-70 flex items-center gap-2"
           >
-            {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isPending && <Loading02Icon className="w-4 h-4 animate-spin" />}
             {editEvent ? 'Save Changes' : 'Create Event'}
           </button>
         </div>

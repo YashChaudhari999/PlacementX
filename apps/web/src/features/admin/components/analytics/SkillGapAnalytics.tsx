@@ -1,12 +1,12 @@
 import { Card } from '@/components/ui';
-import { BookOpen, AlertCircle, CheckCircle2, Minus } from 'lucide-react';
+import { BookOpen01Icon, Alert02Icon, TickDouble02Icon, MinusSignIcon } from 'hugeicons-react';
 import type { SkillGapResponse } from '@/types/analytics.types';
 
 export default function SkillGapAnalytics({ data }: { data: SkillGapResponse }) {
   if (!data?.skills?.length) {
     return (
       <Card className="p-6 border-slate-200 flex flex-col items-center justify-center min-h-[200px] text-slate-500">
-        <BookOpen className="w-8 h-8 mb-3 opacity-20" />
+        <BookOpen01Icon className="w-8 h-8 mb-3 opacity-20" />
         <p>Insufficient skill data for gap analysis</p>
       </Card>
     );
@@ -19,7 +19,7 @@ export default function SkillGapAnalytics({ data }: { data: SkillGapResponse }) 
       {recommendations?.length > 0 && (
         <Card className="p-5 border-amber-200 bg-amber-50">
           <div className="flex items-center gap-2 mb-3">
-            <AlertCircle className="w-5 h-5 text-amber-600" />
+            <Alert02Icon className="w-5 h-5 text-amber-600" />
             <h3 className="font-bold text-amber-900">Training Recommendations</h3>
           </div>
           <ul className="space-y-2">
@@ -82,7 +82,7 @@ export default function SkillGapAnalytics({ data }: { data: SkillGapResponse }) 
 
           {topShortages.length === 0 && (
             <div className="p-8 text-center text-slate-500 flex flex-col items-center">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400 mb-2" />
+              <TickDouble02Icon className="w-8 h-8 text-emerald-400 mb-2" />
               <p className="font-medium text-slate-900">No Critical Shortages</p>
               <p className="text-sm">
                 Student supply meets or exceeds recruiter demand for all tracked skills.

@@ -1,24 +1,14 @@
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
-import {
-  Filter,
-  Users,
-  UserCheck,
-  Search,
-  Briefcase,
-  FileCheck,
-  XCircle,
-  ChevronRight,
-  AlertTriangle,
-} from 'lucide-react';
+import { FilterIcon, UserMultipleIcon, UserIcon, Search01Icon, Briefcase01Icon, Note01Icon, CancelCircleIcon, ArrowRight01Icon, Alert01Icon } from 'hugeicons-react';
 import type { FunnelResponse } from '@/types/analytics.types';
 
 const stageIcons: Record<string, React.ElementType> = {
-  APPLIED: Users,
-  SHORTLISTED: Search,
-  INTERVIEWED: UserCheck,
-  OFFERED: Briefcase,
-  REJECTED: XCircle,
+  APPLIED: UserMultipleIcon,
+  SHORTLISTED: Search01Icon,
+  INTERVIEWED: UserIcon,
+  OFFERED: Briefcase01Icon,
+  REJECTED: CancelCircleIcon,
 };
 
 const stageColors: Record<string, string> = {
@@ -33,7 +23,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
   if (!data?.stages?.length) {
     return (
       <Card className="p-6 border-slate-200 flex flex-col items-center justify-center min-h-[300px] text-slate-500">
-        <Filter className="w-8 h-8 mb-3 opacity-20" />
+        <FilterIcon className="w-8 h-8 mb-3 opacity-20" />
         <p>No funnel data available for selected filters</p>
       </Card>
     );
@@ -45,7 +35,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
     <Card className="p-6 border-slate-200">
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
-          <Filter className="w-5 h-5" />
+          <FilterIcon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Application Funnel</h2>
@@ -55,7 +45,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
 
       {data.insight?.largestDrop && (
         <div className="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200 flex gap-3 items-start">
-          <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <Alert01Icon className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <h4 className="text-sm font-bold text-amber-900">Significant Drop Detected</h4>
             <p className="text-sm text-amber-700 mt-1">{data.insight.description}</p>
@@ -70,7 +60,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
 
       <div className="space-y-6">
         {data.stages.map((stage, idx) => {
-          const Icon = stageIcons[stage.stage] || FileCheck;
+          const Icon = stageIcons[stage.stage] || Note01Icon;
           const color = stageColors[stage.stage] || 'bg-slate-500';
           const width = Math.max((stage.count / maxCount) * 100, 2);
 
@@ -80,7 +70,7 @@ export default function PlacementFunnel({ data }: { data: FunnelResponse }) {
               {idx > 0 && stage.conversionFromPrevious !== null && (
                 <div className="absolute -top-5 left-10 flex items-center gap-2 text-[10px] font-bold text-slate-400">
                   <div className="w-px h-6 bg-slate-200" />
-                  <ChevronRight className="w-3 h-3" />
+                  <ArrowRight01Icon className="w-3 h-3" />
                   <span className={stage.conversionFromPrevious < 30 ? 'text-rose-500' : ''}>
                     {stage.conversionFromPrevious.toFixed(1)}% conversion
                   </span>

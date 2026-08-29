@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Card } from '@/components/ui';
-import { Download, Maximize2, Minimize2 } from 'lucide-react';
+import { Download01Icon, Maximize01Icon, Minimize01Icon } from 'hugeicons-react';
 import {
   BarChart,
   Bar,
@@ -52,16 +52,16 @@ const ChartWrapper = ({
           <button
             onClick={downloadImage}
             className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-            title="Download Image"
+            title="Download01Icon Image"
           >
-            <Download className="w-4 h-4" />
+            <Download01Icon className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {isFullscreen ? <Minimize01Icon className="w-4 h-4" /> : <Maximize01Icon className="w-4 h-4" />}
           </button>
         </div>
       </div>

@@ -1,13 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  UploadCloud,
-  CheckCircle,
-  XCircle,
-  Download,
-  FileSpreadsheet,
-  AlertTriangle,
-  AlertCircle,
-} from 'lucide-react';
+import { CloudUploadIcon, Tick02Icon, CancelCircleIcon, Download01Icon, Note01Icon, Alert01Icon, Alert02Icon } from 'hugeicons-react';
 import { CSVParserService } from '@/lib/csvParserService';
 import type { CSVValidationError } from '@/lib/csvParserService';
 import type { CSVStudentRow } from '@/lib/firebase/models';
@@ -153,7 +145,7 @@ export default function AdminStudentImport() {
       {/* Upload Zone */}
       {!file && !importResult && (
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 text-center">
-          <UploadCloud className="mx-auto h-16 w-16 text-blue-500 mb-4" />
+          <CloudUploadIcon className="mx-auto h-16 w-16 text-blue-500 mb-4" />
           <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-100">
             Upload CSV File
           </h2>
@@ -177,13 +169,13 @@ export default function AdminStudentImport() {
           <div className="mt-8 text-sm text-gray-500 mb-6">
             Ensure your CSV matches the exact template format.{' '}
             <a href="#" onClick={handleDownloadTemplate} className="text-blue-500 hover:underline">
-              Download Template
+              Download01Icon Template
             </a>
           </div>
 
           <div className="mt-4 text-sm text-gray-500 text-left bg-gray-50 dark:bg-gray-900/50 p-5 rounded-lg border border-gray-200 dark:border-gray-700 inline-block w-full max-w-3xl">
             <h3 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-              <FileSpreadsheet className="w-4 h-4" /> Expected CSV Columns (in order):
+              <Note01Icon className="w-4 h-4" /> Expected CSV Columns (in order):
             </h3>
             <div className="flex flex-wrap gap-2 text-xs font-mono">
               <span className="px-2 py-1 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700">
@@ -226,7 +218,7 @@ export default function AdminStudentImport() {
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-800 dark:text-gray-100">
-              <FileSpreadsheet className="text-blue-500" />
+              <Note01Icon className="text-blue-500" />
               {file.name}
             </h2>
             <button onClick={reset} className="text-gray-500 hover:text-gray-700 cursor-pointer">
@@ -244,7 +236,7 @@ export default function AdminStudentImport() {
                   {parsedData.length}
                 </div>
               </div>
-              <CheckCircle className="h-10 w-10 text-green-500 opacity-50" />
+              <Tick02Icon className="h-10 w-10 text-green-500 opacity-50" />
             </div>
 
             <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center justify-between">
@@ -256,14 +248,14 @@ export default function AdminStudentImport() {
                   {validationErrors.length}
                 </div>
               </div>
-              <XCircle className="h-10 w-10 text-red-500 opacity-50" />
+              <CancelCircleIcon className="h-10 w-10 text-red-500 opacity-50" />
             </div>
           </div>
 
           {validationErrors.length > 0 && (
             <div className="mb-8">
               <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-red-600">
-                <AlertCircle className="h-5 w-5" /> Validation Errors Preview
+                <Alert02Icon className="h-5 w-5" /> Validation Errors Preview
               </h3>
               <div className="max-h-60 overflow-y-auto bg-red-50/50 dark:bg-red-900/10 border border-red-100 rounded-lg">
                 <table className="min-w-full text-sm">
@@ -335,7 +327,7 @@ export default function AdminStudentImport() {
           </div>
 
           <div className="mt-8 flex justify-center text-amber-500 text-sm items-center gap-2">
-            <AlertTriangle className="h-4 w-4" /> Please do not close this tab during the import.
+            <Alert01Icon className="h-4 w-4" /> Please do not close this tab during the import.
           </div>
         </div>
       )}
@@ -345,7 +337,7 @@ export default function AdminStudentImport() {
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="text-center mb-8">
             <div className="mx-auto h-16 w-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle className="h-8 w-8" />
+              <Tick02Icon className="h-8 w-8" />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
               Import Completed
@@ -434,8 +426,8 @@ export default function AdminStudentImport() {
               onClick={downloadReport}
               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
             >
-              <Download className="h-4 w-4" />
-              Download Report (Passwords Included)
+              <Download01Icon className="h-4 w-4" />
+              Download01Icon Report (Passwords Included)
             </button>
           </div>
         </div>

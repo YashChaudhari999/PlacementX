@@ -1,46 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { Button, Input } from '@/components/ui';
-import {
-  User,
-  FileText,
-  GraduationCap,
-  CheckCircle,
-  Save,
-  ExternalLink,
-  AlertCircle,
-  Edit2,
-  Phone,
-  Calendar,
-  MapPin,
-  Flag,
-  Briefcase,
-  Link as LinkIcon,
-  Code,
-  Award,
-  BookOpen,
-  Clock,
-  Building,
-  Hash,
-  Languages,
-  FileBadge,
-  UserCircle,
-  X,
-  Plus,
-  CheckCircle2,
-  ShieldCheck,
-  Database,
-  Cloud,
-  Wrench,
-  Monitor,
-  Terminal,
-  Globe,
-  Award as AwardIcon,
-  PlayCircle,
-  AppWindow,
-  Globe2,
-  Camera,
-} from 'lucide-react';
+import { UserIcon, Note01Icon, Mortarboard01Icon, Tick02Icon, FloppyDiskIcon, Link02Icon, Alert02Icon, Edit02Icon, CallIcon, Calendar01Icon, Location01Icon, Flag01Icon, Briefcase01Icon, Link01Icon, CodeIcon, Award01Icon, BookOpen01Icon, Clock01Icon, Building01Icon, HashtagIcon, LanguageSkillIcon, FileAddIcon, UserCircleIcon, Cancel01Icon, PlusSignIcon, TickDouble02Icon, Shield01Icon, DatabaseIcon, CloudIcon, Wrench01Icon, ComputerIcon, GlobalIcon, PlayCircleIcon, DashboardSquare01Icon, Globe02Icon, Camera01Icon } from 'hugeicons-react';
 import {
   useStudentProfile,
   useUpdateStudentProfile,
@@ -106,7 +67,7 @@ const TagInput = ({ tags, setTags, placeholder, disabled, label }: any) => {
                 onClick={() => removeTag(tag)}
                 className="hover:bg-blue-200 p-0.5 rounded-full transition-colors"
               >
-                <X className="w-3 h-3" />
+                <Cancel01Icon className="w-3 h-3" />
               </button>
             )}
           </span>
@@ -121,7 +82,7 @@ const TagInput = ({ tags, setTags, placeholder, disabled, label }: any) => {
             className="flex-1 h-12 bg-white focus:bg-white text-lg rounded-xl border-slate-200"
           />
           <Button type="submit" variant="outline" className="h-12 px-4 rounded-xl shrink-0">
-            <Plus className="w-4 h-4 mr-2" /> Add
+            <PlusSignIcon className="w-4 h-4 mr-2" /> Add
           </Button>
         </form>
       )}
@@ -282,56 +243,56 @@ export default function StudentProfile() {
     {
       id: 'personal',
       label: 'Personal Info',
-      icon: User,
+      icon: UserIcon,
       color: 'text-slate-500',
       bg: 'bg-slate-100',
     },
     {
       id: 'academic',
       label: 'Academics',
-      icon: GraduationCap,
+      icon: Mortarboard01Icon,
       color: 'text-emerald-500',
       bg: 'bg-emerald-100',
     },
     {
       id: 'links',
       label: 'Links & Profiles',
-      icon: LinkIcon,
+      icon: Link01Icon,
       color: 'text-blue-500',
       bg: 'bg-blue-100',
     },
     {
       id: 'skills',
       label: 'Technical Skills',
-      icon: Terminal,
+      icon: CodeIcon,
       color: 'text-indigo-500',
       bg: 'bg-indigo-100',
     },
     {
       id: 'languages',
-      label: 'Languages',
-      icon: Languages,
+      label: 'LanguageSkillIcon',
+      icon: LanguageSkillIcon,
       color: 'text-fuchsia-500',
       bg: 'bg-fuchsia-100',
     },
     {
       id: 'projects',
       label: 'Projects',
-      icon: Code,
+      icon: CodeIcon,
       color: 'text-orange-500',
       bg: 'bg-orange-100',
     },
     {
       id: 'experience',
       label: 'Experience',
-      icon: Briefcase,
+      icon: Briefcase01Icon,
       color: 'text-rose-500',
       bg: 'bg-rose-100',
     },
     {
       id: 'certifications',
       label: 'Certifications',
-      icon: AwardIcon,
+      icon: Award01Icon,
       color: 'text-amber-500',
       bg: 'bg-amber-100',
     },
@@ -394,7 +355,7 @@ export default function StudentProfile() {
 
             {!isReadOnly && (
               <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <Camera className="w-6 h-6 mb-1" />
+                <Camera01Icon className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">Upload</span>
                 <input
                   type="file"
@@ -428,17 +389,17 @@ export default function StudentProfile() {
           <div className="flex flex-wrap justify-center md:justify-start gap-3">
             {profileStatus === 'PENDING_VERIFICATION' && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-sm font-bold border border-blue-200 shadow-sm">
-                <AlertCircle className="w-4 h-4" /> Pending Verification
+                <Alert02Icon className="w-4 h-4" /> Pending Verification
               </span>
             )}
             {profileStatus === 'UPDATE_REQUESTED' && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-sm font-bold border border-amber-200 shadow-sm">
-                <AlertCircle className="w-4 h-4" /> Update Request Pending
+                <Alert02Icon className="w-4 h-4" /> Update Request Pending
               </span>
             )}
             {profileStatus === 'VERIFIED' && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-bold border border-emerald-200 shadow-sm">
-                <CheckCircle className="w-4 h-4" /> Verified Profile
+                <Tick02Icon className="w-4 h-4" /> Verified Profile
               </span>
             )}
             {(profileStatus === 'NOT_COMPLETED' || profileStatus === 'UPDATE_REJECTED') && (
@@ -456,7 +417,7 @@ export default function StudentProfile() {
             onClick={() => setIsEditing(true)}
             className="gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md"
           >
-            <Edit2 className="w-4 h-4" /> Update Profile
+            <Edit02Icon className="w-4 h-4" /> Update Profile
           </Button>
         </div>
       )}
@@ -468,7 +429,7 @@ export default function StudentProfile() {
           className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6 shadow-inner"
         >
           <label className="block text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" /> Reason for Update (Required)
+            <Alert02Icon className="w-4 h-4" /> Reason for Update (Required)
           </label>
           <Input
             value={updateReason}
@@ -518,9 +479,9 @@ export default function StudentProfile() {
             >
               {activeTab === 'personal' && (
                 <div className="space-y-8">
-                  <SectionCard title="Basic Identity" icon={User}>
+                  <SectionCard title="Basic Identity" icon={UserIcon}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Field label="First Name" icon={User}>
+                      <Field label="First Name" icon={UserIcon}>
                         <Input
                           value={profile.firstName}
                           onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
@@ -529,7 +490,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Last Name" icon={User}>
+                      <Field label="Last Name" icon={UserIcon}>
                         <Input
                           value={profile.lastName}
                           onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
@@ -538,7 +499,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Date of Birth" icon={Calendar}>
+                      <Field label="Date of Birth" icon={Calendar01Icon}>
                         <Input
                           type="date"
                           value={profile.dateOfBirth}
@@ -547,7 +508,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Gender" icon={UserCircle}>
+                      <Field label="Gender" icon={UserCircleIcon}>
                         <select
                           className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70"
                           value={profile.gender}
@@ -562,9 +523,9 @@ export default function StudentProfile() {
                     </div>
                   </SectionCard>
 
-                  <SectionCard title="Contact Information" icon={Phone}>
+                  <SectionCard title="Contact Information" icon={CallIcon}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <Field label="Phone Number" icon={Phone}>
+                      <Field label="CallIcon Number" icon={CallIcon}>
                         <Input
                           value={profile.phone}
                           onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
@@ -573,7 +534,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Alternate Phone" icon={Phone}>
+                      <Field label="Alternate CallIcon" icon={CallIcon}>
                         <Input
                           value={profile.alternatePhone}
                           onChange={(e) =>
@@ -585,7 +546,7 @@ export default function StudentProfile() {
                         />
                       </Field>
                       <div className="col-span-full">
-                        <Field label="Address" icon={MapPin}>
+                        <Field label="Address" icon={Location01Icon}>
                           <textarea
                             value={profile.address}
                             onChange={(e) => setProfile({ ...profile, address: e.target.value })}
@@ -604,9 +565,9 @@ export default function StudentProfile() {
               {activeTab === 'academic' && (
                 <div className="space-y-8">
                   {/* Current Degree */}
-                  <SectionCard title="Current Degree" icon={GraduationCap}>
+                  <SectionCard title="Current Degree" icon={Mortarboard01Icon}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <Field label="Branch / Specialization" icon={BookOpen}>
+                      <Field label="Branch / Specialization" icon={BookOpen01Icon}>
                         <select
                           value={profile.branch}
                           onChange={(e) => setProfile({ ...profile, branch: e.target.value })}
@@ -620,7 +581,7 @@ export default function StudentProfile() {
                           <option value="AI/ML">AI/ML</option>
                         </select>
                       </Field>
-                      <Field label="Current Semester" icon={Clock}>
+                      <Field label="Current Semester" icon={Clock01Icon}>
                         <Input
                           type="number"
                           value={profile.currentSemester}
@@ -632,7 +593,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="CGPA" icon={Award}>
+                      <Field label="CGPA" icon={Award01Icon}>
                         <Input
                           type="number"
                           step="0.01"
@@ -643,7 +604,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Passing Year" icon={Calendar}>
+                      <Field label="Passing Year" icon={Calendar01Icon}>
                         <Input
                           type="number"
                           value={profile.passingYear}
@@ -653,7 +614,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Active Backlogs" icon={AlertCircle}>
+                      <Field label="Active Backlogs" icon={Alert02Icon}>
                         <Input
                           type="number"
                           value={profile.activeBacklogs}
@@ -664,7 +625,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Total Backlogs" icon={AlertCircle}>
+                      <Field label="Total Backlogs" icon={Alert02Icon}>
                         <Input
                           type="number"
                           value={profile.totalBacklogs}
@@ -675,7 +636,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Year Gap" icon={Clock}>
+                      <Field label="Year Gap" icon={Clock01Icon}>
                         <Input
                           type="number"
                           value={profile.yearGap}
@@ -688,7 +649,7 @@ export default function StudentProfile() {
                   </SectionCard>
 
                   {/* Past Academics */}
-                  <SectionCard title="Past Academics" icon={Building}>
+                  <SectionCard title="Past Academics" icon={Building01Icon}>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-8">
                       {/* 10th */}
                       <div className="space-y-5">
@@ -700,7 +661,7 @@ export default function StudentProfile() {
                             10th Standard
                           </h4>
                         </div>
-                        <Field label="Board" icon={Building}>
+                        <Field label="Board" icon={Building01Icon}>
                           <Input
                             value={profile.tenthBoard}
                             onChange={(e) => setProfile({ ...profile, tenthBoard: e.target.value })}
@@ -709,7 +670,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Year" icon={Calendar}>
+                        <Field label="Year" icon={Calendar01Icon}>
                           <Input
                             type="number"
                             value={profile.tenthYear}
@@ -719,7 +680,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Percentage" icon={Award}>
+                        <Field label="Percentage" icon={Award01Icon}>
                           <Input
                             type="number"
                             step="0.01"
@@ -744,7 +705,7 @@ export default function StudentProfile() {
                             12th Standard
                           </h4>
                         </div>
-                        <Field label="Board" icon={Building}>
+                        <Field label="Board" icon={Building01Icon}>
                           <Input
                             value={profile.twelfthBoard}
                             onChange={(e) =>
@@ -755,7 +716,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Year" icon={Calendar}>
+                        <Field label="Year" icon={Calendar01Icon}>
                           <Input
                             type="number"
                             value={profile.twelfthYear}
@@ -767,7 +728,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Percentage" icon={Award}>
+                        <Field label="Percentage" icon={Award01Icon}>
                           <Input
                             type="number"
                             step="0.01"
@@ -792,7 +753,7 @@ export default function StudentProfile() {
                             Diploma
                           </h4>
                         </div>
-                        <Field label="Board (if any)" icon={Building}>
+                        <Field label="Board (if any)" icon={Building01Icon}>
                           <Input
                             value={profile.diplomaBoard}
                             onChange={(e) =>
@@ -803,7 +764,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Year" icon={Calendar}>
+                        <Field label="Year" icon={Calendar01Icon}>
                           <Input
                             type="number"
                             value={profile.diplomaYear}
@@ -815,7 +776,7 @@ export default function StudentProfile() {
                             className="h-12 bg-white focus:bg-white rounded-xl disabled:opacity-70 border-slate-200"
                           />
                         </Field>
-                        <Field label="Percentage" icon={Award}>
+                        <Field label="Percentage" icon={Award01Icon}>
                           <Input
                             type="number"
                             step="0.01"
@@ -836,10 +797,10 @@ export default function StudentProfile() {
 
               {activeTab === 'links' && (
                 <div className="space-y-8">
-                  <SectionCard title="Links & Profiles" icon={LinkIcon}>
+                  <SectionCard title="Links & Profiles" icon={Link01Icon}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="col-span-full">
-                        <Field label="Resume Link" labelEnd="(Required)" icon={FileText}>
+                        <Field label="Resume Link" labelEnd="(Required)" icon={Note01Icon}>
                           <div className="relative">
                             <Input
                               value={profile.resumeUrl}
@@ -857,13 +818,13 @@ export default function StudentProfile() {
                                 rel="noreferrer"
                                 className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 bg-blue-50 p-1 rounded-md"
                               >
-                                <ExternalLink className="w-5 h-5" />
+                                <Link02Icon className="w-5 h-5" />
                               </a>
                             )}
                           </div>
                         </Field>
                       </div>
-                      <Field label="GitHub Profile" labelEnd="(Required)" icon={Code}>
+                      <Field label="GitHub Profile" labelEnd="(Required)" icon={CodeIcon}>
                         <div className="relative">
                           <Input
                             value={profile.githubUrl}
@@ -874,12 +835,12 @@ export default function StudentProfile() {
                           />
                           {profile.githubUrl?.includes('github.com') && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded text-xs font-bold">
-                              <ShieldCheck className="w-3 h-3" /> Verified
+                              <Shield01Icon className="w-3 h-3" /> Verified
                             </div>
                           )}
                         </div>
                       </Field>
-                      <Field label="LinkedIn Profile" labelEnd="(Required)" icon={LinkIcon}>
+                      <Field label="LinkedIn Profile" labelEnd="(Required)" icon={Link01Icon}>
                         <Input
                           value={profile.linkedinUrl}
                           onChange={(e) => setProfile({ ...profile, linkedinUrl: e.target.value })}
@@ -888,7 +849,7 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
-                      <Field label="Portfolio Website" labelEnd="(Optional)" icon={Globe}>
+                      <Field label="Portfolio Website" labelEnd="(Optional)" icon={GlobalIcon}>
                         <Input
                           value={profile.portfolioUrl}
                           onChange={(e) => setProfile({ ...profile, portfolioUrl: e.target.value })}
@@ -900,7 +861,7 @@ export default function StudentProfile() {
                     </div>
                   </SectionCard>
 
-                  <SectionCard title="Coding Profiles" icon={Terminal}>
+                  <SectionCard title="Coding Profiles" icon={CodeIcon}>
                     <div className="space-y-4">
                       {profile.codingProfiles.map((cp: any, idx: number) => (
                         <div
@@ -908,7 +869,7 @@ export default function StudentProfile() {
                           className="flex gap-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-100"
                         >
                           <div className="flex-1 grid grid-cols-2 gap-4">
-                            <Field label="Platform" icon={AppWindow}>
+                            <Field label="Platform" icon={DashboardSquare01Icon}>
                               <select
                                 value={cp.platform}
                                 onChange={(e) => {
@@ -927,7 +888,7 @@ export default function StudentProfile() {
                                 <option value="GeeksForGeeks">GeeksForGeeks</option>
                               </select>
                             </Field>
-                            <Field label="Profile URL" icon={LinkIcon}>
+                            <Field label="Profile URL" icon={Link01Icon}>
                               <Input
                                 value={cp.url}
                                 onChange={(e) => {
@@ -954,7 +915,7 @@ export default function StudentProfile() {
                               }}
                               className="h-12 px-4 text-red-500 hover:text-red-600 hover:bg-red-50 border-red-200"
                             >
-                              <X className="w-4 h-4" />
+                              <Cancel01Icon className="w-4 h-4" />
                             </Button>
                           )}
                         </div>
@@ -973,7 +934,7 @@ export default function StudentProfile() {
                           }}
                           className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> Add Coding Profile
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Coding Profile
                         </Button>
                       )}
                     </div>
@@ -983,9 +944,9 @@ export default function StudentProfile() {
 
               {activeTab === 'skills' && (
                 <div className="space-y-8">
-                  <SectionCard title="Technical Skills" icon={Monitor}>
+                  <SectionCard title="Technical Skills" icon={ComputerIcon}>
                     <div className="space-y-8">
-                      <Field label="Programming Languages" icon={Code}>
+                      <Field label="Programming LanguageSkillIcon" icon={CodeIcon}>
                         <TagInput
                           tags={profile.programmingLanguages || []}
                           setTags={(tags: string[]) =>
@@ -995,7 +956,7 @@ export default function StudentProfile() {
                           disabled={isReadOnly}
                         />
                       </Field>
-                      <Field label="Frameworks & Libraries" icon={AppWindow}>
+                      <Field label="Frameworks & Libraries" icon={DashboardSquare01Icon}>
                         <TagInput
                           tags={profile.skills || []}
                           setTags={(tags: string[]) => setProfile({ ...profile, skills: tags })}
@@ -1010,7 +971,7 @@ export default function StudentProfile() {
 
               {activeTab === 'languages' && (
                 <div className="space-y-8">
-                  <SectionCard title="Spoken Languages" icon={Languages}>
+                  <SectionCard title="Spoken LanguageSkillIcon" icon={LanguageSkillIcon}>
                     <div className="space-y-4">
                       {profile.languages.map((lang: any, idx: number) => (
                         <div
@@ -1019,7 +980,7 @@ export default function StudentProfile() {
                         >
                           <div className="flex gap-4 items-end">
                             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <Field label="Language" icon={Languages}>
+                              <Field label="Language" icon={LanguageSkillIcon}>
                                 <Input
                                   value={lang.language}
                                   onChange={(e) => {
@@ -1032,7 +993,7 @@ export default function StudentProfile() {
                                   className="h-12 bg-white"
                                 />
                               </Field>
-                              <Field label="Proficiency" icon={AwardIcon}>
+                              <Field label="Proficiency" icon={Award01Icon}>
                                 <select
                                   value={lang.proficiency}
                                   onChange={(e) => {
@@ -1062,7 +1023,7 @@ export default function StudentProfile() {
                                 }}
                                 className="h-12 px-4 text-red-500 hover:bg-red-50 border-red-200 shrink-0"
                               >
-                                <X className="w-4 h-4" />
+                                <Cancel01Icon className="w-4 h-4" />
                               </Button>
                             )}
                           </div>
@@ -1132,7 +1093,7 @@ export default function StudentProfile() {
                           }}
                           className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> Add Language
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Language
                         </Button>
                       )}
                     </div>
@@ -1142,7 +1103,7 @@ export default function StudentProfile() {
 
               {activeTab === 'projects' && (
                 <div className="space-y-8">
-                  <SectionCard title="Projects" icon={Code}>
+                  <SectionCard title="Projects" icon={CodeIcon}>
                     <div className="space-y-6">
                       {profile.projects.map((proj: any, idx: number) => (
                         <div
@@ -1159,11 +1120,11 @@ export default function StudentProfile() {
                               }
                               className="absolute top-4 right-4 p-2 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <X className="w-4 h-4" />
+                              <Cancel01Icon className="w-4 h-4" />
                             </button>
                           )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <Field label="Project Name" icon={FileText}>
+                            <Field label="Project Name" icon={Note01Icon}>
                               <Input
                                 value={proj.name}
                                 onChange={(e) => {
@@ -1175,7 +1136,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Project Type" icon={Hash}>
+                            <Field label="Project Type" icon={HashtagIcon}>
                               <select
                                 value={proj.projectType}
                                 onChange={(e) => {
@@ -1193,7 +1154,7 @@ export default function StudentProfile() {
                                 <option value="Open Source">Open Source</option>
                               </select>
                             </Field>
-                            <Field label="Role" icon={User}>
+                            <Field label="Role" icon={UserIcon}>
                               <Input
                                 value={proj.role}
                                 onChange={(e) => {
@@ -1206,7 +1167,7 @@ export default function StudentProfile() {
                                 placeholder="e.g. Full Stack Developer"
                               />
                             </Field>
-                            <Field label="Team Size" icon={UserCircle}>
+                            <Field label="Team Size" icon={UserCircleIcon}>
                               <Input
                                 type="number"
                                 value={proj.teamSize}
@@ -1220,7 +1181,7 @@ export default function StudentProfile() {
                                 placeholder="1"
                               />
                             </Field>
-                            <Field label="Start Date" icon={Calendar}>
+                            <Field label="Start Date" icon={Calendar01Icon}>
                               <Input
                                 type="month"
                                 value={proj.startDate}
@@ -1233,7 +1194,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="End Date" icon={Calendar}>
+                            <Field label="End Date" icon={Calendar01Icon}>
                               <Input
                                 type="month"
                                 value={proj.endDate}
@@ -1246,7 +1207,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="GitHub Repository" icon={Code}>
+                            <Field label="GitHub Repository" icon={CodeIcon}>
                               <Input
                                 value={proj.githubUrl}
                                 onChange={(e) => {
@@ -1258,7 +1219,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Live Demo" icon={Globe2}>
+                            <Field label="Live Demo" icon={Globe02Icon}>
                               <Input
                                 value={proj.liveUrl}
                                 onChange={(e) => {
@@ -1272,7 +1233,7 @@ export default function StudentProfile() {
                             </Field>
                           </div>
                           <div className="space-y-4">
-                            <Field label="Tech Stack" icon={Wrench}>
+                            <Field label="Tech Stack" icon={Wrench01Icon}>
                               <Input
                                 value={proj.techStack}
                                 onChange={(e) => {
@@ -1285,7 +1246,7 @@ export default function StudentProfile() {
                                 placeholder="React, Node.js, MongoDB"
                               />
                             </Field>
-                            <Field label="Short Description" icon={FileText}>
+                            <Field label="Short Description" icon={Note01Icon}>
                               <textarea
                                 value={proj.description}
                                 onChange={(e) => {
@@ -1298,7 +1259,7 @@ export default function StudentProfile() {
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all disabled:opacity-70 resize-none"
                               />
                             </Field>
-                            <Field label="Achievements & Impact" icon={AwardIcon}>
+                            <Field label="Achievements & Impact" icon={Award01Icon}>
                               <textarea
                                 value={proj.achievements}
                                 onChange={(e) => {
@@ -1341,7 +1302,7 @@ export default function StudentProfile() {
                           }}
                           className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> Add Project
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Project
                         </Button>
                       )}
                     </div>
@@ -1351,7 +1312,7 @@ export default function StudentProfile() {
 
               {activeTab === 'experience' && (
                 <div className="space-y-8">
-                  <SectionCard title="Internships & Work Experience" icon={Briefcase}>
+                  <SectionCard title="Internships & Work Experience" icon={Briefcase01Icon}>
                     <div className="space-y-6">
                       {profile.experience.map((exp: any, idx: number) => (
                         <div
@@ -1368,11 +1329,11 @@ export default function StudentProfile() {
                               }
                               className="absolute top-4 right-4 p-2 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <X className="w-4 h-4" />
+                              <Cancel01Icon className="w-4 h-4" />
                             </button>
                           )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <Field label="Company Name" icon={Building}>
+                            <Field label="Company Name" icon={Building01Icon}>
                               <Input
                                 value={exp.company}
                                 onChange={(e) => {
@@ -1384,7 +1345,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Role / Position" icon={Briefcase}>
+                            <Field label="Role / Position" icon={Briefcase01Icon}>
                               <Input
                                 value={exp.role}
                                 onChange={(e) => {
@@ -1396,7 +1357,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Employment Type" icon={Hash}>
+                            <Field label="Employment Type" icon={HashtagIcon}>
                               <select
                                 value={exp.employmentType}
                                 onChange={(e) => {
@@ -1414,7 +1375,7 @@ export default function StudentProfile() {
                                 <option value="Freelance">Freelance</option>
                               </select>
                             </Field>
-                            <Field label="Location" icon={MapPin}>
+                            <Field label="Location" icon={Location01Icon}>
                               <Input
                                 value={exp.location}
                                 onChange={(e) => {
@@ -1427,7 +1388,7 @@ export default function StudentProfile() {
                                 placeholder="Remote / On-site / City"
                               />
                             </Field>
-                            <Field label="Start Date" icon={Calendar}>
+                            <Field label="Start Date" icon={Calendar01Icon}>
                               <Input
                                 type="month"
                                 value={exp.startDate}
@@ -1441,7 +1402,7 @@ export default function StudentProfile() {
                               />
                             </Field>
                             <div className="space-y-2">
-                              <Field label="End Date" icon={Calendar}>
+                              <Field label="End Date" icon={Calendar01Icon}>
                                 <Input
                                   type="month"
                                   value={exp.endDate}
@@ -1470,7 +1431,7 @@ export default function StudentProfile() {
                                 Currently Working Here
                               </label>
                             </div>
-                            <Field label="Company Website" icon={Globe}>
+                            <Field label="Company Website" icon={GlobalIcon}>
                               <Input
                                 value={exp.website}
                                 onChange={(e) => {
@@ -1482,7 +1443,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Technologies Used" icon={Wrench}>
+                            <Field label="Technologies Used" icon={Wrench01Icon}>
                               <Input
                                 value={exp.techStack}
                                 onChange={(e) => {
@@ -1497,7 +1458,7 @@ export default function StudentProfile() {
                             </Field>
                           </div>
                           <div className="space-y-4">
-                            <Field label="Responsibilities" icon={FileText}>
+                            <Field label="Responsibilities" icon={Note01Icon}>
                               <textarea
                                 value={exp.responsibilities}
                                 onChange={(e) => {
@@ -1510,7 +1471,7 @@ export default function StudentProfile() {
                                 className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-500/20 disabled:opacity-70 resize-none"
                               />
                             </Field>
-                            <Field label="Achievements & Impact" icon={AwardIcon}>
+                            <Field label="Achievements & Impact" icon={Award01Icon}>
                               <textarea
                                 value={exp.achievements}
                                 onChange={(e) => {
@@ -1553,7 +1514,7 @@ export default function StudentProfile() {
                           }}
                           className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> Add Experience
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Experience
                         </Button>
                       )}
                     </div>
@@ -1563,7 +1524,7 @@ export default function StudentProfile() {
 
               {activeTab === 'certifications' && (
                 <div className="space-y-8">
-                  <SectionCard title="Certifications & Awards" icon={AwardIcon}>
+                  <SectionCard title="Certifications & Awards" icon={Award01Icon}>
                     <div className="space-y-6">
                       {profile.certifications.map((cert: any, idx: number) => (
                         <div
@@ -1582,11 +1543,11 @@ export default function StudentProfile() {
                               }
                               className="absolute top-4 right-4 p-2 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                             >
-                              <X className="w-4 h-4" />
+                              <Cancel01Icon className="w-4 h-4" />
                             </button>
                           )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Field label="Name" icon={AwardIcon}>
+                            <Field label="Name" icon={Award01Icon}>
                               <Input
                                 value={cert.name}
                                 onChange={(e) => {
@@ -1598,7 +1559,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Issuing Organization" icon={Building}>
+                            <Field label="Issuing Organization" icon={Building01Icon}>
                               <Input
                                 value={cert.organization}
                                 onChange={(e) => {
@@ -1610,7 +1571,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Type" icon={Hash}>
+                            <Field label="Type" icon={HashtagIcon}>
                               <select
                                 value={cert.type}
                                 onChange={(e) => {
@@ -1628,7 +1589,7 @@ export default function StudentProfile() {
                                 <option value="Competition">Competition</option>
                               </select>
                             </Field>
-                            <Field label="Issue Date" icon={Calendar}>
+                            <Field label="Issue Date" icon={Calendar01Icon}>
                               <Input
                                 type="month"
                                 value={cert.issueDate}
@@ -1641,7 +1602,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Credential ID" icon={Hash}>
+                            <Field label="Credential ID" icon={HashtagIcon}>
                               <Input
                                 value={cert.credentialId}
                                 onChange={(e) => {
@@ -1653,7 +1614,7 @@ export default function StudentProfile() {
                                 className="bg-white h-11"
                               />
                             </Field>
-                            <Field label="Credential URL" icon={LinkIcon}>
+                            <Field label="Credential URL" icon={Link01Icon}>
                               <Input
                                 value={cert.url}
                                 onChange={(e) => {
@@ -1690,7 +1651,7 @@ export default function StudentProfile() {
                           }}
                           className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
                         >
-                          <Plus className="w-4 h-4 mr-2" /> Add Certification
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Certification
                         </Button>
                       )}
                     </div>
@@ -1717,13 +1678,13 @@ export default function StudentProfile() {
             {updateProfileMutation.isPending || requestUpdateMutation.isPending ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <Save className="w-5 h-5" />
+              <FloppyDiskIcon className="w-5 h-5" />
             )}
             {updateProfileMutation.isPending || requestUpdateMutation.isPending
               ? 'Saving...'
               : isEditing
                 ? 'Submit Update Request'
-                : 'Save Profile'}
+                : 'FloppyDiskIcon Profile'}
           </Button>
         </motion.div>
       )}

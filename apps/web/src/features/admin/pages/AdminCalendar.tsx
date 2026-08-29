@@ -4,7 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
-import { Plus, Sparkles } from 'lucide-react';
+import { PlusSignIcon, SparklesIcon } from 'hugeicons-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
@@ -150,7 +150,7 @@ export default function AdminCalendar() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
-              <Sparkles className="w-6 h-6" />
+              <SparklesIcon className="w-6 h-6" />
             </div>
             <h1 className="text-4xl font-black text-slate-800 tracking-tight">
               Placement Calendar
@@ -178,7 +178,7 @@ export default function AdminCalendar() {
             className="group relative overflow-hidden bg-slate-900 text-white font-semibold py-3 px-6 rounded-2xl shadow-lg hover:shadow-xl hover:shadow-indigo-500/20 transition-all flex items-center gap-2"
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[length:200%_auto] animate-gradient"></div>
-            <Plus className="w-5 h-5 relative z-10" />
+            <PlusSignIcon className="w-5 h-5 relative z-10" />
             <span className="relative z-10">New Event</span>
           </motion.button>
         </div>

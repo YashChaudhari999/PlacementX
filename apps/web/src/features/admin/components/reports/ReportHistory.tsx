@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Download, FileSpreadsheet, FileDown, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Download01Icon, Note01Icon, TickDouble02Icon, Clock01Icon, CancelCircleIcon } from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 
 export default function ReportHistory() {
@@ -26,9 +26,9 @@ export default function ReportHistory() {
   }, []);
 
   const getFormatIcon = (format: string) => {
-    if (format === 'EXCEL') return <FileSpreadsheet className="h-4 w-4 text-green-600" />;
-    if (format === 'PDF') return <FileDown className="h-4 w-4 text-red-600" />;
-    return <FileDown className="h-4 w-4 text-blue-600" />;
+    if (format === 'EXCEL') return <Note01Icon className="h-4 w-4 text-green-600" />;
+    if (format === 'PDF') return <Note01Icon className="h-4 w-4 text-red-600" />;
+    return <Note01Icon className="h-4 w-4 text-blue-600" />;
   };
 
   const getStatusBadge = (status: string) => {
@@ -36,25 +36,25 @@ export default function ReportHistory() {
       case 'COMPLETED':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <CheckCircle2 className="w-3 h-3 mr-1" /> Ready
+            <TickDouble02Icon className="w-3 h-3 mr-1" /> Ready
           </span>
         );
       case 'PROCESSING':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            <Clock className="w-3 h-3 mr-1 animate-spin-slow" /> Generating
+            <Clock01Icon className="w-3 h-3 mr-1 animate-spin-slow" /> Generating
           </span>
         );
       case 'PENDING':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-            <Clock className="w-3 h-3 mr-1" /> Queued
+            <Clock01Icon className="w-3 h-3 mr-1" /> Queued
           </span>
         );
       case 'FAILED':
         return (
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            <XCircle className="w-3 h-3 mr-1" /> Failed
+            <CancelCircleIcon className="w-3 h-3 mr-1" /> Failed
           </span>
         );
       default:
@@ -68,7 +68,7 @@ export default function ReportHistory() {
         <div>
           <h3 className="text-lg font-semibold">Export History</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Download previously generated reports.
+            Download01Icon previously generated reports.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={fetchHistory}>
@@ -134,8 +134,8 @@ export default function ReportHistory() {
                           )
                         }
                       >
-                        <Download className="h-4 w-4 mr-2" />
-                        Download
+                        <Download01Icon className="h-4 w-4 mr-2" />
+                        Download01Icon
                       </Button>
                     ) : (
                       <Button size="sm" variant="ghost" disabled>

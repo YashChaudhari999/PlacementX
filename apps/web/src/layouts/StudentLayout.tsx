@@ -2,22 +2,7 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import {
-  LayoutDashboard,
-  Briefcase,
-  FileText,
-  Bell,
-  Calendar,
-  Settings,
-  LogOut,
-  Menu,
-  Search,
-  User,
-  Award,
-  ChevronDown,
-  Camera,
-  Download,
-} from 'lucide-react';
+import { DashboardSquare01Icon, Briefcase01Icon, Note01Icon, Notification01Icon, Calendar01Icon, Settings01Icon, Logout01Icon, Menu01Icon, Search01Icon, UserIcon, Award01Icon, ArrowDown01Icon, Camera01Icon, Download01Icon } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -57,13 +42,13 @@ export const StudentLayout = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
-    { name: 'My Profile', path: '/student/profile', icon: User },
-    { name: 'Applications', path: '/student/applications', icon: Briefcase },
-    { name: 'Rounds', path: '/student/interviews', icon: Calendar },
-    { name: 'Documents', path: '/student/documents', icon: FileText },
-    { name: 'Notifications', path: '/student/notifications', icon: Bell },
-    { name: 'Settings', path: '/student/settings', icon: Settings },
+    { name: 'Dashboard', path: '/student/dashboard', icon: DashboardSquare01Icon },
+    { name: 'My Profile', path: '/student/profile', icon: UserIcon },
+    { name: 'Applications', path: '/student/applications', icon: Briefcase01Icon },
+    { name: 'Rounds', path: '/student/interviews', icon: Calendar01Icon },
+    { name: 'Documents', path: '/student/documents', icon: Note01Icon },
+    { name: 'Notifications', path: '/student/notifications', icon: Notification01Icon },
+    { name: 'Settings', path: '/student/settings', icon: Settings01Icon },
   ];
 
   const pageTitle =
@@ -121,7 +106,7 @@ export const StudentLayout = () => {
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4 transition-all duration-300 hover:shadow-md hover:border-slate-200">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Award className="h-4 w-4 text-yellow-500 animate-pulse" />
+              <Award01Icon className="h-4 w-4 text-yellow-500 animate-pulse" />
               <span className="text-xs font-bold text-slate-700">Profile Strength</span>
             </div>
             <span className="text-xs font-black text-emerald-600">{completionPercentage}%</span>
@@ -139,7 +124,7 @@ export const StudentLayout = () => {
           onClick={handleLogout}
           className="group flex items-center justify-center gap-2 px-4 py-3 w-full rounded-2xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all duration-300 shadow-sm hover:shadow-md"
         >
-          <LogOut className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+          <Logout01Icon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           Log Out
         </button>
       </div>
@@ -191,7 +176,7 @@ export const StudentLayout = () => {
               onClick={() => setIsMobileMenuOpen(true)}
               className="lg:hidden p-2.5 -ml-2 text-slate-700 bg-white shadow-sm rounded-xl border border-slate-200"
             >
-              <Menu className="h-5 w-5" />
+              <Menu01Icon className="h-5 w-5" />
             </button>
             <div>
               <h1 className="text-2xl font-extrabold text-slate-900 hidden sm:block tracking-tight">
@@ -212,7 +197,7 @@ export const StudentLayout = () => {
               download="PlacementX_Student.apk"
               className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors"
             >
-              <Download className="h-4 w-4" />
+              <Download01Icon className="h-4 w-4" />
               <span>Download App</span>
             </a>
 
@@ -243,7 +228,7 @@ export const StudentLayout = () => {
                     {serverProfile?.branch || 'B.Tech CS'}
                   </span>
                 </div>
-                <ChevronDown className="h-4 w-4 text-slate-400 ml-1 hidden sm:block" />
+                <ArrowDown01Icon className="h-4 w-4 text-slate-400 ml-1 hidden sm:block" />
               </button>
 
               <AnimatePresence>
@@ -266,7 +251,7 @@ export const StudentLayout = () => {
                           className="h-full w-full object-cover"
                         />
                         <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                          <Camera className="w-5 h-5 mb-0.5" />
+                          <Camera01Icon className="w-5 h-5 mb-0.5" />
                           <span className="text-[9px] font-bold uppercase tracking-wider">
                             Change
                           </span>
@@ -307,7 +292,7 @@ export const StudentLayout = () => {
                         }}
                         className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
                       >
-                        <User className="w-4 h-4 text-slate-400" /> View Profile
+                        <UserIcon className="w-4 h-4 text-slate-400" /> View Profile
                       </button>
                       <button
                         onClick={() => {
@@ -316,14 +301,14 @@ export const StudentLayout = () => {
                         }}
                         className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
                       >
-                        <Settings className="w-4 h-4 text-slate-400" /> Preferences
+                        <Settings01Icon className="w-4 h-4 text-slate-400" /> Preferences
                       </button>
                       <div className="h-px bg-slate-100 my-2 mx-2" />
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-3"
                       >
-                        <LogOut className="w-4 h-4 text-red-500" /> Sign out
+                        <Logout01Icon className="w-4 h-4 text-red-500" /> Sign out
                       </button>
                     </div>
                   </motion.div>

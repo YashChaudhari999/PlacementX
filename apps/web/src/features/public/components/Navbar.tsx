@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronRight } from 'lucide-react';
+import { Menu01Icon, Cancel01Icon, ArrowRight01Icon } from 'hugeicons-react';
 import { buttonVariants } from '@/components/ui';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -96,18 +96,18 @@ export const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu01Icon Toggle */}
           <button
             className="lg:hidden flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileMenuOpen ? <Cancel01Icon className="h-6 w-6" /> : <Menu01Icon className="h-6 w-6" />}
           </button>
         </div>
       </motion.header>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu01Icon Overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -132,7 +132,7 @@ export const Navbar = () => {
                     )}
                   >
                     {link.name}
-                    <ChevronRight className="h-5 w-5 opacity-50" />
+                    <ArrowRight01Icon className="h-5 w-5 opacity-50" />
                   </Link>
                 );
               })}

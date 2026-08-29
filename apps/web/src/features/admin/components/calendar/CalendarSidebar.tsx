@@ -2,16 +2,7 @@ import { useState } from 'react';
 import { format, addDays, isAfter, isBefore } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import {
-  Calendar as CalendarIcon,
-  Briefcase,
-  Users,
-  FileText,
-  ChevronRight,
-  Bell,
-  AlertCircle,
-  Sparkles,
-} from 'lucide-react';
+import { Calendar01Icon, Briefcase01Icon, UserMultipleIcon, Note01Icon, ArrowRight01Icon, Notification01Icon, Alert02Icon, SparklesIcon } from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import type { Variants } from 'framer-motion';
 import { motion } from 'framer-motion';
@@ -107,7 +98,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
         className="bg-white/80 backdrop-blur-2xl rounded-[24px] border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6"
       >
         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-5 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-500" /> Quick Snapshot
+          <SparklesIcon className="w-4 h-4 text-amber-500" /> Quick Snapshot
         </h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-indigo-50 to-white rounded-[16px] p-4 border border-indigo-100/50 shadow-sm hover:shadow-md transition-shadow group">
@@ -136,7 +127,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-            <Bell className="w-4 h-4 text-indigo-500" /> Upcoming
+            <Notification01Icon className="w-4 h-4 text-indigo-500" /> Upcoming
           </h3>
           <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-2 py-1 rounded-md uppercase tracking-wider">
             Next 5
@@ -158,9 +149,9 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
               const isDrive = event.extendedProps?.type === 'Placement Drive';
               const isInterview = event.extendedProps?.type === 'Interview Schedule';
 
-              let Icon = CalendarIcon;
-              if (isDrive) Icon = Briefcase;
-              if (isInterview) Icon = Users;
+              let Icon = Calendar01Icon;
+              if (isDrive) Icon = Briefcase01Icon;
+              if (isInterview) Icon = UserMultipleIcon;
 
               return (
                 <motion.div
@@ -191,7 +182,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
                       to={`/admin/drives/${event.extendedProps.driveId}`}
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      <ArrowRight01Icon className="w-4 h-4" />
                     </Link>
                   )}
                 </motion.div>
@@ -210,7 +201,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-2xl -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
 
           <h3 className="text-xs font-bold text-white/80 uppercase tracking-wider mb-5 flex items-center gap-2 relative z-10">
-            <AlertCircle className="w-4 h-4" /> Deadlines Closing Soon
+            <Alert02Icon className="w-4 h-4" /> Deadlines Closing Soon
           </h3>
 
           <div className="space-y-4 relative z-10">

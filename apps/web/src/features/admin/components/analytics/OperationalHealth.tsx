@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { Activity, Clock, FileWarning, CalendarDays } from 'lucide-react';
+import { Activity01Icon, Clock01Icon, Note01Icon, Calendar01Icon } from 'hugeicons-react';
 import type { OperationalHealth as OperationalHealthType } from '@/types/analytics.types';
 import { format } from 'date-fns';
 
@@ -10,7 +10,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
     <Card className="p-6 border-slate-200">
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-slate-100 rounded-xl text-slate-600">
-          <Activity className="w-5 h-5" />
+          <Activity01Icon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Operational Health</h2>
@@ -24,7 +24,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
             <div className="text-[10px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider leading-tight">
               Pending Profiles
             </div>
-            <FileWarning className="w-4 h-4 text-amber-400 shrink-0" />
+            <Note01Icon className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-amber-900">{data.pendingVerifications}</div>
         </div>
@@ -34,7 +34,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
             <div className="text-[10px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider leading-tight">
               Pending Drives
             </div>
-            <Clock className="w-4 h-4 text-orange-400 shrink-0" />
+            <Clock01Icon className="w-4 h-4 text-orange-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-orange-900">{data.drivesAwaitingApproval}</div>
         </div>
@@ -44,7 +44,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
             <div className="text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider leading-tight">
               Active Drives
             </div>
-            <Activity className="w-4 h-4 text-emerald-400 shrink-0" />
+            <Activity01Icon className="w-4 h-4 text-emerald-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-emerald-900">{data.activeDrives}</div>
         </div>
@@ -52,9 +52,9 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
         <div className="p-3.5 bg-blue-50 rounded-xl border border-blue-100 flex flex-col justify-between">
           <div className="flex items-start justify-between mb-2 gap-2">
             <div className="text-[10px] sm:text-xs font-bold text-blue-600 uppercase tracking-wider leading-tight">
-              Recent Activity
+              Recent Activity01Icon
             </div>
-            <Activity className="w-4 h-4 text-blue-400 shrink-0" />
+            <Activity01Icon className="w-4 h-4 text-blue-400 shrink-0" />
           </div>
           <div>
             <div className="text-2xl font-black text-blue-900">{data.recentDriveActivity}</div>
@@ -65,7 +65,7 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
 
       <div className="border border-slate-100 rounded-xl overflow-hidden">
         <div className="bg-slate-50 px-4 py-3 border-b border-slate-100 flex items-center gap-2">
-          <CalendarDays className="w-4 h-4 text-slate-500" />
+          <Calendar01Icon className="w-4 h-4 text-slate-500" />
           <h3 className="font-bold text-sm text-slate-700">Upcoming Events (Next 10)</h3>
         </div>
 

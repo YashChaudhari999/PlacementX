@@ -9,7 +9,7 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from 'recharts';
-import { Sparkles, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { SparklesIcon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon } from 'hugeicons-react';
 import type { ForecastResponse } from '@/types/analytics.types';
 import { useMemo } from 'react';
 
@@ -60,14 +60,14 @@ export default function ForecastChart({ data }: { data: ForecastResponse }) {
     <Card className="p-6 border-slate-200 overflow-hidden relative">
       <div className="absolute top-0 right-0 p-4">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+          <SparklesIcon className="w-3.5 h-3.5 text-indigo-500" />
           <span className="text-xs font-bold text-indigo-700">AI Powered</span>
         </div>
       </div>
 
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
-          <TrendingUp className="w-5 h-5" />
+          <ArrowUp01Icon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Placement Forecast</h2>
@@ -106,9 +106,9 @@ export default function ForecastChart({ data }: { data: ForecastResponse }) {
                 Trend
               </div>
               <div className="flex items-center gap-2 mt-1.5">
-                {data.trend === 'up' && <TrendingUp className="w-5 h-5 text-emerald-500" />}
-                {data.trend === 'down' && <TrendingDown className="w-5 h-5 text-rose-500" />}
-                {data.trend === 'stable' && <Minus className="w-5 h-5 text-slate-400" />}
+                {data.trend === 'up' && <ArrowUp01Icon className="w-5 h-5 text-emerald-500" />}
+                {data.trend === 'down' && <ArrowDown01Icon className="w-5 h-5 text-rose-500" />}
+                {data.trend === 'stable' && <MinusSignIcon className="w-5 h-5 text-slate-400" />}
                 <span className="text-lg font-bold text-slate-900 capitalize">{data.trend}</span>
               </div>
             </div>

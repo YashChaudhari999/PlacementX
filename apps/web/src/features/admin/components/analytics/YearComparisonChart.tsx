@@ -10,7 +10,7 @@ import {
   Legend,
 } from 'recharts';
 import type { YearComparisonRow } from '@/types/analytics.types';
-import { Calendar } from 'lucide-react';
+import { Calendar01Icon } from 'hugeicons-react';
 import { useState } from 'react';
 
 type MetricKey =
@@ -35,7 +35,7 @@ export default function YearComparisonChart({ data }: { data: YearComparisonRow[
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-blue-100 rounded-xl text-blue-600">
-            <Calendar className="w-5 h-5" />
+            <Calendar01Icon className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Year-over-Year Trends</h2>

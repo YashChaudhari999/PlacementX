@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button } from '@/components/ui';
-import { Bell, Save } from 'lucide-react';
+import { Notification01Icon, FloppyDiskIcon } from 'hugeicons-react';
 
 export default function NotificationSettings({
   settings,
@@ -14,7 +14,7 @@ export default function NotificationSettings({
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-slate-400" />
+          <Notification01Icon className="w-5 h-5 text-slate-400" />
           <h3 className="font-bold text-slate-800 text-lg">Communication Preferences</h3>
         </div>
         {hasUnsavedChanges && (
@@ -23,7 +23,7 @@ export default function NotificationSettings({
             disabled={saving}
             size="sm"
           >
-            <Save className="w-4 h-4 mr-2" /> Save Changes
+            <FloppyDiskIcon className="w-4 h-4 mr-2" /> FloppyDiskIcon Changes
           </Button>
         )}
       </div>

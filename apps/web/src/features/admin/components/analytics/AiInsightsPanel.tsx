@@ -1,13 +1,4 @@
-import {
-  Sparkles,
-  TrendingUp,
-  TrendingDown,
-  AlertTriangle,
-  CheckCircle2,
-  Building2,
-  IndianRupee,
-  Zap,
-} from 'lucide-react';
+import { SparklesIcon, ArrowUp01Icon, ArrowDown01Icon, Alert01Icon, TickDouble02Icon, Building02Icon, Money01Icon, EnergyIcon } from 'hugeicons-react';
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
 
@@ -137,11 +128,11 @@ function InsightRow({ text, delay }: { text: string; delay: number }) {
         }`}
       >
         {isPos && !isNeg ? (
-          <TrendingUp className="w-3.5 h-3.5" />
+          <ArrowUp01Icon className="w-3.5 h-3.5" />
         ) : isNeg ? (
-          <AlertTriangle className="w-3.5 h-3.5" />
+          <Alert01Icon className="w-3.5 h-3.5" />
         ) : (
-          <CheckCircle2 className="w-3.5 h-3.5" />
+          <TickDouble02Icon className="w-3.5 h-3.5" />
         )}
       </div>
       <p className="text-sm text-slate-300 leading-relaxed">{text}</p>
@@ -165,7 +156,7 @@ export default function AiInsightsPanel({ data }: { data: string[] }) {
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-5">
             <div className="p-2 bg-indigo-500/20 rounded-xl ring-1 ring-indigo-500/30">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+              <SparklesIcon className="w-5 h-5 text-indigo-400" />
             </div>
             <div>
               <h2 className="text-lg font-bold">AI Placement Insights</h2>

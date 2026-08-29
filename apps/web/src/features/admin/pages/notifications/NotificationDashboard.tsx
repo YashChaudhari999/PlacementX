@@ -4,16 +4,7 @@ import {
   useNotificationRecommendations,
 } from '@/hooks/queries/useAdminNotifications';
 import { Card } from '@/components/ui';
-import {
-  Send,
-  CheckCircle,
-  Eye,
-  CalendarDays,
-  AlertTriangle,
-  TrendingUp,
-  Megaphone,
-  Clock,
-} from 'lucide-react';
+import { SentIcon, Tick02Icon, ViewIcon, Calendar01Icon, Alert01Icon, ArrowUp01Icon, Megaphone01Icon, Clock01Icon } from 'hugeicons-react';
 
 interface NotificationDashboardProps {
   onNavigate: (tab: string) => void;
@@ -35,7 +26,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             label: 'Total Sent',
             value: stats?.totalSent?.toLocaleString(),
             trend: `+${stats?.sentGrowth}%`,
-            icon: Send,
+            icon: SentIcon,
             color: 'text-indigo-600',
             bg: 'bg-indigo-50',
           },
@@ -43,7 +34,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             label: 'Delivered',
             value: stats?.delivered?.toLocaleString(),
             trend: `${stats?.deliveryRate}%`,
-            icon: CheckCircle,
+            icon: Tick02Icon,
             color: 'text-emerald-600',
             bg: 'bg-emerald-50',
           },
@@ -51,7 +42,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             label: 'Read',
             value: stats?.read?.toLocaleString(),
             trend: `${stats?.readRate}%`,
-            icon: Eye,
+            icon: ViewIcon,
             color: 'text-blue-600',
             bg: 'bg-blue-50',
           },
@@ -59,7 +50,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             label: 'Scheduled',
             value: stats?.scheduled,
             trend: null,
-            icon: CalendarDays,
+            icon: Calendar01Icon,
             color: 'text-amber-600',
             bg: 'bg-amber-50',
           },
@@ -67,7 +58,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             label: 'Failed',
             value: stats?.failed,
             trend: `${stats?.failedRate}%`,
-            icon: AlertTriangle,
+            icon: Alert01Icon,
             color: 'text-red-600',
             bg: 'bg-red-50',
           },
@@ -158,7 +149,7 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
                           </span>
                           <span className="text-[10px] text-slate-400">•</span>
                           <span className="text-xs text-slate-500 flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
+                            <Clock01Icon className="w-3 h-3" />
                             {new Date(item.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                           </span>
                         </div>
@@ -212,20 +203,20 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
             <div className="text-sm text-slate-500">No new recommendations at this time.</div>
           ) : (
             recommendations.map((rec: any) => {
-              let Icon = Megaphone;
+              let Icon = Megaphone01Icon;
               let colorClass = 'text-blue-500';
               let bgClass = 'bg-blue-50/30';
               let borderClass = 'border-l-blue-400 border-y-slate-200 border-r-slate-200';
               let btnClass = 'text-blue-700 hover:text-blue-800 bg-blue-100/50 hover:bg-blue-100';
 
               if (rec.type === 'warning') {
-                Icon = AlertTriangle;
+                Icon = Alert01Icon;
                 colorClass = 'text-amber-500';
                 bgClass = 'bg-amber-50/30';
                 borderClass = 'border-l-amber-400 border-y-slate-200 border-r-slate-200';
                 btnClass = 'text-amber-700 hover:text-amber-800 bg-amber-100/50 hover:bg-amber-100';
               } else if (rec.type === 'info') {
-                Icon = CalendarDays;
+                Icon = Calendar01Icon;
                 colorClass = 'text-indigo-500';
                 bgClass = 'bg-indigo-50/30';
                 borderClass = 'border-l-indigo-400 border-y-slate-200 border-r-slate-200';

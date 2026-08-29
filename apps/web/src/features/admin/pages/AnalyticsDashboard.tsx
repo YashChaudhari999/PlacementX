@@ -31,16 +31,7 @@ import StudentRiskAnalytics from '../components/analytics/StudentRiskAnalytics';
 import SkillGapAnalytics from '../components/analytics/SkillGapAnalytics';
 import DriveAnalytics from '../components/analytics/DriveAnalytics';
 
-import {
-  Activity,
-  ShieldCheck,
-  Target,
-  GraduationCap,
-  Building2,
-  IndianRupee,
-  Briefcase,
-  Sparkles,
-} from 'lucide-react';
+import { Activity01Icon, Shield01Icon, Target01Icon, Mortarboard01Icon, Building02Icon, Money01Icon, Briefcase01Icon, SparklesIcon } from 'hugeicons-react';
 import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 
 type Tab = 'overview' | 'departments' | 'students' | 'companies' | 'drives';
@@ -68,11 +59,11 @@ export default function AnalyticsDashboard() {
   const { data: drives } = useDriveAnalytics(filters);
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'overview', label: 'Command Center', icon: Activity },
-    { id: 'students', label: 'Student Readiness', icon: GraduationCap },
-    { id: 'departments', label: 'Department Intelligence', icon: Target },
-    { id: 'companies', label: 'Recruiter Intelligence', icon: Building2 },
-    { id: 'drives', label: 'Drive Analytics', icon: Briefcase },
+    { id: 'overview', label: 'Command Center', icon: Activity01Icon },
+    { id: 'students', label: 'Student Readiness', icon: Mortarboard01Icon },
+    { id: 'departments', label: 'Department Intelligence', icon: Target01Icon },
+    { id: 'companies', label: 'Recruiter Intelligence', icon: Building02Icon },
+    { id: 'drives', label: 'Drive Analytics', icon: Briefcase01Icon },
   ];
 
   if (overviewLoading) {
@@ -93,7 +84,7 @@ export default function AnalyticsDashboard() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-4">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <SparklesIcon className="w-4 h-4 text-indigo-400" />
               <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">
                 Command Center
               </span>

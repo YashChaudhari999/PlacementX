@@ -1,20 +1,7 @@
 import { useState } from 'react';
 import { Card, Input, Button } from '@/components/ui';
 import { useNotificationHistory } from '@/hooks/queries/useAdminNotifications';
-import {
-  Search,
-  Filter,
-  Clock,
-  Users,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Smartphone,
-  Bell,
-  Eye,
-  BarChart,
-  CheckCircle,
-} from 'lucide-react';
+import { Search01Icon, FilterIcon, Clock01Icon, UserMultipleIcon, Cancel01Icon, ArrowLeft01Icon, ArrowRight01Icon, SmartPhone01Icon, Notification01Icon, ViewIcon, BarChartIcon, Tick02Icon } from 'hugeicons-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function NotificationHistory() {
@@ -30,9 +17,9 @@ export default function NotificationHistory() {
     <div className="space-y-6 relative">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search by title, type, or recipient group..."
+            placeholder="Search01Icon by title, type, or recipient group..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 bg-white"
@@ -40,7 +27,7 @@ export default function NotificationHistory() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="h-10 gap-2 bg-white text-slate-600">
-            <Filter className="w-4 h-4" /> Filters
+            <FilterIcon className="w-4 h-4" /> Filters
           </Button>
           <Button variant="outline" className="h-10 bg-white text-slate-600">
             Export CSV
@@ -100,7 +87,7 @@ export default function NotificationHistory() {
                     <td className="px-4 py-4">
                       <div className="text-sm text-slate-700">{item.audienceDesc}</div>
                       <div className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                        <Users className="w-3 h-3" />
+                        <UserMultipleIcon className="w-3 h-3" />
                         {item.recipientCount.toLocaleString()}
                       </div>
                     </td>
@@ -108,12 +95,12 @@ export default function NotificationHistory() {
                       <div className="flex gap-2">
                         {item.channels?.includes?.('Push') && (
                           <span title="Push">
-                            <Smartphone className="w-4 h-4 text-slate-400" />
+                            <SmartPhone01Icon className="w-4 h-4 text-slate-400" />
                           </span>
                         )}
                         {item.channels?.includes?.('In-App') && (
                           <span title="In-App">
-                            <Bell className="w-4 h-4 text-slate-400" />
+                            <Notification01Icon className="w-4 h-4 text-slate-400" />
                           </span>
                         )}
                       </div>
@@ -171,7 +158,7 @@ export default function NotificationHistory() {
                 disabled={page === 1}
                 onClick={() => setPage((p) => p - 1)}
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ArrowLeft01Icon className="w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
@@ -180,7 +167,7 @@ export default function NotificationHistory() {
                 disabled={page === pagination.totalPages}
                 onClick={() => setPage((p) => p + 1)}
               >
-                <ChevronRight className="w-4 h-4" />
+                <ArrowRight01Icon className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -211,7 +198,7 @@ export default function NotificationHistory() {
                 onClick={() => setSelectedNotification(null)}
                 className="p-1 text-slate-400 hover:text-slate-600 rounded"
               >
-                <X className="w-5 h-5" />
+                <Cancel01Icon className="w-5 h-5" />
               </button>
             </div>
 
@@ -219,7 +206,7 @@ export default function NotificationHistory() {
               {/* Analytics Section */}
               <section>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
-                  <BarChart className="w-4 h-4" /> Delivery Analytics
+                  <BarChartIcon className="w-4 h-4" /> Delivery Analytics
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">

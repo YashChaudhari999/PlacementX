@@ -3,15 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import {
-  Building2,
-  Calendar,
-  ChevronRight,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  MoreHorizontal,
-} from 'lucide-react';
+import { Building02Icon, Calendar01Icon, ArrowRight01Icon, TickDouble02Icon, Clock01Icon, CancelCircleIcon, MoreHorizontalIcon } from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -59,13 +51,13 @@ export default function StudentApplications() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'SELECTED':
-        return <CheckCircle2 className="w-4 h-4 mr-1.5" />;
+        return <TickDouble02Icon className="w-4 h-4 mr-1.5" />;
       case 'REJECTED':
-        return <XCircle className="w-4 h-4 mr-1.5" />;
+        return <CancelCircleIcon className="w-4 h-4 mr-1.5" />;
       case 'APPLIED':
-        return <Clock className="w-4 h-4 mr-1.5" />;
+        return <Clock01Icon className="w-4 h-4 mr-1.5" />;
       default:
-        return <MoreHorizontal className="w-4 h-4 mr-1.5" />;
+        return <MoreHorizontalIcon className="w-4 h-4 mr-1.5" />;
     }
   };
 
@@ -101,7 +93,7 @@ export default function StudentApplications() {
           <motion.div variants={itemVariants} className="md:col-span-2">
             <Card className="p-16 text-center border-dashed border-2 border-slate-300 shadow-md bg-slate-50/50 backdrop-blur-md">
               <div className="text-slate-300 mb-6 flex justify-center">
-                <Building2 className="w-20 h-20 opacity-50" />
+                <Building02Icon className="w-20 h-20 opacity-50" />
               </div>
               <h3 className="text-2xl font-bold text-slate-700">No applications yet</h3>
               <p className="text-slate-500 mt-2 text-lg">
@@ -123,7 +115,7 @@ export default function StudentApplications() {
                   <div>
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform duration-300">
-                        <Building2 className="w-7 h-7 group-hover:text-blue-500 transition-colors" />
+                        <Building02Icon className="w-7 h-7 group-hover:text-blue-500 transition-colors" />
                       </div>
                       <div
                         className={`px-4 py-1.5 rounded-full text-xs font-bold border flex items-center shadow-sm ${getStatusColor(app.status)}`}
@@ -145,11 +137,11 @@ export default function StudentApplications() {
 
                   <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-medium text-slate-400">
-                      <Calendar className="w-4 h-4 text-slate-300" />
+                      <Calendar01Icon className="w-4 h-4 text-slate-300" />
                       Applied: {new Date(app.appliedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                     </div>
                     <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                      <ChevronRight className="w-4 h-4" />
+                      <ArrowRight01Icon className="w-4 h-4" />
                     </div>
                   </div>
                 </Card>

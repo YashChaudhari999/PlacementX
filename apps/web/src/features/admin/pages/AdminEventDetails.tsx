@@ -3,18 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import {
-  Users,
-  ChevronLeft,
-  Building2,
-  Calendar,
-  MapPin,
-  IndianRupee,
-  Briefcase,
-  FileText,
-  CheckCircle,
-  XCircle,
-} from 'lucide-react';
+import { UserMultipleIcon, ArrowLeft01Icon, Building02Icon, Calendar01Icon, Location01Icon, Money01Icon, Briefcase01Icon, Note01Icon, Tick02Icon, CancelCircleIcon } from 'hugeicons-react';
 
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 
@@ -105,7 +94,7 @@ export default function AdminEventDetails() {
             to="/admin/dashboard"
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ArrowLeft01Icon className="w-6 h-6" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Drive Tracker</h1>
@@ -118,7 +107,7 @@ export default function AdminEventDetails() {
               variant="outline"
               className="text-slate-700 bg-white border-slate-200 hover:bg-slate-50 shadow-sm"
             >
-              <FileText className="w-4 h-4 mr-2" /> Edit Drive Details
+              <Note01Icon className="w-4 h-4 mr-2" /> Edit Drive Details
             </Button>
           </Link>
         </div>
@@ -140,7 +129,7 @@ export default function AdminEventDetails() {
                 variant="outline"
                 className="border-red-200 text-red-600 hover:bg-red-50"
               >
-                <XCircle className="w-4 h-4 mr-2" /> Reject
+                <CancelCircleIcon className="w-4 h-4 mr-2" /> Reject
               </Button>
               <Button
                 onClick={() => handleDriveReview('request-changes')}
@@ -153,7 +142,7 @@ export default function AdminEventDetails() {
                 onClick={() => handleDriveReview('approve')}
                 className="bg-green-600 hover:bg-green-700 text-white"
               >
-                <CheckCircle className="w-4 h-4 mr-2" /> Approve & Publish
+                <Tick02Icon className="w-4 h-4 mr-2" /> Approve & Publish
               </Button>
             </div>
           </div>
@@ -175,7 +164,7 @@ export default function AdminEventDetails() {
                 onClick={() => handleDriveReview('approve')}
                 className="bg-primary hover:bg-primary/90 text-white"
               >
-                <CheckCircle className="w-4 h-4 mr-2" /> Publish Drive
+                <Tick02Icon className="w-4 h-4 mr-2" /> Publish Drive
               </Button>
             </div>
           </div>
@@ -188,7 +177,7 @@ export default function AdminEventDetails() {
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
-                <Building2 className="w-6 h-6" />
+                <Building02Icon className="w-6 h-6" />
               </div>
               <div>
                 <h2 className="font-bold text-lg text-slate-800">{drive.company?.name}</h2>
@@ -215,19 +204,19 @@ export default function AdminEventDetails() {
 
             <div className="space-y-3 pt-4 border-t border-slate-100 text-sm text-slate-600">
               <div className="flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-slate-400" /> {drive.jobRole}
+                <Briefcase01Icon className="w-4 h-4 text-slate-400" /> {drive.jobRole}
               </div>
               <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-slate-400" /> {drive.workMode}
+                <Location01Icon className="w-4 h-4 text-slate-400" /> {drive.workMode}
               </div>
               <div className="flex items-center gap-2">
-                <IndianRupee className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA
+                <Money01Icon className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA
               </div>
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'} Vacancies
+                <UserMultipleIcon className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'} Vacancies
               </div>
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-400" /> Closes{' '}
+                <Calendar01Icon className="w-4 h-4 text-slate-400" /> Closes{' '}
                 {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
               </div>
             </div>
@@ -366,7 +355,7 @@ export default function AdminEventDetails() {
                               rel="noreferrer"
                               className="text-primary hover:underline flex items-center gap-1 text-sm"
                             >
-                              <FileText className="w-4 h-4" /> View
+                              <Note01Icon className="w-4 h-4" /> View
                             </a>
                           ) : (
                             <span className="text-xs text-slate-400">N/A</span>

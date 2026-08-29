@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Button } from '@/components/ui';
-import { AlertTriangle } from 'lucide-react';
+import { Alert01Icon } from 'hugeicons-react';
 import { toast } from 'sonner';
 
 export default function DangerZone() {
@@ -29,7 +29,7 @@ export default function DangerZone() {
   return (
     <Card className="p-6 border-red-200">
       <div className="flex items-center gap-2 mb-6 border-b border-red-100 pb-4">
-        <AlertTriangle className="w-5 h-5 text-red-500" />
+        <Alert01Icon className="w-5 h-5 text-red-500" />
         <h3 className="font-bold text-red-700 text-lg">Danger Zone</h3>
       </div>
 

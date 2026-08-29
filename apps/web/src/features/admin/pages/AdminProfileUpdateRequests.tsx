@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useUpdateRequests, useReviewUpdateRequest } from '@/hooks/queries/useAdmin';
 import { Button } from '@/components/ui';
-import { CheckCircle, XCircle, Search, Eye } from 'lucide-react';
+import { Tick02Icon, CancelCircleIcon, Search01Icon, ViewIcon } from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
 export default function AdminProfileUpdateRequests() {
@@ -48,10 +48,10 @@ export default function AdminProfileUpdateRequests() {
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex flex-col sm:flex-row gap-4 items-center bg-slate-50/50">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search by name or email..."
+              placeholder="Search01Icon by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -94,7 +94,7 @@ export default function AdminProfileUpdateRequests() {
                         onClick={() => setSelectedRequest(req)}
                         className="gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                       >
-                        <Eye className="w-4 h-4" /> Review
+                        <ViewIcon className="w-4 h-4" /> Review
                       </Button>
                     </td>
                   </tr>
@@ -210,14 +210,14 @@ export default function AdminProfileUpdateRequests() {
                 disabled={reviewMutation.isPending}
                 className="bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 border-none"
               >
-                <XCircle className="w-4 h-4 mr-2" /> Reject
+                <CancelCircleIcon className="w-4 h-4 mr-2" /> Reject
               </Button>
               <Button
                 onClick={() => handleAction(selectedRequest.id, 'APPROVE')}
                 disabled={reviewMutation.isPending}
                 className="bg-emerald-600 hover:bg-emerald-700 text-white"
               >
-                <CheckCircle className="w-4 h-4 mr-2" /> Approve Updates
+                <Tick02Icon className="w-4 h-4 mr-2" /> Approve Updates
               </Button>
             </div>
           </motion.div>

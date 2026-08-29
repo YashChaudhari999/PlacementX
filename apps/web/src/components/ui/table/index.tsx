@@ -1,15 +1,5 @@
 import { forwardRef } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Search,
-  X,
-} from 'lucide-react';
+import { ArrowLeft01Icon, ArrowRight01Icon, ArrowLeftDoubleIcon, ArrowRightDoubleIcon, ArrowUpDownIcon, ArrowUp01Icon, ArrowDown01Icon, Search01Icon, Cancel01Icon } from 'hugeicons-react';
 
 // ============================================
 // DataTable — Enterprise Component
@@ -50,12 +40,12 @@ export function DataTable<T extends Record<string, unknown>>({
     if (!col.sortable) return null;
     if (sortColumn === col.key) {
       return sortDirection === 'asc' ? (
-        <ArrowUp className="h-4 w-4" />
+        <ArrowUp01Icon className="h-4 w-4" />
       ) : (
-        <ArrowDown className="h-4 w-4" />
+        <ArrowDown01Icon className="h-4 w-4" />
       );
     }
-    return <ArrowUpDown className="h-4 w-4 opacity-50" />;
+    return <ArrowUpDownIcon className="h-4 w-4 opacity-50" />;
   };
 
   return (
@@ -138,28 +128,28 @@ export const Pagination = ({
           disabled={currentPage <= 1}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
         >
-          <ChevronsLeft className="h-4 w-4" />
+          <ArrowLeftDoubleIcon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage <= 1}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
         >
-          <ChevronLeft className="h-4 w-4" />
+          <ArrowLeft01Icon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage >= totalPages}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
         >
-          <ChevronRight className="h-4 w-4" />
+          <ArrowRight01Icon className="h-4 w-4" />
         </button>
         <button
           onClick={() => onPageChange(totalPages)}
           disabled={currentPage >= totalPages}
           className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border hover:bg-accent disabled:opacity-50"
         >
-          <ChevronsRight className="h-4 w-4" />
+          <ArrowRightDoubleIcon className="h-4 w-4" />
         </button>
       </div>
     </div>
@@ -191,7 +181,7 @@ export const TableSearch = ({
   value,
   onChange,
   onClear,
-  placeholder = 'Search...',
+  placeholder = 'Search01Icon...',
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -199,7 +189,7 @@ export const TableSearch = ({
   placeholder?: string;
 }) => (
   <div className="relative w-full max-w-sm">
-    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    <Search01Icon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
     <input
       type="text"
       value={value}
@@ -212,7 +202,7 @@ export const TableSearch = ({
         onClick={onClear}
         className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground"
       >
-        <X className="h-4 w-4" />
+        <Cancel01Icon className="h-4 w-4" />
       </button>
     )}
   </div>

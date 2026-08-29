@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { Building, TrendingUp, TrendingDown, Minus, AlertCircle } from 'lucide-react';
+import { Building01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, Alert02Icon } from 'hugeicons-react';
 import type { DepartmentResponse, DepartmentStats } from '@/types/analytics.types';
 import { useState } from 'react';
 
@@ -36,7 +36,7 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-teal-100 rounded-xl text-teal-600">
-            <Building className="w-5 h-5" />
+            <Building01Icon className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Department Intelligence</h2>
@@ -56,7 +56,7 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
               key={i}
               className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3"
             >
-              <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <Alert02Icon className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-sm font-bold text-rose-900">
                   {risk.department} Needs Intervention
@@ -125,12 +125,12 @@ export default function DepartmentAnalytics({ data }: { data: DepartmentResponse
                         <div className="flex items-center text-[10px] font-bold">
                           {dept.placementRateChange > 0 ? (
                             <span className="text-emerald-500 flex items-center">
-                              <TrendingUp className="w-3 h-3 mr-0.5" />+
+                              <ArrowUp01Icon className="w-3 h-3 mr-0.5" />+
                               {dept.placementRateChange.toFixed(1)}%
                             </span>
                           ) : (
                             <span className="text-rose-500 flex items-center">
-                              <TrendingDown className="w-3 h-3 mr-0.5" />
+                              <ArrowDown01Icon className="w-3 h-3 mr-0.5" />
                               {dept.placementRateChange.toFixed(1)}%
                             </span>
                           )}

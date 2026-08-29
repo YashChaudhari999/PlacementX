@@ -1,22 +1,14 @@
 import { Card } from '@/components/ui';
-import {
-  Lightbulb,
-  AlertTriangle,
-  ArrowUpRight,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Info,
-} from 'lucide-react';
+import { Idea01Icon, Alert01Icon, ArrowUpRight01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, InformationCircleIcon } from 'hugeicons-react';
 import type { InsightsResponse, PlacementInsight, InsightSeverity } from '@/types/analytics.types';
 
 const severityIcons: Record<InsightSeverity, React.ElementType> = {
-  CRITICAL: AlertTriangle,
-  HIGH: AlertTriangle,
-  MEDIUM: Info,
-  LOW: Info,
-  POSITIVE: ArrowUpRight,
-  OPPORTUNITY: Lightbulb,
+  CRITICAL: Alert01Icon,
+  HIGH: Alert01Icon,
+  MEDIUM: InformationCircleIcon,
+  LOW: InformationCircleIcon,
+  POSITIVE: ArrowUpRight01Icon,
+  OPPORTUNITY: Idea01Icon,
 };
 
 const severityStyles: Record<InsightSeverity, string> = {
@@ -47,7 +39,7 @@ export default function PlacementIntelligence({ data }: { data: InsightsResponse
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-violet-100 rounded-xl text-violet-600">
-            <Lightbulb className="w-5 h-5" />
+            <Idea01Icon className="w-5 h-5" />
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">Placement Intelligence</h2>
@@ -91,7 +83,7 @@ export default function PlacementIntelligence({ data }: { data: InsightsResponse
 
                   {insight.recommendedAction && (
                     <div className="mt-3 text-sm font-medium opacity-90 flex items-start gap-1.5">
-                      <ArrowUpRight className="w-4 h-4 mt-0.5 shrink-0" />
+                      <ArrowUpRight01Icon className="w-4 h-4 mt-0.5 shrink-0" />
                       {insight.recommendedAction}
                     </div>
                   )}
@@ -107,11 +99,11 @@ export default function PlacementIntelligence({ data }: { data: InsightsResponse
                   {insight.gap !== null && (
                     <div className="text-xs font-bold flex items-center md:justify-end gap-1 mt-0.5 opacity-80">
                       {insight.gap > 0 ? (
-                        <TrendingUp className="w-3 h-3" />
+                        <ArrowUp01Icon className="w-3 h-3" />
                       ) : insight.gap < 0 ? (
-                        <TrendingDown className="w-3 h-3" />
+                        <ArrowDown01Icon className="w-3 h-3" />
                       ) : (
-                        <Minus className="w-3 h-3" />
+                        <MinusSignIcon className="w-3 h-3" />
                       )}
                       {Math.abs(insight.gap).toFixed(1)} {insight.gap > 0 ? 'above' : 'below'}{' '}
                       benchmark

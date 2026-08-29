@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input, FormWrapper, FieldWrapper, Checkbox } from '@/components/ui';
-import { ArrowLeft, ShieldCheck, TrendingUp, Building } from 'lucide-react';
+import { ArrowLeft01Icon, Shield01Icon, ArrowUp01Icon, Building01Icon } from 'hugeicons-react';
 import { authService } from '@/lib/authService';
 
 export default function AdminLogin() {
@@ -45,7 +45,7 @@ export default function AdminLogin() {
               to="/"
               className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white transition-colors"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Return to Website
+              <ArrowLeft01Icon className="mr-2 h-4 w-4" /> Return to Website
             </Link>
           </div>
 
@@ -67,14 +67,14 @@ export default function AdminLogin() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl">
                   <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center mb-3">
-                    <TrendingUp className="text-primary w-5 h-5" />
+                    <ArrowUp01Icon className="text-primary w-5 h-5" />
                   </div>
                   <h3 className="text-2xl font-bold text-white">98%</h3>
                   <p className="text-slate-400 text-sm">Placement Rate</p>
                 </div>
                 <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl">
                   <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3">
-                    <Building className="text-blue-400 w-5 h-5" />
+                    <Building01Icon className="text-blue-400 w-5 h-5" />
                   </div>
                   <h3 className="text-2xl font-bold text-white">250+</h3>
                   <p className="text-slate-400 text-sm">Partner Companies</p>
@@ -84,7 +84,7 @@ export default function AdminLogin() {
           </div>
 
           <div className="flex items-center gap-4 text-sm text-slate-400">
-            <ShieldCheck className="w-5 h-5 text-emerald-400" />
+            <Shield01Icon className="w-5 h-5 text-emerald-400" />
             <p>Secure SSL Encrypted Connection</p>
           </div>
         </div>

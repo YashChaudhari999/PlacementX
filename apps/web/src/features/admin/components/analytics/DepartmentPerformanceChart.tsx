@@ -12,7 +12,7 @@ import {
   Cell,
 } from 'recharts';
 import type { DepartmentResponse } from '@/types/analytics.types';
-import { Target } from 'lucide-react';
+import { Target01Icon } from 'hugeicons-react';
 
 export default function DepartmentPerformanceChart({ data }: { data: DepartmentResponse }) {
   if (!data?.departments?.length) return null;
@@ -56,7 +56,7 @@ export default function DepartmentPerformanceChart({ data }: { data: DepartmentR
     <Card className="p-6 border-slate-200">
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
-          <Target className="w-5 h-5" />
+          <Target01Icon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Performance Quadrant</h2>

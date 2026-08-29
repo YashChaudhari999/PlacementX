@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { FileText, Download, Building2, CheckCircle2 } from 'lucide-react';
+import { Note01Icon, Download01Icon, Building02Icon, TickDouble02Icon } from 'hugeicons-react';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
 
@@ -48,14 +48,14 @@ export default function StudentDocuments() {
         <div className="md:col-span-1 space-y-6">
           <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-primary" /> Core Documents
+              <Note01Icon className="w-5 h-5 text-primary" /> Core Documents
             </h3>
 
             <div className="space-y-4">
               <div className="p-4 border border-slate-200 rounded-lg bg-slate-50">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium text-slate-700">Primary Resume</span>
-                  {data.resumeUrl ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : null}
+                  {data.resumeUrl ? <TickDouble02Icon className="w-4 h-4 text-green-500" /> : null}
                 </div>
                 {data.resumeUrl ? (
                   <Button
@@ -63,7 +63,7 @@ export default function StudentDocuments() {
                     className="w-full mt-2 bg-white"
                     onClick={() => window.open(data.resumeUrl, '_blank')}
                   >
-                    <FileText className="w-4 h-4 mr-2" /> View Resume
+                    <Note01Icon className="w-4 h-4 mr-2" /> View Resume
                   </Button>
                 ) : (
                   <p className="text-xs text-slate-500 italic">
@@ -79,12 +79,12 @@ export default function StudentDocuments() {
         <div className="md:col-span-2">
           <Card className="p-6 h-full border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-6">
-              <Building2 className="w-5 h-5 text-emerald-600" /> Official Offer Letters
+              <Building02Icon className="w-5 h-5 text-emerald-600" /> Official Offer Letters
             </h3>
 
             {data.offers.length === 0 ? (
               <div className="text-center py-12">
-                <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <Note01Icon className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 font-medium">No offer letters available yet.</p>
                 <p className="text-sm text-slate-400 mt-1">
                   They will appear here once a company uploads them.
@@ -113,7 +113,7 @@ export default function StudentDocuments() {
                         className="w-full relative z-10"
                         onClick={() => window.open(offer.offerLetterUrl, '_blank')}
                       >
-                        <Download className="w-4 h-4 mr-2" /> Download Offer
+                        <Download01Icon className="w-4 h-4 mr-2" /> Download01Icon Offer
                       </Button>
                     ) : (
                       <Button className="w-full relative z-10" variant="outline" disabled>

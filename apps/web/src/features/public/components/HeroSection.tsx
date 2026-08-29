@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { buttonVariants } from '@/components/ui';
-import { ArrowRight, BarChart3, Building2, GraduationCap } from 'lucide-react';
+import { ArrowRight01Icon, BarChartIcon, Building02Icon, Mortarboard01Icon } from 'hugeicons-react';
 import { Link as RouterLink } from 'react-router-dom';
 
 export const HeroSection = () => {
@@ -41,7 +41,7 @@ export const HeroSection = () => {
                   ' h-14 px-8 text-base rounded-xl shadow-md hover:shadow-lg transition-shadow'
                 }
               >
-                Placement Cell Login <ArrowRight className="ml-2 h-5 w-5" />
+                Placement Cell Login <ArrowRight01Icon className="ml-2 h-5 w-5" />
               </RouterLink>
               <RouterLink
                 to="/student/login"
@@ -68,7 +68,7 @@ export const HeroSection = () => {
                 }}
                 className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
               >
-                <Building2 className="h-5 w-5 text-primary" />
+                <Building02Icon className="h-5 w-5 text-primary" />
                 500+ Recruiters
               </motion.div>
               <motion.div
@@ -79,7 +79,7 @@ export const HeroSection = () => {
                 }}
                 className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
               >
-                <GraduationCap className="h-5 w-5 text-primary" />
+                <Mortarboard01Icon className="h-5 w-5 text-primary" />
                 10k+ Students
               </motion.div>
               <motion.div
@@ -90,7 +90,7 @@ export const HeroSection = () => {
                 }}
                 className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
               >
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <BarChartIcon className="h-5 w-5 text-primary" />
                 98% Placement
               </motion.div>
             </motion.div>

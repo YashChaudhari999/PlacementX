@@ -1,25 +1,15 @@
 import React from 'react';
-import {
-  Globe,
-  Shield,
-  Database,
-  Bell,
-  GraduationCap,
-  Users,
-  Activity,
-  Settings as SettingsIcon,
-  AlertTriangle,
-} from 'lucide-react';
+import { GlobalIcon, Shield01Icon, DatabaseIcon, Notification01Icon, Mortarboard01Icon, UserMultipleIcon, Activity01Icon, Settings01Icon, Alert01Icon } from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
 
 export const SETTINGS_CATEGORIES = [
-  { id: 'general', label: 'General', icon: Globe, restricted: false },
-  { id: 'placement', label: 'Placement Rules', icon: Database, restricted: false },
-  { id: 'students', label: 'Students', icon: GraduationCap, restricted: false },
-  { id: 'communications', label: 'Communications', icon: Bell, restricted: false },
-  { id: 'security', label: 'Security & Access', icon: Shield, restricted: true },
-  { id: 'system', label: 'System Health', icon: Activity, restricted: false },
-  { id: 'advanced', label: 'Advanced', icon: AlertTriangle, restricted: true, danger: true },
+  { id: 'general', label: 'General', icon: GlobalIcon, restricted: false },
+  { id: 'placement', label: 'Placement Rules', icon: DatabaseIcon, restricted: false },
+  { id: 'students', label: 'Students', icon: Mortarboard01Icon, restricted: false },
+  { id: 'communications', label: 'Communications', icon: Notification01Icon, restricted: false },
+  { id: 'security', label: 'Security & Access', icon: Shield01Icon, restricted: true },
+  { id: 'system', label: 'System Health', icon: Activity01Icon, restricted: false },
+  { id: 'advanced', label: 'Advanced', icon: Alert01Icon, restricted: true, danger: true },
 ];
 
 interface SettingsSidebarProps {
@@ -56,7 +46,7 @@ export default function SettingsSidebar({
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-4 py-2 pl-9 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
         />
-        <SettingsIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+        <Settings01Icon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
       </div>
 
       <nav className="space-y-1">

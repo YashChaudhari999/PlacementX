@@ -1,5 +1,5 @@
 import { forwardRef, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { Cancel01Icon } from 'hugeicons-react';
 
 // ============================================
 // Modal
@@ -57,7 +57,7 @@ export const Modal = ({
           onClick={onClose}
           className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 cursor-pointer"
         >
-          <X className="h-4 w-4" />
+          <Cancel01Icon className="h-4 w-4" />
         </button>
         {title && <h2 className="text-lg font-semibold">{title}</h2>}
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
@@ -218,7 +218,7 @@ export const Drawer = ({
             onClick={onClose}
             className="rounded-sm opacity-70 hover:opacity-100 cursor-pointer"
           >
-            <X className="h-4 w-4" />
+            <Cancel01Icon className="h-4 w-4" />
           </button>
         </div>
         {children}

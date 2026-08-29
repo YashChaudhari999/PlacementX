@@ -1,6 +1,6 @@
 import { forwardRef, useState } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Eye, EyeOff, Search, X } from 'lucide-react';
+import { ViewIcon, ViewOffIcon, Search01Icon, Cancel01Icon } from 'hugeicons-react';
 
 // ============================================
 // Input — Enterprise Component
@@ -43,7 +43,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         className="text-muted-foreground hover:text-foreground focus:outline-none flex items-center justify-center transition-colors"
         tabIndex={-1}
       >
-        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        {showPassword ? <ViewOffIcon className="h-4 w-4" /> : <ViewIcon className="h-4 w-4" />}
       </button>
     ) : (
       rightIcon
@@ -120,11 +120,11 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <Input
         ref={ref}
         type="search"
-        leftIcon={<Search className="h-4 w-4" />}
+        leftIcon={<Search01Icon className="h-4 w-4" />}
         rightIcon={
           value ? (
             <button type="button" onClick={onClear} className="cursor-pointer">
-              <X className="h-4 w-4" />
+              <Cancel01Icon className="h-4 w-4" />
             </button>
           ) : undefined
         }

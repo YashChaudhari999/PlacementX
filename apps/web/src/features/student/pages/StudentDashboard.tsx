@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '@/components/ui';
-import { Bell, Briefcase, ExternalLink, Check, Sun, Moon, MapPin, CalendarDays } from 'lucide-react';
+import { Notification01Icon, Briefcase01Icon, Link02Icon, Tick01Icon, Sun01Icon, Moon01Icon, Location01Icon, Calendar01Icon } from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
@@ -68,14 +68,14 @@ export default function StudentDashboard() {
         className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/20"
       >
         <div className="absolute top-0 right-0 p-8 opacity-10">
-          <Briefcase className="w-64 h-64 transform rotate-12 translate-x-16 -translate-y-16" />
+          <Briefcase01Icon className="w-64 h-64 transform rotate-12 translate-x-16 -translate-y-16" />
         </div>
         <div className="relative z-10 p-8 md:p-10 flex flex-col justify-center min-h-[200px] backdrop-blur-sm bg-black/5">
           <div className="flex items-center gap-3 mb-2">
             {greeting.includes('morning') ? (
-              <Sun className="text-yellow-300 w-6 h-6" />
+              <Sun01Icon className="text-yellow-300 w-6 h-6" />
             ) : (
-              <Moon className="text-indigo-200 w-6 h-6" />
+              <Moon01Icon className="text-indigo-200 w-6 h-6" />
             )}
             <span className="text-indigo-100 font-medium tracking-wide uppercase text-sm">
               {greeting}
@@ -99,7 +99,7 @@ export default function StudentDashboard() {
         <div className="lg:col-span-2 space-y-6">
           <motion.div variants={itemVariants} className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <Briefcase className="w-6 h-6 text-blue-600" />
+              <Briefcase01Icon className="w-6 h-6 text-blue-600" />
               Active Drives
             </h2>
           </motion.div>
@@ -108,7 +108,7 @@ export default function StudentDashboard() {
             {drives.length === 0 ? (
               <motion.div variants={itemVariants}>
                 <EmptyState
-                  icon={Briefcase}
+                  icon={Briefcase01Icon}
                   title="No active drives"
                   description="There are no placement drives actively recruiting at the moment."
                   variant="card"
@@ -137,17 +137,17 @@ export default function StudentDashboard() {
 
                         <div className="flex flex-wrap gap-4 text-sm text-slate-600">
                           <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md">
-                            <Briefcase className="w-4 h-4 text-slate-400" />
+                            <Briefcase01Icon className="w-4 h-4 text-slate-400" />
                             {drive.employmentType}
                           </div>
                           {drive.registrationStart && new Date(drive.registrationStart) > new Date() ? (
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-blue-600 font-medium bg-blue-50 border border-blue-100 shadow-sm">
-                              <CalendarDays className="w-4 h-4 text-blue-500 animate-pulse" />
+                              <Calendar01Icon className="w-4 h-4 text-blue-500 animate-pulse" />
                               Starts: {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100 shadow-sm">
-                              <Bell className="w-4 h-4 text-red-500 animate-bounce" />
+                              <Notification01Icon className="w-4 h-4 text-red-500 animate-bounce" />
                               Deadline: {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                             </div>
                           )}
@@ -172,7 +172,7 @@ export default function StudentDashboard() {
           <motion.div variants={itemVariants} className="sticky top-24">
             <h2 className="text-xl font-bold text-slate-800 flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Bell className="w-5 h-5 text-indigo-600" />
+                <Notification01Icon className="w-5 h-5 text-indigo-600" />
                 Notifications
               </div>
               {notifications.filter((n: any) => !n.isRead).length > 0 && (
@@ -186,7 +186,7 @@ export default function StudentDashboard() {
               <div className="p-2 space-y-2 max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center flex flex-col items-center justify-center opacity-70">
-                    <Bell className="w-10 h-10 text-slate-300 mb-3" />
+                    <Notification01Icon className="w-10 h-10 text-slate-300 mb-3" />
                     <p className="text-sm font-medium text-slate-500">You're all caught up!</p>
                   </div>
                 ) : (
@@ -214,7 +214,7 @@ export default function StudentDashboard() {
                             className="text-blue-500 hover:text-blue-700 hover:bg-blue-100 p-1 rounded-md transition-colors"
                             title="Mark as read"
                           >
-                            <Check className="w-4 h-4" />
+                            <Tick01Icon className="w-4 h-4" />
                           </button>
                         )}
                       </div>
@@ -233,7 +233,7 @@ export default function StudentDashboard() {
                             size="sm"
                             className="h-6 text-[10px] px-2 py-0 hover:bg-slate-100 text-blue-600"
                           >
-                            Details <ExternalLink className="w-3 h-3 ml-1" />
+                            Details <Link02Icon className="w-3 h-3 ml-1" />
                           </Button>
                         )}
                       </div>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
+import { StarIcon, QuoteDownIcon } from 'hugeicons-react';
 
 const testimonials = [
   {
@@ -58,10 +58,10 @@ export const TestimonialsSection = () => {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col relative"
             >
-              <Quote className="absolute top-6 right-6 h-8 w-8 text-slate-100" />
+              <QuoteDownIcon className="absolute top-6 right-6 h-8 w-8 text-slate-100" />
               <div className="flex gap-1 mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-accent text-accent" />
+                  <StarIcon key={i} className="h-5 w-5 fill-accent text-accent" />
                 ))}
               </div>
               <p className="text-slate-700 italic mb-8 relative z-10 flex-grow">

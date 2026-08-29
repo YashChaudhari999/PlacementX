@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui';
-import { Activity, Database, Server, RefreshCcw } from 'lucide-react';
+import { Activity01Icon, DatabaseIcon, ServerStack01Icon, RefreshIcon } from 'hugeicons-react';
 import api from '@/lib/api';
 
 export default function SystemHealth() {
@@ -27,7 +27,7 @@ export default function SystemHealth() {
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
         <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-slate-400" />
+          <Activity01Icon className="w-5 h-5 text-slate-400" />
           <h3 className="font-bold text-slate-800 text-lg">System Health & Integrations</h3>
         </div>
         <button
@@ -35,7 +35,7 @@ export default function SystemHealth() {
           disabled={loading}
           className="text-slate-500 hover:text-primary transition-colors"
         >
-          <RefreshCcw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshIcon className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
@@ -45,10 +45,10 @@ export default function SystemHealth() {
             <div
               className={`p-2 rounded-full ${health?.database === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}
             >
-              <Database className="w-5 h-5" />
+              <DatabaseIcon className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-slate-800">Primary Database</h4>
+              <h4 className="text-sm font-medium text-slate-800">Primary DatabaseIcon</h4>
               <p className="text-xs text-slate-500">PostgreSQL (Supabase)</p>
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function SystemHealth() {
             <div
               className={`p-2 rounded-full ${health?.redis === 'up' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}
             >
-              <Server className="w-5 h-5" />
+              <ServerStack01Icon className="w-5 h-5" />
             </div>
             <div>
               <h4 className="text-sm font-medium text-slate-800">Cache & Queues</h4>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BarChart3, FileSpreadsheet, History, Bookmark, ChevronRight } from 'lucide-react';
+import { BarChartIcon, Note01Icon, Time01Icon, Bookmark01Icon, ArrowRight01Icon } from 'hugeicons-react';
 import ReportsOverview from '../components/reports/ReportsOverview';
 import ReportBuilder from '../components/reports/ReportBuilder';
 import ReportHistory from '../components/reports/ReportHistory';
@@ -10,10 +10,10 @@ const AdminReports = () => {
   );
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'builder', label: 'Report Builder', icon: FileSpreadsheet },
-    { id: 'history', label: 'Export History', icon: History },
-    { id: 'saved', label: 'Saved Templates', icon: Bookmark },
+    { id: 'overview', label: 'Overview', icon: BarChartIcon },
+    { id: 'builder', label: 'Report Builder', icon: Note01Icon },
+    { id: 'history', label: 'Export Time01Icon', icon: Time01Icon },
+    { id: 'saved', label: 'Saved Templates', icon: Bookmark01Icon },
   ] as const;
 
   return (

@@ -2,34 +2,19 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Input, AvatarUpload } from '@/components/ui';
-import {
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  UploadCloud,
-  Trash2,
-  Calendar,
-  Clock,
-  MapPin,
-  Building2,
-  UserCircle2,
-  BookOpen,
-  Clock4,
-  Paperclip,
-  CheckSquare,
-} from 'lucide-react';
+import { TickDouble02Icon, Alert02Icon, Loading02Icon, CloudUploadIcon, Delete01Icon, Calendar01Icon, Clock01Icon, Location01Icon, Building02Icon, UserCircle02Icon, BookOpen01Icon, Clock04Icon, Attachment01Icon, Tick01Icon } from 'hugeicons-react';
 import api from '@/lib/api';
 import { storage } from '@/lib/firebase/config/firebaseApp';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const STEPS = [
-  { title: 'Company Information', icon: Building2 },
-  { title: 'Job Details', icon: UserCircle2 },
-  { title: 'Eligibility', icon: BookOpen },
-  { title: 'Registration', icon: Clock4 },
-  { title: 'Selection Process', icon: CheckSquare },
-  { title: 'Attachments', icon: Paperclip },
-  { title: 'Review & Submit', icon: CheckCircle2 },
+  { title: 'Company Information', icon: Building02Icon },
+  { title: 'Job Details', icon: UserCircle02Icon },
+  { title: 'Eligibility', icon: BookOpen01Icon },
+  { title: 'Registration', icon: Clock04Icon },
+  { title: 'Selection Process', icon: Tick01Icon },
+  { title: 'Attachments', icon: Attachment01Icon },
+  { title: 'Review & Submit', icon: TickDouble02Icon },
 ];
 
 export default function HrDriveWizard() {
@@ -148,7 +133,7 @@ export default function HrDriveWizard() {
     return (
       <div className="bg-white/80 backdrop-blur-xl border border-red-200/60 shadow-xl shadow-red-900/5 p-10 rounded-3xl max-w-xl mx-auto mt-20 text-center">
         <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <AlertCircle className="w-12 h-12 text-red-500" />
+          <Alert02Icon className="w-12 h-12 text-red-500" />
         </div>
         <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Access Denied</h2>
         <p className="text-slate-600 text-lg">{error}</p>
@@ -184,7 +169,7 @@ export default function HrDriveWizard() {
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckCircle2 className="w-6 h-6" />
+                      <TickDouble02Icon className="w-6 h-6" />
                     ) : (
                       <Icon className="w-5 h-5" />
                     )}
@@ -218,7 +203,7 @@ export default function HrDriveWizard() {
             >
               {isSaving ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loading02Icon className="w-5 h-5 animate-spin" />
                   <div>
                     <p className="text-sm font-bold">Saving Draft...</p>
                     <p className="text-xs opacity-80">Syncing with secure server</p>
@@ -226,7 +211,7 @@ export default function HrDriveWizard() {
                 </>
               ) : lastSaved ? (
                 <>
-                  <CheckCircle2 className="w-5 h-5" />
+                  <TickDouble02Icon className="w-5 h-5" />
                   <div>
                     <p className="text-sm font-bold">All Changes Saved</p>
                     <p className="text-xs opacity-80">
@@ -236,7 +221,7 @@ export default function HrDriveWizard() {
                 </>
               ) : (
                 <>
-                  <AlertCircle className="w-5 h-5" />
+                  <Alert02Icon className="w-5 h-5" />
                   <p className="text-sm font-medium">Changes auto-save</p>
                 </>
               )}
@@ -282,7 +267,7 @@ export default function HrDriveWizard() {
                           />
                           {isUploadingLogo && (
                             <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full backdrop-blur-sm z-10">
-                              <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
+                              <Loading02Icon className="w-8 h-8 animate-spin text-slate-900" />
                             </div>
                           )}
                         </div>
@@ -614,7 +599,7 @@ export default function HrDriveWizard() {
                               className="absolute top-6 right-6 text-slate-400 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition-colors"
                               title="Remove Round"
                             >
-                              <Trash2 className="w-5 h-5" />
+                              <Delete01Icon className="w-5 h-5" />
                             </button>
 
                             <div className="flex items-center gap-3 mb-6">
@@ -716,7 +701,7 @@ export default function HrDriveWizard() {
 
                     <div className="border-2 border-dashed border-slate-300 rounded-3xl p-16 flex flex-col items-center justify-center text-center bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-colors cursor-pointer group">
                       <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 mb-6 group-hover:scale-110 transition-transform">
-                        <UploadCloud className="w-10 h-10 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                        <CloudUploadIcon className="w-10 h-10 text-slate-400 group-hover:text-blue-500 transition-colors" />
                       </div>
                       <h3 className="text-xl font-bold text-slate-800">Drag & Drop files here</h3>
                       <p className="text-base text-slate-500 mt-2">
@@ -743,7 +728,7 @@ export default function HrDriveWizard() {
 
                     <div className="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-inner">
                       <h4 className="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                        <AlertCircle className="w-5 h-5 text-amber-500" />
+                        <Alert02Icon className="w-5 h-5 text-amber-500" />
                         Final Confirmation
                       </h4>
                       <p className="text-slate-600 mb-6 text-lg leading-relaxed">
@@ -781,9 +766,9 @@ export default function HrDriveWizard() {
                             className="h-12 px-8 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-600/20"
                           >
                             {loading ? (
-                              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                              <Loading02Icon className="w-5 h-5 animate-spin mr-2" />
                             ) : (
-                              <CheckCircle2 className="w-5 h-5 mr-2" />
+                              <TickDouble02Icon className="w-5 h-5 mr-2" />
                             )}
                             Submit Drive
                           </Button>

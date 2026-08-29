@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell } from 'lucide-react';
+import { Notification01Icon } from 'hugeicons-react';
 import { useUnreadCount } from '@/hooks/queries/useNotifications';
 import NotificationDropdown from './NotificationDropdown';
 
@@ -27,7 +27,7 @@ export default function NotificationBell() {
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative"
       >
-        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-300" />
+        <Notification01Icon className="w-5 h-5 text-slate-600 dark:text-slate-300" />
         {unreadCount > 0 && (
           <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900">
             {unreadCount > 99 ? '99+' : unreadCount}

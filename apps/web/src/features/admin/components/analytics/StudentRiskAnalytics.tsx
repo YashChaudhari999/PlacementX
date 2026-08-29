@@ -1,13 +1,5 @@
 import { Card } from '@/components/ui';
-import {
-  ShieldAlert,
-  Users,
-  TrendingUp,
-  AlertTriangle,
-  FileText,
-  Briefcase,
-  GraduationCap,
-} from 'lucide-react';
+import { Alert01Icon, UserMultipleIcon, ArrowUp01Icon, Note01Icon, Briefcase01Icon, Mortarboard01Icon } from 'hugeicons-react';
 import type { StudentRiskResponse } from '@/types/analytics.types';
 import { useState } from 'react';
 
@@ -49,7 +41,7 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
 
         <Card className="p-4 border-rose-200 bg-rose-50/50 relative overflow-hidden">
           <div className="absolute -right-4 -top-4 opacity-10">
-            <AlertTriangle className="w-24 h-24 text-rose-600" />
+            <Alert01Icon className="w-24 h-24 text-rose-600" />
           </div>
           <div className="text-xs font-bold text-rose-600 uppercase tracking-wider mb-1 relative z-10">
             High Intervention
@@ -67,14 +59,14 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
       <Card className="p-6 border-slate-200">
         <div className="flex items-center gap-2 mb-4">
           <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
-            <Users className="w-5 h-5" />
+            <UserMultipleIcon className="w-5 h-5" />
           </div>
           <h3 className="font-bold text-slate-900">Profile Readiness</h3>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="flex items-center gap-3">
-            <FileText className="w-8 h-8 text-slate-300" />
+            <Note01Icon className="w-8 h-8 text-slate-300" />
             <div>
               <div className="text-lg font-bold text-slate-900">
                 {profileReadiness.missingResume}
@@ -83,7 +75,7 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Briefcase className="w-8 h-8 text-slate-300" />
+            <Briefcase01Icon className="w-8 h-8 text-slate-300" />
             <div>
               <div className="text-lg font-bold text-slate-900">
                 {profileReadiness.missingSkills}
@@ -92,14 +84,14 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <ShieldAlert className="w-8 h-8 text-amber-300" />
+            <Alert01Icon className="w-8 h-8 text-amber-300" />
             <div>
               <div className="text-lg font-bold text-slate-900">{profileReadiness.pending}</div>
               <div className="text-xs text-slate-500">Pending Verification</div>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <GraduationCap className="w-8 h-8 text-emerald-300" />
+            <Mortarboard01Icon className="w-8 h-8 text-emerald-300" />
             <div>
               <div className="text-lg font-bold text-slate-900">{profileReadiness.complete}</div>
               <div className="text-xs text-slate-500">Profiles Complete</div>
@@ -189,7 +181,7 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
                   <td className="px-6 py-4">
                     {student.interventionArea ? (
                       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-200">
-                        <AlertTriangle className="w-3 h-3" />
+                        <Alert01Icon className="w-3 h-3" />
                         {student.interventionArea}
                       </span>
                     ) : (

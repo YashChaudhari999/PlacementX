@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { Briefcase, IndianRupee, Users, CheckCircle2 } from 'lucide-react';
+import { Briefcase01Icon, Money01Icon, UserMultipleIcon, TickDouble02Icon } from 'hugeicons-react';
 import type { DriveAnalyticsResponse } from '@/types/analytics.types';
 import { useState } from 'react';
 
@@ -57,7 +57,7 @@ export default function DriveAnalytics({ data }: { data: DriveAnalyticsResponse 
       <Card className="border-slate-200 overflow-hidden">
         <div className="p-5 border-b border-slate-100 flex items-center gap-2">
           <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600">
-            <Briefcase className="w-5 h-5" />
+            <Briefcase01Icon className="w-5 h-5" />
           </div>
           <div>
             <h3 className="font-bold text-slate-900">Drive Performance</h3>
@@ -104,10 +104,10 @@ export default function DriveAnalytics({ data }: { data: DriveAnalyticsResponse 
                   <td className="px-6 py-4 min-w-[200px]">
                     <div className="flex gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                       <div className="flex items-center gap-1">
-                        <Users className="w-3 h-3 text-blue-500" /> {drive.applied}
+                        <UserMultipleIcon className="w-3 h-3 text-blue-500" /> {drive.applied}
                       </div>
                       <div className="flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3 text-emerald-500" /> {drive.offered}
+                        <TickDouble02Icon className="w-3 h-3 text-emerald-500" /> {drive.offered}
                       </div>
                     </div>
                     <div className="flex h-1.5 bg-slate-100 rounded-full overflow-hidden">

@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { IndianRupee, AlertCircle } from 'lucide-react';
+import { Money01Icon, Alert02Icon } from 'hugeicons-react';
 import {
   BarChart,
   Bar,
@@ -36,7 +36,7 @@ export default function SalaryAnalytics({ data }: { data: SalaryResponse }) {
     <Card className="p-6 border-slate-200">
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-emerald-100 rounded-xl text-emerald-600">
-          <IndianRupee className="w-5 h-5" />
+          <Money01Icon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Package Distribution</h2>
@@ -46,7 +46,7 @@ export default function SalaryAnalytics({ data }: { data: SalaryResponse }) {
 
       {insight?.hasSkew && insight.description && (
         <div className="mb-6 p-4 bg-violet-50 rounded-xl border border-violet-200 flex gap-3 items-start">
-          <AlertCircle className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
+          <Alert02Icon className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
           <div>
             <h4 className="text-sm font-bold text-violet-900">Salary Skew Detected</h4>
             <p className="text-sm text-violet-700 mt-1">{insight.description}</p>

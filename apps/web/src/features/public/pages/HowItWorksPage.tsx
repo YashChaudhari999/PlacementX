@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { PageContainer } from '@/components/ui';
 import { WorkflowTimeline } from '../components/WorkflowTimeline';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight01Icon } from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { buttonVariants } from '@/components/ui';
 
@@ -24,7 +24,7 @@ export default function HowItWorksPage() {
               lifecycle, from company onboarding to final offer letter generation.
             </p>
             <Link to="/contact" className={buttonVariants({ variant: 'primary', size: 'lg' })}>
-              Request Demo <ArrowRight className="ml-2 h-5 w-5" />
+              Request Demo <ArrowRight01Icon className="ml-2 h-5 w-5" />
             </Link>
           </motion.div>
         </div>

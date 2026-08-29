@@ -8,7 +8,7 @@ import {
 } from '@/hooks/queries/useNotifications';
 import { useSocket } from '@/contexts/SocketContext';
 import { formatDistanceToNow } from 'date-fns';
-import { CheckCircle2, Clock, Megaphone, CalendarDays, ExternalLink, Bell } from 'lucide-react';
+import { TickDouble02Icon, Clock01Icon, Megaphone01Icon, Calendar01Icon, Link02Icon, Notification01Icon } from 'hugeicons-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function NotificationDropdown({ onClose }: { onClose: () => void }) {
@@ -54,7 +54,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
           disabled={isMarkingAll || notifications.length === 0}
           className="text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1.5 disabled:opacity-50 transition-colors"
         >
-          <CheckCircle2 className="w-3.5 h-3.5" />
+          <TickDouble02Icon className="w-3.5 h-3.5" />
           Mark all as read
         </button>
       </div>
@@ -76,7 +76,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
         ) : notifications.length === 0 ? (
           <div className="p-10 text-center flex flex-col items-center justify-center h-48">
             <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mb-4">
-              <Bell className="w-8 h-8 text-slate-300 dark:text-slate-600" />
+              <Notification01Icon className="w-8 h-8 text-slate-300 dark:text-slate-600" />
             </div>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
               No new notifications
@@ -108,11 +108,11 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
                   }`}
                 >
                   {notification.type === 'placement_drive' ? (
-                    <CalendarDays className="w-4 h-4" />
+                    <Calendar01Icon className="w-4 h-4" />
                   ) : notification.type === 'interview' ? (
-                    <Clock className="w-4 h-4" />
+                    <Clock01Icon className="w-4 h-4" />
                   ) : (
-                    <Megaphone className="w-4 h-4" />
+                    <Megaphone01Icon className="w-4 h-4" />
                   )}
                 </div>
 
@@ -134,7 +134,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
                   {/* Footer & Badges */}
                   <div className="flex items-center gap-3 mt-2.5">
                     <span className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                      <Clock className="w-3 h-3 text-slate-400" />
+                      <Clock01Icon className="w-3 h-3 text-slate-400" />
                       {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                     </span>
                     {notification.priority === 'HIGH' && (
@@ -158,7 +158,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
           className="text-sm font-semibold text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white py-2.5 px-4 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2 w-full ring-1 ring-inset ring-slate-200 dark:ring-slate-700/50"
         >
           View all notifications
-          <ExternalLink className="w-4 h-4" />
+          <Link02Icon className="w-4 h-4" />
         </Link>
       </div>
     </div>

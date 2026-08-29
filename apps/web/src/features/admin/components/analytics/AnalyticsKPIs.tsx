@@ -1,17 +1,5 @@
 import { Card } from '@/components/ui';
-import {
-  Users,
-  GraduationCap,
-  IndianRupee,
-  Building2,
-  Briefcase,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  FileCheck,
-  Target,
-  Medal,
-} from 'lucide-react';
+import { UserMultipleIcon, Mortarboard01Icon, Money01Icon, Building02Icon, Briefcase01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, Note01Icon, Target01Icon, Award01Icon } from 'hugeicons-react';
 import type { OverviewResponse } from '@/types/analytics.types';
 
 const fmt = (n: number | null | undefined) => (n != null ? n.toLocaleString('en-IN') : '—');
@@ -83,9 +71,9 @@ function KPICard({
 
       {change !== undefined && change !== null && (
         <div className="mt-3 pt-3 border-t border-slate-100 flex items-center gap-1.5">
-          {isPositive && <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />}
-          {isNegative && <TrendingDown className="w-3.5 h-3.5 text-rose-500" />}
-          {isNeutral && <Minus className="w-3.5 h-3.5 text-slate-400" />}
+          {isPositive && <ArrowUp01Icon className="w-3.5 h-3.5 text-emerald-500" />}
+          {isNegative && <ArrowDown01Icon className="w-3.5 h-3.5 text-rose-500" />}
+          {isNeutral && <MinusSignIcon className="w-3.5 h-3.5 text-slate-400" />}
           <span
             className={`text-xs font-bold tabular-nums ${
               isPositive ? 'text-emerald-600' : isNegative ? 'text-rose-600' : 'text-slate-500'
@@ -113,7 +101,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
       label: 'Placement Rate',
       value: fmtPct(c.overallPlacementRate),
       subtitle: `${fmt(c.placedStudents)} of ${fmt(c.totalStudents)} students`,
-      icon: Target,
+      icon: Target01Icon,
       iconBg: 'bg-indigo-100',
       iconColor: 'text-indigo-600',
       change: p ? c.overallPlacementRate - p.overallPlacementRate : null,
@@ -124,7 +112,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
       label: 'Average Package',
       value: fmtLpa(c.averagePackage),
       subtitle: `Median: ${fmtLpa(c.medianPackage)}`,
-      icon: IndianRupee,
+      icon: Money01Icon,
       iconBg: 'bg-emerald-100',
       iconColor: 'text-emerald-600',
       change: p && p.averagePackage ? c.averagePackage! - p.averagePackage : null,
@@ -133,7 +121,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
     {
       label: 'Highest Package',
       value: fmtLpa(c.highestPackage),
-      icon: Medal,
+      icon: Award01Icon,
       iconBg: 'bg-amber-100',
       iconColor: 'text-amber-600',
       change: p && p.highestPackage ? c.highestPackage! - p.highestPackage : null,
@@ -142,7 +130,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
       label: 'Total Students',
       value: fmt(c.totalStudents),
       subtitle: `Eligible: ${fmt(c.eligibleStudents)}`,
-      icon: Users,
+      icon: UserMultipleIcon,
       iconBg: 'bg-blue-100',
       iconColor: 'text-blue-600',
       change: p ? c.totalStudents - p.totalStudents : null,
@@ -151,7 +139,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
       label: 'Placed Students',
       value: fmt(c.placedStudents),
       subtitle: `Unplaced: ${fmt(c.unplacedStudents)}`,
-      icon: GraduationCap,
+      icon: Mortarboard01Icon,
       iconBg: 'bg-emerald-100',
       iconColor: 'text-emerald-600',
       change: p ? c.placedStudents - p.placedStudents : null,
@@ -159,7 +147,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
     {
       label: 'Total Offers',
       value: fmt(c.totalOffers),
-      icon: FileCheck,
+      icon: Note01Icon,
       iconBg: 'bg-violet-100',
       iconColor: 'text-violet-600',
       change: p ? c.totalOffers - p.totalOffers : null,
@@ -169,7 +157,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
       value: fmt(c.participatingCompanies),
       subtitle:
         c.recruiterRetentionRate != null ? `Retention: ${c.recruiterRetentionRate}%` : undefined,
-      icon: Building2,
+      icon: Building02Icon,
       iconBg: 'bg-teal-100',
       iconColor: 'text-teal-600',
       change: p ? c.participatingCompanies - p.participatingCompanies : null,
@@ -178,7 +166,7 @@ export default function AnalyticsKPIs({ data }: { data: OverviewResponse }) {
     {
       label: 'Active Drives',
       value: fmt(c.activeDrives),
-      icon: Briefcase,
+      icon: Briefcase01Icon,
       iconBg: 'bg-orange-100',
       iconColor: 'text-orange-600',
       tooltip: 'Currently active placement drives',

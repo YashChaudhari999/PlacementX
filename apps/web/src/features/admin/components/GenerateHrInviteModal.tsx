@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Link as LinkIcon, Check, Copy } from 'lucide-react';
+import { Cancel01Icon, Link01Icon, Tick01Icon, Copy01Icon } from 'hugeicons-react';
 import { Button, Input } from '@/components/ui';
 import api from '@/lib/api';
 
@@ -56,7 +56,7 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
           <div className="flex items-center justify-between p-6 border-b border-slate-100">
             <h2 className="text-xl font-semibold text-slate-800">Generate HR Invitation</h2>
             <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-              <X className="w-5 h-5" />
+              <Cancel01Icon className="w-5 h-5" />
             </button>
           </div>
 
@@ -128,19 +128,19 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
             ) : (
               <div className="space-y-6 text-center py-4">
                 <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
-                  <Check className="w-8 h-8" />
+                  <Tick01Icon className="w-8 h-8" />
                 </div>
                 <div>
                   <h3 className="text-lg font-medium text-slate-900 mb-1">
                     Link Generated Successfully!
                   </h3>
                   <p className="text-sm text-slate-500">
-                    Copy this link and send it to the HR representative.
+                    Copy01Icon this link and send it to the HR representative.
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                  <LinkIcon className="w-5 h-5 text-slate-400 shrink-0" />
+                  <Link01Icon className="w-5 h-5 text-slate-400 shrink-0" />
                   <input
                     readOnly
                     value={generatedLink}
@@ -151,9 +151,9 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
                     className="p-2 hover:bg-slate-200 rounded-md transition-colors text-slate-500 hover:text-slate-700 shrink-0"
                   >
                     {copied ? (
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Tick01Icon className="w-4 h-4 text-green-600" />
                     ) : (
-                      <Copy className="w-4 h-4" />
+                      <Copy01Icon className="w-4 h-4" />
                     )}
                   </button>
                 </div>

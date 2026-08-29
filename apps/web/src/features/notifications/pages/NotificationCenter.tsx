@@ -6,7 +6,7 @@ import {
   useDeleteNotification,
 } from '@/hooks/queries/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
-import { CheckCircle2, Trash2, Megaphone, CalendarDays, Clock, Filter, Search } from 'lucide-react';
+import { TickDouble02Icon, Delete01Icon, Megaphone01Icon, Calendar01Icon, Clock01Icon, FilterIcon, Search01Icon } from 'hugeicons-react';
 import { PageHeader } from '@/components/ui/layout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui';
@@ -50,7 +50,7 @@ export default function NotificationCenter() {
             disabled={isMarkingAll || notifications.length === 0}
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50 font-medium text-sm"
           >
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <TickDouble02Icon className="w-4 h-4 text-emerald-500" />
             Mark all as read
           </button>
         }
@@ -74,9 +74,9 @@ export default function NotificationCenter() {
           </div>
 
           <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="Search notifications..."
+              placeholder="Search01Icon notifications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 w-full"
@@ -99,7 +99,7 @@ export default function NotificationCenter() {
             </div>
           ) : filteredNotifications.length === 0 ? (
             <div className="p-16 text-center text-slate-500 flex flex-col items-center justify-center">
-              <Megaphone className="w-12 h-12 mb-4 text-slate-200" />
+              <Megaphone01Icon className="w-12 h-12 mb-4 text-slate-200" />
               <h3 className="text-lg font-semibold text-slate-700 mb-1">No notifications found</h3>
               <p className="text-slate-500 max-w-sm">
                 You're all caught up! Check back later for updates on drives and interviews.
@@ -124,11 +124,11 @@ export default function NotificationCenter() {
                   }`}
                 >
                   {notification.type === 'placement_drive' ? (
-                    <CalendarDays className="w-5 h-5" />
+                    <Calendar01Icon className="w-5 h-5" />
                   ) : notification.type === 'interview' ? (
-                    <Clock className="w-5 h-5" />
+                    <Clock01Icon className="w-5 h-5" />
                   ) : (
-                    <Megaphone className="w-5 h-5" />
+                    <Megaphone01Icon className="w-5 h-5" />
                   )}
                 </div>
 
@@ -161,7 +161,7 @@ export default function NotificationCenter() {
                     className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     title="Delete Notification"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Delete01Icon className="w-4 h-4" />
                   </button>
                   {!notification.isRead && (
                     <button
@@ -169,7 +169,7 @@ export default function NotificationCenter() {
                       className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Mark as Read"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <TickDouble02Icon className="w-4 h-4" />
                     </button>
                   )}
                 </div>

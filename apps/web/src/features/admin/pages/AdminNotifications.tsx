@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Megaphone, CalendarDays, History, LayoutTemplate, Send, Inbox } from 'lucide-react';
+import { Megaphone01Icon, Calendar01Icon, Time01Icon, Layout01Icon, SentIcon, InboxIcon } from 'hugeicons-react';
 import NotificationDashboard from './notifications/NotificationDashboard';
 import NotificationComposer from './notifications/NotificationComposer';
 import NotificationHistory from './notifications/NotificationHistory';
@@ -19,12 +19,12 @@ export default function AdminNotifications() {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview', icon: Megaphone },
-    { id: 'inbox', label: 'Inbox', icon: Inbox },
-    { id: 'send', label: 'Send Notification', icon: Send },
-    { id: 'history', label: 'Sent History', icon: History },
-    { id: 'scheduled', label: 'Scheduled', icon: CalendarDays },
-    { id: 'templates', label: 'Templates', icon: LayoutTemplate },
+    { id: 'overview', label: 'Overview', icon: Megaphone01Icon },
+    { id: 'inbox', label: 'InboxIcon', icon: InboxIcon },
+    { id: 'send', label: 'SentIcon Notification', icon: SentIcon },
+    { id: 'history', label: 'Sent Time01Icon', icon: Time01Icon },
+    { id: 'scheduled', label: 'Scheduled', icon: Calendar01Icon },
+    { id: 'templates', label: 'Templates', icon: Layout01Icon },
   ];
 
   return (
@@ -43,8 +43,8 @@ export default function AdminNotifications() {
             onClick={() => setTab('send')}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm shadow-sm"
           >
-            <Send className="w-4 h-4" />
-            Send Notification
+            <SentIcon className="w-4 h-4" />
+            SentIcon Notification
           </button>
         )}
       </div>

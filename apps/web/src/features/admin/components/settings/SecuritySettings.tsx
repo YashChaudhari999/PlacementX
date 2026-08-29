@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Button, Input } from '@/components/ui';
-import { Shield, Key } from 'lucide-react';
+import { Shield01Icon, Key01Icon } from 'hugeicons-react';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 
@@ -42,14 +42,14 @@ export default function SecuritySettings() {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-        <Shield className="w-5 h-5 text-slate-400" />
+        <Shield01Icon className="w-5 h-5 text-slate-400" />
         <h3 className="font-bold text-slate-800 text-lg">Security & Access</h3>
       </div>
 
       <div className="space-y-6">
         <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
           <div className="flex items-center gap-2 mb-4">
-            <Key className="w-4 h-4 text-slate-500" />
+            <Key01Icon className="w-4 h-4 text-slate-500" />
             <h4 className="font-medium text-slate-800">Change Admin Password</h4>
           </div>
           <form onSubmit={handleUpdatePassword} className="space-y-4">

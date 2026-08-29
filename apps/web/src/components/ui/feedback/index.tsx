@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { X, AlertCircle, CheckCircle, Info, AlertTriangle } from 'lucide-react';
+import { Cancel01Icon, Alert02Icon, Tick02Icon, InformationCircleIcon, Alert01Icon } from 'hugeicons-react';
 
 // ============================================
 // Alert
@@ -24,11 +24,11 @@ export interface AlertProps
 }
 
 const alertIcons = {
-  default: <Info className="h-4 w-4" />,
-  info: <Info className="h-4 w-4" />,
-  success: <CheckCircle className="h-4 w-4" />,
-  warning: <AlertTriangle className="h-4 w-4" />,
-  destructive: <AlertCircle className="h-4 w-4" />,
+  default: <InformationCircleIcon className="h-4 w-4" />,
+  info: <InformationCircleIcon className="h-4 w-4" />,
+  success: <Tick02Icon className="h-4 w-4" />,
+  warning: <Alert01Icon className="h-4 w-4" />,
+  destructive: <Alert02Icon className="h-4 w-4" />,
 };
 
 export const Alert = ({ className, variant, title, onClose, children, ...props }: AlertProps) => {
@@ -42,7 +42,7 @@ export const Alert = ({ className, variant, title, onClose, children, ...props }
         </div>
         {onClose && (
           <button onClick={onClose} className="cursor-pointer opacity-70 hover:opacity-100">
-            <X className="h-4 w-4" />
+            <Cancel01Icon className="h-4 w-4" />
           </button>
         )}
       </div>
@@ -77,7 +77,7 @@ export const Banner = ({ message, variant = 'info', onDismiss, className }: Bann
       <span>{message}</span>
       {onDismiss && (
         <button onClick={onDismiss} className="cursor-pointer opacity-70 hover:opacity-100">
-          <X className="h-4 w-4" />
+          <Cancel01Icon className="h-4 w-4" />
         </button>
       )}
     </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { Users, Plus, Shield, Mail, Search } from 'lucide-react';
+import { UserMultipleIcon, PlusSignIcon, Shield01Icon, Mail01Icon, Search01Icon } from 'hugeicons-react';
 
 export default function AdminCoordinators() {
   const [coordinators, setCoordinators] = useState<any[]>([]);
@@ -64,14 +64,14 @@ export default function AdminCoordinators() {
         <div className="flex gap-4">
           <div className="w-64">
             <Input
-              leftIcon={<Search className="w-4 h-4" />}
-              placeholder="Search..."
+              leftIcon={<Search01Icon className="w-4 h-4" />}
+              placeholder="Search01Icon..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <Button onClick={() => setShowAdd(!showAdd)}>
-            <Plus className="w-4 h-4 mr-2" /> Add Coordinator
+            <PlusSignIcon className="w-4 h-4 mr-2" /> Add Coordinator
           </Button>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function AdminCoordinators() {
           <div className="col-span-full p-12 text-center text-slate-500">Loading...</div>
         ) : filtered.length === 0 ? (
           <div className="col-span-full p-12 text-center text-slate-500 bg-white rounded-xl border border-dashed border-slate-300">
-            <Users className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <UserMultipleIcon className="w-12 h-12 mx-auto mb-4 opacity-20" />
             No coordinators found.
           </div>
         ) : (
@@ -149,14 +149,14 @@ export default function AdminCoordinators() {
                       {coordinator.firstName} {coordinator.lastName}
                     </h3>
                     <div className="flex items-center gap-1 text-xs font-medium text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full mt-1 w-fit">
-                      <Shield className="w-3 h-3" /> Coordinator
+                      <Shield01Icon className="w-3 h-3" /> Coordinator
                     </div>
                   </div>
                 </div>
               </div>
               <div className="space-y-2 mt-4 text-sm text-slate-600 border-t border-slate-100 pt-4">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-400" /> {coordinator.email}
+                  <Mail01Icon className="w-4 h-4 text-slate-400" /> {coordinator.email}
                 </div>
                 <div className="text-xs text-slate-400 mt-2">
                   Joined: {new Date(coordinator.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}

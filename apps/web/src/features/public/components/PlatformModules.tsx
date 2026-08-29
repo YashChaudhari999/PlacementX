@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Smartphone, Building, UserCircle } from 'lucide-react';
+import { DashboardSquare01Icon, SmartPhone01Icon, Building01Icon, UserCircleIcon } from 'hugeicons-react';
 
 const modules = [
   {
     title: 'Placement Cell Admin',
     description:
       'A powerful command center to manage students, companies, eligibility criteria, and detailed reporting analytics.',
-    icon: <Building className="h-6 w-6 text-primary" />,
+    icon: <Building01Icon className="h-6 w-6 text-primary" />,
     color: 'bg-primary/5',
     borderColor: 'border-primary/20',
   },
@@ -14,7 +14,7 @@ const modules = [
     title: 'Student Portal',
     description:
       'Personalized dashboard for students to track their applications, upcoming interviews, and offer letters.',
-    icon: <UserCircle className="h-6 w-6 text-blue-500" />,
+    icon: <UserCircleIcon className="h-6 w-6 text-blue-500" />,
     color: 'bg-blue-50',
     borderColor: 'border-blue-200',
   },
@@ -22,7 +22,7 @@ const modules = [
     title: 'Recruiter Event Portal',
     description:
       'Token-based secure environments for recruiters to review shortlisted candidates and submit interview feedback.',
-    icon: <LayoutDashboard className="h-6 w-6 text-emerald-500" />,
+    icon: <DashboardSquare01Icon className="h-6 w-6 text-emerald-500" />,
     color: 'bg-emerald-50',
     borderColor: 'border-emerald-200',
   },
@@ -30,7 +30,7 @@ const modules = [
     title: 'Mobile Application',
     description:
       'Native mobile app for students to receive push notifications for urgent drive updates and schedule changes.',
-    icon: <Smartphone className="h-6 w-6 text-amber-500" />,
+    icon: <SmartPhone01Icon className="h-6 w-6 text-amber-500" />,
     color: 'bg-amber-50',
     borderColor: 'border-amber-200',
   },

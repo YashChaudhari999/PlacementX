@@ -1,21 +1,7 @@
 import { useState } from 'react';
 import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  ChevronRight,
-  ChevronLeft,
-  Check,
-  Plus,
-  Trash2,
-  Building2,
-  Briefcase,
-  GraduationCap,
-  CalendarDays,
-  ClipboardCheck,
-  Paperclip,
-  Eye,
-  Loader2,
-} from 'lucide-react';
+import { ArrowRight01Icon, ArrowLeft01Icon, Tick01Icon, PlusSignIcon, Delete01Icon, Building02Icon, Briefcase01Icon, Mortarboard01Icon, Calendar01Icon, ClipboardIcon, Attachment01Icon, ViewIcon, Loading02Icon } from 'hugeicons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { useEffect, useState as useState2 } from 'react';
@@ -26,13 +12,13 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 // Step definitions
 const STEPS = [
-  { id: 1, title: 'Company', icon: Building2 },
-  { id: 2, title: 'Job Details', icon: Briefcase },
-  { id: 3, title: 'Eligibility', icon: GraduationCap },
-  { id: 4, title: 'Registration', icon: CalendarDays },
-  { id: 5, title: 'Selection', icon: ClipboardCheck },
-  { id: 6, title: 'Attachments', icon: Paperclip },
-  { id: 7, title: 'Preview', icon: Eye },
+  { id: 1, title: 'Company', icon: Building02Icon },
+  { id: 2, title: 'Job Details', icon: Briefcase01Icon },
+  { id: 3, title: 'Eligibility', icon: Mortarboard01Icon },
+  { id: 4, title: 'Registration', icon: Calendar01Icon },
+  { id: 5, title: 'Selection', icon: ClipboardIcon },
+  { id: 6, title: 'Attachments', icon: Attachment01Icon },
+  { id: 7, title: 'Preview', icon: ViewIcon },
 ];
 
 export default function CreateDriveWizard() {
@@ -218,7 +204,7 @@ export default function CreateDriveWizard() {
       navigate('/admin/placement-events');
     } catch (error) {
       console.error(error);
-      toast.error('Failed to save drive. Check console.');
+      toast.error('Failed to save drive. Tick01Icon console.');
     }
   };
 
@@ -292,7 +278,7 @@ export default function CreateDriveWizard() {
                             : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'
                       }`}
                     >
-                      {isCompleted ? <Check className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
+                      {isCompleted ? <Tick01Icon className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
                     </motion.div>
                     <span
                       className={`mt-4 text-[10px] sm:text-[11px] font-bold tracking-wider transition-colors duration-300 uppercase text-center ${
@@ -345,21 +331,21 @@ export default function CreateDriveWizard() {
                     onClick={prevStep}
                     disabled={currentStep === 1}
                   >
-                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    <ArrowLeft01Icon className="w-4 h-4 mr-2" />
                     Back
                   </Button>
 
                   {currentStep < 7 ? (
                     <Button type="button" onClick={nextStep}>
                       Next Step
-                      <ChevronRight className="w-4 h-4 ml-2" />
+                      <ArrowRight01Icon className="w-4 h-4 ml-2" />
                     </Button>
                   ) : (
                     <Button
                       type="submit"
                       className="bg-emerald-600 hover:bg-emerald-700 text-white"
                     >
-                      <Check className="w-4 h-4 mr-2" />
+                      <Tick01Icon className="w-4 h-4 mr-2" />
                       Publish Drive
                     </Button>
                   )}
@@ -418,7 +404,7 @@ function Step1Company() {
             <AvatarUpload currentUrl={logoUrl} onFileSelected={handleLogoUpload} size="lg" />
             {isUploadingLogo && (
               <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-full backdrop-blur-sm z-10">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
+                <Loading02Icon className="w-8 h-8 animate-spin text-slate-900" />
               </div>
             )}
           </div>
@@ -646,7 +632,7 @@ function Step4Registration() {
                 Registration Start Date *
               </label>
               <div className="relative">
-                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Calendar01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input
                   type="date"
                   className="pl-10"
@@ -657,7 +643,7 @@ function Step4Registration() {
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700">Registration End Date *</label>
               <div className="relative">
-                <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Calendar01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input
                   type="date"
                   className="pl-10"
@@ -742,7 +728,7 @@ function Step5Selection() {
               onClick={() => remove(index)}
               className="absolute top-4 right-4 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
             >
-              <Trash2 className="w-4 h-4" />
+              <Delete01Icon className="w-4 h-4" />
             </button>
             <h4 className="text-sm font-semibold text-slate-700 mb-4">Round {index + 1}</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -785,7 +771,7 @@ function Step5Selection() {
           onClick={() => append({ title: '', date: '', time: '', duration: '', venue: '' })}
           className="w-full border-dashed py-8 text-slate-500 hover:text-slate-800"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <PlusSignIcon className="w-4 h-4 mr-2" />
           Add Another Round
         </Button>
       </div>
@@ -805,7 +791,7 @@ function Step6Attachments() {
 
       <div className="border-2 border-dashed border-slate-300 rounded-xl p-12 flex flex-col items-center justify-center text-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer">
         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 text-primary">
-          <Paperclip className="w-8 h-8" />
+          <Attachment01Icon className="w-8 h-8" />
         </div>
         <h3 className="text-base font-semibold text-slate-800">Drag & Drop files here</h3>
         <p className="text-sm text-slate-500 mt-1">or click to browse from your computer</p>
@@ -837,7 +823,7 @@ function Step7Preview() {
         {/* Header Preview */}
         <div className="flex items-center gap-4 border-b border-slate-200 pb-6">
           <div className="w-16 h-16 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-400">
-            <Building2 className="w-8 h-8" />
+            <Building02Icon className="w-8 h-8" />
           </div>
           <div>
             <h3 className="text-2xl font-bold text-slate-800">

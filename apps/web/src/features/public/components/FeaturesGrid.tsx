@@ -1,46 +1,46 @@
 import { motion } from 'framer-motion';
-import { Target, Users, Zap, ShieldCheck, Mail, Database } from 'lucide-react';
+import { Target01Icon, UserMultipleIcon, EnergyIcon, Shield01Icon, Mail01Icon, DatabaseIcon } from 'hugeicons-react';
 
 const features = [
   {
     title: 'Automated Eligibility',
     description:
       'Instantly filter and match students based on recruiter criteria (CGPA, Branch, Active Backlogs).',
-    icon: <Target className="h-6 w-6 text-primary" />,
+    icon: <Target01Icon className="h-6 w-6 text-primary" />,
     color: 'bg-primary/10',
   },
   {
-    title: 'Centralized Database',
+    title: 'Centralized DatabaseIcon',
     description:
       'Maintain a single source of truth for all student academic and placement records.',
-    icon: <Database className="h-6 w-6 text-blue-500" />,
+    icon: <DatabaseIcon className="h-6 w-6 text-blue-500" />,
     color: 'bg-blue-500/10',
   },
   {
     title: 'Real-time Notifications',
     description:
       'Keep students updated instantly regarding shortlists, interview schedules, and offers.',
-    icon: <Zap className="h-6 w-6 text-amber-500" />,
+    icon: <EnergyIcon className="h-6 w-6 text-amber-500" />,
     color: 'bg-amber-500/10',
   },
   {
     title: 'Secure Recruiter Portal',
     description:
       'Provide recruiters with token-based, secure access to review candidates without complex logins.',
-    icon: <ShieldCheck className="h-6 w-6 text-emerald-500" />,
+    icon: <Shield01Icon className="h-6 w-6 text-emerald-500" />,
     color: 'bg-emerald-500/10',
   },
   {
     title: 'Integrated Communication',
     description: 'Seamlessly email batches of students directly from the dashboard.',
-    icon: <Mail className="h-6 w-6 text-purple-500" />,
+    icon: <Mail01Icon className="h-6 w-6 text-purple-500" />,
     color: 'bg-purple-500/10',
   },
   {
     title: 'Role-Based Access',
     description:
       'Strict separation of concerns between Students, Placement Cell Admins, and Recruiters.',
-    icon: <Users className="h-6 w-6 text-rose-500" />,
+    icon: <UserMultipleIcon className="h-6 w-6 text-rose-500" />,
     color: 'bg-rose-500/10',
   },
 ];

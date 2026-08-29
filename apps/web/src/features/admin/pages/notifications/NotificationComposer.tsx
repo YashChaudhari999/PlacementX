@@ -1,20 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Input, Button } from '@/components/ui';
 import { useSendNotification } from '@/hooks/queries/useAdminNotifications';
-import {
-  Users,
-  MessageSquare,
-  Send,
-  Calendar,
-  CheckCircle,
-  Smartphone,
-  Bell,
-  Mail,
-  ArrowRight,
-  ArrowLeft,
-  Megaphone,
-  AlertTriangle,
-} from 'lucide-react';
+import { UserMultipleIcon, Message01Icon, SentIcon, Calendar01Icon, Tick02Icon, SmartPhone01Icon, Notification01Icon, Mail01Icon, ArrowRight01Icon, ArrowLeft01Icon, Megaphone01Icon, Alert01Icon } from 'hugeicons-react';
 import { useSearchParams } from 'react-router-dom';
 
 interface NotificationComposerProps {
@@ -90,11 +77,11 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
         {/* Step Indicator */}
         <div className="flex items-start justify-between mb-8">
           {[
-            { num: 1, label: 'Audience', icon: Users },
-            { num: 2, label: 'Content', icon: MessageSquare },
-            { num: 3, label: 'Channels', icon: Send },
-            { num: 4, label: 'Schedule', icon: Calendar },
-            { num: 5, label: 'Review', icon: CheckCircle },
+            { num: 1, label: 'Audience', icon: UserMultipleIcon },
+            { num: 2, label: 'Content', icon: Message01Icon },
+            { num: 3, label: 'Channels', icon: SentIcon },
+            { num: 4, label: 'Schedule', icon: Calendar01Icon },
+            { num: 5, label: 'Review', icon: Tick02Icon },
           ].map((s, idx) => (
             <div key={s.num} className="flex flex-col items-center relative z-10 flex-1 min-w-0">
               <div
@@ -106,7 +93,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                       : 'bg-white text-slate-400 border-slate-200'
                 }`}
               >
-                {step > s.num ? <CheckCircle className="w-5 h-5" /> : s.num}
+                {step > s.num ? <Tick02Icon className="w-5 h-5" /> : s.num}
               </div>
               <span
                 className={`text-[10px] md:text-xs font-semibold uppercase tracking-wider text-center mt-2 px-1 truncate w-full ${step >= s.num ? 'text-slate-800' : 'text-slate-400'}`}
@@ -148,7 +135,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                   {
                     id: 'group',
                     label: 'Student Group / Batch',
-                    desc: 'Send to a predefined cohort (e.g. 2026 Batch).',
+                    desc: 'SentIcon to a predefined cohort (e.g. 2026 Batch).',
                   },
                   {
                     id: 'drive',
@@ -369,7 +356,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-indigo-600" />
+                      <Notification01Icon className="w-5 h-5 text-indigo-600" />
                       <div className="font-bold text-slate-900 text-base">In-App Notification</div>
                     </div>
                     <div className="text-sm text-slate-500 mt-1">
@@ -392,7 +379,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Smartphone className="w-5 h-5 text-indigo-600" />
+                      <SmartPhone01Icon className="w-5 h-5 text-indigo-600" />
                       <div className="font-bold text-slate-900 text-base">Push Notification</div>
                     </div>
                     <div className="text-sm text-slate-500 mt-1">
@@ -413,11 +400,11 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-5 h-5 text-slate-400" />
+                      <Mail01Icon className="w-5 h-5 text-slate-400" />
                       <div className="font-bold text-slate-700 text-base">Email Broadcast</div>
                     </div>
                     <div className="text-sm text-slate-500 mt-1">
-                      Send a standard email. (Requires SendGrid configuration)
+                      SentIcon a standard email. (Requires SendGrid configuration)
                     </div>
                   </div>
                   <div className="text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded border border-slate-200">
@@ -447,8 +434,8 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                     checked={formData.scheduleType === 'now'}
                     onChange={() => updateForm('scheduleType', 'now')}
                   />
-                  <Send className="w-8 h-8 mb-2" />
-                  <span className="font-bold">Send Immediately</span>
+                  <SentIcon className="w-8 h-8 mb-2" />
+                  <span className="font-bold">SentIcon Immediately</span>
                   <span className="text-xs opacity-70">Will be processed right away</span>
                 </label>
 
@@ -462,7 +449,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                     checked={formData.scheduleType === 'later'}
                     onChange={() => updateForm('scheduleType', 'later')}
                   />
-                  <Calendar className="w-8 h-8 mb-2" />
+                  <Calendar01Icon className="w-8 h-8 mb-2" />
                   <span className="font-bold">Schedule for Later</span>
                   <span className="text-xs opacity-70">Set a specific date and time</span>
                 </label>
@@ -550,7 +537,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                   <div className="w-1/3 text-sm font-medium text-slate-500">Schedule</div>
                   <div className="w-2/3 text-sm font-bold text-slate-900">
                     {formData.scheduleType === 'now'
-                      ? 'Send Immediately'
+                      ? 'SentIcon Immediately'
                       : `${formData.scheduledDate} at ${formData.scheduledTime} (IST)`}
                   </div>
                 </div>
@@ -558,7 +545,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
 
               {recipientCount > 1000 && (
                 <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                  <Alert01Icon className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                   <div>
                     <h4 className="text-sm font-bold text-red-900">Mass Broadcast Warning</h4>
                     <p className="text-xs text-red-700 mt-1">
@@ -579,14 +566,14 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
               'Cancel'
             ) : (
               <>
-                <ArrowLeft className="w-4 h-4 mr-2" /> Back
+                <ArrowLeft01Icon className="w-4 h-4 mr-2" /> Back
               </>
             )}
           </Button>
 
           {step < 5 ? (
             <Button className="bg-indigo-600 text-white hover:bg-indigo-700" onClick={handleNext}>
-              Continue <ArrowRight className="w-4 h-4 ml-2" />
+              Continue <ArrowRight01Icon className="w-4 h-4 ml-2" />
             </Button>
           ) : (
             <Button
@@ -617,7 +604,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
             </div>
             <div className="mt-4 flex gap-3 items-start">
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shrink-0 shadow-sm">
-                <Bell className="w-4 h-4 text-white" />
+                <Notification01Icon className="w-4 h-4 text-white" />
               </div>
               <div className="min-w-0">
                 <div className="text-sm font-bold text-slate-900 truncate">
@@ -637,7 +624,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
           <div className="bg-white border border-slate-200 rounded-lg shadow-sm p-4 animate-in fade-in zoom-in duration-300">
             <div className="flex gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                <Megaphone className="w-5 h-5 text-blue-600" />
+                <Megaphone01Icon className="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <div className="text-sm font-bold text-slate-900">

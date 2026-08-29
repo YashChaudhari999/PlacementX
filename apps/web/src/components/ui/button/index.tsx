@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Loader2 } from 'lucide-react';
+import { Loading02Icon } from 'hugeicons-react';
 
 // ============================================
 // Button — Enterprise Component
@@ -52,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {isLoading && <Loading02Icon className="mr-2 h-4 w-4 animate-spin" />}
         {!isLoading && leftIcon && <span className="mr-2">{leftIcon}</span>}
         {children}
         {rightIcon && <span className="ml-2">{rightIcon}</span>}

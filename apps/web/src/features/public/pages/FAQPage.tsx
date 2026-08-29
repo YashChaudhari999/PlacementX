@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PageContainer } from '@/components/ui';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown01Icon } from 'hugeicons-react';
 import { twMerge } from 'tailwind-merge';
 
 const faqs = [
@@ -90,7 +90,7 @@ export default function FAQPage() {
                         isOpen ? 'bg-primary text-white rotate-180' : 'bg-slate-100 text-slate-500'
                       )}
                     >
-                      <ChevronDown className="h-5 w-5" />
+                      <ArrowDown01Icon className="h-5 w-5" />
                     </div>
                   </button>
                   <AnimatePresence>

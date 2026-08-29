@@ -1,5 +1,5 @@
 import { Card } from '@/components/ui';
-import { Target, ChevronRight, AlertTriangle, Info } from 'lucide-react';
+import { Target01Icon, ArrowRight01Icon, Alert01Icon, InformationCircleIcon } from 'hugeicons-react';
 import type { ActionCenterResponse, ActionItem } from '@/types/analytics.types';
 import { Link } from 'react-router-dom';
 
@@ -7,7 +7,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
   if (!data?.actions?.length) {
     return (
       <Card className="p-6 border-slate-200 flex flex-col items-center justify-center min-h-[200px] text-slate-500">
-        <Target className="w-8 h-8 mb-3 opacity-20" />
+        <Target01Icon className="w-8 h-8 mb-3 opacity-20" />
         <p>No immediate actions required</p>
       </Card>
     );
@@ -17,7 +17,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
     <Card className="p-6 border-slate-200">
       <div className="flex items-center gap-2 mb-6">
         <div className="p-2 bg-rose-100 rounded-xl text-rose-600">
-          <Target className="w-5 h-5" />
+          <Target01Icon className="w-5 h-5" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">Action Center</h2>
@@ -43,9 +43,9 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
                   className={`mt-0.5 shrink-0 ${isCritical ? 'text-rose-600' : 'text-amber-600'}`}
                 >
                   {isCritical ? (
-                    <AlertTriangle className="w-5 h-5" />
+                    <Alert01Icon className="w-5 h-5" />
                   ) : (
-                    <Info className="w-5 h-5" />
+                    <InformationCircleIcon className="w-5 h-5" />
                   )}
                 </div>
                 <div>
@@ -89,7 +89,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
                         : 'text-amber-600 hover:text-amber-700'
                     }`}
                   >
-                    Review Profiles <ChevronRight className="w-4 h-4" />
+                    Review Profiles <ArrowRight01Icon className="w-4 h-4" />
                   </Link>
                 )}
                 {action.category === 'OPERATIONS' && action.problem.includes('Drives') && (
@@ -101,7 +101,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
                         : 'text-amber-600 hover:text-amber-700'
                     }`}
                   >
-                    Review Drives <ChevronRight className="w-4 h-4" />
+                    Review Drives <ArrowRight01Icon className="w-4 h-4" />
                   </Link>
                 )}
                 {action.category !== 'OPERATIONS' && (
@@ -112,7 +112,7 @@ export default function ActionCenter({ data }: { data: ActionCenterResponse }) {
                         : 'text-amber-600 hover:text-amber-700'
                     }`}
                   >
-                    Investigate <ChevronRight className="w-4 h-4" />
+                    Investigate <ArrowRight01Icon className="w-4 h-4" />
                   </button>
                 )}
               </div>
