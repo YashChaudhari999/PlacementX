@@ -40,7 +40,7 @@ export default function InterviewsScreen() {
                     <View style={styles.detailRow}>
                       <CalendarIcon size={14} color={theme.colors.primary} />
                       <Text style={styles.detailText}>
-                        {new Date(round.date).toLocaleDateString()}
+                        {new Date(round.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </Text>
                     </View>
                   )}

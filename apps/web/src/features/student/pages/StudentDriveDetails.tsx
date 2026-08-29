@@ -20,7 +20,7 @@ export default function StudentDriveDetails() {
   const user = useAuthStore((state) => state.user);
 
   const [drive, setDrive] = useState<any>(null);
-  const [eligibility, setEligibility] = useState<{ isEligible: boolean; reasons: string[] } | null>(
+  const [eligibility, setEligibility] = useState<{ isEligible: boolean; reasons: string[]; hasApplied?: boolean } | null>(
     null
   );
   const [loading, setLoading] = useState(true);
@@ -69,6 +69,9 @@ export default function StudentDriveDetails() {
 
   if (loading || !drive) return <div className="p-8 text-center">Loading...</div>;
 
+  const isDeadlinePassed = new Date(drive.registrationEnd) < new Date();
+  const isRegistrationNotStarted = drive.registrationStart ? new Date(drive.registrationStart) > new Date() : false;
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header Profile */}
@@ -89,7 +92,7 @@ export default function StudentDriveDetails() {
                 </div>
                 <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
                   <CalendarDays className="w-4 h-4 text-slate-400" /> Deadline:{' '}
-                  {new Date(drive.registrationEnd).toLocaleDateString()}
+                  {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </div>
                 {drive.fixedSalary && (
                   <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm font-bold">
@@ -101,7 +104,19 @@ export default function StudentDriveDetails() {
           </div>
 
           <div className="flex flex-col items-end gap-3">
-            {eligibility ? (
+            {eligibility?.hasApplied ? (
+              <div className="flex items-center gap-2 text-indigo-700 bg-indigo-50 px-4 py-2 rounded-full font-semibold border border-indigo-200">
+                <CheckCircle2 className="w-5 h-5" /> Already Applied
+              </div>
+            ) : isRegistrationNotStarted ? (
+              <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-4 py-2 rounded-full font-semibold border border-blue-200">
+                <CalendarDays className="w-5 h-5" /> Starts {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              </div>
+            ) : isDeadlinePassed ? (
+              <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-4 py-2 rounded-full font-semibold border border-amber-200">
+                <AlertCircle className="w-5 h-5" /> Deadline Passed
+              </div>
+            ) : eligibility ? (
               eligibility.isEligible ? (
                 <div className="flex items-center gap-2 text-green-700 bg-green-50 px-4 py-2 rounded-full font-semibold border border-green-200">
                   <CheckCircle2 className="w-5 h-5" /> Eligible to Apply
@@ -114,12 +129,24 @@ export default function StudentDriveDetails() {
             ) : null}
             <Button
               onClick={handleApply}
-              disabled={!eligibility?.isEligible}
+              disabled={!eligibility?.isEligible || isDeadlinePassed || eligibility?.hasApplied || isRegistrationNotStarted}
               className={
-                eligibility?.isEligible ? 'bg-primary hover:bg-primary-dark text-white' : ''
+                eligibility?.hasApplied
+                  ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                  : isRegistrationNotStarted
+                  ? 'bg-blue-100 text-blue-500 cursor-not-allowed'
+                  : eligibility?.isEligible && !isDeadlinePassed
+                    ? 'bg-primary hover:bg-primary-dark text-white'
+                    : ''
               }
             >
-              Apply Now
+              {eligibility?.hasApplied
+                ? 'Applied'
+                : isRegistrationNotStarted
+                ? 'Starts Soon'
+                : isDeadlinePassed
+                  ? 'Applications Closed'
+                  : 'Apply Now'}
             </Button>
           </div>
         </div>
@@ -156,7 +183,7 @@ export default function StudentDriveDetails() {
                     <div>
                       <h4 className="font-semibold text-slate-800">{round.title}</h4>
                       <div className="text-sm text-slate-500 mt-1 flex gap-4">
-                        {round.date && <span>{new Date(round.date).toLocaleDateString()}</span>}
+                        {round.date && <span>{new Date(round.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>}
                         {round.duration && <span>Duration: {round.duration}</span>}
                         {round.venue && <span>Venue: {round.venue}</span>}
                       </div>

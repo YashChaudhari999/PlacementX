@@ -182,7 +182,7 @@ export default function DriveDetailsScreen() {
                 <View style={styles.timelineTextContainer}>
                   <Text style={styles.timelineLabel}>Registration Deadline</Text>
                   <Text style={styles.timelineValue}>
-                    {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString() : 'TBA'}
+                    {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'TBA'}
                   </Text>
                 </View>
               </View>
@@ -197,7 +197,7 @@ export default function DriveDetailsScreen() {
                     <View style={styles.timelineTextContainer}>
                       <Text style={styles.timelineLabel}>First Assessment</Text>
                       <Text style={styles.timelineValue}>
-                        {new Date(drive.assessments[0].date).toLocaleDateString()}
+                        {new Date(drive.assessments[0].date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                       </Text>
                     </View>
                   </View>

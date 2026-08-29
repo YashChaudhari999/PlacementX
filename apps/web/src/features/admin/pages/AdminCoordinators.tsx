@@ -159,7 +159,7 @@ export default function AdminCoordinators() {
                   <Mail className="w-4 h-4 text-slate-400" /> {coordinator.email}
                 </div>
                 <div className="text-xs text-slate-400 mt-2">
-                  Joined: {new Date(coordinator.createdAt).toLocaleDateString()}
+                  Joined: {new Date(coordinator.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </div>
               </div>
             </Card>

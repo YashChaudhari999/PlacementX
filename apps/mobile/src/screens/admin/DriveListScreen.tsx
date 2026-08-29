@@ -54,7 +54,7 @@ export default function DriveListScreen() {
           <View style={styles.detailRow}>
             <Calendar size={14} color={theme.colors.mutedForeground} />
             <Text style={styles.detailText}>
-              Deadline: {new Date(item.registrationDeadline).toLocaleDateString()}
+              Deadline: {new Date(item.registrationDeadline).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
             </Text>
           </View>
         </View>

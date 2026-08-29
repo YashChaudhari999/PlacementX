@@ -183,7 +183,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
                       {event.title}
                     </div>
                     <div className="text-xs font-semibold text-slate-500 mt-1">
-                      {format(new Date(event.start), 'MMM d, h:mm a')}
+                      {format(new Date(event.start), 'dd/MM/yyyy, h:mm a')}
                     </div>
                   </div>
                   {event.extendedProps?.driveId && (
@@ -222,7 +222,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
                 <h4 className="text-sm font-bold line-clamp-1">{deadline.title}</h4>
                 <div className="text-xs font-semibold text-red-100 mt-1.5 flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-200 animate-pulse"></div>
-                  Closes {format(new Date(deadline.start), 'MMM d, yyyy')}
+                  Closes {format(new Date(deadline.start), 'dd/MM/yyyy')}
                 </div>
               </div>
             ))}

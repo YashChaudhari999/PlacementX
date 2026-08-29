@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '@/components/ui';
-import { Bell, Briefcase, ExternalLink, Check, Sun, Moon, MapPin } from 'lucide-react';
+import { Bell, Briefcase, ExternalLink, Check, Sun, Moon, MapPin, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
@@ -135,10 +135,17 @@ export default function StudentDashboard() {
                             <Briefcase className="w-4 h-4 text-slate-400" />
                             {drive.employmentType}
                           </div>
-                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100">
-                            <Bell className="w-4 h-4 text-red-500" />
-                            Deadline: {new Date(drive.registrationEnd).toLocaleDateString()}
-                          </div>
+                          {drive.registrationStart && new Date(drive.registrationStart) > new Date() ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-blue-600 font-medium bg-blue-50 border border-blue-100">
+                              <CalendarDays className="w-4 h-4 text-blue-500" />
+                              Starts: {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100">
+                              <Bell className="w-4 h-4 text-red-500" />
+                              Deadline: {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -213,7 +220,7 @@ export default function StudentDashboard() {
 
                       <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 pl-2">
                         <span className="text-[10px] font-medium text-slate-400">
-                          {new Date(notification.createdAt).toLocaleDateString()}
+                          {new Date(notification.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                         </span>
                         {notification.link && (
                           <Button

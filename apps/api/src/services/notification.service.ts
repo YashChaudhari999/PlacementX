@@ -227,6 +227,47 @@ export const scheduleNotification = async (
   return { scheduled: true, jobId, scheduledAt: scheduledAt.toISOString() };
 };
 
+// ─── Schedule Bulk Notifications ────────────────────────
+
+/**
+ * Schedule notifications for multiple users for future delivery.
+ * Uses BullMQ delayed jobs.
+ */
+export const scheduleBulkNotifications = async (
+  input: BroadcastNotificationInput & { campaignId?: string },
+  scheduledAt: Date,
+) => {
+  const delayMs = scheduledAt.getTime() - Date.now();
+  if (delayMs <= 0) {
+    // Scheduled time is in the past — send immediately
+    return createBulkNotifications(input);
+  }
+
+  const { queueScheduledBulkNotification } = await import('./notification-queue.service');
+
+  const jobId = await queueScheduledBulkNotification(
+    {
+      type: 'scheduled-bulk',
+      userIds: input.receiverIds,
+      title: input.title,
+      message: input.message,
+      notificationType: input.type || 'system',
+      category: input.category || input.type || 'system',
+      priority: input.priority || 'MEDIUM',
+      deepLinkRoute: input.deepLinkRoute,
+      deepLinkParams: input.deepLinkParams,
+      metadata: input.metadata,
+      image: input.image,
+      senderId: input.senderId,
+      senderRole: input.senderRole,
+      campaignId: input.campaignId,
+    },
+    delayMs,
+  );
+
+  return { scheduled: true, jobId, scheduledAt: scheduledAt.toISOString() };
+};
+
 // ─── Get User Notifications (Paginated + Filtered) ──────
 
 /**

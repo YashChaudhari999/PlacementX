@@ -133,9 +133,33 @@ export default function DriveList() {
             const matchesSearch =
               drive.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
               drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesStatus =
-              statusFilter === '' || drive.status.toLowerCase() === statusFilter.toLowerCase();
-            return matchesSearch && matchesStatus;
+              
+            const now = new Date();
+            const regStart = drive.registrationStart ? new Date(drive.registrationStart) : null;
+            const regEnd = drive.registrationEnd ? new Date(drive.registrationEnd) : null;
+            
+            const isUpcoming = regStart ? regStart > now : false;
+            const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
+            const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
+
+            const matchesStatus = () => {
+              if (statusFilter === '') return true;
+              
+              switch (statusFilter.toLowerCase()) {
+                case 'published':
+                  return drive.status === 'PUBLISHED';
+                case 'upcoming':
+                  return isUpcoming && drive.status === 'PUBLISHED';
+                case 'open':
+                  return isOpen;
+                case 'closed':
+                  return isClosed;
+                default:
+                  return drive.status.toLowerCase() === statusFilter.toLowerCase();
+              }
+            };
+
+            return matchesSearch && matchesStatus();
           });
 
           if (filteredDrives.length === 0) {
@@ -204,7 +228,7 @@ export default function DriveList() {
                     <div className="flex items-center text-sm text-slate-600">
                       <Calendar className="w-4 h-4 mr-2 text-slate-400" />
                       {drive.registrationEnd
-                        ? new Date(drive.registrationEnd).toLocaleDateString()
+                        ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
                         : 'N/A'}
                     </div>
                     <div className="flex items-center text-sm text-slate-600">
@@ -214,17 +238,41 @@ export default function DriveList() {
                   </div>
 
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
-                    <span
-                      className={`px-2.5 py-1 text-xs font-semibold rounded-md ${
-                        drive.status === 'OPEN' || drive.status === 'PUBLISHED'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : drive.status === 'UPCOMING'
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-slate-100 text-slate-600'
-                      }`}
-                    >
-                      {drive.status}
-                    </span>
+                    {(() => {
+                      const now = new Date();
+                      const regStart = drive.registrationStart ? new Date(drive.registrationStart) : null;
+                      const regEnd = drive.registrationEnd ? new Date(drive.registrationEnd) : null;
+                      
+                      const isUpcoming = regStart ? regStart > now : false;
+                      const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
+                      const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
+                      
+                      let displayStatus = drive.status;
+                      let badgeColor = 'bg-slate-100 text-slate-600';
+                      
+                      if (drive.status === 'PUBLISHED') {
+                        if (isUpcoming) {
+                          displayStatus = 'UPCOMING';
+                          badgeColor = 'bg-blue-100 text-blue-700';
+                        } else if (isClosed) {
+                          displayStatus = 'CLOSED';
+                          badgeColor = 'bg-red-100 text-red-700';
+                        } else if (isOpen) {
+                          displayStatus = 'OPEN';
+                          badgeColor = 'bg-emerald-100 text-emerald-700';
+                        } else {
+                          badgeColor = 'bg-emerald-100 text-emerald-700';
+                        }
+                      } else if (drive.status === 'DRAFT') {
+                        badgeColor = 'bg-amber-100 text-amber-700';
+                      }
+
+                      return (
+                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${badgeColor}`}>
+                          {displayStatus}
+                        </span>
+                      );
+                    })()}
                     <Link to={`/admin/placement-events/${drive.id}`}>
                       <Button variant="outline" size="sm" className="text-xs h-8">
                         View Details

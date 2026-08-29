@@ -63,7 +63,24 @@ interface BulkNotificationJob {
   senderRole?: string;
 }
 
-type NotificationJob = ImmediateNotificationJob | ScheduledNotificationJob | BulkNotificationJob;
+interface ScheduledBulkJob {
+  type: 'scheduled-bulk';
+  userIds: string[];
+  title: string;
+  message: string;
+  notificationType: string;
+  category: string;
+  priority: string;
+  deepLinkRoute?: string;
+  deepLinkParams?: Record<string, any>;
+  metadata?: Record<string, any>;
+  image?: string;
+  senderId?: string;
+  senderRole?: string;
+  campaignId?: string;
+}
+
+type NotificationJob = ImmediateNotificationJob | ScheduledNotificationJob | BulkNotificationJob | ScheduledBulkJob;
 
 // ─── Queue Instances ────────────────────────────────────
 
@@ -121,8 +138,12 @@ export const initWorkers = (): void => {
   }, { connection: redis, concurrency: 10 });
 
   // Scheduled notification worker
-  new Worker(QUEUE_NAMES.SCHEDULED, async (job: Job<ScheduledNotificationJob>) => {
-    await processScheduledNotification(job.data);
+  new Worker(QUEUE_NAMES.SCHEDULED, async (job: Job<ScheduledNotificationJob | ScheduledBulkJob>) => {
+    if (job.data.type === 'scheduled') {
+      await processScheduledNotification(job.data as ScheduledNotificationJob);
+    } else if (job.data.type === 'scheduled-bulk') {
+      await processScheduledBulkNotification(job.data as ScheduledBulkJob);
+    }
   }, { connection: redis, concurrency: 5 });
 
   // Bulk notification worker
@@ -270,6 +291,35 @@ const processBulkNotification = async (job: BulkNotificationJob): Promise<void> 
   }
 };
 
+/**
+ * Process a scheduled bulk notification — calls createBulkNotifications and updates campaign.
+ */
+const processScheduledBulkNotification = async (job: ScheduledBulkJob): Promise<void> => {
+  const { createBulkNotifications } = await import('./notification.service');
+  await createBulkNotifications({
+    title: job.title,
+    message: job.message,
+    type: job.notificationType,
+    category: job.category,
+    priority: job.priority,
+    receiverIds: job.userIds,
+    deepLinkRoute: job.deepLinkRoute,
+    deepLinkParams: job.deepLinkParams,
+    metadata: job.metadata,
+    image: job.image,
+    senderId: job.senderId,
+    senderRole: job.senderRole,
+    campaignId: job.campaignId,
+  });
+
+  if (job.campaignId) {
+    await prisma.notificationCampaign.updateMany({
+      where: { id: job.campaignId },
+      data: { status: 'SENT' },
+    });
+  }
+};
+
 // ─── Queue API ──────────────────────────────────────────
 
 /**
@@ -301,6 +351,25 @@ export const queueScheduledNotification = async (
   } else {
     // Fallback: use setTimeout (not reliable for long delays, but works for dev)
     setTimeout(() => processScheduledNotification(job), delayMs);
+    return null;
+  }
+};
+
+/**
+ * Add a scheduled bulk notification to the queue with a delay.
+ */
+export const queueScheduledBulkNotification = async (
+  job: ScheduledBulkJob,
+  delayMs: number,
+): Promise<string | null> => {
+  if (scheduledQueue && isRedisConnected()) {
+    const queuedJob = await scheduledQueue.add('scheduled-bulk-send', job, {
+      delay: delayMs,
+    });
+    return queuedJob.id || null;
+  } else {
+    // Fallback
+    setTimeout(() => processScheduledBulkNotification(job), delayMs);
     return null;
   }
 };

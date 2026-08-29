@@ -27,7 +27,7 @@ export const filterEligibleStudents = async (drive: PlacementDrive) => {
     whereClause.passingYear = drive.passingYear;
   }
   
-  if (drive.genderRestriction && drive.genderRestriction !== 'Any') {
+  if (drive.genderRestriction && drive.genderRestriction.toUpperCase() !== 'ANY') {
       whereClause.gender = drive.genderRestriction;
   }
 
@@ -74,7 +74,7 @@ export const checkEligibility = async (student: any, drive: any) => {
     reasons.push(`Passing year must be ${drive.passingYear}`);
   }
 
-  if (drive.genderRestriction && drive.genderRestriction !== 'Any' && student.gender !== drive.genderRestriction) {
+  if (drive.genderRestriction && drive.genderRestriction.toUpperCase() !== 'ANY' && student.gender !== drive.genderRestriction) {
     reasons.push(`Gender must be ${drive.genderRestriction}`);
   }
 

@@ -46,7 +46,7 @@ export const generatePDF = async (data: any[], reportName: string, filters: any)
     doc.fontSize(14).text('Training & Placement Office', { align: 'center' });
     doc.moveDown();
     doc.fontSize(16).text(reportName, { align: 'center' });
-    doc.fontSize(10).text(`Generated: ${new Date().toLocaleDateString()}`, { align: 'center' });
+    doc.fontSize(10).text(`Generated: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}`, { align: 'center' });
     
     if (filters && Object.keys(filters).length > 0) {
       doc.moveDown();

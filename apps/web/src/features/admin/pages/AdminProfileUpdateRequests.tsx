@@ -85,7 +85,7 @@ export default function AdminProfileUpdateRequests() {
                       </div>
                       <div className="text-xs text-slate-500">{req.student?.user?.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-slate-600">{new Date(req.requestedAt).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-slate-600">{new Date(req.requestedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td className="px-6 py-4 text-slate-600 max-w-xs truncate" title={req.studentReason}>{req.studentReason}</td>
                     <td className="px-6 py-4 text-right">
                       <Button

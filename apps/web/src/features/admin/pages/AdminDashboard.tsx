@@ -210,10 +210,22 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <motion.div variants={itemVariants}>
                 <StatCard
-                  label="Today's Drives"
-                  value={formatNum(data?.drives?.today || 0)}
+                  label="Open Drives"
+                  value={formatNum(data?.drives?.open || 0)}
+                  icon={Briefcase}
+                  trend="Accepting Applications"
+                  colorClass="text-emerald-600"
+                  bgClass="bg-emerald-50"
+                  trendColor="text-emerald-700"
+                  onClick={() => navigate('/admin/placement-events')}
+                />
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <StatCard
+                  label="Upcoming Drives"
+                  value={formatNum(data?.drives?.upcoming || 0)}
                   icon={Calendar}
-                  trend="Active Today"
+                  trend="Registration Starts Soon"
                   colorClass="text-blue-600"
                   bgClass="bg-blue-50"
                   trendColor="text-blue-700"
@@ -222,25 +234,13 @@ export default function AdminDashboard() {
               </motion.div>
               <motion.div variants={itemVariants}>
                 <StatCard
-                  label="Upcoming Drives"
-                  value={formatNum(data?.drives?.upcomingClosed || 0)}
+                  label="Closed Drives"
+                  value={formatNum(data?.drives?.closed || 0)}
                   icon={Clock}
                   trend="Registration Closed"
                   colorClass="text-indigo-600"
                   bgClass="bg-indigo-50"
                   trendColor="text-indigo-700"
-                  onClick={() => navigate('/admin/placement-events')}
-                />
-              </motion.div>
-              <motion.div variants={itemVariants}>
-                <StatCard
-                  label="Open Drives"
-                  value={formatNum(data?.drives?.open || 0)}
-                  icon={Briefcase}
-                  trend="Accepting Applications"
-                  colorClass="text-emerald-600"
-                  bgClass="bg-emerald-50"
-                  trendColor="text-emerald-700"
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
