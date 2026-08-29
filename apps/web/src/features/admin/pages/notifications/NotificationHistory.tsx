@@ -19,7 +19,7 @@ export default function NotificationHistory() {
         <div className="relative w-full md:w-96">
           <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
-            placeholder="Search01Icon by title, type, or recipient group..."
+            placeholder="Search by title, type, or recipient group..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 bg-white"

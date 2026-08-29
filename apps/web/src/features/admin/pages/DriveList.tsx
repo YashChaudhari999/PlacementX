@@ -85,7 +85,7 @@ export default function DriveList() {
         <div className="relative flex-1">
           <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search01Icon by company or role..."
+            placeholder="Search by company or role..."
             className="pl-9 bg-slate-50 border-slate-200"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

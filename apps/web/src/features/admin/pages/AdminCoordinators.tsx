@@ -65,7 +65,7 @@ export default function AdminCoordinators() {
           <div className="w-64">
             <Input
               leftIcon={<Search01Icon className="w-4 h-4" />}
-              placeholder="Search01Icon..."
+              placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

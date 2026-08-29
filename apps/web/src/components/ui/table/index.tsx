@@ -181,7 +181,7 @@ export const TableSearch = ({
   value,
   onChange,
   onClear,
-  placeholder = 'Search01Icon...',
+  placeholder = 'Search...',
 }: {
   value: string;
   onChange: (v: string) => void;

@@ -57,7 +57,7 @@ export default function GlobalFilters() {
 
   return (
     <div className="space-y-3">
-      {/* ── Primary FilterIcon Bar ──────────────────────── */}
+      {/* ── Primary Filter Bar ──────────────────────── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2 text-slate-600 shrink-0">
@@ -188,7 +188,7 @@ export default function GlobalFilters() {
               <input
                 type="text"
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none placeholder:text-slate-400"
-                placeholder="FilterIcon by role..."
+                placeholder="Filter by role..."
                 value={filters.jobRole || ''}
                 onChange={(e) => updateFilter('jobRole', e.target.value || undefined)}
               />
@@ -229,7 +229,7 @@ export default function GlobalFilters() {
         )}
       </div>
 
-      {/* ── Active FilterIcon Chips ─────────────────────── */}
+      {/* ── Active Filter Chips ─────────────────────── */}
       {activeFilters.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {activeFilters.map(([key, value]) => (

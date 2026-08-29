@@ -20,9 +20,9 @@ export default function AdminNotifications() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: Megaphone01Icon },
-    { id: 'inbox', label: 'InboxIcon', icon: InboxIcon },
-    { id: 'send', label: 'SentIcon Notification', icon: SentIcon },
-    { id: 'history', label: 'Sent Time01Icon', icon: Time01Icon },
+    { id: 'inbox', label: 'Inbox', icon: InboxIcon },
+    { id: 'send', label: 'Send Notification', icon: SentIcon },
+    { id: 'history', label: 'Sent History', icon: Time01Icon },
     { id: 'scheduled', label: 'Scheduled', icon: Calendar01Icon },
     { id: 'templates', label: 'Templates', icon: Layout01Icon },
   ];
@@ -43,9 +43,7 @@ export default function AdminNotifications() {
             onClick={() => setTab('send')}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm shadow-sm"
           >
-            <SentIcon className="w-4 h-4" />
-            SentIcon Notification
-          </button>
+            <SentIcon className="w-4 h-4" />Send Notification</button>
         )}
       </div>
 

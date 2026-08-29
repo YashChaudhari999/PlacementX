@@ -435,7 +435,7 @@ export default function NotificationComposer({ onComplete }: NotificationCompose
                     onChange={() => updateForm('scheduleType', 'now')}
                   />
                   <SentIcon className="w-8 h-8 mb-2" />
-                  <span className="font-bold">SentIcon Immediately</span>
+                  <span className="font-bold">Send Immediately</span>
                   <span className="text-xs opacity-70">Will be processed right away</span>
                 </label>
 

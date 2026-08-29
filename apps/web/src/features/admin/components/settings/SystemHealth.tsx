@@ -48,7 +48,7 @@ export default function SystemHealth() {
               <DatabaseIcon className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-medium text-slate-800">Primary DatabaseIcon</h4>
+              <h4 className="text-sm font-medium text-slate-800">Primary Database</h4>
               <p className="text-xs text-slate-500">PostgreSQL (Supabase)</p>
             </div>
           </div>

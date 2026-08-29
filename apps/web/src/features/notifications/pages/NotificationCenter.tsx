@@ -76,7 +76,7 @@ export default function NotificationCenter() {
           <div className="relative w-full sm:w-72">
             <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
-              placeholder="Search01Icon notifications..."
+              placeholder="Search notifications..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 h-10 w-full"

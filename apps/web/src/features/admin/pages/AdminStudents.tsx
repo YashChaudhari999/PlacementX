@@ -506,7 +506,7 @@ export default function AdminStudents() {
             <input
               ref={searchRef}
               type="text"
-              placeholder="Search01Icon by name, ID or email…"
+              placeholder="Search by name, ID or email…"
               value={filters.search}
               onChange={(e) => updateFilter('search', e.target.value)}
               className="w-full h-9 pl-9 pr-8 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-colors"

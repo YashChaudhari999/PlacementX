@@ -116,7 +116,7 @@ export default function ContactPage() {
                   </div>
                 ) : (
                   <>
-                    <h3 className="text-2xl font-bold text-slate-900 mb-8">SentIcon us a Message</h3>
+                    <h3 className="text-2xl font-bold text-slate-900 mb-8">Send us a Message</h3>
                     <form onSubmit={handleSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">

@@ -12,7 +12,7 @@ const AdminReports = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChartIcon },
     { id: 'builder', label: 'Report Builder', icon: Note01Icon },
-    { id: 'history', label: 'Export Time01Icon', icon: Time01Icon },
+    { id: 'history', label: 'Export History', icon: Time01Icon },
     { id: 'saved', label: 'Saved Templates', icon: Bookmark01Icon },
   ] as const;
 
