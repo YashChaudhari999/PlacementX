@@ -96,6 +96,44 @@ export default function CreateDriveWizard() {
     }
   };
 
+  const formValues = methods.watch();
+
+  // Load draft on mount (only for creation)
+  useEffect(() => {
+    if (!isEditMode) {
+      const draft = localStorage.getItem('placementx_drive_draft');
+      if (draft) {
+        try {
+          const parsed = JSON.parse(draft);
+          methods.reset(parsed);
+          toast.success('Draft restored', {
+            action: {
+              label: 'Clear',
+              onClick: () => {
+                localStorage.removeItem('placementx_drive_draft');
+                window.location.reload();
+              },
+            },
+            duration: 5000,
+          });
+        } catch (e) {
+          console.error('Failed to parse draft', e);
+        }
+      }
+    }
+  }, [isEditMode, methods]);
+
+  // Auto-save draft (debounced)
+  useEffect(() => {
+    if (isEditMode || isLoading) return;
+    
+    const handler = setTimeout(() => {
+      localStorage.setItem('placementx_drive_draft', JSON.stringify(formValues));
+    }, 1500);
+    
+    return () => clearTimeout(handler);
+  }, [formValues, isEditMode, isLoading]);
+
   useEffect(() => {
     if (isEditMode && id) {
       setIsLoading(true);
@@ -175,6 +213,7 @@ export default function CreateDriveWizard() {
       } else {
         await api.post('/admin/drives', payload);
         toast.success('Drive Published Successfully!');
+        localStorage.removeItem('placementx_drive_draft');
       }
       navigate('/admin/placement-events');
     } catch (error) {

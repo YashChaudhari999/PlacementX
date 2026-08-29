@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui';
 import {
   Target,
@@ -7,7 +8,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface MLPrediction {
   predictedSuccessRate: number;
@@ -17,6 +18,8 @@ interface MLPrediction {
 }
 
 export default function StudentInsightsPanel({ prediction }: { prediction?: MLPrediction | null }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!prediction) return null;
 
   const { predictedSuccessRate, riskLevel, topFactors = [], modelVersion } = prediction;
@@ -89,15 +92,60 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
                 <span className="text-xs text-blue-300 font-medium">Success Likelihood</span>
                 <span className="text-xs text-blue-300 font-bold">{rate.toFixed(1)}%</span>
               </div>
-              <div className="w-full bg-black/30 h-2.5 rounded-full overflow-hidden">
+              <div className="w-full bg-black/30 h-2.5 rounded-full overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.min(rate, 100)}%` }}
                   transition={{ duration: 1.5, ease: 'easeOut', delay: 0.3 }}
-                  className={`h-full bg-gradient-to-r ${config.barClass} rounded-full`}
+                  className={`absolute top-0 left-0 h-full bg-gradient-to-r ${config.barClass} rounded-full`}
                 />
+                {rate >= 95 && (
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0], scale: [1, 1.5, 1] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="absolute top-0 right-0 w-8 h-full bg-white/40 blur-[2px] rounded-full"
+                  />
+                )}
               </div>
             </div>
+
+            {/* Actionable Insights Button */}
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-xs font-semibold text-indigo-300 hover:text-white transition-colors flex items-center gap-1 bg-indigo-900/50 px-3 py-1.5 rounded-full border border-indigo-700/50"
+            >
+              <Sparkles className="w-3 h-3" />
+              {isExpanded ? "Hide tips" : "How to boost your score"}
+            </button>
+            
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="overflow-hidden mt-4"
+                >
+                  <div className="p-4 bg-indigo-950/40 rounded-xl border border-indigo-800/30 text-xs text-indigo-200 space-y-2">
+                    <p className="font-bold text-white mb-1">Recommended Actions:</p>
+                    <ul className="list-disc pl-4 space-y-1.5">
+                      {topFactors?.filter(f => f.impact === 'negative').length > 0 ? (
+                        topFactors.filter(f => f.impact === 'negative').map((f, i) => (
+                          <li key={i}>Improve <strong className="text-white">{f.feature.replace(/_/g, ' ').toLowerCase()}</strong> to increase your score</li>
+                        ))
+                      ) : (
+                        <>
+                          <li>Add your GitHub Profile Link <span className="text-emerald-400 font-semibold">(+5%)</span></li>
+                          <li>Update your latest semester CGPA <span className="text-emerald-400 font-semibold">(+2%)</span></li>
+                          <li>Upload a more recent resume <span className="text-emerald-400 font-semibold">(+3%)</span></li>
+                        </>
+                      )}
+                    </ul>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Factors */}
             {topFactors.length > 0 && (

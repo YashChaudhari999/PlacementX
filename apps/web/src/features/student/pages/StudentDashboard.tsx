@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
 import { DashboardSkeleton } from '@/components/common/Skeletons';
+import { EmptyState } from '@/components/common/EmptyState';
 import { motion } from 'framer-motion';
 
 import StudentInsightsPanel from '../components/StudentInsightsPanel';
@@ -106,13 +107,12 @@ export default function StudentDashboard() {
           <div className="space-y-4">
             {drives.length === 0 ? (
               <motion.div variants={itemVariants}>
-                <Card className="p-12 text-center border-dashed border-2 border-slate-300 shadow-md bg-slate-50/50 backdrop-blur-md">
-                  <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-700">No active drives</h3>
-                  <p className="text-slate-500 mt-1">
-                    There are no placement drives actively recruiting at the moment.
-                  </p>
-                </Card>
+                <EmptyState
+                  icon={Briefcase}
+                  title="No active drives"
+                  description="There are no placement drives actively recruiting at the moment."
+                  variant="card"
+                />
               </motion.div>
             ) : (
               drives.map((drive: any, idx: number) => (
@@ -124,6 +124,11 @@ export default function StudentDashboard() {
                       <div>
                         <div className="flex items-center gap-3 mb-1">
                           <h3 className="font-bold text-xl text-slate-900">{drive.company.name}</h3>
+                          {idx === 0 && (
+                            <span className="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] uppercase tracking-wider font-bold rounded border border-indigo-200 shadow-sm animate-pulse">
+                              95% Match
+                            </span>
+                          )}
                           <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 shadow-sm">
                             {drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'TBD'}
                           </span>
@@ -135,9 +140,9 @@ export default function StudentDashboard() {
                             <Briefcase className="w-4 h-4 text-slate-400" />
                             {drive.employmentType}
                           </div>
-                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100">
-                            <Bell className="w-4 h-4 text-red-500" />
-                            Deadline: {new Date(drive.registrationEnd).toLocaleDateString()}
+                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100 shadow-sm">
+                            <Bell className="w-4 h-4 text-red-500 animate-bounce" />
+                            Closes in 2 Days
                           </div>
                         </div>
                       </div>

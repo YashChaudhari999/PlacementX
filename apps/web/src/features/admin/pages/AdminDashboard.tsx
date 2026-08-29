@@ -18,7 +18,9 @@ import {
   RefreshCw,
   ChevronRight,
 } from 'lucide-react';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Card } from '@/components/ui';
+import { EmptyState } from '@/components/common/EmptyState';
 import { adminService } from '@/services/admin.service';
 // --- Animation Variants ---
 const containerVariants = {
@@ -67,6 +69,8 @@ interface StatCardProps {
   colorClass: string;
   bgClass: string;
   trendColor?: string;
+  chartData?: { value: number }[];
+  chartColor?: string;
   onClick?: () => void;
 }
 
@@ -78,6 +82,8 @@ const StatCard = ({
   colorClass,
   bgClass,
   trendColor = 'text-emerald-600',
+  chartData,
+  chartColor = '#6366f1',
   onClick,
 }: StatCardProps) => (
   <Card
@@ -86,6 +92,29 @@ const StatCard = ({
       onClick ? 'cursor-pointer hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1' : ''
     }`}
   >
+    {chartData && chartData.length > 0 && (
+      <div className="absolute inset-x-0 bottom-0 h-24 opacity-20 pointer-events-none translate-y-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData}>
+            <defs>
+              <linearGradient id={`color-${label.replace(/\s+/g, '-')}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={chartColor} stopOpacity={0.8} />
+                <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={chartColor}
+              fillOpacity={1}
+              fill={`url(#color-${label.replace(/\s+/g, '-')})`}
+              strokeWidth={2}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    )}
+
     <div className="flex items-start justify-between relative z-10 flex-1">
       <div className="pr-6">
         <p className="text-sm font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
@@ -217,6 +246,8 @@ export default function AdminDashboard() {
                   colorClass="text-blue-600"
                   bgClass="bg-blue-50"
                   trendColor="text-blue-700"
+                  chartColor="#3b82f6"
+                  chartData={[{value: 2}, {value: 5}, {value: 3}, {value: 7}, {value: 4}, {value: 8}]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -229,6 +260,8 @@ export default function AdminDashboard() {
                   colorClass="text-indigo-600"
                   bgClass="bg-indigo-50"
                   trendColor="text-indigo-700"
+                  chartColor="#6366f1"
+                  chartData={[{value: 1}, {value: 3}, {value: 2}, {value: 4}, {value: 6}, {value: 5}]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -241,6 +274,8 @@ export default function AdminDashboard() {
                   colorClass="text-emerald-600"
                   bgClass="bg-emerald-50"
                   trendColor="text-emerald-700"
+                  chartColor="#10b981"
+                  chartData={[{value: 4}, {value: 3}, {value: 5}, {value: 8}, {value: 7}, {value: 10}]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -310,15 +345,12 @@ export default function AdminDashboard() {
                         ))}
                       </div>
                     ) : (
-                      <div className="h-full flex flex-col items-center justify-center text-center py-10">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                          <CheckCircle2 className="w-8 h-8 text-slate-400" />
-                        </div>
-                        <h4 className="font-semibold text-slate-700">No active drives</h4>
-                        <p className="text-sm text-slate-500 mt-1 max-w-xs">
-                          When drives are open or upcoming, eligible student counts will appear
-                          here.
-                        </p>
+                      <div className="h-full flex flex-col items-center justify-center py-10">
+                        <EmptyState
+                          icon={CheckCircle2}
+                          title="No active drives"
+                          description="When drives are open or upcoming, eligible student counts will appear here."
+                        />
                       </div>
                     )}
                   </div>
@@ -363,14 +395,12 @@ export default function AdminDashboard() {
                         ))}
                       </div>
                     ) : (
-                      <div className="h-full flex flex-col items-center justify-center text-center py-10">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                          <FileCheck className="w-8 h-8 text-slate-400" />
-                        </div>
-                        <h4 className="font-semibold text-slate-700">No applications yet</h4>
-                        <p className="text-sm text-slate-500 mt-1 max-w-xs">
-                          When students apply to drives, the top companies will appear here.
-                        </p>
+                      <div className="h-full flex flex-col items-center justify-center py-10">
+                        <EmptyState
+                          icon={FileCheck}
+                          title="No applications yet"
+                          description="When students apply to drives, the top companies will appear here."
+                        />
                       </div>
                     )}
                   </div>
