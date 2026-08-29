@@ -71,7 +71,7 @@ export const ProfileUnderReview = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const status = user?.profileStatus || 'NOT_COMPLETED';
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.NOT_COMPLETED;
+  const config = (STATUS_CONFIG[status] || STATUS_CONFIG.NOT_COMPLETED)!;
   const Icon = config.icon;
 
   return (
