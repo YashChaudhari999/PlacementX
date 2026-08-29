@@ -35,6 +35,34 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const listItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  show: { opacity: 1, x: 0 },
+};
+
+// Helper function to get distinct colors based on text
+const getAvatarColors = (text: string) => {
+  const colors = [
+    'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200/60',
+    'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200/60',
+    'from-rose-100 to-rose-50 text-rose-700 border-rose-200/60',
+    'from-amber-100 to-amber-50 text-amber-700 border-amber-200/60',
+    'from-purple-100 to-purple-50 text-purple-700 border-purple-200/60',
+    'from-blue-100 to-blue-50 text-blue-700 border-blue-200/60',
+    'from-cyan-100 to-cyan-50 text-cyan-700 border-cyan-200/60',
+  ];
+  const charCodeSum = text.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return colors[charCodeSum % colors.length];
+};
+
 // --- Skeleton Components ---
 const StatCardSkeleton = () => (
   <Card className="p-6 flex flex-col justify-between animate-pulse border-slate-100">
@@ -325,28 +353,29 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
                     {data?.students?.eligibleByCompany?.length > 0 ? (
-                      <div className="space-y-3">
+                      <motion.div variants={listVariants} initial="hidden" animate="show" className="space-y-3">
                         {data.students.eligibleByCompany.map((item: any, idx: number) => (
-                          <div
+                          <motion.div
+                            variants={listItemVariants}
                             key={idx}
-                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer"
+                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
                             onClick={() => navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
-                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center text-slate-600 font-black text-sm uppercase shadow-inner border border-slate-200/60">
+                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}>
                                 {item.company.substring(0, 2)}
                               </div>
-                              <span className="font-bold text-slate-700">{item.company}</span>
+                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{item.company}</span>
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className="font-black text-lg text-slate-800 bg-slate-50 px-3 py-1 rounded-md">
+                              <span className="font-black text-lg text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100/50">
                                 {formatNum(item.count)}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
                             </div>
-                          </div>
+                          </motion.div>
                         ))}
-                      </div>
+                      </motion.div>
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center py-10">
                         <EmptyState
@@ -375,28 +404,29 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
                     {data?.students?.applicationsByCompany?.length > 0 ? (
-                      <div className="space-y-3">
+                      <motion.div variants={listVariants} initial="hidden" animate="show" className="space-y-3">
                         {data.students.applicationsByCompany.map((item: any, idx: number) => (
-                          <div
+                          <motion.div
+                            variants={listItemVariants}
                             key={idx}
-                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:border-indigo-100 transition-colors group cursor-pointer"
+                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
                             onClick={() => navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
-                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-slate-50 flex items-center justify-center text-slate-600 font-black text-sm uppercase shadow-inner border border-slate-200/60">
+                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}>
                                 {item.company.substring(0, 2)}
                               </div>
-                              <span className="font-bold text-slate-700">{item.company}</span>
+                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{item.company}</span>
                             </div>
                             <div className="flex items-center gap-4">
-                              <span className="font-black text-lg text-slate-800 bg-slate-50 px-3 py-1 rounded-md">
+                              <span className="font-black text-lg text-emerald-600 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100/50">
                                 {formatNum(item.applications)}
                               </span>
-                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                              <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
                             </div>
-                          </div>
+                          </motion.div>
                         ))}
-                      </div>
+                      </motion.div>
                     ) : (
                       <div className="h-full flex flex-col items-center justify-center py-10">
                         <EmptyState

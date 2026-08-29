@@ -888,13 +888,74 @@ export const getAdminDashboard = async (req: any, res: any) => {
       }
     }
 
+    // Calculate eligible students for active and upcoming drives
+    const activeAndUpcomingDrives = await prisma.placementDrive.findMany({
+      where: {
+        status: 'PUBLISHED',
+        OR: [
+          { registrationEnd: { gte: today } },
+          { registrationStart: { gte: today } },
+          { registrationEnd: null },
+        ]
+      },
+      include: {
+        company: true
+      }
+    });
+
+    const { filterEligibleStudents } = await import('../services/eligibility.service');
+    
+    const eligiblePromises = activeAndUpcomingDrives.map(async (drive) => {
+      const studentIds = await filterEligibleStudents(drive as any);
+      return {
+        company: drive.company.name,
+        count: studentIds.length
+      };
+    });
+    
+    const eligibleList = await Promise.all(eligiblePromises);
+    
+    const eligibleMap = new Map<string, number>();
+    eligibleList.forEach(item => {
+      eligibleMap.set(item.company, (eligibleMap.get(item.company) || 0) + item.count);
+    });
+    const eligibleByCompany = Array.from(eligibleMap, ([company, count]) => ({ company, count }))
+      .filter(item => item.count > 0)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Calculate applications by company
+    const applicationsCount = await prisma.driveApplication.groupBy({
+      by: ['driveId'],
+      _count: { id: true },
+    });
+    
+    const drivesForApps = await prisma.placementDrive.findMany({
+      where: { id: { in: applicationsCount.map(a => a.driveId) } },
+      include: { company: true },
+    });
+    const driveCompanyMap = new Map(drivesForApps.map(d => [d.id, d.company.name]));
+    
+    const appsMap = new Map<string, number>();
+    applicationsCount.forEach(app => {
+      const companyName = driveCompanyMap.get(app.driveId);
+      if (companyName) {
+        appsMap.set(companyName, (appsMap.get(companyName) || 0) + app._count.id);
+      }
+    });
+    
+    const applicationsByCompany = Array.from(appsMap, ([company, applications]) => ({ company, applications }))
+      .filter(item => item.applications > 0)
+      .sort((a, b) => b.applications - a.applications)
+      .slice(0, 5);
+
     return res.status(200).json({
       drives: { open: openDrives, upcoming: upcomingDrives, closed: closedDrives },
       students: {
         total: totalStudents,
         placed: placedStudents,
-        eligibleByCompany: [],
-        applicationsByCompany: [],
+        eligibleByCompany,
+        applicationsByCompany,
       },
       packages: {
         placementPercentage,
