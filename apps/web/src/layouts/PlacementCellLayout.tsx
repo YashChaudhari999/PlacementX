@@ -13,14 +13,12 @@ import {
   Settings,
   LogOut,
   Menu,
-  Search,
   ChevronDown,
   CheckCircle,
   ShieldCheck,
   FileEdit,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input } from '@/components/ui';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 
 export const PlacementCellLayout = () => {
@@ -180,7 +178,7 @@ export const PlacementCellLayout = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col lg:pl-72 min-w-0 transition-all">
         {/* Top Navbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-10 shadow-sm">
+        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 shadow-sm">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
@@ -199,14 +197,6 @@ export const PlacementCellLayout = () => {
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="hidden md:flex relative w-72">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search students, companies, drives..."
-                className="pl-10 h-10 bg-slate-100/50 border-transparent hover:border-slate-300 focus:bg-white text-sm focus-visible:ring-primary rounded-full transition-all"
-              />
-            </div>
-
             <NotificationBell />
 
             <div className="relative">
@@ -235,7 +225,13 @@ export const PlacementCellLayout = () => {
                       <p className="text-xs font-medium text-slate-500 truncate">{user?.email}</p>
                     </div>
                     <div className="p-2">
-                      <button className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setIsProfileDropdownOpen(false);
+                          navigate('/admin/settings');
+                        }}
+                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center gap-2"
+                      >
                         <Settings className="w-4 h-4 text-slate-400" /> Account Settings
                       </button>
                       <div className="h-px bg-slate-100 my-1 mx-2" />

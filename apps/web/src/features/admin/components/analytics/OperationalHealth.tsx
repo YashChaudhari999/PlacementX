@@ -18,46 +18,48 @@ export default function OperationalHealth({ data }: { data: OperationalHealthTyp
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-100 flex flex-col justify-between">
+          <div className="flex items-start justify-between mb-2 gap-2">
+            <div className="text-[10px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider leading-tight">
               Pending Profiles
             </div>
-            <FileWarning className="w-4 h-4 text-amber-400" />
+            <FileWarning className="w-4 h-4 text-amber-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-amber-900">{data.pendingVerifications}</div>
         </div>
 
-        <div className="p-4 bg-orange-50 rounded-xl border border-orange-100">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-orange-600 uppercase tracking-wider">
+        <div className="p-3.5 bg-orange-50 rounded-xl border border-orange-100 flex flex-col justify-between">
+          <div className="flex items-start justify-between mb-2 gap-2">
+            <div className="text-[10px] sm:text-xs font-bold text-orange-600 uppercase tracking-wider leading-tight">
               Pending Drives
             </div>
-            <Clock className="w-4 h-4 text-orange-400" />
+            <Clock className="w-4 h-4 text-orange-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-orange-900">{data.drivesAwaitingApproval}</div>
         </div>
 
-        <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider">
+        <div className="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 flex flex-col justify-between">
+          <div className="flex items-start justify-between mb-2 gap-2">
+            <div className="text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider leading-tight">
               Active Drives
             </div>
-            <Activity className="w-4 h-4 text-emerald-400" />
+            <Activity className="w-4 h-4 text-emerald-400 shrink-0" />
           </div>
           <div className="text-2xl font-black text-emerald-900">{data.activeDrives}</div>
         </div>
 
-        <div className="p-4 bg-blue-50 rounded-xl border border-blue-100">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+        <div className="p-3.5 bg-blue-50 rounded-xl border border-blue-100 flex flex-col justify-between">
+          <div className="flex items-start justify-between mb-2 gap-2">
+            <div className="text-[10px] sm:text-xs font-bold text-blue-600 uppercase tracking-wider leading-tight">
               Recent Activity
             </div>
-            <Activity className="w-4 h-4 text-blue-400" />
+            <Activity className="w-4 h-4 text-blue-400 shrink-0" />
           </div>
-          <div className="text-2xl font-black text-blue-900">{data.recentDriveActivity}</div>
-          <div className="text-[10px] text-blue-600 font-bold mt-1">Drives in last 7 days</div>
+          <div>
+            <div className="text-2xl font-black text-blue-900">{data.recentDriveActivity}</div>
+            <div className="text-[10px] text-blue-600 font-bold mt-0.5">Drives in last 7 days</div>
+          </div>
         </div>
       </div>
 

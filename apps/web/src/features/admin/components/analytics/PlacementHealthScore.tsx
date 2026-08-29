@@ -113,20 +113,20 @@ export default function PlacementHealthScore({ data }: { data: HealthScoreRespon
       />
 
       <div className="relative z-10">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-start gap-3 mb-6">
           <div
-            className={`p-2 rounded-xl ring-1 ${colors.bg}`}
+            className={`p-2 rounded-xl ring-1 shrink-0 mt-0.5 ${colors.bg}`}
             style={{ '--tw-ring-color': `${colors.ring}30` } as any}
           >
             <ShieldCheck className={`w-5 h-5 ${colors.text}`} />
           </div>
-          <div>
-            <h2 className="text-lg font-bold">Placement Health Score</h2>
-            <p className="text-xs text-slate-500 font-medium">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold leading-tight">Placement Health Score</h2>
+            <p className="text-xs text-slate-500 font-medium mt-1">
               Composite score across 6 dimensions
             </p>
           </div>
-          <div className="ml-auto">
+          <div className="shrink-0 ml-auto">
             <span
               className={`px-3 py-1 rounded-full text-xs font-black ${colors.bg} ${colors.text}`}
             >
@@ -135,7 +135,7 @@ export default function PlacementHealthScore({ data }: { data: HealthScoreRespon
           </div>
         </div>
 
-        <div className="flex flex-col lg:flex-row items-center gap-8">
+        <div className="flex flex-col items-center gap-8">
           {/* Gauge */}
           <div className="shrink-0">
             <RadialGauge value={data.totalScore} color={data.color} />
@@ -151,12 +151,12 @@ export default function PlacementHealthScore({ data }: { data: HealthScoreRespon
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + i * 0.08 }}
-                  className="flex items-center gap-3"
+                  className="flex items-center gap-2 sm:gap-3"
                 >
-                  <span className="text-xs font-semibold text-slate-400 w-36 shrink-0 truncate">
+                  <span className="text-xs font-semibold text-slate-400 w-24 sm:w-36 shrink-0 truncate">
                     {comp.label}
                   </span>
-                  <div className="flex-1 h-2.5 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="flex-1 min-w-[2rem] h-2.5 bg-slate-800 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full rounded-full"
                       style={{

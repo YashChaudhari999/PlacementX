@@ -138,7 +138,10 @@ export default function GlobalFilters() {
           {/* Actions */}
           {hasActiveFilters && (
             <button
-              onClick={clearFilters}
+              onClick={() => {
+                clearFilters();
+                setShowAdvanced(false);
+              }}
               className="px-3 py-2 text-sm font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors flex items-center gap-1.5"
             >
               <RefreshCcw className="w-3.5 h-3.5" />

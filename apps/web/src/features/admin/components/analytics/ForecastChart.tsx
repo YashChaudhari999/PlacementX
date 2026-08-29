@@ -17,7 +17,9 @@ import { useMemo } from 'react';
 // In a real app, this would combine YearComparison data with Forecast data
 const generateChartData = (forecast: ForecastResponse) => {
   const currentYearStr = (forecast.targetYear as string) || ''; // e.g., "2026/2027"
-  const baseYear = currentYearStr ? parseInt(currentYearStr.split('/')[0]) : new Date().getFullYear(); // 2026
+  const baseYear = currentYearStr
+    ? parseInt(currentYearStr.split('/')[0] || '')
+    : new Date().getFullYear(); // 2026
 
   const baseRate = forecast.projectedPlacementRate ? forecast.projectedPlacementRate - 5 : 75;
   const rateDelta = forecast.projectedPlacementRate
