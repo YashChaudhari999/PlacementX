@@ -106,7 +106,7 @@ export default function StudentDashboard() {
           <div className="space-y-4">
             {drives.length === 0 ? (
               <motion.div variants={itemVariants}>
-                <Card className="p-12 text-center border-dashed border-2 bg-slate-50/50 backdrop-blur-md">
+                <Card className="p-12 text-center border-dashed border-2 border-slate-300 shadow-md bg-slate-50/50 backdrop-blur-md">
                   <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-slate-700">No active drives</h3>
                   <p className="text-slate-500 mt-1">
@@ -117,7 +117,7 @@ export default function StudentDashboard() {
             ) : (
               drives.map((drive: any, idx: number) => (
                 <motion.div key={drive.id} variants={itemVariants} custom={idx}>
-                  <Card className="group p-6 border-slate-200 hover:border-indigo-300 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 bg-white/80 backdrop-blur-md overflow-hidden relative">
+                  <Card className="group p-6 border-slate-300 shadow-md hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-500/20 hover:-translate-y-1 transition-all duration-300 bg-white/90 backdrop-blur-md overflow-hidden relative">
                     <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-600 transform origin-left scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out" />
 
                     <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">

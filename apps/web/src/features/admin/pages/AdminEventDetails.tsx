@@ -311,19 +311,19 @@ export default function AdminEventDetails() {
                   ) : (
                     applications.map((app) => (
                       <tr key={app.id} className="hover:bg-slate-50">
-                        <td className="p-4">
+                        <td className="p-4 whitespace-nowrap">
                           <div className="font-medium text-slate-800">
                             {app.student.firstName} {app.student.lastName}
                           </div>
                           <div className="text-xs text-slate-500">{app.student.user.email}</div>
                         </td>
-                        <td className="p-4 text-sm text-slate-600">{app.student.branch}</td>
-                        <td className="p-4 text-sm text-slate-600 font-medium">
+                        <td className="p-4 text-sm text-slate-600 whitespace-nowrap">{app.student.branch}</td>
+                        <td className="p-4 text-sm text-slate-600 font-medium whitespace-nowrap">
                           {app.student.cgpa}
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 whitespace-nowrap">
                           <span
-                            className={`text-xs font-bold px-2 py-1 rounded-full ${
+                            className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-block ${
                               app.status === 'SELECTED'
                                 ? 'bg-green-100 text-green-700'
                                 : app.status === 'REJECTED'
@@ -334,7 +334,7 @@ export default function AdminEventDetails() {
                             {app.status.replace('_', ' ')}
                           </span>
                         </td>
-                        <td className="p-4">
+                        <td className="p-4 whitespace-nowrap">
                           {app.student.resumeUrl ? (
                             <a
                               href={app.student.resumeUrl}
@@ -348,9 +348,9 @@ export default function AdminEventDetails() {
                             <span className="text-xs text-slate-400">N/A</span>
                           )}
                         </td>
-                        <td className="p-4 text-right">
+                        <td className="p-4 text-right whitespace-nowrap">
                           <select
-                            className="text-xs border border-slate-200 rounded px-2 py-1 bg-white focus:outline-none focus:border-primary"
+                            className="text-xs border border-slate-200 rounded px-3 py-1.5 bg-white focus:outline-none focus:border-primary min-w-[130px]"
                             value={app.status}
                             onChange={(e) => handleUpdateStatus(app.id, e.target.value)}
                           >

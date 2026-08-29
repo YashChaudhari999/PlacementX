@@ -86,10 +86,11 @@ export default function StudentApplications() {
       variants={containerVariants}
       className="max-w-5xl mx-auto space-y-8 p-4 md:p-6 pb-20"
     >
-      <div className="flex justify-between items-center bg-white/50 p-6 rounded-2xl backdrop-blur-md border border-slate-200/60 shadow-sm">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">My Applications</h1>
-          <p className="text-slate-500 mt-1 text-lg">
+      <div className="flex justify-between items-center bg-white/50 p-6 rounded-3xl backdrop-blur-md border border-slate-200/60 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative z-10">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Applications</h1>
+          <p className="text-lg text-slate-500 mt-1">
             Track your placement drive applications and current status.
           </p>
         </div>
@@ -98,7 +99,7 @@ export default function StudentApplications() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {applications.length === 0 ? (
           <motion.div variants={itemVariants} className="md:col-span-2">
-            <Card className="p-16 text-center border-dashed border-2 bg-slate-50/50 backdrop-blur-md">
+            <Card className="p-16 text-center border-dashed border-2 border-slate-300 shadow-md bg-slate-50/50 backdrop-blur-md">
               <div className="text-slate-300 mb-6 flex justify-center">
                 <Building2 className="w-20 h-20 opacity-50" />
               </div>
@@ -118,7 +119,7 @@ export default function StudentApplications() {
           applications.map((app, idx) => (
             <motion.div key={app.id} variants={itemVariants} custom={idx} whileHover={{ y: -5 }}>
               <Link to={`/student/drives/${app.driveId}`} className="block h-full">
-                <Card className="h-full p-6 flex flex-col justify-between border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-blue-300 group">
+                <Card className="h-full p-6 flex flex-col justify-between border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1 group">
                   <div>
                     <div className="flex items-start justify-between mb-4">
                       <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:scale-110 transition-transform duration-300">

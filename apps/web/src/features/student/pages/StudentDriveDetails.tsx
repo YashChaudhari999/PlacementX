@@ -72,26 +72,27 @@ export default function StudentDriveDetails() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header Profile */}
-      <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
-        <div className="flex justify-between items-start">
-          <div className="flex gap-6">
-            <div className="w-20 h-20 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
-              <Building2 className="w-10 h-10" />
+      <div className="bg-white/90 backdrop-blur-xl p-8 rounded-3xl border border-slate-200/60 shadow-lg shadow-slate-200/40 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6 relative z-10">
+          <div className="flex flex-col sm:flex-row gap-6">
+            <div className="w-20 h-20 shrink-0 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shadow-sm">
+              <Building2 className="w-10 h-10 text-indigo-400" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-800">{drive.company?.name}</h1>
-              <p className="text-lg text-slate-600 mt-1 font-medium">{drive.jobRole}</p>
-
-              <div className="flex flex-wrap gap-4 mt-4 text-sm text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4" /> {drive.workMode}
+              <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">{drive.company?.name}</h1>
+              <p className="text-xl text-indigo-600 mt-1 font-bold">{drive.jobRole}</p>
+              
+              <div className="flex flex-wrap gap-3 mt-5 text-sm font-medium text-slate-600">
+                <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
+                  <MapPin className="w-4 h-4 text-slate-400" /> {drive.workMode}
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <CalendarDays className="w-4 h-4" /> Deadline:{' '}
+                <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
+                  <CalendarDays className="w-4 h-4 text-slate-400" /> Deadline:{' '}
                   {new Date(drive.registrationEnd).toLocaleDateString()}
                 </div>
                 {drive.fixedSalary && (
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm font-bold">
                     <IndianRupee className="w-4 h-4" /> {drive.fixedSalary} LPA
                   </div>
                 )}
@@ -127,7 +128,7 @@ export default function StudentDriveDetails() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left Col */}
         <div className="md:col-span-2 space-y-6">
-          <Card className="p-6">
+          <Card className="p-6 border-slate-200 shadow-sm">
             <h2 className="text-xl font-bold text-slate-800 mb-4">Job Description</h2>
             <div className="prose prose-slate max-w-none">
               <p className="whitespace-pre-wrap text-slate-600">{drive.jobDescription}</p>
@@ -144,7 +145,7 @@ export default function StudentDriveDetails() {
           </Card>
 
           {drive.selectionRounds && drive.selectionRounds.length > 0 && (
-            <Card className="p-6">
+            <Card className="p-6 border-slate-200 shadow-sm">
               <h2 className="text-xl font-bold text-slate-800 mb-4">Selection Process</h2>
               <div className="space-y-4">
                 {drive.selectionRounds.map((round: any, index: number) => (
@@ -182,7 +183,7 @@ export default function StudentDriveDetails() {
             </Card>
           )}
 
-          <Card className="p-6">
+          <Card className="p-6 border-slate-200 shadow-sm">
             <h3 className="font-bold text-slate-800 mb-4 border-b pb-2">Compensation Details</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">

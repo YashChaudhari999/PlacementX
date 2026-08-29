@@ -53,10 +53,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 
 const SectionCard = ({ title, icon: Icon, children }: any) => (
-  <div className="bg-slate-50/50 rounded-3xl p-6 border border-slate-100">
+  <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 transition-all duration-300 hover:shadow-xl hover:border-indigo-200 group">
     <div className="flex items-center gap-3 mb-6">
-      <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100">
-        <Icon className="w-5 h-5 text-blue-600" />
+      <div className="p-2 bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm border border-indigo-100/50 group-hover:scale-110 transition-transform duration-300">
+        <Icon className="w-5 h-5 text-indigo-600" />
       </div>
       <h3 className="text-lg font-bold text-slate-800">{title}</h3>
     </div>
@@ -344,8 +344,9 @@ export default function StudentProfile() {
       className="max-w-5xl mx-auto space-y-8 p-4 md:p-6 pb-32"
     >
       {/* Header Profile Card */}
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl shadow-slate-200/40 border border-slate-200/60 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-900/5 border border-slate-200/60 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/20 to-violet-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-400/10 to-teal-400/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3" />
 
         {/* Circular Progress / Avatar Uploader */}
         <div className="relative w-32 h-32 shrink-0 group">

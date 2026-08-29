@@ -35,17 +35,18 @@ export default function StudentDocuments() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800">My Documents</h1>
-          <p className="text-slate-500">Access your uploaded resumes and official offer letters.</p>
+      <div className="flex justify-between items-center bg-white/50 p-6 rounded-3xl backdrop-blur-md border border-slate-200/60 shadow-sm relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative z-10">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Documents</h1>
+          <p className="text-lg text-slate-500 mt-1">Access your uploaded resumes and official offer letters.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Profile Documents */}
         <div className="md:col-span-1 space-y-6">
-          <Card className="p-6">
+          <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
               <FileText className="w-5 h-5 text-primary" /> Core Documents
             </h3>
@@ -76,7 +77,7 @@ export default function StudentDocuments() {
 
         {/* Offer Letters */}
         <div className="md:col-span-2">
-          <Card className="p-6 h-full">
+          <Card className="p-6 h-full border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
             <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-6">
               <Building2 className="w-5 h-5 text-emerald-600" /> Official Offer Letters
             </h3>

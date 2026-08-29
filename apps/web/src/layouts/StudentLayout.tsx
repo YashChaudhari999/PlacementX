@@ -70,9 +70,12 @@ export const StudentLayout = () => {
     navItems.find((item) => location.pathname.startsWith(item.path))?.name || 'Dashboard';
 
   const sidebarContentJSX = (
-    <div className="flex flex-col h-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
+    <div className="flex flex-col h-full bg-white/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-300">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
-        <div className="flex items-center gap-3 justify-center w-full h-full py-4">
+        <div 
+          className="flex items-center gap-3 justify-center w-full h-full py-4 transition-transform duration-300 hover:scale-105 cursor-pointer"
+          onClick={() => navigate('/student/dashboard')}
+        >
           <img
             src="/nmimslogo.png"
             alt="NMIMS Logo"
@@ -92,18 +95,18 @@ export const StudentLayout = () => {
               to={item.path}
               onClick={() => setIsMobileMenuOpen(false)}
               className={() =>
-                `flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 ${
+                `group flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 relative ${
                   isActive
                     ? 'bg-[#8B0000] text-white shadow-lg shadow-red-900/30 transform scale-[1.02]'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+                    : 'text-slate-500 hover:bg-slate-50/80 hover:text-slate-900 hover:translate-x-1'
                 }`
               }
             >
-              <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+              <Icon className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 group-hover:scale-110'}`} />
               <span className="flex-1 tracking-wide">{item.name}</span>
               {isNotif && unreadCount > 0 && (
                 <span
-                  className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm'}`}
+                  className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full transition-transform duration-300 ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm group-hover:scale-110'}`}
                 >
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
@@ -115,10 +118,10 @@ export const StudentLayout = () => {
 
       {/* Profile Completion Widget */}
       <div className="px-4 py-6 border-t border-slate-100/50 bg-slate-50/50 rounded-b-3xl">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4">
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4 transition-all duration-300 hover:shadow-md hover:border-slate-200">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Award className="h-4 w-4 text-yellow-500" />
+              <Award className="h-4 w-4 text-yellow-500 animate-pulse" />
               <span className="text-xs font-bold text-slate-700">Profile Strength</span>
             </div>
             <span className="text-xs font-black text-emerald-600">{completionPercentage}%</span>
@@ -127,16 +130,16 @@ export const StudentLayout = () => {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${completionPercentage}%` }}
-              transition={{ duration: 1, delay: 0.5 }}
+              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
               className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-2 rounded-full"
             />
           </div>
         </div>
         <button
           onClick={handleLogout}
-          className="flex items-center justify-center gap-2 px-4 py-3 w-full rounded-2xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all shadow-sm"
+          className="group flex items-center justify-center gap-2 px-4 py-3 w-full rounded-2xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all duration-300 shadow-sm hover:shadow-md"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           Log Out
         </button>
       </div>
@@ -201,13 +204,7 @@ export const StudentLayout = () => {
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
-            <div className="hidden md:flex relative w-72">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
-                placeholder="Search jobs, companies..."
-                className="pl-11 h-12 bg-white border-slate-200 hover:border-slate-300 focus:bg-white text-sm focus-visible:ring-primary focus-visible:border-primary rounded-2xl shadow-sm transition-all font-medium"
-              />
-            </div>
+
 
             {/* Download App Button */}
             <a
