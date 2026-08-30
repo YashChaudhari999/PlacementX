@@ -102,7 +102,11 @@ export const Navbar = () => {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <Cancel01Icon className="h-6 w-6" /> : <Menu01Icon className="h-6 w-6" />}
+            {mobileMenuOpen ? (
+              <Cancel01Icon className="h-6 w-6" />
+            ) : (
+              <Menu01Icon className="h-6 w-6" />
+            )}
           </button>
         </div>
       </motion.header>

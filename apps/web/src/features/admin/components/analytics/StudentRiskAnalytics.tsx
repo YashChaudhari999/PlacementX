@@ -1,5 +1,12 @@
 import { Card } from '@/components/ui';
-import { Alert01Icon, UserMultipleIcon, ArrowUp01Icon, Note01Icon, Briefcase01Icon, Mortarboard01Icon } from 'hugeicons-react';
+import {
+  Alert01Icon,
+  UserMultipleIcon,
+  ArrowUp01Icon,
+  Note01Icon,
+  Briefcase01Icon,
+  Mortarboard01Icon,
+} from 'hugeicons-react';
 import type { StudentRiskResponse } from '@/types/analytics.types';
 import { useState } from 'react';
 

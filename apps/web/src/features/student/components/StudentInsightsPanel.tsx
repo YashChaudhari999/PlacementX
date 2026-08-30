@@ -1,6 +1,13 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui';
-import { Target01Icon, ArrowUp01Icon, ArrowDown01Icon, Alert02Icon, SparklesIcon, TickDouble02Icon } from 'hugeicons-react';
+import {
+  Target01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Alert02Icon,
+  SparklesIcon,
+  TickDouble02Icon,
+} from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MLPrediction {
@@ -93,7 +100,7 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
                   className={`absolute top-0 left-0 h-full bg-gradient-to-r ${config.barClass} rounded-full`}
                 />
                 {rate >= 95 && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: [0, 1, 0], scale: [1, 1.5, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
@@ -104,14 +111,14 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
             </div>
 
             {/* Actionable Insights Button */}
-            <button 
+            <button
               onClick={() => setIsExpanded(!isExpanded)}
               className="text-xs font-semibold text-indigo-300 hover:text-white transition-colors flex items-center gap-1 bg-indigo-900/50 px-3 py-1.5 rounded-full border border-indigo-700/50"
             >
               <SparklesIcon className="w-3 h-3" />
-              {isExpanded ? "Hide tips" : "How to boost your score"}
+              {isExpanded ? 'Hide tips' : 'How to boost your score'}
             </button>
-            
+
             <AnimatePresence>
               {isExpanded && (
                 <motion.div
@@ -123,15 +130,32 @@ export default function StudentInsightsPanel({ prediction }: { prediction?: MLPr
                   <div className="p-4 bg-indigo-950/40 rounded-xl border border-indigo-800/30 text-xs text-indigo-200 space-y-2">
                     <p className="font-bold text-white mb-1">Recommended Actions:</p>
                     <ul className="list-disc pl-4 space-y-1.5">
-                      {topFactors?.filter(f => f.impact === 'negative').length > 0 ? (
-                        topFactors.filter(f => f.impact === 'negative').map((f, i) => (
-                          <li key={i}>Improve <strong className="text-white">{f.feature.replace(/_/g, ' ').toLowerCase()}</strong> to increase your score</li>
-                        ))
+                      {topFactors?.filter((f) => f.impact === 'negative').length > 0 ? (
+                        topFactors
+                          .filter((f) => f.impact === 'negative')
+                          .map((f, i) => (
+                            <li key={i}>
+                              Improve{' '}
+                              <strong className="text-white">
+                                {f.feature.replace(/_/g, ' ').toLowerCase()}
+                              </strong>{' '}
+                              to increase your score
+                            </li>
+                          ))
                       ) : (
                         <>
-                          <li>Add your GitHub Profile Link <span className="text-emerald-400 font-semibold">(+5%)</span></li>
-                          <li>Update your latest semester CGPA <span className="text-emerald-400 font-semibold">(+2%)</span></li>
-                          <li>Upload a more recent resume <span className="text-emerald-400 font-semibold">(+3%)</span></li>
+                          <li>
+                            Add your GitHub Profile Link{' '}
+                            <span className="text-emerald-400 font-semibold">(+5%)</span>
+                          </li>
+                          <li>
+                            Update your latest semester CGPA{' '}
+                            <span className="text-emerald-400 font-semibold">(+2%)</span>
+                          </li>
+                          <li>
+                            Upload a more recent resume{' '}
+                            <span className="text-emerald-400 font-semibold">(+3%)</span>
+                          </li>
                         </>
                       )}
                     </ul>

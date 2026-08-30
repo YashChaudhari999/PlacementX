@@ -1,5 +1,10 @@
 import { motion } from 'framer-motion';
-import { DashboardSquare01Icon, SmartPhone01Icon, Building01Icon, UserCircleIcon } from 'hugeicons-react';
+import {
+  DashboardSquare01Icon,
+  SmartPhone01Icon,
+  Building01Icon,
+  UserCircleIcon,
+} from 'hugeicons-react';
 
 const modules = [
   {

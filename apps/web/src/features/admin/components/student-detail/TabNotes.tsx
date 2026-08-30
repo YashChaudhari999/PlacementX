@@ -5,7 +5,17 @@ import { toast } from 'sonner';
 import { Note01Icon, UserIcon, Clock01Icon } from 'hugeicons-react';
 import { format } from 'date-fns';
 
-export function TabNotes({ studentId, importedData, profileData, reload }: { studentId: string, importedData: any, profileData: any, reload: () => void }) {
+export function TabNotes({
+  studentId,
+  importedData,
+  profileData,
+  reload,
+}: {
+  studentId: string;
+  importedData: any;
+  profileData: any;
+  reload: () => void;
+}) {
   const [noteText, setNoteText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -19,7 +29,7 @@ export function TabNotes({ studentId, importedData, profileData, reload }: { stu
       const newNote = {
         text: noteText,
         author: 'Admin', // In a real app, this would be the logged-in admin's name
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       const updatedNotes = [...adminNotes, newNote];
@@ -41,9 +51,11 @@ export function TabNotes({ studentId, importedData, profileData, reload }: { stu
       <div className="bg-white border border-gray-100 rounded-xl overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
           <h3 className="font-semibold text-gray-900">Internal Remarks & Notes</h3>
-          <p className="text-sm text-gray-500 mt-1">These notes are only visible to the Placement Cell staff.</p>
+          <p className="text-sm text-gray-500 mt-1">
+            These notes are only visible to the Placement Cell staff.
+          </p>
         </div>
-        
+
         <div className="p-6">
           <div className="mb-8">
             <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-2">
@@ -67,7 +79,9 @@ export function TabNotes({ studentId, importedData, profileData, reload }: { stu
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-2">Previous Notes</h4>
+            <h4 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-2">
+              Previous Notes
+            </h4>
             {adminNotes.length > 0 ? (
               <div className="space-y-4 mt-4">
                 {[...adminNotes].reverse().map((note: any, idx: number) => (

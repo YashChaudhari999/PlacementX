@@ -1,5 +1,17 @@
 import { Card } from '@/components/ui';
-import { UserMultipleIcon, Mortarboard01Icon, Money01Icon, Building02Icon, Briefcase01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, Note01Icon, Target01Icon, Award01Icon } from 'hugeicons-react';
+import {
+  UserMultipleIcon,
+  Mortarboard01Icon,
+  Money01Icon,
+  Building02Icon,
+  Briefcase01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  MinusSignIcon,
+  Note01Icon,
+  Target01Icon,
+  Award01Icon,
+} from 'hugeicons-react';
 import type { OverviewResponse } from '@/types/analytics.types';
 
 const fmt = (n: number | null | undefined) => (n != null ? n.toLocaleString('en-IN') : '—');

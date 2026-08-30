@@ -1,7 +1,44 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 import { Button, Input } from '@/components/ui';
-import { UserIcon, Note01Icon, Mortarboard01Icon, Tick02Icon, FloppyDiskIcon, Link02Icon, Alert02Icon, Edit02Icon, CallIcon, Calendar01Icon, Location01Icon, Flag01Icon, Briefcase01Icon, Link01Icon, CodeIcon, Award01Icon, BookOpen01Icon, Clock01Icon, Building01Icon, HashtagIcon, LanguageSkillIcon, FileAddIcon, UserCircleIcon, Cancel01Icon, PlusSignIcon, TickDouble02Icon, Shield01Icon, DatabaseIcon, CloudIcon, Wrench01Icon, ComputerIcon, GlobalIcon, PlayCircleIcon, DashboardSquare01Icon, Globe02Icon, Camera01Icon } from 'hugeicons-react';
+import {
+  UserIcon,
+  Note01Icon,
+  Mortarboard01Icon,
+  Tick02Icon,
+  FloppyDiskIcon,
+  Link02Icon,
+  Alert02Icon,
+  Edit02Icon,
+  CallIcon,
+  Calendar01Icon,
+  Location01Icon,
+  Flag01Icon,
+  Briefcase01Icon,
+  Link01Icon,
+  CodeIcon,
+  Award01Icon,
+  BookOpen01Icon,
+  Clock01Icon,
+  Building01Icon,
+  HashtagIcon,
+  LanguageSkillIcon,
+  FileAddIcon,
+  UserCircleIcon,
+  Cancel01Icon,
+  PlusSignIcon,
+  TickDouble02Icon,
+  Shield01Icon,
+  DatabaseIcon,
+  CloudIcon,
+  Wrench01Icon,
+  ComputerIcon,
+  GlobalIcon,
+  PlayCircleIcon,
+  DashboardSquare01Icon,
+  Globe02Icon,
+  Camera01Icon,
+} from 'hugeicons-react';
 import {
   useStudentProfile,
   useUpdateStudentProfile,
@@ -804,12 +841,24 @@ export default function StudentProfile() {
                       <table className="w-full text-left border-collapse">
                         <thead>
                           <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Semester</th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">CGPA</th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Ongoing Backlogs</th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Backlogs</th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Marksheet</th>
-                            {!isReadOnly && <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider"></th>}
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                              Semester
+                            </th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                              CGPA
+                            </th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                              Ongoing Backlogs
+                            </th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                              Total Backlogs
+                            </th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
+                              Marksheet
+                            </th>
+                            {!isReadOnly && (
+                              <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider"></th>
+                            )}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
@@ -821,7 +870,9 @@ export default function StudentProfile() {
                                   value={mark.semester}
                                   onChange={(e) => {
                                     const n = [...profile.semesterMarks];
-                                    n[idx].semester = e.target.value ? parseInt(e.target.value) : '';
+                                    n[idx].semester = e.target.value
+                                      ? parseInt(e.target.value)
+                                      : '';
                                     setProfile({ ...profile, semesterMarks: n });
                                   }}
                                   disabled={isReadOnly}
@@ -850,7 +901,9 @@ export default function StudentProfile() {
                                   value={mark.ongoingBacklogs}
                                   onChange={(e) => {
                                     const n = [...profile.semesterMarks];
-                                    n[idx].ongoingBacklogs = e.target.value ? parseInt(e.target.value) : 0;
+                                    n[idx].ongoingBacklogs = e.target.value
+                                      ? parseInt(e.target.value)
+                                      : 0;
                                     setProfile({ ...profile, semesterMarks: n });
                                   }}
                                   disabled={isReadOnly}
@@ -863,7 +916,9 @@ export default function StudentProfile() {
                                   value={mark.totalBacklogs}
                                   onChange={(e) => {
                                     const n = [...profile.semesterMarks];
-                                    n[idx].totalBacklogs = e.target.value ? parseInt(e.target.value) : 0;
+                                    n[idx].totalBacklogs = e.target.value
+                                      ? parseInt(e.target.value)
+                                      : 0;
                                     setProfile({ ...profile, semesterMarks: n });
                                   }}
                                   disabled={isReadOnly}
@@ -890,7 +945,7 @@ export default function StudentProfile() {
                                             const fileRef = ref(storage, mark.marksheetUrl);
                                             await deleteObject(fileRef);
                                           } catch (e) {
-                                            console.error("Error deleting old marksheet", e);
+                                            console.error('Error deleting old marksheet', e);
                                           }
                                           const n = [...profile.semesterMarks];
                                           n[idx].marksheetUrl = null;
@@ -915,8 +970,14 @@ export default function StudentProfile() {
                                         onChange={(e) => {
                                           const file = e.target.files?.[0];
                                           if (!file) return;
-                                          setUploadingMarkings({ ...uploadingMarkings, [idx]: true });
-                                          const storageRef = ref(storage, `marksheets/${user?.id}/sem_${mark.semester}_${Date.now()}`);
+                                          setUploadingMarkings({
+                                            ...uploadingMarkings,
+                                            [idx]: true,
+                                          });
+                                          const storageRef = ref(
+                                            storage,
+                                            `marksheets/${user?.id}/sem_${mark.semester}_${Date.now()}`
+                                          );
                                           const uploadTask = uploadBytesResumable(storageRef, file);
                                           uploadTask.on(
                                             'state_changed',
@@ -924,14 +985,22 @@ export default function StudentProfile() {
                                             (error) => {
                                               console.error(error);
                                               toast.error('Failed to upload marksheet');
-                                              setUploadingMarkings({ ...uploadingMarkings, [idx]: false });
+                                              setUploadingMarkings({
+                                                ...uploadingMarkings,
+                                                [idx]: false,
+                                              });
                                             },
                                             async () => {
-                                              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                              const downloadURL = await getDownloadURL(
+                                                uploadTask.snapshot.ref
+                                              );
                                               const n = [...profile.semesterMarks];
                                               n[idx].marksheetUrl = downloadURL;
                                               setProfile({ ...profile, semesterMarks: n });
-                                              setUploadingMarkings({ ...uploadingMarkings, [idx]: false });
+                                              setUploadingMarkings({
+                                                ...uploadingMarkings,
+                                                [idx]: false,
+                                              });
                                               toast.success('Marksheet uploaded successfully');
                                             }
                                           );

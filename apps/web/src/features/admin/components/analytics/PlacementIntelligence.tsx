@@ -1,5 +1,13 @@
 import { Card } from '@/components/ui';
-import { Idea01Icon, Alert01Icon, ArrowUpRight01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, InformationCircleIcon } from 'hugeicons-react';
+import {
+  Idea01Icon,
+  Alert01Icon,
+  ArrowUpRight01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  MinusSignIcon,
+  InformationCircleIcon,
+} from 'hugeicons-react';
 import type { InsightsResponse, PlacementInsight, InsightSeverity } from '@/types/analytics.types';
 
 const severityIcons: Record<InsightSeverity, React.ElementType> = {

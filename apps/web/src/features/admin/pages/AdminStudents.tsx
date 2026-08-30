@@ -1,7 +1,36 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Card, Input, Button, Badge } from '@/components/ui';
 import { toast } from 'sonner';
-import { Search01Icon, Mortarboard01Icon, Tick02Icon, CancelCircleIcon, Upload01Icon, Download01Icon, UserAdd01Icon, ViewIcon, Mail01Icon, Building02Icon, BookOpen01Icon, MoreVerticalIcon, ArrowLeft01Icon, ArrowRight01Icon, Alert01Icon, UserMultipleIcon, ArrowUp01Icon, Note01Icon, Cancel01Icon, ArrowUpDownIcon, ArrowDown01Icon, Briefcase01Icon, Clock01Icon, Copy01Icon, Link02Icon, FilterIcon, RotateLeft01Icon, SentIcon } from 'hugeicons-react';
+import {
+  Search01Icon,
+  Mortarboard01Icon,
+  Tick02Icon,
+  CancelCircleIcon,
+  Upload01Icon,
+  Download01Icon,
+  UserAdd01Icon,
+  ViewIcon,
+  Mail01Icon,
+  Building02Icon,
+  BookOpen01Icon,
+  MoreVerticalIcon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Alert01Icon,
+  UserMultipleIcon,
+  ArrowUp01Icon,
+  Note01Icon,
+  Cancel01Icon,
+  ArrowUpDownIcon,
+  ArrowDown01Icon,
+  Briefcase01Icon,
+  Clock01Icon,
+  Copy01Icon,
+  Link02Icon,
+  FilterIcon,
+  RotateLeft01Icon,
+  SentIcon,
+} from 'hugeicons-react';
 import { useNavigate, Link } from 'react-router-dom';
 import Papa from 'papaparse';
 import { StudentImportService } from '@/features/admin/services/studentImportService';
@@ -108,7 +137,6 @@ export default function AdminStudents() {
         searchRef.current?.focus();
       }
       if (e.key === 'Escape') {
-
         setActionMenuId(null);
       }
     };
@@ -480,7 +508,12 @@ export default function AdminStudents() {
                   {pendingVerificationCount > 1 ? 's' : ''}
                 </span>
               </div>
-              <Link to="/admin/students/verifications" className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap">View →</Link>
+              <Link
+                to="/admin/students/verifications"
+                className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
+              >
+                View →
+              </Link>
             </div>
           )}
           {pendingUpdateCount > 0 && (
@@ -491,7 +524,12 @@ export default function AdminStudents() {
                   {pendingUpdateCount} Update Request{pendingUpdateCount > 1 ? 's' : ''}
                 </span>
               </div>
-              <Link to="/admin/students/update-requests" className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap">View →</Link>
+              <Link
+                to="/admin/students/update-requests"
+                className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap"
+              >
+                View →
+              </Link>
             </div>
           )}
         </div>
@@ -994,7 +1032,6 @@ export default function AdminStudents() {
           </>
         )}
       </Card>
-
     </div>
   );
 }

@@ -1,7 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Building02Icon, Mortarboard01Icon, Briefcase01Icon, ArrowUp01Icon, Note01Icon, TickDouble02Icon, Clock01Icon, Calendar01Icon, UserMultipleIcon, Award01Icon, Activity01Icon, Money01Icon, Building01Icon, RefreshIcon, ArrowRight01Icon } from 'hugeicons-react';
+import {
+  Building02Icon,
+  Mortarboard01Icon,
+  Briefcase01Icon,
+  ArrowUp01Icon,
+  Note01Icon,
+  TickDouble02Icon,
+  Clock01Icon,
+  Calendar01Icon,
+  UserMultipleIcon,
+  Award01Icon,
+  Activity01Icon,
+  Money01Icon,
+  Building01Icon,
+  RefreshIcon,
+  ArrowRight01Icon,
+} from 'hugeicons-react';
 import { Card } from '@/components/ui';
 import { EmptyState } from '@/components/common/EmptyState';
 import { adminService } from '@/services/admin.service';
@@ -109,12 +125,12 @@ const StatCard = ({
         className="absolute bottom-0 w-[200%] h-full origin-bottom"
         viewBox="0 0 1200 120"
         preserveAspectRatio="none"
-        initial={{ x: "0%" }}
-        animate={{ x: "-50%" }}
+        initial={{ x: '0%' }}
+        animate={{ x: '-50%' }}
         transition={{
           repeat: Infinity,
-          ease: "linear",
-          duration: 10
+          ease: 'linear',
+          duration: 10,
         }}
       >
         <path
@@ -262,7 +278,14 @@ export default function AdminDashboard() {
                   bgClass="bg-emerald-50"
                   trendColor="text-emerald-700"
                   chartColor="#10b981"
-                  chartData={[{value: 4}, {value: 3}, {value: 5}, {value: 8}, {value: 7}, {value: 10}]}
+                  chartData={[
+                    { value: 4 },
+                    { value: 3 },
+                    { value: 5 },
+                    { value: 8 },
+                    { value: 7 },
+                    { value: 10 },
+                  ]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -276,7 +299,14 @@ export default function AdminDashboard() {
                   bgClass="bg-blue-50"
                   trendColor="text-blue-700"
                   chartColor="#3b82f6"
-                  chartData={[{value: 2}, {value: 5}, {value: 3}, {value: 7}, {value: 4}, {value: 8}]}
+                  chartData={[
+                    { value: 2 },
+                    { value: 5 },
+                    { value: 3 },
+                    { value: 7 },
+                    { value: 4 },
+                    { value: 8 },
+                  ]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -290,7 +320,14 @@ export default function AdminDashboard() {
                   bgClass="bg-indigo-50"
                   trendColor="text-indigo-700"
                   chartColor="#6366f1"
-                  chartData={[{value: 1}, {value: 3}, {value: 2}, {value: 4}, {value: 6}, {value: 5}]}
+                  chartData={[
+                    { value: 1 },
+                    { value: 3 },
+                    { value: 2 },
+                    { value: 4 },
+                    { value: 6 },
+                    { value: 5 },
+                  ]}
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -337,7 +374,12 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
                     {data?.students?.eligibleByCompany?.length > 0 ? (
-                      <motion.div variants={listVariants} initial="hidden" animate="show" className="space-y-3">
+                      <motion.div
+                        variants={listVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="space-y-3"
+                      >
                         {data.students.eligibleByCompany.map((item: any, idx: number) => (
                           <motion.div
                             variants={listItemVariants}
@@ -346,10 +388,14 @@ export default function AdminDashboard() {
                             onClick={() => navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
-                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}>
+                              <div
+                                className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}
+                              >
                                 {item.company.substring(0, 2)}
                               </div>
-                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{item.company}</span>
+                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                {item.company}
+                              </span>
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="font-black text-lg text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100/50">
@@ -388,7 +434,12 @@ export default function AdminDashboard() {
                   </div>
                   <div className="flex-1 bg-slate-50/50 p-5">
                     {data?.students?.applicationsByCompany?.length > 0 ? (
-                      <motion.div variants={listVariants} initial="hidden" animate="show" className="space-y-3">
+                      <motion.div
+                        variants={listVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="space-y-3"
+                      >
                         {data.students.applicationsByCompany.map((item: any, idx: number) => (
                           <motion.div
                             variants={listItemVariants}
@@ -397,10 +448,14 @@ export default function AdminDashboard() {
                             onClick={() => navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
-                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}>
+                              <div
+                                className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}
+                              >
                                 {item.company.substring(0, 2)}
                               </div>
-                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">{item.company}</span>
+                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
+                                {item.company}
+                              </span>
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="font-black text-lg text-emerald-600 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100/50">

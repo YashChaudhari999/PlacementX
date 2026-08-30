@@ -61,7 +61,11 @@ const ChartWrapper = ({
             className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
             title="Toggle Fullscreen"
           >
-            {isFullscreen ? <Minimize01Icon className="w-4 h-4" /> : <Maximize01Icon className="w-4 h-4" />}
+            {isFullscreen ? (
+              <Minimize01Icon className="w-4 h-4" />
+            ) : (
+              <Maximize01Icon className="w-4 h-4" />
+            )}
           </button>
         </div>
       </div>

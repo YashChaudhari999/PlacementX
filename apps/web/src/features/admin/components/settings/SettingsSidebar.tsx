@@ -1,5 +1,15 @@
 import React from 'react';
-import { GlobalIcon, Shield01Icon, DatabaseIcon, Notification01Icon, Mortarboard01Icon, UserMultipleIcon, Activity01Icon, Settings01Icon, Alert01Icon } from 'hugeicons-react';
+import {
+  GlobalIcon,
+  Shield01Icon,
+  DatabaseIcon,
+  Notification01Icon,
+  Mortarboard01Icon,
+  UserMultipleIcon,
+  Activity01Icon,
+  Settings01Icon,
+  Alert01Icon,
+} from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
 
 export const SETTINGS_CATEGORIES = [

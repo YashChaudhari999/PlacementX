@@ -8,7 +8,14 @@ import {
 } from '@/hooks/queries/useNotifications';
 import { useSocket } from '@/contexts/SocketContext';
 import { formatDistanceToNow } from 'date-fns';
-import { TickDouble02Icon, Clock01Icon, Megaphone01Icon, Calendar01Icon, Link02Icon, Notification01Icon } from 'hugeicons-react';
+import {
+  TickDouble02Icon,
+  Clock01Icon,
+  Megaphone01Icon,
+  Calendar01Icon,
+  Link02Icon,
+  Notification01Icon,
+} from 'hugeicons-react';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function NotificationDropdown({ onClose }: { onClose: () => void }) {

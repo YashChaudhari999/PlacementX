@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Download01Icon, Note01Icon, TickDouble02Icon, Clock01Icon, CancelCircleIcon } from 'hugeicons-react';
+import {
+  Download01Icon,
+  Note01Icon,
+  TickDouble02Icon,
+  Clock01Icon,
+  CancelCircleIcon,
+} from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 
 export default function ReportHistory() {
@@ -19,6 +25,7 @@ export default function ReportHistory() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchHistory();
     // Poll every 10 seconds to update status of processing reports
     const interval = setInterval(fetchHistory, 10000);

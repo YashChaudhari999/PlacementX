@@ -1,6 +1,13 @@
 import { motion } from 'framer-motion';
 import { PageContainer } from '@/components/ui';
-import { Building02Icon, Mortarboard01Icon, UserMultipleIcon, Target01Icon, Shield01Icon, SparklesIcon } from 'hugeicons-react';
+import {
+  Building02Icon,
+  Mortarboard01Icon,
+  UserMultipleIcon,
+  Target01Icon,
+  Shield01Icon,
+  SparklesIcon,
+} from 'hugeicons-react';
 
 const stats = [
   { label: 'Students Placed', value: '10,000+', icon: Mortarboard01Icon },

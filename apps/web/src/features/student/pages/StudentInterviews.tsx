@@ -3,7 +3,14 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import { Calendar01Icon, Building02Icon, Clock01Icon, Location01Icon, Video01Icon, Link02Icon } from 'hugeicons-react';
+import {
+  Calendar01Icon,
+  Building02Icon,
+  Clock01Icon,
+  Location01Icon,
+  Video01Icon,
+  Link02Icon,
+} from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
@@ -137,7 +144,11 @@ export default function StudentInterviews() {
                               {round.date && (
                                 <div className="flex items-center gap-2 font-medium">
                                   <Calendar01Icon className="w-4 h-4 text-blue-500" />
-                                  {new Date(round.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                                  {new Date(round.date).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                  })}
                                 </div>
                               )}
                               {round.time && (

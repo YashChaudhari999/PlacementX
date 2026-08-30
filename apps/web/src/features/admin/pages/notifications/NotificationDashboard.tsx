@@ -4,7 +4,16 @@ import {
   useNotificationRecommendations,
 } from '@/hooks/queries/useAdminNotifications';
 import { Card } from '@/components/ui';
-import { SentIcon, Tick02Icon, ViewIcon, Calendar01Icon, Alert01Icon, ArrowUp01Icon, Megaphone01Icon, Clock01Icon } from 'hugeicons-react';
+import {
+  SentIcon,
+  Tick02Icon,
+  ViewIcon,
+  Calendar01Icon,
+  Alert01Icon,
+  ArrowUp01Icon,
+  Megaphone01Icon,
+  Clock01Icon,
+} from 'hugeicons-react';
 
 interface NotificationDashboardProps {
   onNavigate: (tab: string) => void;
@@ -150,7 +159,11 @@ export default function NotificationDashboard({ onNavigate }: NotificationDashbo
                           <span className="text-[10px] text-slate-400">•</span>
                           <span className="text-xs text-slate-500 flex items-center gap-1">
                             <Clock01Icon className="w-3 h-3" />
-                            {new Date(item.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date(item.sentAt).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
                           </span>
                         </div>
                       </td>

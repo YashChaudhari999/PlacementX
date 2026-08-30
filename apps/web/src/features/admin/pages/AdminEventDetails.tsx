@@ -3,7 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { UserMultipleIcon, ArrowLeft01Icon, Building02Icon, Calendar01Icon, Location01Icon, Money01Icon, Briefcase01Icon, Note01Icon, Tick02Icon, CancelCircleIcon } from 'hugeicons-react';
+import {
+  UserMultipleIcon,
+  ArrowLeft01Icon,
+  Building02Icon,
+  Calendar01Icon,
+  Location01Icon,
+  Money01Icon,
+  Briefcase01Icon,
+  Note01Icon,
+  Tick02Icon,
+  CancelCircleIcon,
+} from 'hugeicons-react';
 
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 
@@ -12,12 +23,6 @@ export default function AdminEventDetails() {
   const [drive, setDrive] = useState<any>(null);
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (id) {
-      fetchData();
-    }
-  }, [id]);
 
   const fetchData = async () => {
     try {
@@ -35,6 +40,12 @@ export default function AdminEventDetails() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
 
   const fetchApplications = async () => {
     try {
@@ -213,11 +224,16 @@ export default function AdminEventDetails() {
                 <Money01Icon className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA
               </div>
               <div className="flex items-center gap-2">
-                <UserMultipleIcon className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'} Vacancies
+                <UserMultipleIcon className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'}{' '}
+                Vacancies
               </div>
               <div className="flex items-center gap-2">
                 <Calendar01Icon className="w-4 h-4 text-slate-400" /> Closes{' '}
-                {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                {new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })}
               </div>
             </div>
           </Card>
@@ -330,7 +346,9 @@ export default function AdminEventDetails() {
                           </div>
                           <div className="text-xs text-slate-500">{app.student.user.email}</div>
                         </td>
-                        <td className="p-4 text-sm text-slate-600 whitespace-nowrap">{app.student.branch}</td>
+                        <td className="p-4 text-sm text-slate-600 whitespace-nowrap">
+                          {app.student.branch}
+                        </td>
                         <td className="p-4 text-sm text-slate-600 font-medium whitespace-nowrap">
                           {app.student.cgpa}
                         </td>

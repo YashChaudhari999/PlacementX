@@ -6,7 +6,15 @@ import {
   useDeleteNotification,
 } from '@/hooks/queries/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
-import { TickDouble02Icon, Delete01Icon, Megaphone01Icon, Calendar01Icon, Clock01Icon, FilterIcon, Search01Icon } from 'hugeicons-react';
+import {
+  TickDouble02Icon,
+  Delete01Icon,
+  Megaphone01Icon,
+  Calendar01Icon,
+  Clock01Icon,
+  FilterIcon,
+  Search01Icon,
+} from 'hugeicons-react';
 import { PageHeader } from '@/components/ui/layout';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui';

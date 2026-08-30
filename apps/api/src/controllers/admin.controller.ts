@@ -1445,10 +1445,11 @@ export const updateStudentAdminNotes = async (req: any, res: any) => {
 
     const updatedProfile = await prisma.studentProfile.update({
       where: { id: user.studentProfile.id },
+      // @ts-ignore - Prisma client needs regeneration to recognize adminNotes
       data: { adminNotes }
     });
 
-    return res.status(200).json({ message: 'Notes updated', adminNotes: updatedProfile.adminNotes });
+    return res.status(200).json({ message: 'Notes updated', adminNotes: (updatedProfile as any).adminNotes });
   } catch (error: any) {
     console.error('Error updating admin notes:', error);
     return res.status(500).json({ message: 'Error updating notes', error: error.message });

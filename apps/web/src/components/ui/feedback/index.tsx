@@ -1,5 +1,11 @@
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Cancel01Icon, Alert02Icon, Tick02Icon, InformationCircleIcon, Alert01Icon } from 'hugeicons-react';
+import {
+  Cancel01Icon,
+  Alert02Icon,
+  Tick02Icon,
+  InformationCircleIcon,
+  Alert01Icon,
+} from 'hugeicons-react';
 
 // ============================================
 // Alert

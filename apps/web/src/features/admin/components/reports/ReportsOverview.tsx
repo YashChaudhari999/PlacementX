@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
-import { Note01Icon, Download01Icon, Calendar01Icon, UserMultipleIcon, Briefcase01Icon, ArrowRight01Icon } from 'hugeicons-react';
+import {
+  Note01Icon,
+  Download01Icon,
+  Calendar01Icon,
+  UserMultipleIcon,
+  Briefcase01Icon,
+  ArrowRight01Icon,
+} from 'hugeicons-react';
 import { Button } from '@/components/ui/button';
 
 interface KPIs {

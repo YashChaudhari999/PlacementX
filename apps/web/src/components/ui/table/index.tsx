@@ -1,5 +1,15 @@
 import { forwardRef } from 'react';
-import { ArrowLeft01Icon, ArrowRight01Icon, ArrowLeftDoubleIcon, ArrowRightDoubleIcon, ArrowUpDownIcon, ArrowUp01Icon, ArrowDown01Icon, Search01Icon, Cancel01Icon } from 'hugeicons-react';
+import {
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowLeftDoubleIcon,
+  ArrowRightDoubleIcon,
+  ArrowUpDownIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Search01Icon,
+  Cancel01Icon,
+} from 'hugeicons-react';
 
 // ============================================
 // DataTable — Enterprise Component

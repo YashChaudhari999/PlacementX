@@ -1,5 +1,12 @@
 import { motion } from 'framer-motion';
-import { Target01Icon, UserMultipleIcon, EnergyIcon, Shield01Icon, Mail01Icon, DatabaseIcon } from 'hugeicons-react';
+import {
+  Target01Icon,
+  UserMultipleIcon,
+  EnergyIcon,
+  Shield01Icon,
+  Mail01Icon,
+  DatabaseIcon,
+} from 'hugeicons-react';
 
 const features = [
   {

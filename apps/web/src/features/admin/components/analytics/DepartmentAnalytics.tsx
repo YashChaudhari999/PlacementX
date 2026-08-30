@@ -1,5 +1,11 @@
 import { Card } from '@/components/ui';
-import { Building01Icon, ArrowUp01Icon, ArrowDown01Icon, MinusSignIcon, Alert02Icon } from 'hugeicons-react';
+import {
+  Building01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  MinusSignIcon,
+  Alert02Icon,
+} from 'hugeicons-react';
 import type { DepartmentResponse, DepartmentStats } from '@/types/analytics.types';
 import { useState } from 'react';
 

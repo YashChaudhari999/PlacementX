@@ -1,7 +1,21 @@
 import { useState } from 'react';
 import { useForm, FormProvider, useFormContext, useFieldArray } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight01Icon, ArrowLeft01Icon, Tick01Icon, PlusSignIcon, Delete01Icon, Building02Icon, Briefcase01Icon, Mortarboard01Icon, Calendar01Icon, ClipboardIcon, Attachment01Icon, ViewIcon, Loading02Icon } from 'hugeicons-react';
+import {
+  ArrowRight01Icon,
+  ArrowLeft01Icon,
+  Tick01Icon,
+  PlusSignIcon,
+  Delete01Icon,
+  Building02Icon,
+  Briefcase01Icon,
+  Mortarboard01Icon,
+  Calendar01Icon,
+  ClipboardIcon,
+  Attachment01Icon,
+  ViewIcon,
+  Loading02Icon,
+} from 'hugeicons-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api from '@/lib/api';
 import { useEffect, useState as useState2 } from 'react';
@@ -112,11 +126,11 @@ export default function CreateDriveWizard() {
   // Auto-save draft (debounced)
   useEffect(() => {
     if (isEditMode || isLoading) return;
-    
+
     const handler = setTimeout(() => {
       localStorage.setItem('placementx_drive_draft', JSON.stringify(formValues));
     }, 1500);
-    
+
     return () => clearTimeout(handler);
   }, [formValues, isEditMode, isLoading]);
 
@@ -130,7 +144,9 @@ export default function CreateDriveWizard() {
           let branches = [];
           try {
             branches = JSON.parse(d.eligibleBranches || '[]');
-          } catch (e) {}
+          } catch {
+            // fallback to empty array on parse error
+          }
 
           methods.reset({
             companyName: d.company?.name || '',
@@ -257,8 +273,8 @@ export default function CreateDriveWizard() {
                 const isCurrent = currentStep === step.id;
 
                 return (
-                  <div 
-                    key={step.id} 
+                  <div
+                    key={step.id}
                     className={`flex flex-col items-center relative group ${isCompleted ? 'cursor-pointer' : ''}`}
                     onClick={() => {
                       if (isCompleted) {
@@ -278,11 +294,19 @@ export default function CreateDriveWizard() {
                             : 'bg-white border-slate-200 text-slate-400 group-hover:border-slate-300'
                       }`}
                     >
-                      {isCompleted ? <Tick01Icon className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
+                      {isCompleted ? (
+                        <Tick01Icon className="w-6 h-6" />
+                      ) : (
+                        <Icon className="w-5 h-5" />
+                      )}
                     </motion.div>
                     <span
                       className={`mt-4 text-[10px] sm:text-[11px] font-bold tracking-wider transition-colors duration-300 uppercase text-center ${
-                        isCurrent ? 'text-primary' : isCompleted ? 'text-slate-700' : 'text-slate-400'
+                        isCurrent
+                          ? 'text-primary'
+                          : isCompleted
+                            ? 'text-slate-700'
+                            : 'text-slate-400'
                       }`}
                     >
                       {step.title}
@@ -876,7 +900,9 @@ function Step7Preview() {
                   className="px-3 py-1.5 bg-white border border-slate-200 rounded-md text-sm font-medium text-slate-700 shadow-sm"
                 >
                   {i + 1}. {r.title || 'Round'}{' '}
-                  {r.date ? `(${new Date(r.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })})` : ''}
+                  {r.date
+                    ? `(${new Date(r.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })})`
+                    : ''}
                 </span>
               ))}
             </div>

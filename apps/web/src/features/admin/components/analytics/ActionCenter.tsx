@@ -1,5 +1,10 @@
 import { Card } from '@/components/ui';
-import { Target01Icon, ArrowRight01Icon, Alert01Icon, InformationCircleIcon } from 'hugeicons-react';
+import {
+  Target01Icon,
+  ArrowRight01Icon,
+  Alert01Icon,
+  InformationCircleIcon,
+} from 'hugeicons-react';
 import type { ActionCenterResponse, ActionItem } from '@/types/analytics.types';
 import { Link } from 'react-router-dom';
 

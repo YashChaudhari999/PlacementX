@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { BarChartIcon, Note01Icon, Time01Icon, Bookmark01Icon, ArrowRight01Icon } from 'hugeicons-react';
+import {
+  BarChartIcon,
+  Note01Icon,
+  Time01Icon,
+  Bookmark01Icon,
+  ArrowRight01Icon,
+} from 'hugeicons-react';
 import ReportsOverview from '../components/reports/ReportsOverview';
 import ReportBuilder from '../components/reports/ReportBuilder';
 import ReportHistory from '../components/reports/ReportHistory';

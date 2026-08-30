@@ -22,12 +22,6 @@ export default function AdminStudentProfile() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (studentId) {
-      loadStudentData();
-    }
-  }, [studentId]);
-
   const loadStudentData = async () => {
     try {
       setLoading(true);
@@ -40,6 +34,12 @@ export default function AdminStudentProfile() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (studentId) {
+      loadStudentData();
+    }
+  }, [studentId]);
 
   if (loading) {
     return <Loading />;
@@ -59,15 +59,7 @@ export default function AdminStudentProfile() {
 
   const { importedData, profileData } = data;
 
-  const tabs = [
-    'Overview',
-    'Academic',
-    'Profile',
-    'Placements',
-    'Documents',
-    'Activity',
-    'Notes',
-  ];
+  const tabs = ['Overview', 'Academic', 'Profile', 'Placements', 'Documents', 'Activity', 'Notes'];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-fade-in">
@@ -113,13 +105,32 @@ export default function AdminStudentProfile() {
         </div>
 
         <div className="p-6 min-h-[500px]">
-          {activeTab === 'Overview' && <TabOverview importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Academic' && <TabAcademic importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Profile' && <TabProfile importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Placements' && <TabPlacements importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Documents' && <TabDocuments importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Activity' && <TabActivity importedData={importedData} profileData={profileData} />}
-          {activeTab === 'Notes' && <TabNotes studentId={studentId!} importedData={importedData} profileData={profileData} reload={loadStudentData} />}
+          {activeTab === 'Overview' && (
+            <TabOverview importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Academic' && (
+            <TabAcademic importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Profile' && (
+            <TabProfile importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Placements' && (
+            <TabPlacements importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Documents' && (
+            <TabDocuments importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Activity' && (
+            <TabActivity importedData={importedData} profileData={profileData} />
+          )}
+          {activeTab === 'Notes' && (
+            <TabNotes
+              studentId={studentId!}
+              importedData={importedData}
+              profileData={profileData}
+              reload={loadStudentData}
+            />
+          )}
         </div>
       </Card>
     </div>

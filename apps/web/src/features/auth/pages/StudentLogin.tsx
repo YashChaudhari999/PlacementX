@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Input, FormWrapper, FieldWrapper, Checkbox } from '@/components/ui';
-import { Mortarboard01Icon, ArrowLeft01Icon, RocketIcon, Briefcase01Icon, Award01Icon } from 'hugeicons-react';
+import {
+  Mortarboard01Icon,
+  ArrowLeft01Icon,
+  RocketIcon,
+  Briefcase01Icon,
+  Award01Icon,
+} from 'hugeicons-react';
 import { authService } from '@/lib/authService';
 
 export default function StudentLogin() {

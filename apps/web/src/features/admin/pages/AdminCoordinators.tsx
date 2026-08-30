@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import { Card, Input, Button } from '@/components/ui';
 import { toast } from 'sonner';
-import { UserMultipleIcon, PlusSignIcon, Shield01Icon, Mail01Icon, Search01Icon } from 'hugeicons-react';
+import {
+  UserMultipleIcon,
+  PlusSignIcon,
+  Shield01Icon,
+  Mail01Icon,
+  Search01Icon,
+} from 'hugeicons-react';
 
 export default function AdminCoordinators() {
   const [coordinators, setCoordinators] = useState<any[]>([]);
@@ -18,10 +24,6 @@ export default function AdminCoordinators() {
     password: '',
   });
 
-  useEffect(() => {
-    fetchCoordinators();
-  }, []);
-
   const fetchCoordinators = async () => {
     try {
       const res = await api.get('/admin/coordinators');
@@ -33,6 +35,10 @@ export default function AdminCoordinators() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCoordinators();
+  }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,7 +165,12 @@ export default function AdminCoordinators() {
                   <Mail01Icon className="w-4 h-4 text-slate-400" /> {coordinator.email}
                 </div>
                 <div className="text-xs text-slate-400 mt-2">
-                  Joined: {new Date(coordinator.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  Joined:{' '}
+                  {new Date(coordinator.createdAt).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                  })}
                 </div>
               </div>
             </Card>

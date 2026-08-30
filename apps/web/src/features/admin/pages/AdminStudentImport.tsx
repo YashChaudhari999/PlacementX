@@ -1,5 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { CloudUploadIcon, Tick02Icon, CancelCircleIcon, Download01Icon, Note01Icon, Alert01Icon, Alert02Icon } from 'hugeicons-react';
+import {
+  CloudUploadIcon,
+  Tick02Icon,
+  CancelCircleIcon,
+  Download01Icon,
+  Note01Icon,
+  Alert01Icon,
+  Alert02Icon,
+} from 'hugeicons-react';
 import { CSVParserService } from '@/lib/csvParserService';
 import type { CSVValidationError } from '@/lib/csvParserService';
 import type { CSVStudentRow } from '@/lib/firebase/models';

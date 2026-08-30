@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Cancel01Icon, Calendar01Icon, Clock01Icon, AlignLeftIcon, Tag01Icon, Loading02Icon } from 'hugeicons-react';
+import {
+  Cancel01Icon,
+  Calendar01Icon,
+  Clock01Icon,
+  AlignLeftIcon,
+  Tag01Icon,
+  Loading02Icon,
+} from 'hugeicons-react';
 import { useCreateCustomEvent, useUpdateCustomEvent } from '@/hooks/queries/useAdminCalendar';
 
 interface CreateEventModalProps {

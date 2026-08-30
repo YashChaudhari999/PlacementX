@@ -1,7 +1,20 @@
 import { useState } from 'react';
 import { Card, Input, Button } from '@/components/ui';
 import { useNotificationHistory } from '@/hooks/queries/useAdminNotifications';
-import { Search01Icon, FilterIcon, Clock01Icon, UserMultipleIcon, Cancel01Icon, ArrowLeft01Icon, ArrowRight01Icon, SmartPhone01Icon, Notification01Icon, ViewIcon, BarChartIcon, Tick02Icon } from 'hugeicons-react';
+import {
+  Search01Icon,
+  FilterIcon,
+  Clock01Icon,
+  UserMultipleIcon,
+  Cancel01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  SmartPhone01Icon,
+  Notification01Icon,
+  ViewIcon,
+  BarChartIcon,
+  Tick02Icon,
+} from 'hugeicons-react';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function NotificationHistory() {
@@ -107,7 +120,11 @@ export default function NotificationHistory() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="text-sm text-slate-700">
-                        {new Date(item.sentAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        {new Date(item.sentAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                        })}
                       </div>
                       <div className="text-xs text-slate-400">
                         {new Date(item.sentAt).toLocaleTimeString('en-US', {

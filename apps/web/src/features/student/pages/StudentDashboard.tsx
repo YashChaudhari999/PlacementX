@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Button } from '@/components/ui';
-import { Notification01Icon, Briefcase01Icon, Link02Icon, Tick01Icon, Sun01Icon, Moon01Icon, Location01Icon, Calendar01Icon } from 'hugeicons-react';
+import {
+  Notification01Icon,
+  Briefcase01Icon,
+  Link02Icon,
+  Tick01Icon,
+  Sun01Icon,
+  Moon01Icon,
+  Location01Icon,
+  Calendar01Icon,
+} from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
@@ -140,22 +149,36 @@ export default function StudentDashboard() {
                             <Briefcase01Icon className="w-4 h-4 text-slate-400" />
                             {drive.employmentType}
                           </div>
-                          {drive.registrationStart && new Date(drive.registrationStart) > new Date() ? (
+                          {drive.registrationStart &&
+                          new Date(drive.registrationStart) > new Date() ? (
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-blue-600 font-medium bg-blue-50 border border-blue-100 shadow-sm">
                               <Calendar01Icon className="w-4 h-4 text-blue-500 animate-pulse" />
-                              Starts: {new Date(drive.registrationStart).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                              Starts:{' '}
+                              {new Date(drive.registrationStart).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              })}
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100 shadow-sm">
                               <Notification01Icon className="w-4 h-4 text-red-500 animate-bounce" />
-                              Deadline: {new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                              Deadline:{' '}
+                              {new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                              })}
                             </div>
                           )}
                         </div>
                       </div>
 
                       <div className="w-full sm:w-auto flex-shrink-0 mt-4 sm:mt-0">
-                        <Button className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md" onClick={() => navigate(`/student/drives/${drive.id}`)}>
+                        <Button
+                          className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md"
+                          onClick={() => navigate(`/student/drives/${drive.id}`)}
+                        >
                           View Details
                         </Button>
                       </div>
@@ -225,7 +248,11 @@ export default function StudentDashboard() {
 
                       <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 pl-2">
                         <span className="text-[10px] font-medium text-slate-400">
-                          {new Date(notification.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                          {new Date(notification.createdAt).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                          })}
                         </span>
                         {notification.link && (
                           <Button

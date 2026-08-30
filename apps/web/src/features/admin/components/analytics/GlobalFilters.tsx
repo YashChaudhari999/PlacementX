@@ -1,4 +1,10 @@
-import { Cancel01Icon, FilterIcon, RefreshIcon, Download01Icon, Settings02Icon } from 'hugeicons-react';
+import {
+  Cancel01Icon,
+  FilterIcon,
+  RefreshIcon,
+  Download01Icon,
+  Settings02Icon,
+} from 'hugeicons-react';
 import { useFilterOptions } from '@/hooks/queries/useAnalytics';
 import { useAnalyticsFilters } from '@/hooks/useAnalyticsFilters';
 import { analyticsService } from '@/services/analytics.service';

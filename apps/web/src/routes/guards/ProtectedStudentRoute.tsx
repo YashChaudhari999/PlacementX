@@ -9,7 +9,7 @@ export const ProtectedStudentRoute = ({ children }: { children: ReactNode }) => 
   const location = useLocation();
   if (!isAuthenticated) return <Navigate to="/student/login" replace />;
   if (user?.role !== 'STUDENT') return <Navigate to="/unauthorized" replace />;
-  
+
   // If profile is not verified, show a proper explanation page
   // EXCEPT when on the profile page itself so they can still edit/submit
   if (user?.profileStatus !== 'VERIFIED' && location.pathname !== '/student/profile') {

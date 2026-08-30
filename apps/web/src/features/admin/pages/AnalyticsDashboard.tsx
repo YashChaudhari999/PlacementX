@@ -31,7 +31,16 @@ import StudentRiskAnalytics from '../components/analytics/StudentRiskAnalytics';
 import SkillGapAnalytics from '../components/analytics/SkillGapAnalytics';
 import DriveAnalytics from '../components/analytics/DriveAnalytics';
 
-import { Activity01Icon, Shield01Icon, Target01Icon, Mortarboard01Icon, Building02Icon, Money01Icon, Briefcase01Icon, SparklesIcon } from 'hugeicons-react';
+import {
+  Activity01Icon,
+  Shield01Icon,
+  Target01Icon,
+  Mortarboard01Icon,
+  Building02Icon,
+  Money01Icon,
+  Briefcase01Icon,
+  SparklesIcon,
+} from 'hugeicons-react';
 import { AnalyticsSkeleton } from '@/components/common/Skeletons';
 
 type Tab = 'overview' | 'departments' | 'students' | 'companies' | 'drives';

@@ -1,7 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
-import { UserMultipleIcon, TickDouble02Icon, Clock01Icon, Location01Icon, Search01Icon, Calendar01Icon, Note01Icon, CancelCircleIcon } from 'hugeicons-react';
+import {
+  UserMultipleIcon,
+  TickDouble02Icon,
+  Clock01Icon,
+  Location01Icon,
+  Search01Icon,
+  Calendar01Icon,
+  Note01Icon,
+  CancelCircleIcon,
+} from 'hugeicons-react';
 import api from '@/lib/api';
 
 export default function RecruiterEventDashboard() {
@@ -291,7 +300,11 @@ export default function RecruiterEventDashboard() {
                         <div className="mt-1 flex flex-col gap-0.5 text-[10px] text-slate-500">
                           <span className="flex items-center gap-1">
                             <Calendar01Icon className="w-3 h-3" />{' '}
-                            {new Date(app.interviewSchedule.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date(app.interviewSchedule.date).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
                           </span>
                           <span className="flex items-center gap-1">
                             <Clock01Icon className="w-3 h-3" /> {app.interviewSchedule.time}

@@ -50,8 +50,12 @@ export default function StudentSettings() {
       <div className="flex justify-between items-center bg-white/50 p-6 rounded-3xl backdrop-blur-md border border-slate-200/60 shadow-sm relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="relative z-10">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Account Settings</h1>
-          <p className="text-lg text-slate-500 mt-1">Manage your account security and preferences.</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Account Settings
+          </h1>
+          <p className="text-lg text-slate-500 mt-1">
+            Manage your account security and preferences.
+          </p>
         </div>
       </div>
 

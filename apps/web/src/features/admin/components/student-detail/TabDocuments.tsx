@@ -1,8 +1,13 @@
 import { File01Icon, Download01Icon, Tick02Icon, Cancel01Icon, Alert01Icon } from 'hugeicons-react';
 import { Button, Badge } from '@/components/ui';
 
-export function TabDocuments({ importedData, profileData }: { importedData: any, profileData: any }) {
-  
+export function TabDocuments({
+  importedData,
+  profileData,
+}: {
+  importedData: any;
+  profileData: any;
+}) {
   // Since we don't have a complex document model yet, we'll just show the resume and a placeholder for others
   const documents = [
     {
@@ -28,7 +33,7 @@ export function TabDocuments({ importedData, profileData }: { importedData: any,
       url: null,
       status: 'Missing',
       date: null,
-    }
+    },
   ];
 
   return (
@@ -38,12 +43,17 @@ export function TabDocuments({ importedData, profileData }: { importedData: any,
           <h3 className="font-semibold text-gray-900">Student Documents</h3>
           <p className="text-sm text-gray-500 mt-1">Review and verify uploaded documents.</p>
         </div>
-        
+
         <div className="divide-y divide-gray-100">
           {documents.map((doc) => (
-            <div key={doc.id} className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div
+              key={doc.id}
+              className="p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
+            >
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${doc.url ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-50 text-gray-400 border border-gray-200 border-dashed'}`}>
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${doc.url ? 'bg-indigo-50 text-indigo-600' : 'bg-gray-50 text-gray-400 border border-gray-200 border-dashed'}`}
+                >
                   <File01Icon className="w-6 h-6" />
                 </div>
                 <div>
@@ -58,18 +68,33 @@ export function TabDocuments({ importedData, profileData }: { importedData: any,
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
                 {doc.url ? (
                   <>
-                    <Button variant="outline" size="sm" className="w-full md:w-auto" onClick={() => window.open(doc.url, '_blank')}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full md:w-auto"
+                      onClick={() => window.open(doc.url, '_blank')}
+                    >
                       <File01Icon className="w-4 h-4 mr-1.5" />
                       View
                     </Button>
-                    <Button variant="outline" size="sm" className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200" title="Verify">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200"
+                      title="Verify"
+                    >
                       <Tick02Icon className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200" title="Reject">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                      title="Reject"
+                    >
                       <Cancel01Icon className="w-4 h-4" />
                     </Button>
                   </>

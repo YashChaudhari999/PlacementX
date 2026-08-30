@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { PlusSignIcon, Search01Icon, FilterIcon, MoreHorizontalIcon, Building02Icon, Calendar01Icon, UserMultipleIcon, Briefcase01Icon, Link01Icon } from 'hugeicons-react';
+import {
+  PlusSignIcon,
+  Search01Icon,
+  FilterIcon,
+  MoreHorizontalIcon,
+  Building02Icon,
+  Calendar01Icon,
+  UserMultipleIcon,
+  Briefcase01Icon,
+  Link01Icon,
+} from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
 import { useDrives } from '@/hooks/queries/useDrives';
@@ -123,18 +133,22 @@ export default function DriveList() {
             const matchesSearch =
               drive.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
               drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
-              
+
             const now = new Date();
-            const regStart = (drive as any).registrationStart ? new Date((drive as any).registrationStart) : null;
-            const regEnd = (drive as any).registrationEnd ? new Date((drive as any).registrationEnd) : null;
-            
+            const regStart = (drive as any).registrationStart
+              ? new Date((drive as any).registrationStart)
+              : null;
+            const regEnd = (drive as any).registrationEnd
+              ? new Date((drive as any).registrationEnd)
+              : null;
+
             const isUpcoming = regStart ? regStart > now : false;
             const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
             const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
 
             const matchesStatus = () => {
               if (statusFilter === '') return true;
-              
+
               switch (statusFilter.toLowerCase()) {
                 case 'published':
                   return drive.status === 'PUBLISHED';
@@ -218,7 +232,11 @@ export default function DriveList() {
                     <div className="flex items-center text-sm text-slate-600">
                       <Calendar01Icon className="w-4 h-4 mr-2 text-slate-400" />
                       {(drive as any).registrationEnd
-                        ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                        ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                          })
                         : 'N/A'}
                     </div>
                     <div className="flex items-center text-sm text-slate-600">
@@ -230,16 +248,21 @@ export default function DriveList() {
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
                     {(() => {
                       const now = new Date();
-                      const regStart = (drive as any).registrationStart ? new Date((drive as any).registrationStart) : null;
-                      const regEnd = (drive as any).registrationEnd ? new Date((drive as any).registrationEnd) : null;
-                      
+                      const regStart = (drive as any).registrationStart
+                        ? new Date((drive as any).registrationStart)
+                        : null;
+                      const regEnd = (drive as any).registrationEnd
+                        ? new Date((drive as any).registrationEnd)
+                        : null;
+
                       const isUpcoming = regStart ? regStart > now : false;
-                      const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
+                      const isClosed =
+                        (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
                       const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
-                      
+
                       let displayStatus = drive.status;
                       let badgeColor = 'bg-slate-100 text-slate-600';
-                      
+
                       if (drive.status === 'PUBLISHED') {
                         if (isUpcoming) {
                           displayStatus = 'UPCOMING';
@@ -258,7 +281,9 @@ export default function DriveList() {
                       }
 
                       return (
-                        <span className={`px-2.5 py-1 text-xs font-semibold rounded-md ${badgeColor}`}>
+                        <span
+                          className={`px-2.5 py-1 text-xs font-semibold rounded-md ${badgeColor}`}
+                        >
                           {displayStatus}
                         </span>
                       );

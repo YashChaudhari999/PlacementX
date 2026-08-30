@@ -1,12 +1,20 @@
 import { Building02Icon, BookOpen01Icon, Alert01Icon, Tick02Icon } from 'hugeicons-react';
 
-export function TabOverview({ importedData, profileData }: { importedData: any, profileData: any }) {
+export function TabOverview({
+  importedData,
+  profileData,
+}: {
+  importedData: any;
+  profileData: any;
+}) {
   const isEligible = importedData.activeBacklogs === 0 && (importedData.cgpa || 0) >= 6.0;
 
   return (
     <div className="space-y-6">
       {/* Eligibility Alert */}
-      <div className={`p-4 rounded-lg flex items-start gap-3 ${isEligible ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}>
+      <div
+        className={`p-4 rounded-lg flex items-start gap-3 ${isEligible ? 'bg-green-50 border border-green-100' : 'bg-red-50 border border-red-100'}`}
+      >
         {isEligible ? (
           <Tick02Icon className="w-5 h-5 text-green-600 mt-0.5" />
         ) : (
@@ -19,8 +27,12 @@ export function TabOverview({ importedData, profileData }: { importedData: any, 
           <p className={`text-sm mt-1 ${isEligible ? 'text-green-700' : 'text-red-700'}`}>
             {!isEligible && (
               <>
-                {importedData.activeBacklogs > 0 && <span>Student has {importedData.activeBacklogs} active backlogs. </span>}
-                {(importedData.cgpa || 0) < 6.0 && <span>CGPA is below 6.0 ({importedData.cgpa}).</span>}
+                {importedData.activeBacklogs > 0 && (
+                  <span>Student has {importedData.activeBacklogs} active backlogs. </span>
+                )}
+                {(importedData.cgpa || 0) < 6.0 && (
+                  <span>CGPA is below 6.0 ({importedData.cgpa}).</span>
+                )}
               </>
             )}
             {isEligible && 'Student meets standard eligibility criteria (0 backlogs, CGPA >= 6.0).'}
@@ -46,11 +58,15 @@ export function TabOverview({ importedData, profileData }: { importedData: any, 
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">CGPA</dt>
-              <dd className="mt-1 text-sm font-semibold text-indigo-600">{importedData.cgpa || 'N/A'}</dd>
+              <dd className="mt-1 text-sm font-semibold text-indigo-600">
+                {importedData.cgpa || 'N/A'}
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Backlogs</dt>
-              <dd className={`mt-1 text-sm font-semibold ${importedData.activeBacklogs > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+              <dd
+                className={`mt-1 text-sm font-semibold ${importedData.activeBacklogs > 0 ? 'text-red-600' : 'text-gray-900'}`}
+              >
                 {importedData.activeBacklogs || 0}
               </dd>
             </div>
@@ -66,18 +82,26 @@ export function TabOverview({ importedData, profileData }: { importedData: any, 
           <dl className="grid grid-cols-2 gap-x-4 gap-y-4">
             <div>
               <dt className="text-sm font-medium text-gray-500">Current Status</dt>
-              <dd className="mt-1 text-sm text-gray-900">{importedData.placementStatus || 'Unplaced'}</dd>
+              <dd className="mt-1 text-sm text-gray-900">
+                {importedData.placementStatus || 'Unplaced'}
+              </dd>
             </div>
             <div>
               <dt className="text-sm font-medium text-gray-500">Applications</dt>
-              <dd className="mt-1 text-sm text-gray-900">{profileData?.applications?.length || 0}</dd>
+              <dd className="mt-1 text-sm text-gray-900">
+                {profileData?.applications?.length || 0}
+              </dd>
             </div>
             {importedData.placementStatus === 'Placed' && importedData.companyName && (
               <div className="col-span-2">
                 <dt className="text-sm font-medium text-gray-500">Placed Company</dt>
-                <dd className="mt-1 text-sm font-medium text-gray-900">{importedData.companyName}</dd>
+                <dd className="mt-1 text-sm font-medium text-gray-900">
+                  {importedData.companyName}
+                </dd>
                 {importedData.fixedSalaryLpa && (
-                  <p className="text-xs text-gray-500 mt-1">Package: {importedData.fixedSalaryLpa} LPA</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Package: {importedData.fixedSalaryLpa} LPA
+                  </p>
                 )}
               </div>
             )}

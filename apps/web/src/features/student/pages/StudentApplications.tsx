@@ -3,7 +3,15 @@ import { useAuthStore } from '@/stores/authStore';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import { Building02Icon, Calendar01Icon, ArrowRight01Icon, TickDouble02Icon, Clock01Icon, CancelCircleIcon, MoreHorizontalIcon } from 'hugeicons-react';
+import {
+  Building02Icon,
+  Calendar01Icon,
+  ArrowRight01Icon,
+  TickDouble02Icon,
+  Clock01Icon,
+  CancelCircleIcon,
+  MoreHorizontalIcon,
+} from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -138,7 +146,12 @@ export default function StudentApplications() {
                   <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-medium text-slate-400">
                       <Calendar01Icon className="w-4 h-4 text-slate-300" />
-                      Applied: {new Date(app.appliedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      Applied:{' '}
+                      {new Date(app.appliedAt).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                      })}
                     </div>
                     <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                       <ArrowRight01Icon className="w-4 h-4" />

@@ -2,7 +2,22 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import { DashboardSquare01Icon, ChartLineData01Icon, Briefcase01Icon, UserMultipleIcon, Note01Icon, Notification01Icon, Calendar01Icon, Settings01Icon, Logout01Icon, Menu01Icon, ArrowDown01Icon, Tick02Icon, Shield01Icon, FileEditIcon } from 'hugeicons-react';
+import {
+  DashboardSquare01Icon,
+  ChartLineData01Icon,
+  Briefcase01Icon,
+  UserMultipleIcon,
+  Note01Icon,
+  Notification01Icon,
+  Calendar01Icon,
+  Settings01Icon,
+  Logout01Icon,
+  Menu01Icon,
+  ArrowDown01Icon,
+  Tick02Icon,
+  Shield01Icon,
+  FileEditIcon,
+} from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 

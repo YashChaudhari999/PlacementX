@@ -1,7 +1,15 @@
 import { useState } from 'react';
 import { Card, Button } from '@/components/ui';
 import { useScheduledNotifications } from '@/hooks/queries/useAdminNotifications';
-import { Calendar01Icon, UserMultipleIcon, Edit01Icon, Delete01Icon, SmartPhone01Icon, Notification01Icon, Clock01Icon } from 'hugeicons-react';
+import {
+  Calendar01Icon,
+  UserMultipleIcon,
+  Edit01Icon,
+  Delete01Icon,
+  SmartPhone01Icon,
+  Notification01Icon,
+  Clock01Icon,
+} from 'hugeicons-react';
 import { toast } from 'sonner';
 
 export default function NotificationScheduled() {
@@ -99,7 +107,11 @@ export default function NotificationScheduled() {
                         <Clock01Icon className="w-4 h-4 text-amber-500" />
                         <div>
                           <div className="text-sm font-bold text-slate-900">
-                            {new Date(item.scheduledFor).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            {new Date(item.scheduledFor).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                            })}
                           </div>
                           <div className="text-xs text-amber-600 font-semibold">
                             {new Date(item.scheduledFor).toLocaleTimeString('en-US', {

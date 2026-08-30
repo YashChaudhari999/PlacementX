@@ -1,4 +1,13 @@
-import { SparklesIcon, ArrowUp01Icon, ArrowDown01Icon, Alert01Icon, TickDouble02Icon, Building02Icon, Money01Icon, EnergyIcon } from 'hugeicons-react';
+import {
+  SparklesIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Alert01Icon,
+  TickDouble02Icon,
+  Building02Icon,
+  Money01Icon,
+  EnergyIcon,
+} from 'hugeicons-react';
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
 

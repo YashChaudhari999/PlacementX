@@ -95,8 +95,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return () => {
       newSocket.disconnect();
     };
-  // Depend only on stable primitives, not the whole user object
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Depend only on stable primitives, not the whole user object
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, userId, userRole, userBranch]);
 
   const joinRooms = (rooms: string[]) => {

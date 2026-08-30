@@ -39,7 +39,9 @@ export default function StudentDocuments() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/10 to-violet-400/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="relative z-10">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Documents</h1>
-          <p className="text-lg text-slate-500 mt-1">Access your uploaded resumes and official offer letters.</p>
+          <p className="text-lg text-slate-500 mt-1">
+            Access your uploaded resumes and official offer letters.
+          </p>
         </div>
       </div>
 
@@ -105,7 +107,12 @@ export default function StudentDocuments() {
                       <h4 className="font-bold text-slate-800">{offer.company}</h4>
                       <p className="text-sm text-slate-600">{offer.role}</p>
                       <p className="text-xs text-slate-400 mt-2">
-                        Issued: {new Date(offer.uploadedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        Issued:{' '}
+                        {new Date(offer.uploadedAt).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                        })}
                       </p>
                     </div>
                     {offer.offerLetterUrl ? (

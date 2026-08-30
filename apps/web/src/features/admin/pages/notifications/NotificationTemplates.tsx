@@ -1,6 +1,14 @@
 import { Card, Button, Input } from '@/components/ui';
 import { useNotificationTemplates } from '@/hooks/queries/useAdminNotifications';
-import { Layout01Icon, Search01Icon, PlusSignIcon, Edit02Icon, Copy01Icon, Delete01Icon, StarIcon } from 'hugeicons-react';
+import {
+  Layout01Icon,
+  Search01Icon,
+  PlusSignIcon,
+  Edit02Icon,
+  Copy01Icon,
+  Delete01Icon,
+  StarIcon,
+} from 'hugeicons-react';
 import { useState } from 'react';
 
 export default function NotificationTemplates() {
@@ -63,7 +71,10 @@ export default function NotificationTemplates() {
                 <button
                   className={`p-1.5 rounded-full ${template.isFavorite ? 'text-amber-500 bg-amber-50' : 'text-slate-300 hover:text-amber-500 hover:bg-amber-50'}`}
                 >
-                  <StarIcon className="w-4 h-4" fill={template.isFavorite ? 'currentColor' : 'none'} />
+                  <StarIcon
+                    className="w-4 h-4"
+                    fill={template.isFavorite ? 'currentColor' : 'none'}
+                  />
                 </button>
               </div>
               <div className="p-5 flex-1 bg-slate-50/50">

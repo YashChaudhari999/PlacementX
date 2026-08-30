@@ -1,4 +1,14 @@
-import { Cancel01Icon, Calendar01Icon, Clock01Icon, Location01Icon, Building01Icon, InformationCircleIcon, Link02Icon, Edit02Icon, Delete01Icon } from 'hugeicons-react';
+import {
+  Cancel01Icon,
+  Calendar01Icon,
+  Clock01Icon,
+  Location01Icon,
+  Building01Icon,
+  InformationCircleIcon,
+  Link02Icon,
+  Edit02Icon,
+  Delete01Icon,
+} from 'hugeicons-react';
 import { format } from 'date-fns';
 import { useDeleteCustomEvent } from '@/hooks/queries/useAdminCalendar';
 import { Link } from 'react-router-dom';

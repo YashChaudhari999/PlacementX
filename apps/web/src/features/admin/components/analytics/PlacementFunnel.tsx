@@ -1,6 +1,16 @@
 import { Card } from '@/components/ui';
 import { motion } from 'framer-motion';
-import { FilterIcon, UserMultipleIcon, UserIcon, Search01Icon, Briefcase01Icon, Note01Icon, CancelCircleIcon, ArrowRight01Icon, Alert01Icon } from 'hugeicons-react';
+import {
+  FilterIcon,
+  UserMultipleIcon,
+  UserIcon,
+  Search01Icon,
+  Briefcase01Icon,
+  Note01Icon,
+  CancelCircleIcon,
+  ArrowRight01Icon,
+  Alert01Icon,
+} from 'hugeicons-react';
 import type { FunnelResponse } from '@/types/analytics.types';
 
 const stageIcons: Record<string, React.ElementType> = {

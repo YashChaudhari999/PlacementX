@@ -2,7 +2,22 @@ import { useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
-import { DashboardSquare01Icon, Briefcase01Icon, Note01Icon, Notification01Icon, Calendar01Icon, Settings01Icon, Logout01Icon, Menu01Icon, Search01Icon, UserIcon, Award01Icon, ArrowDown01Icon, Camera01Icon, Download01Icon } from 'hugeicons-react';
+import {
+  DashboardSquare01Icon,
+  Briefcase01Icon,
+  Note01Icon,
+  Notification01Icon,
+  Calendar01Icon,
+  Settings01Icon,
+  Logout01Icon,
+  Menu01Icon,
+  Search01Icon,
+  UserIcon,
+  Award01Icon,
+  ArrowDown01Icon,
+  Camera01Icon,
+  Download01Icon,
+} from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -57,7 +72,7 @@ export const StudentLayout = () => {
   const sidebarContentJSX = (
     <div className="flex flex-col h-full bg-white/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-300">
       <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
-        <div 
+        <div
           className="flex items-center gap-3 justify-center w-full h-full py-4 transition-transform duration-300 hover:scale-105 cursor-pointer"
           onClick={() => navigate('/student/dashboard')}
         >
@@ -87,7 +102,9 @@ export const StudentLayout = () => {
                 }`
               }
             >
-              <Icon className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 group-hover:scale-110'}`} />
+              <Icon
+                className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 group-hover:scale-110'}`}
+              />
               <span className="flex-1 tracking-wide">{item.name}</span>
               {isNotif && unreadCount > 0 && (
                 <span
@@ -115,7 +132,7 @@ export const StudentLayout = () => {
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${completionPercentage}%` }}
-              transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+              transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
               className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-2 rounded-full"
             />
           </div>
@@ -189,8 +206,6 @@ export const StudentLayout = () => {
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
-
-
             {/* Download App Button */}
             <a
               href="/placementx-student-app.apk"

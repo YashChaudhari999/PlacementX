@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import api from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { ArrowRight01Icon, ArrowLeft01Icon, Tick01Icon, Note01Icon, ViewIcon, Alert02Icon } from 'hugeicons-react';
+import {
+  ArrowRight01Icon,
+  ArrowLeft01Icon,
+  Tick01Icon,
+  Note01Icon,
+  ViewIcon,
+  Alert02Icon,
+} from 'hugeicons-react';
 
 const REPORT_TYPES = [
   {

@@ -1,19 +1,30 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
-import { Shield01Icon, Clock01Icon, Alert01Icon, Note01Icon, ArrowRight01Icon, RefreshIcon, TickDouble02Icon } from 'hugeicons-react';
+import {
+  Shield01Icon,
+  Clock01Icon,
+  Alert01Icon,
+  Note01Icon,
+  ArrowRight01Icon,
+  RefreshIcon,
+  TickDouble02Icon,
+} from 'hugeicons-react';
 import { motion } from 'framer-motion';
 
-const STATUS_CONFIG: Record<string, {
-  icon: React.ElementType;
-  iconColor: string;
-  iconBg: string;
-  badge: string;
-  badgeColor: string;
-  title: string;
-  description: string;
-  ctaLabel: string;
-  ctaPath: string;
-}> = {
+const STATUS_CONFIG: Record<
+  string,
+  {
+    icon: React.ElementType;
+    iconColor: string;
+    iconBg: string;
+    badge: string;
+    badgeColor: string;
+    title: string;
+    description: string;
+    ctaLabel: string;
+    ctaPath: string;
+  }
+> = {
   NOT_COMPLETED: {
     icon: Note01Icon,
     iconColor: 'text-amber-600',
@@ -21,7 +32,8 @@ const STATUS_CONFIG: Record<string, {
     badge: 'Incomplete',
     badgeColor: 'bg-amber-100 text-amber-700',
     title: 'Complete Your Profile First',
-    description: 'You need to fill in all required details and submit your profile for verification before you can access the student portal.',
+    description:
+      'You need to fill in all required details and submit your profile for verification before you can access the student portal.',
     ctaLabel: 'Complete My Profile',
     ctaPath: '/student/profile',
   },
@@ -32,7 +44,8 @@ const STATUS_CONFIG: Record<string, {
     badge: 'Pending Submission',
     badgeColor: 'bg-blue-100 text-blue-700',
     title: 'Submit Your Profile for Verification',
-    description: 'Your profile has been saved but not yet submitted for admin review. Fill in the remaining details and submit to unlock the portal.',
+    description:
+      'Your profile has been saved but not yet submitted for admin review. Fill in the remaining details and submit to unlock the portal.',
     ctaLabel: 'Go to My Profile',
     ctaPath: '/student/profile',
   },
@@ -43,7 +56,8 @@ const STATUS_CONFIG: Record<string, {
     badge: 'Under Review',
     badgeColor: 'bg-indigo-100 text-indigo-700',
     title: 'Profile is Under Review',
-    description: 'Your profile has been submitted and is currently being reviewed by the Placement Cell. You will be notified once it is verified. This typically takes 1–2 business days.',
+    description:
+      'Your profile has been submitted and is currently being reviewed by the Placement Cell. You will be notified once it is verified. This typically takes 1–2 business days.',
     ctaLabel: 'View My Profile',
     ctaPath: '/student/profile',
   },
@@ -54,7 +68,8 @@ const STATUS_CONFIG: Record<string, {
     badge: 'Changes Requested',
     badgeColor: 'bg-red-100 text-red-700',
     title: 'Profile Changes Requested',
-    description: 'The Placement Cell has reviewed your profile and requested some changes. Please update your profile and resubmit for verification.',
+    description:
+      'The Placement Cell has reviewed your profile and requested some changes. Please update your profile and resubmit for verification.',
     ctaLabel: 'Update My Profile',
     ctaPath: '/student/profile',
   },
@@ -103,7 +118,9 @@ export const ProfileUnderReview = () => {
                   <Icon className={`w-10 h-10 ${config.iconColor}`} />
                 </motion.div>
 
-                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mb-4 ${config.badgeColor}`}>
+                <span
+                  className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full mb-4 ${config.badgeColor}`}
+                >
                   <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
                   {config.badge}
                 </span>
@@ -118,7 +135,9 @@ export const ProfileUnderReview = () => {
 
               {/* Steps */}
               <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5 mb-8">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">How it works</p>
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+                  How it works
+                </p>
                 <div className="space-y-3">
                   {STEPS.map((step, i) => {
                     const StepIcon = step.icon;
@@ -131,12 +150,15 @@ export const ProfileUnderReview = () => {
 
                     return (
                       <div key={i} className="flex items-center gap-3">
-                        <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
                           ${isDone ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-200 text-slate-500'}`}
                         >
                           {isDone ? <TickDouble02Icon className="w-4 h-4" /> : i + 1}
                         </div>
-                        <span className={`text-sm font-medium ${isDone ? 'text-emerald-700 line-through' : 'text-slate-700'}`}>
+                        <span
+                          className={`text-sm font-medium ${isDone ? 'text-emerald-700 line-through' : 'text-slate-700'}`}
+                        >
                           {step.label}
                         </span>
                       </div>
@@ -165,7 +187,10 @@ export const ProfileUnderReview = () => {
 
               <p className="text-xs text-slate-400 text-center mt-4">
                 For any issues, contact{' '}
-                <a href="mailto:placements@nmims.edu" className="text-indigo-500 hover:underline font-medium">
+                <a
+                  href="mailto:placements@nmims.edu"
+                  className="text-indigo-500 hover:underline font-medium"
+                >
                   placements@nmims.edu
                 </a>
               </p>

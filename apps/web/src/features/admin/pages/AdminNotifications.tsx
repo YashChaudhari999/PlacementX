@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Megaphone01Icon, Calendar01Icon, Time01Icon, Layout01Icon, SentIcon, InboxIcon } from 'hugeicons-react';
+import {
+  Megaphone01Icon,
+  Calendar01Icon,
+  Time01Icon,
+  Layout01Icon,
+  SentIcon,
+  InboxIcon,
+} from 'hugeicons-react';
 import NotificationDashboard from './notifications/NotificationDashboard';
 import NotificationComposer from './notifications/NotificationComposer';
 import NotificationHistory from './notifications/NotificationHistory';
@@ -43,7 +50,9 @@ export default function AdminNotifications() {
             onClick={() => setTab('send')}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm shadow-sm"
           >
-            <SentIcon className="w-4 h-4" />Send Notification</button>
+            <SentIcon className="w-4 h-4" />
+            Send Notification
+          </button>
         )}
       </div>
 

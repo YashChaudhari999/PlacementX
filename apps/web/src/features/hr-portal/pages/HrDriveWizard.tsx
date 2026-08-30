@@ -2,7 +2,22 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Input, AvatarUpload } from '@/components/ui';
-import { TickDouble02Icon, Alert02Icon, Loading02Icon, CloudUploadIcon, Delete01Icon, Calendar01Icon, Clock01Icon, Location01Icon, Building02Icon, UserCircle02Icon, BookOpen01Icon, Clock04Icon, Attachment01Icon, Tick01Icon } from 'hugeicons-react';
+import {
+  TickDouble02Icon,
+  Alert02Icon,
+  Loading02Icon,
+  CloudUploadIcon,
+  Delete01Icon,
+  Calendar01Icon,
+  Clock01Icon,
+  Location01Icon,
+  Building02Icon,
+  UserCircle02Icon,
+  BookOpen01Icon,
+  Clock04Icon,
+  Attachment01Icon,
+  Tick01Icon,
+} from 'hugeicons-react';
 import api from '@/lib/api';
 import { storage } from '@/lib/firebase/config/firebaseApp';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';

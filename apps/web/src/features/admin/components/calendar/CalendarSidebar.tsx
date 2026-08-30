@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { format, addDays, isAfter, isBefore } from 'date-fns';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
-import { Calendar01Icon, Briefcase01Icon, UserMultipleIcon, Note01Icon, ArrowRight01Icon, Notification01Icon, Alert02Icon, SparklesIcon } from 'hugeicons-react';
+import {
+  Calendar01Icon,
+  Briefcase01Icon,
+  UserMultipleIcon,
+  Note01Icon,
+  ArrowRight01Icon,
+  Notification01Icon,
+  Alert02Icon,
+  SparklesIcon,
+} from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import type { Variants } from 'framer-motion';
 import { motion } from 'framer-motion';

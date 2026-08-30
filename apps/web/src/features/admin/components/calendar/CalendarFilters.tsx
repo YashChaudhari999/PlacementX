@@ -1,5 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { FilterIcon, Calendar01Icon, BookOpen01Icon, Layers01Icon, Tick01Icon, ArrowDown01Icon } from 'hugeicons-react';
+import {
+  FilterIcon,
+  Calendar01Icon,
+  BookOpen01Icon,
+  Layers01Icon,
+  Tick01Icon,
+  ArrowDown01Icon,
+} from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CalendarFiltersProps {
@@ -211,7 +218,9 @@ export default function CalendarFilters({
                       >
                         {sem.name}
                       </span>
-                      {filters.semester === sem.id && <Tick01Icon className="w-4 h-4 text-indigo-600" />}
+                      {filters.semester === sem.id && (
+                        <Tick01Icon className="w-4 h-4 text-indigo-600" />
+                      )}
                     </button>
                   ))}
                 </div>

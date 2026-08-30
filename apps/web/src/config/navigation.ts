@@ -7,7 +7,19 @@
  * and Breadcrumb generation.
  */
 
-import { DashboardSquare01Icon, UserCircleIcon, Briefcase01Icon, Note01Icon, Notification01Icon, Settings01Icon, UserMultipleIcon, Calendar01Icon, Task01Icon, BarChartIcon, BotIcon } from 'hugeicons-react';
+import {
+  DashboardSquare01Icon,
+  UserCircleIcon,
+  Briefcase01Icon,
+  Note01Icon,
+  Notification01Icon,
+  Settings01Icon,
+  UserMultipleIcon,
+  Calendar01Icon,
+  Task01Icon,
+  BarChartIcon,
+  BotIcon,
+} from 'hugeicons-react';
 
 export const studentNavigation = [
   { name: 'Dashboard', href: '/student/dashboard', icon: DashboardSquare01Icon },
