@@ -16,7 +16,9 @@ import {
   createCustomEvent,
   updateCustomEvent,
   deleteCustomEvent,
-  rescheduleInterview
+  rescheduleInterview,
+  getStudentById,
+  updateStudentAdminNotes
 } from '../controllers/admin.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -31,6 +33,8 @@ router.get('/students', getStudents);
 router.get('/students/stats', getStudentStats);
 router.post('/students/import', importStudents);
 router.post('/students/provision', provisionCurrentYearStudents);
+router.get('/students/:studentId', getStudentById);
+router.put('/students/:studentId/notes', updateStudentAdminNotes);
 router.get('/coordinators', getCoordinators);
 router.post('/coordinators', addCoordinator);
 

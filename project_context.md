@@ -2,8 +2,8 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-08-24 10:25 IST
-**Last Verified Against Codebase:** 2026-08-24 10:25 IST
+**Last Updated:** 2026-08-30 16:11 IST
+**Last Verified Against Codebase:** 2026-08-30 16:11 IST
 **Context Version:** 1.1
 
 ---
@@ -52,6 +52,8 @@ The core web application, backend API, and mobile app are all actively under dev
 | **Unified Login** | Single login page routing by role | All | ✅ Completed |
 | **Student Dashboard** | Overview of upcoming drives, stats, notifications | Student | ✅ Completed |
 | **Student Profile Management** | Comprehensive multi-step profile form (personal, academic, professional) | Student | ✅ Completed |
+| **Semester-wise Performance** | Track semester marks with CGPA, backlogs, and marksheet uploads to Firebase | Student, Admin | ✅ Completed |
+| **Admin Student Profile View** | Dedicated tabbed page for admins to view a student's complete placement journey | Admin | ✅ Completed |
 | **Profile Verification** | Admin reviews and verifies student profiles | Admin | ✅ Completed |
 | **Profile Update Requests** | Students request changes post-verification; admin approves/rejects | Student, Admin | ✅ Completed |
 | **Placement Drive Management** | CRUD for placement drives with full eligibility criteria | Admin | ✅ Completed |

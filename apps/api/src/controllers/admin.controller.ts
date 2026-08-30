@@ -1364,3 +1364,93 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
     return res.status(500).json({ message: 'Error running provisioning', error: error.message });
   }
 };
+
+export const getStudentById = async (req: any, res: any) => {
+  try {
+    const { studentId } = req.params;
+    
+    const importedStudent = await prisma.importedStudent.findFirst({
+      where: { studentId: studentId },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    if (!importedStudent) {
+      return res.status(404).json({ message: 'Student not found in imported records.' });
+    }
+
+    let userProfile = null;
+    if (importedStudent.email) {
+      const user = await prisma.user.findUnique({
+        where: { email: importedStudent.email },
+        include: {
+          studentProfile: {
+            include: {
+              applications: {
+                include: {
+                  drive: {
+                    include: { company: true }
+                  },
+                  offerLetter: true
+                }
+              },
+              auditLogs: {
+                orderBy: { createdAt: 'desc' }
+              }
+            }
+          }
+        }
+      });
+      if (user) {
+        userProfile = {
+          userId: user.id,
+          role: user.role,
+          createdAt: user.createdAt,
+          ...user.studentProfile
+        };
+      }
+    }
+
+    return res.status(200).json({
+      importedData: importedStudent,
+      profileData: userProfile
+    });
+
+  } catch (error: any) {
+    console.error('Error fetching student by ID:', error);
+    return res.status(500).json({ message: 'Error fetching student details', error: error.message });
+  }
+};
+
+export const updateStudentAdminNotes = async (req: any, res: any) => {
+  try {
+    const { studentId } = req.params;
+    const { adminNotes } = req.body;
+
+    const importedStudent = await prisma.importedStudent.findFirst({
+      where: { studentId: studentId }
+    });
+
+    if (!importedStudent || !importedStudent.email) {
+      return res.status(404).json({ message: 'Student email not found for notes update.' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: importedStudent.email },
+      include: { studentProfile: true }
+    });
+
+    if (!user || !user.studentProfile) {
+      return res.status(404).json({ message: 'Student profile not found.' });
+    }
+
+    const updatedProfile = await prisma.studentProfile.update({
+      where: { id: user.studentProfile.id },
+      data: { adminNotes }
+    });
+
+    return res.status(200).json({ message: 'Notes updated', adminNotes: updatedProfile.adminNotes });
+  } catch (error: any) {
+    console.error('Error updating admin notes:', error);
+    return res.status(500).json({ message: 'Error updating notes', error: error.message });
+  }
+};

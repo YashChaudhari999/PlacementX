@@ -83,7 +83,7 @@ export default function AdminStudents() {
   const [filters, setFilters] = useState<StudentFilters>(DEFAULT_FILTERS);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+
   const [actionMenuId, setActionMenuId] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -108,7 +108,7 @@ export default function AdminStudents() {
         searchRef.current?.focus();
       }
       if (e.key === 'Escape') {
-        setSelectedStudent(null);
+
         setActionMenuId(null);
       }
     };
@@ -800,7 +800,7 @@ export default function AdminStudents() {
                         <td className="px-4 py-3">
                           <button
                             className="flex items-center gap-2.5 text-left w-full"
-                            onClick={() => setSelectedStudent(student)}
+                            onClick={() => navigate(`/admin/students/${student.studentId}`)}
                           >
                             <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[11px] shrink-0">
                               {getInitials(student.name)}
@@ -905,7 +905,7 @@ export default function AdminStudents() {
                                 <button
                                   className="w-full text-left px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
                                   onClick={() => {
-                                    setSelectedStudent(student);
+                                    navigate(`/admin/students/${student.studentId}`);
                                     setActionMenuId(null);
                                   }}
                                 >
@@ -995,140 +995,6 @@ export default function AdminStudents() {
         )}
       </Card>
 
-      {/* ─── Student Detail Drawer ─────────────────────────────────────── */}
-      {selectedStudent && (
-        <div
-          className="fixed inset-0 z-50 flex justify-end"
-          onClick={() => setSelectedStudent(null)}
-        >
-          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" />
-          <div
-            className="relative bg-white w-full max-w-lg h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drawer Header */}
-            <div className="p-6 border-b border-slate-100">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-lg">
-                    {getInitials(selectedStudent.name)}
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">{selectedStudent.name}</h2>
-                    <p className="text-sm text-slate-500 font-mono">{selectedStudent.studentId}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setSelectedStudent(null)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-                >
-                  <Cancel01Icon className="w-5 h-5" />
-                </button>
-              </div>
-              {/* Status Strip */}
-              <div className="flex items-center gap-2 mt-4">
-                {selectedStudent.status === 'Placed' ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2.5 py-1">
-                    <Tick02Icon className="w-3.5 h-3.5" /> Placed
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 rounded-full px-2.5 py-1">
-                    Unplaced
-                  </span>
-                )}
-                {selectedStudent.profileComplete === 'Yes' ? (
-                  <Badge variant="success" className="text-[11px]">
-                    Profile Complete
-                  </Badge>
-                ) : (
-                  <Badge variant="warning" className="text-[11px]">
-                    Profile Incomplete
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            {/* Drawer Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* Contact */}
-              <section>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                  Contact Information
-                </h3>
-                <div className="space-y-2">
-                  <DetailRow label="Email" value={selectedStudent.email} />
-                  <DetailRow label="Gender" value={selectedStudent.gender || '—'} />
-                </div>
-              </section>
-
-              {/* Academic */}
-              <section>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                  Academic Details
-                </h3>
-                <div className="space-y-2">
-                  <DetailRow label="Department" value={selectedStudent.branch} />
-                  <DetailRow label="Academic Year" value={selectedStudent.academicYear} />
-                  <DetailRow
-                    label="CGPA"
-                    value={selectedStudent.cgpa !== null ? String(selectedStudent.cgpa) : '—'}
-                  />
-                  <DetailRow
-                    label="Active Backlogs"
-                    value={String(selectedStudent.activeBacklogs ?? 0)}
-                    highlight={selectedStudent.activeBacklogs > 0}
-                  />
-                </div>
-              </section>
-
-              {/* Placement */}
-              <section>
-                <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                  Placement Details
-                </h3>
-                <div className="space-y-2">
-                  <DetailRow label="Status" value={selectedStudent.status} />
-                  <DetailRow label="Company" value={selectedStudent.companyName || '—'} />
-                  <DetailRow
-                    label="Package"
-                    value={formatPackage(selectedStudent.fixedSalaryLpa)}
-                  />
-                  <DetailRow
-                    label="Application Status"
-                    value={selectedStudent.applicationStatus || '—'}
-                  />
-                </div>
-              </section>
-
-              {/* Skills */}
-              {selectedStudent.skills && (
-                <section>
-                  <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
-                    Skills
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5">
-                    {selectedStudent.skills.split(',').map((skill: string, i: number) => (
-                      <span
-                        key={i}
-                        className="text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200 rounded-md px-2 py-1"
-                      >
-                        {skill.trim()}
-                      </span>
-                    ))}
-                  </div>
-                </section>
-              )}
-            </div>
-
-            {/* Drawer Footer */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setSelectedStudent(null)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

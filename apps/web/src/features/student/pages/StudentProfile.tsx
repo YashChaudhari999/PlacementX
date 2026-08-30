@@ -12,6 +12,8 @@ import {
 import { ProfileSkeleton } from '@/components/common/Skeletons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { storage } from '@/lib/firebase/config/firebaseApp';
 
 const SectionCard = ({ title, icon: Icon, children }: any) => (
   <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 transition-all duration-300 hover:shadow-xl hover:border-indigo-200 group">
@@ -102,6 +104,7 @@ export default function StudentProfile() {
   const [completionPercentage, setCompletionPercentage] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [updateReason, setUpdateReason] = useState('');
+  const [uploadingMarkings, setUploadingMarkings] = useState<Record<number, boolean>>({});
 
   const profileStatus = statusData?.status || 'NOT_COMPLETED';
   const isReadOnly =
@@ -156,6 +159,7 @@ export default function StudentProfile() {
     frameworks: [] as string[],
     databases: [] as string[],
     tools: [] as string[],
+    semesterMarks: [] as any[],
   });
 
   useEffect(() => {
@@ -185,6 +189,7 @@ export default function StudentProfile() {
         experience: serverProfile.experience || [],
         certifications: serverProfile.certifications || [],
         languages: serverProfile.languages || [],
+        semesterMarks: serverProfile.semesterMarks || [],
       });
     }
   }, [serverProfile]);
@@ -270,7 +275,7 @@ export default function StudentProfile() {
     },
     {
       id: 'languages',
-      label: 'LanguageSkillIcon',
+      label: 'Languages',
       icon: LanguageSkillIcon,
       color: 'text-fuchsia-500',
       bg: 'bg-fuchsia-100',
@@ -792,6 +797,194 @@ export default function StudentProfile() {
                       </div>
                     </div>
                   </SectionCard>
+
+                  {/* Semester wise Performance */}
+                  <SectionCard title="Semester wise Performance" icon={BookOpen01Icon}>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 border-b border-slate-200">
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Semester</th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">CGPA</th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Ongoing Backlogs</th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">Total Backlogs</th>
+                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">Marksheet</th>
+                            {!isReadOnly && <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider"></th>}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {profile.semesterMarks?.map((mark: any, idx: number) => (
+                            <tr key={idx} className="hover:bg-slate-50/50">
+                              <td className="py-3 px-4">
+                                <Input
+                                  type="number"
+                                  value={mark.semester}
+                                  onChange={(e) => {
+                                    const n = [...profile.semesterMarks];
+                                    n[idx].semester = e.target.value ? parseInt(e.target.value) : '';
+                                    setProfile({ ...profile, semesterMarks: n });
+                                  }}
+                                  disabled={isReadOnly}
+                                  placeholder="e.g. 1"
+                                  className="w-20 h-10 bg-white"
+                                />
+                              </td>
+                              <td className="py-3 px-4">
+                                <Input
+                                  type="number"
+                                  step="0.01"
+                                  value={mark.cgpa}
+                                  onChange={(e) => {
+                                    const n = [...profile.semesterMarks];
+                                    n[idx].cgpa = e.target.value ? parseFloat(e.target.value) : '';
+                                    setProfile({ ...profile, semesterMarks: n });
+                                  }}
+                                  disabled={isReadOnly}
+                                  placeholder="e.g. 8.5"
+                                  className="w-24 h-10 bg-white"
+                                />
+                              </td>
+                              <td className="py-3 px-4">
+                                <Input
+                                  type="number"
+                                  value={mark.ongoingBacklogs}
+                                  onChange={(e) => {
+                                    const n = [...profile.semesterMarks];
+                                    n[idx].ongoingBacklogs = e.target.value ? parseInt(e.target.value) : 0;
+                                    setProfile({ ...profile, semesterMarks: n });
+                                  }}
+                                  disabled={isReadOnly}
+                                  className="w-20 h-10 bg-white"
+                                />
+                              </td>
+                              <td className="py-3 px-4">
+                                <Input
+                                  type="number"
+                                  value={mark.totalBacklogs}
+                                  onChange={(e) => {
+                                    const n = [...profile.semesterMarks];
+                                    n[idx].totalBacklogs = e.target.value ? parseInt(e.target.value) : 0;
+                                    setProfile({ ...profile, semesterMarks: n });
+                                  }}
+                                  disabled={isReadOnly}
+                                  className="w-20 h-10 bg-white"
+                                />
+                              </td>
+                              <td className="py-3 px-4 text-center">
+                                {mark.marksheetUrl ? (
+                                  <div className="flex items-center justify-center gap-2">
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => window.open(mark.marksheetUrl, '_blank')}
+                                    >
+                                      View
+                                    </Button>
+                                    {!isReadOnly && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-red-500 border-red-200 hover:bg-red-50"
+                                        onClick={async () => {
+                                          try {
+                                            const fileRef = ref(storage, mark.marksheetUrl);
+                                            await deleteObject(fileRef);
+                                          } catch (e) {
+                                            console.error("Error deleting old marksheet", e);
+                                          }
+                                          const n = [...profile.semesterMarks];
+                                          n[idx].marksheetUrl = null;
+                                          setProfile({ ...profile, semesterMarks: n });
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  !isReadOnly && (
+                                    <div className="relative inline-block">
+                                      <Button variant="outline" size="sm" className="relative z-0">
+                                        {uploadingMarkings[idx] ? 'Uploading...' : 'Upload'}
+                                      </Button>
+                                      <input
+                                        type="file"
+                                        accept="image/*,application/pdf"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        disabled={uploadingMarkings[idx]}
+                                        onChange={(e) => {
+                                          const file = e.target.files?.[0];
+                                          if (!file) return;
+                                          setUploadingMarkings({ ...uploadingMarkings, [idx]: true });
+                                          const storageRef = ref(storage, `marksheets/${user?.id}/sem_${mark.semester}_${Date.now()}`);
+                                          const uploadTask = uploadBytesResumable(storageRef, file);
+                                          uploadTask.on(
+                                            'state_changed',
+                                            null,
+                                            (error) => {
+                                              console.error(error);
+                                              toast.error('Failed to upload marksheet');
+                                              setUploadingMarkings({ ...uploadingMarkings, [idx]: false });
+                                            },
+                                            async () => {
+                                              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                              const n = [...profile.semesterMarks];
+                                              n[idx].marksheetUrl = downloadURL;
+                                              setProfile({ ...profile, semesterMarks: n });
+                                              setUploadingMarkings({ ...uploadingMarkings, [idx]: false });
+                                              toast.success('Marksheet uploaded successfully');
+                                            }
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  )
+                                )}
+                              </td>
+                              {!isReadOnly && (
+                                <td className="py-3 px-4 text-right">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      const n = profile.semesterMarks.filter((_, i) => i !== idx);
+                                      setProfile({ ...profile, semesterMarks: n });
+                                    }}
+                                    className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                  >
+                                    <Cancel01Icon className="w-4 h-4" />
+                                  </Button>
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {!isReadOnly && (
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            setProfile({
+                              ...profile,
+                              semesterMarks: [
+                                ...(profile.semesterMarks || []),
+                                {
+                                  semester: (profile.semesterMarks?.length || 0) + 1,
+                                  cgpa: '',
+                                  ongoingBacklogs: 0,
+                                  totalBacklogs: 0,
+                                  marksheetUrl: null,
+                                },
+                              ],
+                            });
+                          }}
+                          className="mt-4"
+                        >
+                          <PlusSignIcon className="w-4 h-4 mr-2" /> Add Semester
+                        </Button>
+                      )}
+                    </div>
+                  </SectionCard>
                 </div>
               )}
 
@@ -946,7 +1139,7 @@ export default function StudentProfile() {
                 <div className="space-y-8">
                   <SectionCard title="Technical Skills" icon={ComputerIcon}>
                     <div className="space-y-8">
-                      <Field label="Programming LanguageSkillIcon" icon={CodeIcon}>
+                      <Field label="Programming Languages" icon={CodeIcon}>
                         <TagInput
                           tags={profile.programmingLanguages || []}
                           setTags={(tags: string[]) =>
@@ -971,7 +1164,7 @@ export default function StudentProfile() {
 
               {activeTab === 'languages' && (
                 <div className="space-y-8">
-                  <SectionCard title="Spoken LanguageSkillIcon" icon={LanguageSkillIcon}>
+                  <SectionCard title="Spoken Languages" icon={LanguageSkillIcon}>
                     <div className="space-y-4">
                       {profile.languages.map((lang: any, idx: number) => (
                         <div
@@ -1684,7 +1877,7 @@ export default function StudentProfile() {
               ? 'Saving...'
               : isEditing
                 ? 'Submit Update Request'
-                : 'FloppyDiskIcon Profile'}
+                : 'Save Profile'}
           </Button>
         </motion.div>
       )}

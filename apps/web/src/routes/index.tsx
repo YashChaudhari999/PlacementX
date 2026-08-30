@@ -46,6 +46,7 @@ const DriveList = lazy(() => import('@/features/admin/pages/DriveList'));
 const CreateDriveWizard = lazy(() => import('@/features/admin/pages/CreateDriveWizard'));
 const AdminEventDetails = lazy(() => import('@/features/admin/pages/AdminEventDetails'));
 const AdminStudents = lazy(() => import('@/features/admin/pages/AdminStudents'));
+const AdminStudentProfile = lazy(() => import('@/features/admin/pages/AdminStudentProfile'));
 const AdminStudentImport = lazy(() => import('@/features/admin/pages/AdminStudentImport'));
 const AdminProfileVerifications = lazy(
   () => import('@/features/admin/pages/AdminProfileVerifications')
@@ -281,6 +282,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loading />}>
             <AdminStudents />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'students/:studentId',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <AdminStudentProfile />
           </Suspense>
         ),
       },

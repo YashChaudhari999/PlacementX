@@ -21,6 +21,14 @@ export const adminService = {
     const res = await api.get(`/admin/students/stats${params}`);
     return res.data;
   },
+  getStudentById: async (studentId: string) => {
+    const res = await api.get(`/admin/students/${studentId}`);
+    return res.data;
+  },
+  updateStudentAdminNotes: async (studentId: string, adminNotes: any) => {
+    const res = await api.put(`/admin/students/${studentId}/notes`, { adminNotes });
+    return res.data;
+  },
   getPendingProfiles: async () => {
     const res = await api.get('/admin/profile-verifications');
     return res.data;

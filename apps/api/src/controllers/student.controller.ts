@@ -96,6 +96,7 @@ export const updateProfile = async (req: any, res: any) => {
       projects: data.projects || null,
       codingProfiles: data.codingProfiles || null,
       educationDetails: data.educationDetails,
+      semesterMarks: data.semesterMarks || null,
       dateOfBirth: data.dateOfBirth ? new Date(data.dateOfBirth) : null,
       address: data.address,
       alternatePhone: data.alternatePhone,

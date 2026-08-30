@@ -23,7 +23,7 @@ export default function GeneralSettings({
             disabled={saving}
             size="sm"
           >
-            <FloppyDiskIcon className="w-4 h-4 mr-2" /> FloppyDiskIcon Changes
+            <FloppyDiskIcon className="w-4 h-4 mr-2" /> Save Changes
           </Button>
         )}
       </div>
