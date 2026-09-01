@@ -19,7 +19,6 @@ import { PublicLayout } from '@/layouts/PublicLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
 import { StudentLayout } from '@/layouts/StudentLayout';
 import { PlacementCellLayout } from '@/layouts/PlacementCellLayout';
-import { RecruiterEventLayout } from '@/layouts/RecruiterEventLayout';
 import { HrPortalLayout } from '@/layouts/HrPortalLayout';
 
 // Lazy loaded page placeholders
@@ -35,9 +34,7 @@ const FAQPage = lazy(() => import('@/features/public/pages/FAQPage'));
 const ContactPage = lazy(() => import('@/features/public/pages/ContactPage'));
 
 const HrDriveWizard = lazy(() => import('@/features/hr-portal/pages/HrDriveWizard'));
-const RecruiterEventDashboard = lazy(
-  () => import('@/features/recruiter/pages/RecruiterEventDashboard')
-);
+const HrPortalGateway = lazy(() => import('@/features/hr-portal/pages/HrPortalGateway'));
 
 const Login = lazy(() => import('@/features/auth/pages/Login'));
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
@@ -393,42 +390,6 @@ export const router = createBrowserRouter([
     ],
   },
 
-  // RECRUITER PUBLIC ROUTES (No auth, secure token link)
-  {
-    path: '/event/:token',
-    element: (
-      <PublicRoute>
-        <RecruiterEventLayout />
-      </PublicRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: (
-          <Suspense fallback={<Loading />}>
-            <RecruiterEventDashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'success',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'expired',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-
   // HR COLLABORATION PORTAL
   {
     path: '/hr-drive/:token',
@@ -438,7 +399,7 @@ export const router = createBrowserRouter([
         index: true,
         element: (
           <Suspense fallback={<Loading />}>
-            <HrDriveWizard />
+            <HrPortalGateway />
           </Suspense>
         ),
       },

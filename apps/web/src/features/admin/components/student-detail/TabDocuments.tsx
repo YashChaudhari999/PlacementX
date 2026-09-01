@@ -1,5 +1,7 @@
 import { File01Icon, Download01Icon, Tick02Icon, Cancel01Icon, Alert01Icon } from 'hugeicons-react';
 import { Button, Badge } from '@/components/ui';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/api';
 
 export function TabDocuments({
   importedData,
@@ -8,7 +10,20 @@ export function TabDocuments({
   importedData: any;
   profileData: any;
 }) {
-  // Since we don't have a complex document model yet, we'll just show the resume and a placeholder for others
+  const { data: academicData } = useQuery({
+    queryKey: ['adminAcademicDocument', profileData?.id],
+    queryFn: async () => {
+      const res = await api.get(`/admin/students/${profileData?.id}/documents/academic`);
+      return res.data;
+    },
+    enabled: !!profileData?.id,
+  });
+
+  const academicDocuments = academicData?.academicDocuments || [];
+  
+  const getDocUrl = (type: string) => academicDocuments.find((d: any) => d.documentType === type)?.signedUrl;
+  const getDocDate = (type: string) => academicDocuments.find((d: any) => d.documentType === type)?.uploadedAt;
+
   const documents = [
     {
       id: 'resume',
@@ -21,19 +36,27 @@ export function TabDocuments({
     {
       id: 'marksheet-10',
       name: '10th Marksheet',
-      type: 'PDF/IMG',
-      url: null,
-      status: 'Missing',
-      date: null,
+      type: 'PDF',
+      url: getDocUrl('10TH_MARKSHEET'),
+      status: getDocUrl('10TH_MARKSHEET') ? 'Uploaded' : 'Missing',
+      date: getDocDate('10TH_MARKSHEET'),
     },
     {
       id: 'marksheet-12',
-      name: '12th Marksheet',
-      type: 'PDF/IMG',
-      url: null,
-      status: 'Missing',
-      date: null,
+      name: '12th / Diploma Marksheet',
+      type: 'PDF',
+      url: getDocUrl('12TH_DIPLOMA_MARKSHEET'),
+      status: getDocUrl('12TH_DIPLOMA_MARKSHEET') ? 'Uploaded' : 'Missing',
+      date: getDocDate('12TH_DIPLOMA_MARKSHEET'),
     },
+    {
+      id: 'degree-marksheets',
+      name: 'Degree Semester-wise Marksheets',
+      type: 'PDF',
+      url: getDocUrl('DEGREE_MARKSHEETS'),
+      status: getDocUrl('DEGREE_MARKSHEETS') ? 'Uploaded' : 'Missing',
+      date: getDocDate('DEGREE_MARKSHEETS'),
+    }
   ];
 
   return (

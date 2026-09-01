@@ -27,7 +27,11 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Clear auth state and redirect to login
       useAuthStore.getState().logout();
-      window.location.href = '/student/login'; // or dynamic based on previous route
+      
+      // Do not redirect HR portal users to login
+      if (!window.location.pathname.startsWith('/hr-drive')) {
+        window.location.href = '/student/login';
+      }
     }
     return Promise.reject(error);
   }

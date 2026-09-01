@@ -1,5 +1,6 @@
 import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
+import { uploadAcademicDocument, getAcademicDocuments } from '../services/student-document.service';
 
 
 export const getProfile = async (req: any, res: any) => {
@@ -456,6 +457,35 @@ export const getInterviews = async (req: any, res: any) => {
   }
 };
 
+export const uploadAcademicDoc = async (req: any, res: any) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+    const student = await prisma.studentProfile.findUnique({ where: { userId } });
+    if (!student) return res.status(404).json({ message: 'Student profile not found' });
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    const { documentType } = req.body;
+    if (!documentType) {
+      return res.status(400).json({ message: 'Document type is required' });
+    }
+
+    const { originalname, buffer, mimetype, size } = req.file;
+
+    const document = await uploadAcademicDocument(student.id, documentType, buffer, originalname, mimetype, size);
+
+    return res.status(200).json(document);
+  } catch (error: any) {
+    console.error('Upload academic document error:', error);
+    return res.status(400).json({ message: error.message || 'Failed to upload document' });
+  }
+};
+
+
 export const getDocuments = async (req: any, res: any) => {
   try {
     const userId = req.user?.id;
@@ -485,9 +515,17 @@ export const getDocuments = async (req: any, res: any) => {
       uploadedAt: app.offerLetter?.uploadedAt
     }));
 
+    let academicDocuments = [];
+    try {
+      academicDocuments = await getAcademicDocuments(student.id);
+    } catch (e) {
+      console.error('Failed to get academic documents:', e);
+    }
+
     return res.status(200).json({
       resumeUrl: student.resumeUrl,
-      offers: documents
+      offers: documents,
+      academicDocuments
     });
   } catch (error: any) {
     console.error('Get documents error:', error);

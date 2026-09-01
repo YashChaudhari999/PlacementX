@@ -3,13 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
 import { Note01Icon, Download01Icon, Building02Icon, TickDouble02Icon } from 'hugeicons-react';
+import { useUploadAcademicDocument } from '@/hooks/useStudentDocuments';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentDocuments() {
   const { user } = useAuthStore();
+  const uploadMutation = useUploadAcademicDocument();
   
-  const { data = { resumeUrl: '', offers: [] }, isLoading } = useQuery({
+  const { data = { resumeUrl: '', offers: [], academicDocuments: [] }, isLoading } = useQuery({
     queryKey: ['studentDocuments', user?.id],
     queryFn: async () => {
       const res = await api.get('/student/documents', {});
@@ -60,6 +62,92 @@ export default function StudentDocuments() {
                   </p>
                 )}
               </div>
+            </div>
+          </Card>
+
+          {/* Academic Documents */}
+          <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl hover:shadow-xl hover:border-indigo-200 transition-all duration-300">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2 mb-4">
+              <Note01Icon className="w-5 h-5 text-primary" /> Academic Documents
+            </h3>
+            <p className="text-xs text-slate-500 mb-4">
+              Upload PDF copies of your marksheets. Max size 15MB each.
+            </p>
+
+            <div className="space-y-4">
+              {[
+                { type: '10TH_MARKSHEET', title: '10th Marksheet' },
+                { type: '12TH_DIPLOMA_MARKSHEET', title: '12th / Diploma Marksheet' },
+                { type: 'DEGREE_MARKSHEETS', title: 'Degree Semester-wise Marksheets (Consolidated)' },
+              ].map((docDef) => {
+                const uploadedDoc = data.academicDocuments?.find((d: any) => d.documentType === docDef.type);
+                
+                return (
+                  <div key={docDef.type} className="p-4 border border-slate-200 rounded-lg bg-slate-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-slate-700">{docDef.title}</span>
+                      {uploadedDoc ? <TickDouble02Icon className="w-4 h-4 text-green-500" /> : null}
+                    </div>
+                    
+                    {uploadedDoc ? (
+                      <>
+                        <p className="text-xs text-slate-500 mb-3 truncate" title={uploadedDoc.fileName}>
+                          {uploadedDoc.fileName}
+                        </p>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            variant="outline"
+                            className="w-full bg-white"
+                            onClick={() => window.open(uploadedDoc.signedUrl, '_blank')}
+                          >
+                            <Note01Icon className="w-4 h-4 mr-2" /> View Document
+                          </Button>
+                          <div className="relative">
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                                }
+                              }}
+                              disabled={uploadMutation.isPending}
+                            />
+                            <Button
+                              variant="secondary"
+                              className="w-full"
+                              disabled={uploadMutation.isPending}
+                            >
+                              Replace Document
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                            }
+                          }}
+                          disabled={uploadMutation.isPending}
+                        />
+                        <Button
+                          className="w-full"
+                          disabled={uploadMutation.isPending}
+                        >
+                          Upload PDF
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </Card>
         </div>

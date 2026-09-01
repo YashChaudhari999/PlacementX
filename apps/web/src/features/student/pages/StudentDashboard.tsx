@@ -164,11 +164,13 @@ export default function StudentDashboard() {
                             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100 shadow-sm">
                               <Notification01Icon className="w-4 h-4 text-red-500 animate-bounce" />
                               Deadline:{' '}
-                              {new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              })}
+                              {drive.registrationEnd
+                                ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                  })
+                                : 'TBD'}
                             </div>
                           )}
                         </div>

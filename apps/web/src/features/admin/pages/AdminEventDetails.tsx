@@ -14,6 +14,7 @@ import {
   Note01Icon,
   Tick02Icon,
   CancelCircleIcon,
+  Copy01Icon,
 } from 'hugeicons-react';
 
 import { DashboardSkeleton } from '@/components/common/Skeletons';
@@ -77,7 +78,7 @@ export default function AdminEventDetails() {
         action === 'request-changes' ? { comments: 'Please revise criteria.' } : {}
       );
       toast.success(`Drive ${action}d successfully`);
-      // fetchDriveDetails();
+      fetchData();
     } catch (error) {
       console.error(error);
       toast.error(`Failed to ${action} drive`);
@@ -177,6 +178,35 @@ export default function AdminEventDetails() {
               >
                 <Tick02Icon className="w-4 h-4 mr-2" /> Publish Drive
               </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {drive.hrInvitations && drive.hrInvitations.length > 0 && (
+        <Card className="p-6 bg-indigo-50 border-indigo-200">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-indigo-900">HR Portal Link Active</h3>
+              <p className="text-sm text-indigo-700 mt-1">
+                Share this link with the HR for them to manage the drive details.
+              </p>
+              <div className="mt-3 bg-white px-4 py-2 rounded-md border border-indigo-100 flex items-center gap-3">
+                <span className="text-sm font-mono text-slate-600 select-all">
+                  {`${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`}
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 hover:bg-indigo-50 text-indigo-600"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`);
+                    toast.success('Link copied to clipboard');
+                  }}
+                >
+                  <Copy01Icon className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </Card>

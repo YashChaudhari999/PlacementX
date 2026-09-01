@@ -71,7 +71,7 @@ export default function StudentDriveDetails() {
 
   if (loading || !drive) return <div className="p-8 text-center">Loading...</div>;
 
-  const isDeadlinePassed = new Date(drive.registrationEnd) < new Date();
+  const isDeadlinePassed = drive.registrationEnd ? new Date(drive.registrationEnd) < new Date() : false;
   const isRegistrationNotStarted = drive.registrationStart
     ? new Date(drive.registrationStart) > new Date()
     : false;
@@ -98,11 +98,13 @@ export default function StudentDriveDetails() {
                 </div>
                 <div className="flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
                   <Calendar01Icon className="w-4 h-4 text-slate-400" /> Deadline:{' '}
-                  {new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                  })}
+                  {drive.registrationEnd
+                    ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                      })
+                    : 'TBD'}
                 </div>
                 {drive.fixedSalary && (
                   <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-200 shadow-sm font-bold">

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
+import { getAcademicDocumentForAdmin } from '../services/student-document.service';
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -814,12 +815,33 @@ export const rescheduleInterview = async (req: any, res: any) => {
       where: { id: req.params.id },
       data: {
         date: date ? new Date(date) : undefined,
-        time,
+          time,
       },
     });
     res.status(200).json(round);
   } catch (error: any) {
-    res.status(500).json({ message: 'Error rescheduling interview', error: error.message });
+    return res.status(500).json({ message: 'Error rescheduling interview', error: error.message });
+  }
+};
+
+export const getStudentAcademicDoc = async (req: Request, res: Response) => {
+  try {
+    const { studentId } = req.params;
+
+    // Verify student exists
+    const student = await prisma.studentProfile.findUnique({
+      where: { id: studentId }
+    });
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const documents = await getAcademicDocumentForAdmin(studentId);
+    return res.status(200).json({ academicDocuments: documents });
+  } catch (error: any) {
+    console.error('Error fetching academic documents:', error);
+    return res.status(500).json({ message: 'Error fetching academic documents', error: error.message });
   }
 };
 

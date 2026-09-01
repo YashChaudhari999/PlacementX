@@ -2,9 +2,9 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-08-30 16:11 IST
-**Last Verified Against Codebase:** 2026-08-30 16:11 IST
-**Context Version:** 1.1
+**Last Updated:** 2026-09-01 23:48 IST
+**Last Verified Against Codebase:** 2026-09-01 23:48 IST
+**Context Version:** 1.3
 
 ---
 
@@ -78,6 +78,8 @@ The core web application, backend API, and mobile app are all actively under dev
 | **AI Embeddings** | Generate profile/job embeddings for semantic matching | System | ✅ Completed |
 | **AI Admin Analytics** | Advanced AI analytics for admins | Admin | ✅ Completed |
 | **Recruiter Event Portal** | Public recruiter event view via token | Recruiter | ✅ Completed |
+| **Global UI Loader** | Centralized React Query fetching loader across the application | All | ✅ Completed |
+| **Separated Academic Documents** | Secure individual PDF uploads of student academic documents (10th, 12th/Diploma, Degree) to Supabase Storage | Student, Admin | ✅ Completed |
 
 ---
 

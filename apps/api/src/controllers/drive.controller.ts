@@ -285,6 +285,7 @@ export const getDriveById = async (req: any, res: any) => {
         ...driveSelectFields,
         company: true,
         selectionRounds: true,
+        hrInvitations: true,
       }
     });
     

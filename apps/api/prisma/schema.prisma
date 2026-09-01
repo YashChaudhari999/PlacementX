@@ -109,6 +109,7 @@ model StudentProfile {
   applications   DriveApplication[]
   updateRequests ProfileUpdateRequest[]
   auditLogs      ProfileAuditLog[]
+  documents      StudentDocument[]
   user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -237,6 +238,7 @@ model SelectionRound {
   roundType          String?
   weightage          Float?
   drive              PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  results            ApplicationRoundResult[]
 }
 
 model DriveApplication {
@@ -249,6 +251,7 @@ model DriveApplication {
   drive            PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
   student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
   offerLetter      OfferLetter?
+  roundResults     ApplicationRoundResult[]
 
   @@unique([driveId, studentId])
 }
@@ -261,6 +264,24 @@ model OfferLetter {
   internshipLetterUrl String?
   uploadedAt          DateTime         @default(now())
   application         DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+}
+
+model ApplicationRoundResult {
+  id              String           @id @default(uuid())
+  applicationId   String
+  roundId         String
+  score           Float?
+  percentage      Float?
+  rank            Int?
+  result          String?          // e.g., Passed, Failed
+  remarks         String?
+  uploadedAt      DateTime         @default(now())
+  uploadedBy      String?          // HR Name or Admin Name
+  
+  application     DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  round           SelectionRound   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  
+  @@unique([applicationId, roundId])
 }
 
 model Notification {
@@ -550,4 +571,21 @@ model SettingAuditLog {
   createdAt   DateTime @default(now())
 
   setting     SystemSetting @relation(fields: [settingKey], references: [key], onDelete: Cascade)
+}
+
+model StudentDocument {
+  id           String         @id @default(uuid())
+  studentId    String
+  documentType String         @default("ACADEMIC_DOCUMENTS")
+  fileName     String
+  filePath     String
+  fileUrl      String?
+  mimeType     String         @default("application/pdf")
+  fileSize     Int
+  uploadedAt   DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, documentType])
 }

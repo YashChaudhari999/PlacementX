@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
 import {
   UserMultipleIcon,
@@ -10,11 +9,16 @@ import {
   Calendar01Icon,
   Note01Icon,
   CancelCircleIcon,
+  CloudUploadIcon
 } from 'hugeicons-react';
 import api from '@/lib/api';
+import ResultUploadFlow from '../components/ResultUploadFlow';
 
-export default function RecruiterEventDashboard() {
-  const { token } = useParams<{ token: string }>();
+interface RecruiterWorkspaceProps {
+  token: string;
+}
+
+export default function RecruiterWorkspace({ token }: RecruiterWorkspaceProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,14 +28,15 @@ export default function RecruiterEventDashboard() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [activeUploadRound, setActiveUploadRound] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEventData = async () => {
+    const fetchWorkspaceData = async () => {
       try {
         setLoading(true);
         const [detailsRes, candidatesRes] = await Promise.all([
-          api.get(`/recruiter/event/${token}`),
-          api.get(`/recruiter/event/${token}/candidates`),
+          api.get(`/hr/workspace/${token}/details`),
+          api.get(`/hr/workspace/${token}/candidates`),
         ]);
 
         setEventData(detailsRes.data.drive);
@@ -40,37 +45,29 @@ export default function RecruiterEventDashboard() {
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
-            'Failed to load event data. Link might be invalid or expired.'
+            'Failed to load workspace data. Link might be invalid or expired.'
         );
       } finally {
         setLoading(false);
       }
     };
 
-    if (token) fetchEventData();
+    if (token) fetchWorkspaceData();
   }, [token]);
 
-  const handleUpdateStatus = async (applicationId: string, newStatus: string) => {
+  const handleUpdateStatus = async (applicationIds: string[], newStatus: string) => {
     try {
-      await api.post(`/recruiter/event/${token}/shortlist`, {
-        applicationId,
+      await api.post(`/hr/workspace/${token}/status`, {
+        applicationIds,
         status: newStatus,
       });
 
       // Update local state
       setCandidates((prev) =>
-        prev.map((c) => (c.id === applicationId ? { ...c, status: newStatus } : c))
+        prev.map((c) => (applicationIds.includes(c.id) ? { ...c, status: newStatus } : c))
       );
-
-      // Update stats
-      if (stats) {
-        setStats({
-          ...stats,
-          shortlisted: newStatus === 'SHORTLISTED' ? stats.shortlisted + 1 : stats.shortlisted,
-          rejected: newStatus === 'REJECTED' ? stats.rejected + 1 : stats.rejected,
-          selected: newStatus === 'SELECTED' ? stats.selected + 1 : stats.selected,
-        });
-      }
+      
+      alert(`Updated status to ${newStatus}`);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to update status');
     }
@@ -85,8 +82,8 @@ export default function RecruiterEventDashboard() {
     if (!venue) return;
 
     try {
-      await api.post(`/recruiter/event/${token}/interview`, {
-        applicationId,
+      await api.post(`/hr/workspace/${token}/interview`, {
+        applicationIds: [applicationId],
         date,
         time,
         venue,
@@ -152,12 +149,12 @@ export default function RecruiterEventDashboard() {
                 {eventData.company.name} Hiring Drive
               </h1>
               <p className="text-sm text-slate-500 font-medium">
-                Recruiter Portal • {eventData.title}
+                Workspace • {eventData.jobRole}
               </p>
             </div>
           </div>
           <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 py-1">
-            Active Event
+            {eventData.status}
           </Badge>
         </div>
       </header>
@@ -203,6 +200,50 @@ export default function RecruiterEventDashboard() {
           </Card>
         </div>
 
+        {/* Selection Rounds & Result Upload */}
+        {eventData.selectionRounds && eventData.selectionRounds.length > 0 && (
+          <div className="space-y-4">
+            <h2 className="text-lg font-bold text-slate-800">Selection Process</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {eventData.selectionRounds.map((round: any, index: number) => (
+                <Card key={round.id} className="p-4 border-slate-200 shadow-sm">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <Badge className="bg-indigo-50 text-indigo-700 mb-2 border-indigo-100">
+                        Round {index + 1}
+                      </Badge>
+                      <h3 className="font-bold text-slate-800">{round.title || round.name}</h3>
+                      <p className="text-sm text-slate-500">{(round.roundType || round.type || '').replace(/_/g, ' ')}</p>
+                    </div>
+                  </div>
+                  {activeUploadRound === round.id ? (
+                    <ResultUploadFlow 
+                      token={token} 
+                      roundId={round.id}
+                      roundName={round.title || round.name}
+                      onSuccess={() => {
+                        setActiveUploadRound(null);
+                        // Refresh data
+                        window.location.reload();
+                      }}
+                      onCancel={() => setActiveUploadRound(null)}
+                    />
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                      onClick={() => setActiveUploadRound(round.id)}
+                    >
+                      <CloudUploadIcon className="w-4 h-4 mr-2" />
+                      Upload Results
+                    </Button>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Candidate List */}
         <Card className="border-slate-200 shadow-sm overflow-hidden">
           <div className="p-4 sm:p-6 border-b border-slate-200 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -227,7 +268,7 @@ export default function RecruiterEventDashboard() {
                 <option value="APPLIED">Applied</option>
                 <option value="SHORTLISTED">Shortlisted</option>
                 <option value="INTERVIEW_SCHEDULED">Interviewing</option>
-                <option value="SELECTED">Selected</option>
+                <option value="FINAL_SELECTED">Selected</option>
                 <option value="REJECTED">Rejected</option>
               </select>
             </div>
@@ -289,12 +330,12 @@ export default function RecruiterEventDashboard() {
                               ? 'bg-amber-100 text-amber-700'
                               : app.status === 'INTERVIEW_SCHEDULED'
                                 ? 'bg-purple-100 text-purple-700'
-                                : app.status === 'SELECTED'
+                                : app.status === 'FINAL_SELECTED'
                                   ? 'bg-emerald-100 text-emerald-700'
                                   : 'bg-rose-100 text-rose-700'
                         }
                       >
-                        {app.status.replace('_', ' ')}
+                        {app.status ? app.status.replace(/_/g, ' ') : 'UNKNOWN'}
                       </Badge>
                       {app.interviewSchedule && (
                         <div className="mt-1 flex flex-col gap-0.5 text-[10px] text-slate-500">
@@ -322,7 +363,7 @@ export default function RecruiterEventDashboard() {
                           size="sm"
                           variant="outline"
                           className="text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                          onClick={() => handleUpdateStatus(app.id, 'SHORTLISTED')}
+                          onClick={() => handleUpdateStatus([app.id], 'SHORTLISTED')}
                         >
                           Shortlist
                         </Button>
@@ -334,7 +375,7 @@ export default function RecruiterEventDashboard() {
                           size="sm"
                           variant="ghost"
                           className="text-rose-600 hover:bg-rose-50"
-                          onClick={() => handleUpdateStatus(app.id, 'REJECTED')}
+                          onClick={() => handleUpdateStatus([app.id], 'REJECTED')}
                         >
                           Reject
                         </Button>
@@ -353,7 +394,7 @@ export default function RecruiterEventDashboard() {
                           size="sm"
                           variant="primary"
                           className="bg-emerald-600 hover:bg-emerald-700"
-                          onClick={() => handleUpdateStatus(app.id, 'SELECTED')}
+                          onClick={() => handleUpdateStatus([app.id], 'FINAL_SELECTED')}
                         >
                           Select
                         </Button>
