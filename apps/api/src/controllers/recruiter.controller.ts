@@ -1,8 +1,7 @@
+import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { createNotification as sendNotification } from '../services/notification.service';
 
-const prisma = new PrismaClient();
 
 // Utility function to get the drive by HR token
 const getDriveByToken = async (token: string) => {

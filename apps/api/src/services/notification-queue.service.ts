@@ -1,14 +1,13 @@
+import prisma from '../utils/prisma';
 // ─── Notification Queue Service ─────────────────────────
 // BullMQ-based queue for reliable, scheduled, and bulk
 // notification processing with retry and dead letter support.
 
 import { Queue, Worker, Job } from 'bullmq';
 import { getRedisClient, isRedisConnected } from '../config/redis';
-import { PrismaClient } from '@prisma/client';
 import { sendPushToUser, sendPushToUsers } from './push-notification.service';
 import { getIO } from '../socket';
 
-const prisma = new PrismaClient();
 
 // ─── Queue Names ────────────────────────────────────────
 

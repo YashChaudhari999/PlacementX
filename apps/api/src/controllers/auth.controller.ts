@@ -1,11 +1,10 @@
+import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
 // Trigger restart to load new .env variables (with correct rtdb url)
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),

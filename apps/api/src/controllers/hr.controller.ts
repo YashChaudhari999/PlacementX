@@ -1,8 +1,7 @@
+import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
 const HR_LINK_EXPIRY_DAYS = 7;
 
 export const generateHrLink = async (req: Request, res: Response) => {

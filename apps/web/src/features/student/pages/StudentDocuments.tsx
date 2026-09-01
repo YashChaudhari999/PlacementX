@@ -1,37 +1,24 @@
-import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Card, Button } from '@/components/ui';
-import { toast } from 'sonner';
 import { Note01Icon, Download01Icon, Building02Icon, TickDouble02Icon } from 'hugeicons-react';
 
 import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentDocuments() {
   const { user } = useAuthStore();
-  const [data, setData] = useState<any>({ resumeUrl: '', offers: [] });
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchDocuments();
-    }
-  }, [user?.id]);
-
-  const fetchDocuments = async () => {
-    try {
-      setLoading(true);
+  
+  const { data = { resumeUrl: '', offers: [] }, isLoading } = useQuery({
+    queryKey: ['studentDocuments', user?.id],
+    queryFn: async () => {
       const res = await api.get('/student/documents', {});
-      setData(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load documents');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    enabled: !!user?.id,
+  });
 
-  if (loading) return <ListSkeleton />;
+  if (isLoading) return <ListSkeleton />;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

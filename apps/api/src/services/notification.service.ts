@@ -1,3 +1,4 @@
+import prisma from '../utils/prisma';
 // ─── Notification Service (Production) ──────────────────
 // Enterprise-grade notification engine with push integration,
 // queue processing, user preferences, and rich filtering.
@@ -7,7 +8,6 @@ import { getIO } from '../socket';
 import { queueImmediateNotification, queueBulkNotification, queueScheduledNotification } from './notification-queue.service';
 import { sendPushToUser } from './push-notification.service';
 
-const prisma = new PrismaClient();
 
 // ─── Input Types ────────────────────────────────────────
 

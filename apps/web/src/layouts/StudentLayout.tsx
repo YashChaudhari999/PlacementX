@@ -24,6 +24,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
 import { useStudentProfile, useUpdateStudentPhoto } from '@/hooks/queries/useStudent';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
+import { GlobalLoader } from '@/components/ui/feedback';
 
 export const StudentLayout = () => {
   const { user } = useAuthStore();
@@ -334,7 +335,8 @@ export const StudentLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 px-6 sm:px-10 pb-10">
+        <main className="flex-1 px-6 sm:px-10 pb-10 relative">
+          <GlobalLoader />
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}

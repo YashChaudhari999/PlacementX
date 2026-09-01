@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import {
   Note01Icon,
@@ -24,22 +24,13 @@ export default function ReportsOverview({
 }: {
   onNavigateToBuilder: () => void;
 }) {
-  const [kpis, setKpis] = useState<KPIs | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchKPIs = async () => {
-      try {
-        const response = await api.get('/admin/reports/kpis');
-        setKpis(response.data.data);
-      } catch (error) {
-        console.error('Failed to fetch KPIs:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchKPIs();
-  }, []);
+  const { data: kpis, isLoading: loading } = useQuery({
+    queryKey: ['adminReportsKPIs'],
+    queryFn: async () => {
+      const response = await api.get('/admin/reports/kpis');
+      return response.data.data;
+    },
+  });
 
   if (loading) {
     return (

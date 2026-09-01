@@ -1,11 +1,10 @@
+import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import { getReportKPIs as fetchReportKPIs, getReportData } from '../services/reports/reports.service';
 import { queueReportGeneration } from '../services/reports/report-queue.service';
 import * as path from 'path';
 import * as fs from 'fs';
 
-const prisma = new PrismaClient();
 
 export const getReportsKPIs = async (req: Request, res: Response) => {
   try {

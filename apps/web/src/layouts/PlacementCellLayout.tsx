@@ -20,6 +20,7 @@ import {
 } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
+import { GlobalLoader } from '@/components/ui/feedback';
 
 export const PlacementCellLayout = () => {
   const { user } = useAuthStore();
@@ -250,7 +251,8 @@ export const PlacementCellLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden relative">
+          <GlobalLoader />
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

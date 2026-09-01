@@ -1,12 +1,11 @@
+import prisma from '../../utils/prisma';
 import { Queue, Worker, Job } from 'bullmq';
 import { getRedisClient, isRedisConnected } from '../../config/redis';
-import { PrismaClient } from '@prisma/client';
 import { getReportData } from './reports.service';
 import { generateExcel, generateCSV, generatePDF } from './export.service';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const prisma = new PrismaClient();
 
 const REPORT_QUEUE_NAME = 'report-generation';
 let reportQueue: Queue | null = null;

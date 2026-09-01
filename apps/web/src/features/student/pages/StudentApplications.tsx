@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
-import { toast } from 'sonner';
 import {
   Building02Icon,
   Calendar01Icon,
@@ -19,29 +18,17 @@ import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentApplications() {
   const { user } = useAuthStore();
-  const [applications, setApplications] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user?.id) {
-      fetchApplications();
-    }
-  }, [user?.id]);
-
-  const fetchApplications = async () => {
-    try {
-      setLoading(true);
+  const { data: applications = [], isLoading } = useQuery({
+    queryKey: ['studentApplications', user?.id],
+    queryFn: async () => {
       const res = await api.get('/student/applications', {});
-      setApplications(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load applications');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    enabled: !!user?.id,
+  });
 
-  if (loading) return <ListSkeleton />;
+  if (isLoading) return <ListSkeleton />;
 
   const getStatusColor = (status: string) => {
     switch (status) {

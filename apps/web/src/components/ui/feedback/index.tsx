@@ -161,3 +161,6 @@ export interface ToastData {
   variant: ToastVariant;
   duration?: number;
 }
+
+// export * from './DataLoader'; // Deleted
+export * from './GlobalLoader';

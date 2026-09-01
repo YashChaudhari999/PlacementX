@@ -1,3 +1,4 @@
+import prisma from '../utils/prisma';
 // ─── Notification Controller (Production) ───────────────
 // Handles all notification REST API endpoints with proper
 // validation, error handling, and response formatting.
@@ -18,9 +19,7 @@ import {
   removeDeviceToken,
   scheduleNotification,
 } from '../services/notification.service';
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 
 // ─── GET /notifications ─────────────────────────────────
 // Paginated, filterable, searchable notification list.

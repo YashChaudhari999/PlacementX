@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Card } from '@/components/ui';
-import { toast } from 'sonner';
 import {
   Calendar01Icon,
   Building02Icon,
@@ -17,29 +16,17 @@ import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentInterviews() {
   const { user } = useAuthStore();
-  const [interviews, setInterviews] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (user?.id) {
-      fetchInterviews();
-    }
-  }, [user?.id]);
-
-  const fetchInterviews = async () => {
-    try {
-      setLoading(true);
+  
+  const { data: interviews = [], isLoading } = useQuery({
+    queryKey: ['studentInterviews', user?.id],
+    queryFn: async () => {
       const res = await api.get('/student/interviews', {});
-      setInterviews(res.data);
-    } catch (error) {
-      console.error(error);
-      toast.error('Failed to load interviews');
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data;
+    },
+    enabled: !!user?.id,
+  });
 
-  if (loading) return <ListSkeleton />;
+  if (isLoading) return <ListSkeleton />;
 
   const containerVariants = {
     hidden: { opacity: 0 },

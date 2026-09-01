@@ -1,5 +1,5 @@
+import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 
 const driveSelectFields = {
   id: true,
@@ -58,7 +58,6 @@ const driveSelectFields = {
   semanticTags: true,
 };
 
-const prisma = new PrismaClient();
 
 export const createDrive = async (req: any, res: any) => {
   try {
@@ -152,8 +151,7 @@ export const createDrive = async (req: any, res: any) => {
             });
 
             if (scheduleBulkNotifications) {
-              const prisma = new PrismaClient();
-              const campaign = await prisma.notificationCampaign.create({
+                            const campaign = await prisma.notificationCampaign.create({
                 data: {
                   title: 'Drive Now Open for Applications',
                   message: `${company.name} is now accepting applications for ${drive.jobRole}.`,
@@ -405,8 +403,7 @@ export const approveHrDrive = async (req: any, res: any) => {
           });
 
           if (scheduleBulkNotifications) {
-            const prisma = new PrismaClient();
-            const campaign = await prisma.notificationCampaign.create({
+                        const campaign = await prisma.notificationCampaign.create({
               data: {
                 title: 'Drive Now Open for Applications',
                 message: `${drive.company.name} is now accepting applications for ${drive.jobRole}.`,

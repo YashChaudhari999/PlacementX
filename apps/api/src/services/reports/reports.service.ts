@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../utils/prisma';
 
-const prisma = new PrismaClient();
 
 export const getReportKPIs = async () => {
   const reportsGenerated = await prisma.reportExportHistory.count();

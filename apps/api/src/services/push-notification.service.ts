@@ -1,10 +1,9 @@
+import prisma from '../utils/prisma';
 // ─── Push Notification Service ──────────────────────────
 // Handles sending push notifications via Expo Push Notification API.
 // Supports batch sending, automatic token cleanup, and priority mapping.
 
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
 
 // Expo Push API endpoint
 const EXPO_PUSH_URL = 'https://exp.host/--/api/v2/push/send';

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import {
   Download01Icon,
@@ -11,24 +12,33 @@ import { Button } from '@/components/ui/button';
 
 export default function ReportHistory() {
   const [history, setHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchHistory = async () => {
-    try {
+  
+  // Trigger initial fetch via React Query so GlobalLoader detects it
+  const { data: initialHistory = [], isLoading: loading, refetch } = useQuery({
+    queryKey: ['adminReportsHistory'],
+    queryFn: async () => {
       const res = await api.get('/admin/reports/history');
-      setHistory(res.data.data);
-    } catch (error) {
-      console.error('Failed to fetch history:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return res.data.data;
+    },
+  });
+
+  // Sync initial query data to local state
+  useEffect(() => {
+    if (!loading) setHistory(initialHistory);
+  }, [initialHistory, loading]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchHistory();
-    // Poll every 10 seconds to update status of processing reports
-    const interval = setInterval(fetchHistory, 10000);
+    // Silent background polling (bypasses React Query to prevent GlobalLoader from flashing)
+    const fetchHistorySilent = async () => {
+      try {
+        const res = await api.get('/admin/reports/history');
+        setHistory(res.data.data);
+      } catch (error) {
+        console.error('Failed to fetch history:', error);
+      }
+    };
+    
+    const interval = setInterval(fetchHistorySilent, 10000);
     return () => clearInterval(interval);
   }, []);
 

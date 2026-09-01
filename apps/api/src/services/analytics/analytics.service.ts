@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '../../utils/prisma';
 import { AnalyticsFilterInput } from '../../schemas/analytics.schema';
 
-const prisma = new PrismaClient();
 
 export { prisma };
 

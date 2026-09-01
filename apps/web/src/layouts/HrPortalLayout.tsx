@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Briefcase01Icon, Shield01Icon } from 'hugeicons-react';
 import { motion } from 'framer-motion';
+import { GlobalLoader } from '@/components/ui/feedback';
 
 export const HrPortalLayout = () => {
   return (
@@ -47,6 +48,7 @@ export const HrPortalLayout = () => {
 
       {/* Main Content */}
       <main className="flex-1 w-full mx-auto p-4 sm:p-6 lg:p-8 z-10 relative max-w-[1400px]">
+        <GlobalLoader />
         <Outlet />
       </main>
 
