@@ -21,6 +21,7 @@ export function useUploadAcademicDocument() {
     onSuccess: () => {
       toast.success('Document uploaded successfully');
       queryClient.invalidateQueries({ queryKey: ['studentDocuments'] });
+      queryClient.invalidateQueries({ queryKey: ['studentProfile'] });
     },
     onError: (error: any) => {
       toast.error(error?.response?.data?.message || 'Failed to upload document');

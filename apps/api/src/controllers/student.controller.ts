@@ -16,12 +16,19 @@ export const getProfile = async (req: any, res: any) => {
       include: {
         user: {
           select: { email: true }
-        }
+        },
+        documents: true
       }
     });
 
     if (!profile) {
       return res.status(404).json({ message: 'Profile not found' });
+    }
+
+    try {
+      profile.documents = await getAcademicDocuments(profile.id);
+    } catch (e) {
+      console.error('Failed to get signed URLs for documents', e);
     }
 
     return res.status(200).json(profile);
@@ -64,6 +71,16 @@ export const updateProfile = async (req: any, res: any) => {
 
     const data = req.body;
     
+    const existingProfile = await prisma.studentProfile.findUnique({
+      where: { userId },
+      include: { documents: true }
+    });
+
+    // Check if the required academic documents are present
+    const has10th = existingProfile?.documents.some(d => d.documentType === '10TH_MARKSHEET');
+    const has12thOrDiploma = existingProfile?.documents.some(d => d.documentType === '12TH_DIPLOMA_MARKSHEET');
+    const hasDegree = existingProfile?.documents.some(d => d.documentType === 'DEGREE_MARKSHEETS');
+
     // Check if profile is complete (basic validation)
     const isProfileComplete = !!(
       data.firstName && 
@@ -72,7 +89,10 @@ export const updateProfile = async (req: any, res: any) => {
       data.branch && 
       data.cgpa && 
       data.passingYear &&
-      data.resumeUrl
+      data.resumeUrl &&
+      has10th &&
+      has12thOrDiploma &&
+      hasDegree
     );
 
     const updateData = {
@@ -117,10 +137,6 @@ export const updateProfile = async (req: any, res: any) => {
       languages: data.languages || null,
       isProfileComplete
     };
-
-    const existingProfile = await prisma.studentProfile.findUnique({
-      where: { userId }
-    });
 
     // Determine the next status
     let nextStatus = existingProfile?.profileStatus || 'NOT_COMPLETED';

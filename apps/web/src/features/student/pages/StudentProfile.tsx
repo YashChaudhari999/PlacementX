@@ -38,6 +38,7 @@ import {
   DashboardSquare01Icon,
   Globe02Icon,
   Camera01Icon,
+  CloudUploadIcon,
 } from 'hugeicons-react';
 import {
   useStudentProfile,
@@ -46,6 +47,7 @@ import {
   useStudentProfileStatus,
   useRequestProfileUpdate,
 } from '@/hooks/queries/useStudent';
+import { useUploadAcademicDocument } from '@/hooks/useStudentDocuments';
 import { ProfileSkeleton } from '@/components/common/Skeletons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -136,6 +138,7 @@ export default function StudentProfile() {
   const requestUpdateMutation = useRequestProfileUpdate();
   const { data: statusData } = useStudentProfileStatus();
   const updatePhotoMutation = useUpdateStudentPhoto();
+  const uploadMutation = useUploadAcademicDocument();
 
   const [activeTab, setActiveTab] = useState('personal');
   const [completionPercentage, setCompletionPercentage] = useState(0);
@@ -197,6 +200,7 @@ export default function StudentProfile() {
     databases: [] as string[],
     tools: [] as string[],
     semesterMarks: [] as any[],
+    documents: [] as any[],
   });
 
   useEffect(() => {
@@ -227,6 +231,7 @@ export default function StudentProfile() {
         certifications: serverProfile.certifications || [],
         languages: serverProfile.languages || [],
         semesterMarks: serverProfile.semesterMarks || [],
+        documents: serverProfile.documents || [],
       });
     }
   }, [serverProfile]);
@@ -238,12 +243,22 @@ export default function StudentProfile() {
     requiredFields.forEach((field) => {
       if (profile[field as keyof typeof profile]) filled++;
     });
+    
+    // Check required academic documents
+    const has10th = profile.documents?.some(d => d.documentType === '10TH_MARKSHEET');
+    const has12thOrDiploma = profile.documents?.some(d => d.documentType === '12TH_DIPLOMA_MARKSHEET');
+    const hasDegree = profile.documents?.some(d => d.documentType === 'DEGREE_MARKSHEETS');
+    
+    if (has10th) filled += 1;
+    if (has12thOrDiploma) filled += 1;
+    if (hasDegree) filled += 1;
+
     // Add points for optional fields
     if (profile.resumeUrl) filled += 1;
     if (profile.githubUrl) filled += 0.5;
     if (profile.portfolioUrl) filled += 0.5;
 
-    const percentage = Math.min(Math.round((filled / 8) * 100), 100);
+    const percentage = Math.min(Math.round((filled / 11) * 100), 100);
     setCompletionPercentage(percentage);
   }, [profile]);
 
@@ -687,6 +702,107 @@ export default function StudentProfile() {
                           className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
                         />
                       </Field>
+                    </div>
+                  </SectionCard>
+
+                  {/* Mandatory Academic Documents */}
+                  <SectionCard title="Mandatory Academic Documents" icon={Note01Icon}>
+                    <p className="text-xs text-slate-500 mb-5 leading-relaxed">
+                      Please upload clear PDF scans of your marksheets. These are required for verification and are securely stored. Max 15MB each.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {[
+                        { type: '10TH_MARKSHEET', title: '10th Marksheet' },
+                        { type: '12TH_DIPLOMA_MARKSHEET', title: '12th / Diploma Marksheet' },
+                        { type: 'DEGREE_MARKSHEETS', title: 'Degree Marksheets (Consolidated)' },
+                      ].map((docDef) => {
+                        const uploadedDoc = serverProfile?.documents?.find((d: any) => d.documentType === docDef.type);
+                        const uploading = uploadMutation.isPending && uploadMutation.variables?.documentType === docDef.type;
+                        const anyUploading = uploadMutation.isPending;
+                        
+                        return (
+                          <div key={docDef.type} className={`p-4 border rounded-xl transition-all ${uploadedDoc ? 'border-indigo-100 bg-indigo-50/30' : 'border-slate-200 bg-slate-50'}`}>
+                            <div className="flex justify-between items-start mb-3">
+                              <div className="flex-1 pr-2">
+                                <span className="font-semibold text-sm text-slate-800 block">{docDef.title}</span>
+                                {uploadedDoc && (
+                                  <span className="text-[10px] text-slate-500 truncate block mt-1" title={uploadedDoc.fileName}>
+                                    {uploadedDoc.fileName}
+                                  </span>
+                                )}
+                              </div>
+                              {uploadedDoc && !uploading && (
+                                <TickDouble02Icon className="w-5 h-5 text-emerald-500 shrink-0" />
+                              )}
+                            </div>
+                            
+                            {uploadedDoc ? (
+                              <div className="flex items-center gap-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 bg-white hover:bg-slate-50 text-xs h-8"
+                                  onClick={() => window.open(uploadedDoc.signedUrl || uploadedDoc.fileUrl, '_blank')}
+                                >
+                                  View
+                                </Button>
+                                {!isReadOnly && (
+                                  <div className="relative flex-1">
+                                    <input
+                                      type="file"
+                                      accept="application/pdf"
+                                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                      onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                          uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                                        }
+                                      }}
+                                      disabled={anyUploading}
+                                    />
+                                    <Button
+                                      variant="secondary"
+                                      size="sm"
+                                      className="w-full text-xs h-8"
+                                      disabled={anyUploading}
+                                    >
+                                      {uploading ? 'Uploading...' : 'Replace'}
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="relative group">
+                                {!isReadOnly && (
+                                  <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                                    onChange={(e) => {
+                                      if (e.target.files && e.target.files[0]) {
+                                        uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                                      }
+                                    }}
+                                    disabled={anyUploading}
+                                  />
+                                )}
+                                <div className={`w-full py-2.5 px-3 border border-dashed rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-colors ${uploading ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white border-slate-300 text-slate-600 group-hover:border-indigo-400 group-hover:bg-indigo-50/50 group-hover:text-indigo-600'}`}>
+                                  {uploading ? (
+                                    <>
+                                      <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                      Uploading...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CloudUploadIcon className="w-4 h-4" />
+                                      Upload PDF
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </SectionCard>
 
