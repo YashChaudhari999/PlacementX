@@ -88,13 +88,14 @@ export async function getDepartments(filters: AnalyticsFilterInput): Promise<Dep
   // Get all departments
   const depts = await prisma.importedStudent.groupBy({
     by: ['department'],
-    where: { academicYear: currentYear },
+    where: currentYear === 'All Years' ? {} : { academicYear: currentYear },
   });
 
   // Calculate institution-wide stats
+  const instWhere = currentYear === 'All Years' ? {} : { academicYear: currentYear };
   const [instTotal, instPlaced] = await Promise.all([
-    prisma.importedStudent.count({ where: { academicYear: currentYear } }),
-    prisma.importedStudent.count({ where: { academicYear: currentYear, placementStatus: 'Placed' } }),
+    prisma.importedStudent.count({ where: instWhere }),
+    prisma.importedStudent.count({ where: { ...instWhere, placementStatus: 'Placed' } }),
   ]);
   const institutionRate = instTotal > 0 ? parseFloat(((instPlaced / instTotal) * 100).toFixed(2)) : 0;
 

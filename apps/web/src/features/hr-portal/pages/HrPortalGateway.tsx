@@ -34,7 +34,7 @@ export default function HrPortalGateway() {
   }, [token]);
 
   if (loading) {
-    return <Loading />;
+    return <Loading message="Validating secure link..." />;
   }
 
   if (error) {

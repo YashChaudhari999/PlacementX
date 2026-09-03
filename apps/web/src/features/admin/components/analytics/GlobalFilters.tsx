@@ -74,10 +74,10 @@ export default function GlobalFilters() {
           {/* Academic Year */}
           <select
             className="px-3 py-2 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none min-w-[140px]"
-            value={filters.academicYear || ''}
-            onChange={(e) => updateFilter('academicYear', e.target.value || undefined)}
+            value={filters.academicYear || 'All Years'}
+            onChange={(e) => updateFilter('academicYear', e.target.value)}
           >
-            <option value="">All Years</option>
+            <option value="All Years">All Years</option>
             {academicYears.map((y) => (
               <option key={y} value={y}>
                 {y}

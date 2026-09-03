@@ -43,6 +43,9 @@ export async function getInsights(filters: AnalyticsFilterInput): Promise<Insigh
   const insights: PlacementInsight[] = [];
   const now = new Date().toISOString();
   const currentYear = filters.academicYear || '2026/2027';
+  if (currentYear === 'All Years') {
+    return [];
+  }
   const previousYear = filters.compareWith || '2025/2026';
   const where = buildImportedStudentWhere(filters);
 

@@ -21,7 +21,7 @@ import {
 import api from '@/lib/api';
 import { storage } from '@/lib/firebase/config/firebaseApp';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-
+import { Loading } from '@/components/common/Loading';
 const STEPS = [
   { title: 'Company Information', icon: Building02Icon },
   { title: 'Job Details', icon: UserCircle02Icon },
@@ -132,17 +132,7 @@ export default function HrDriveWizard() {
     }
   };
 
-  if (loading)
-    return (
-      <div className="flex flex-col justify-center items-center h-[60vh]">
-        <div className="w-16 h-16 relative mb-4">
-          <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
-        </div>
-        <h2 className="text-xl font-bold text-slate-800">Authenticating Session</h2>
-        <p className="text-slate-500 mt-1">Please wait while we verify your secure link...</p>
-      </div>
-    );
+  if (loading) return <Loading message="Authenticating Session... Please wait while we verify your secure link." />;
 
   if (error)
     return (

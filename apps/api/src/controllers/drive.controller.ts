@@ -80,11 +80,15 @@ export const createDrive = async (req: any, res: any) => {
       });
     }
 
+    const { getSetting } = await import('../services/settings.service');
+    const currentAcademicYear = await getSetting('academicYear');
+
     const drive = await prisma.placementDrive.create({
       select: {
         ...driveSelectFields
       },
       data: {
+        academicYear: currentAcademicYear,
         companyId: company.id,
         status: data.isDraft ? 'DRAFT' : 'PUBLISHED',
         
@@ -211,7 +215,20 @@ export const createDrive = async (req: any, res: any) => {
 
 export const getDrives = async (req: any, res: any) => {
   try {
+    const where: any = {};
+    let targetAcademicYear = req.query.academic_year;
+    
+    if (!targetAcademicYear) {
+      const { getSetting } = await import('../services/settings.service');
+      targetAcademicYear = await getSetting('academicYear');
+    }
+
+    if (targetAcademicYear && targetAcademicYear !== 'All Years') {
+      where.academicYear = targetAcademicYear;
+    }
+
     const drives = await prisma.placementDrive.findMany({
+      where,
       select: {
         ...driveSelectFields,
         company: true,

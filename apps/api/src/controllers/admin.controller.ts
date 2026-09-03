@@ -13,8 +13,14 @@ export const getStudents = async (req: any, res: any) => {
 
     const where: any = {};
 
-    if (req.query.academic_year && req.query.academic_year !== 'All Years') {
-      where.academicYear = req.query.academic_year;
+    let targetAcademicYear = req.query.academic_year;
+    if (!targetAcademicYear) {
+      const { getSetting } = await import('../services/settings.service');
+      targetAcademicYear = await getSetting('academicYear');
+    }
+
+    if (targetAcademicYear && targetAcademicYear !== 'All Years') {
+      where.academicYear = targetAcademicYear;
     }
     if (req.query.department && req.query.department !== 'All Departments') {
       where.department = req.query.department;
@@ -100,8 +106,14 @@ export const getStudents = async (req: any, res: any) => {
 export const getStudentStats = async (req: any, res: any) => {
   try {
     const where: any = {};
-    if (req.query.academic_year && req.query.academic_year !== 'All Years') {
-      where.academicYear = req.query.academic_year;
+    let targetAcademicYear = req.query.academic_year;
+    if (!targetAcademicYear) {
+      const { getSetting } = await import('../services/settings.service');
+      targetAcademicYear = await getSetting('academicYear');
+    }
+
+    if (targetAcademicYear && targetAcademicYear !== 'All Years') {
+      where.academicYear = targetAcademicYear;
     }
 
     const [total, placed, profileCompleteCount, departments, avgCgpa] = await Promise.all([
@@ -474,6 +486,10 @@ export const getCalendarEvents = async (req: any, res: any) => {
     const now = new Date();
     const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
+    const currentAcademicYear = await getSetting('academicYear');
+    const academicYearFilter = currentAcademicYear ? { academicYear: currentAcademicYear } : {};
+    const driveAcademicYearFilter = currentAcademicYear ? { drive: { academicYear: currentAcademicYear } } : {};
+
     // --- 1. Summary Statistics ---
     const [
       upcomingDrivesCount,
@@ -484,20 +500,22 @@ export const getCalendarEvents = async (req: any, res: any) => {
       completedCount,
     ] = await Promise.all([
       prisma.placementDrive.count({
-        where: { expectedDriveDate: { gt: now } },
+        where: { expectedDriveDate: { gt: now }, ...academicYearFilter },
       }),
       prisma.placementDrive.count({
-        where: { registrationStart: { lte: now }, registrationEnd: { gt: now } },
+        where: { registrationStart: { lte: now }, registrationEnd: { gt: now }, ...academicYearFilter },
       }),
       prisma.placementDrive.count({
-        where: { registrationEnd: { gte: now, lte: oneWeekFromNow } },
+        where: { registrationEnd: { gte: now, lte: oneWeekFromNow }, ...academicYearFilter },
       }),
       prisma.selectionRound.count({
-        where: { date: { gte: now } },
+        where: { date: { gte: now }, ...driveAcademicYearFilter },
       }),
-      prisma.offerLetter.count(),
+      prisma.offerLetter.count({
+        where: currentAcademicYear ? { application: { drive: { academicYear: currentAcademicYear } } } : {},
+      }),
       prisma.placementDrive.count({
-        where: { status: 'COMPLETED' },
+        where: { status: 'COMPLETED', ...academicYearFilter },
       }),
     ]);
 
@@ -607,6 +625,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
 
     // --- 3. Events Mapping ---
     const allDrives = await prisma.placementDrive.findMany({
+      where: academicYearFilter,
       include: { company: true },
     });
 
@@ -686,6 +705,7 @@ export const getCalendarEvents = async (req: any, res: any) => {
 
     // 3.4 Selection Rounds (Interviews)
     const rounds = await prisma.selectionRound.findMany({
+      where: driveAcademicYearFilter,
       include: { drive: { include: { company: true } } },
     });
 
@@ -846,26 +866,32 @@ export const getStudentAcademicDoc = async (req: Request, res: Response) => {
 };
 
 // 6. Dashboard Module
+import { getSetting } from '../services/settings.service';
+
 export const getAdminDashboard = async (req: any, res: any) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const currentAcademicYear = await getSetting('academicYear');
+    const academicYearFilter = currentAcademicYear ? { academicYear: currentAcademicYear } : {};
+    const driveAcademicYearFilter = currentAcademicYear ? { drive: { academicYear: currentAcademicYear } } : {};
+
     const [totalStudents, placedStudents, salaries, totalDrives, allDrivesData, totalApplications] =
       await Promise.all([
-        prisma.importedStudent.count(),
-        prisma.importedStudent.count({ where: { placementStatus: 'Placed' } }),
+        prisma.importedStudent.count({ where: academicYearFilter }),
+        prisma.importedStudent.count({ where: { placementStatus: 'Placed', ...academicYearFilter } }),
         prisma.importedStudent.aggregate({
-          where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+          where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null }, ...academicYearFilter },
           _max: { fixedSalaryLpa: true },
           _avg: { fixedSalaryLpa: true },
         }),
-        prisma.placementDrive.count(),
+        prisma.placementDrive.count({ where: academicYearFilter }),
         prisma.placementDrive.findMany({
-          where: { status: { in: ['PUBLISHED', 'COMPLETED'] } },
+          where: { status: { in: ['PUBLISHED', 'COMPLETED'] }, ...academicYearFilter },
           select: { registrationStart: true, registrationEnd: true, status: true }
         }),
-        prisma.driveApplication.count(),
+        prisma.driveApplication.count({ where: driveAcademicYearFilter }),
       ]);
 
     let openDrives = 0;
@@ -889,7 +915,7 @@ export const getAdminDashboard = async (req: any, res: any) => {
 
     // Median logic
     const allSalaries = await prisma.importedStudent.findMany({
-      where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null } },
+      where: { placementStatus: 'Placed', fixedSalaryLpa: { not: null }, ...academicYearFilter },
       select: { fixedSalaryLpa: true },
       orderBy: { fixedSalaryLpa: 'asc' },
     });
@@ -914,6 +940,7 @@ export const getAdminDashboard = async (req: any, res: any) => {
     const activeAndUpcomingDrives = await prisma.placementDrive.findMany({
       where: {
         status: 'PUBLISHED',
+        ...academicYearFilter,
         OR: [
           { registrationEnd: { gte: today } },
           { registrationStart: { gte: today } },
@@ -949,11 +976,12 @@ export const getAdminDashboard = async (req: any, res: any) => {
     // Calculate applications by company
     const applicationsCount = await prisma.driveApplication.groupBy({
       by: ['driveId'],
+      where: driveAcademicYearFilter,
       _count: { id: true },
     });
     
     const drivesForApps = await prisma.placementDrive.findMany({
-      where: { id: { in: applicationsCount.map(a => a.driveId) } },
+      where: { id: { in: applicationsCount.map(a => a.driveId) }, ...academicYearFilter },
       include: { company: true },
     });
     const driveCompanyMap = new Map(drivesForApps.map(d => [d.id, d.company.name]));

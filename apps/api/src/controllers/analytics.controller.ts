@@ -17,15 +17,25 @@ import {
   prisma,
 } from '../services/analytics/analytics.service';
 
+import { getSetting } from '../services/settings.service';
+
 // ── Helper: parse filters from query ──────────────────────
-function filtersFromQuery(req: Request) {
-  return parseAnalyticsFilters(req.query as Record<string, unknown>);
+async function filtersFromQuery(req: Request) {
+  const filters = parseAnalyticsFilters(req.query as Record<string, unknown>);
+  if (!filters.academicYear) {
+    const globalAcademicYear = await getSetting('academicYear');
+    if (globalAcademicYear) {
+      filters.academicYear = globalAcademicYear;
+    }
+  }
+  // Frontend might still send 'All Years' or similar edge cases, but for this app it usually doesn't send it if there's no dropdown.
+  return filters;
 }
 
 // ── 1. Placement Overview ─────────────────────────────────
 export const getPlacementOverview = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getOverview(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -37,7 +47,7 @@ export const getPlacementOverview = async (req: Request, res: Response) => {
 // ── 2. Health Score ───────────────────────────────────────
 export const getPlacementHealthScore = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getHealthScore(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -49,7 +59,7 @@ export const getPlacementHealthScore = async (req: Request, res: Response) => {
 // ── 3. Placement Funnel ───────────────────────────────────
 export const getPlacementFunnel = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getFunnel(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -61,7 +71,7 @@ export const getPlacementFunnel = async (req: Request, res: Response) => {
 // ── 4. Department Analytics ───────────────────────────────
 export const getPlacementDepartments = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getDepartments(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -73,7 +83,7 @@ export const getPlacementDepartments = async (req: Request, res: Response) => {
 // ── 5. Company Analytics ──────────────────────────────────
 export const getPlacementCompanies = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getCompanies(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -85,7 +95,7 @@ export const getPlacementCompanies = async (req: Request, res: Response) => {
 // ── 6. Salary/Package Analytics ───────────────────────────
 export const getPlacementPackages = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getSalary(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -97,7 +107,7 @@ export const getPlacementPackages = async (req: Request, res: Response) => {
 // ── 7. Year Comparison ────────────────────────────────────
 export const getPlacementYearComparison = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const where: Record<string, unknown> = {};
     if (filters.department && filters.department !== 'All Departments') {
       where.department = filters.department;
@@ -152,7 +162,7 @@ export const getPlacementYearComparison = async (req: Request, res: Response) =>
 // ── 8. Student Risk / Readiness ───────────────────────────
 export const getPlacementStudents = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getStudentRisk(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -164,7 +174,7 @@ export const getPlacementStudents = async (req: Request, res: Response) => {
 // ── 9. Skill Gap ──────────────────────────────────────────
 export const getPlacementSkills = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getSkillGap(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -176,7 +186,7 @@ export const getPlacementSkills = async (req: Request, res: Response) => {
 // ── 10. Drive Analytics ───────────────────────────────────
 export const getPlacementDrives = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getDriveAnalytics(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -188,7 +198,7 @@ export const getPlacementDrives = async (req: Request, res: Response) => {
 // ── 11. Intelligence Insights ─────────────────────────────
 export const getPlacementIntelligence = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     const data = await getInsights(filters);
     res.status(200).json(data);
   } catch (error: any) {
@@ -200,7 +210,7 @@ export const getPlacementIntelligence = async (req: Request, res: Response) => {
 // ── 12. Action Center ─────────────────────────────────────
 export const getActionCenter = async (req: Request, res: Response) => {
   try {
-    const filters = filtersFromQuery(req);
+    const filters = await filtersFromQuery(req);
     // Action center combines insights with operational data
     const [insightsData, operational] = await Promise.all([
       getInsights(filters),

@@ -163,7 +163,7 @@ export async function getOverview(
   const current = await fetchOverviewStats(filters);
 
   let previous: OverviewStats | null = null;
-  if (filters.compareWith) {
+  if (filters.compareWith && filters.academicYear !== 'All Years' && filters.compareWith !== 'All Years') {
     previous = await fetchOverviewStats(filters, filters.compareWith);
     // Compute recruiter retention
     const currentYear = filters.academicYear || '2026/2027';

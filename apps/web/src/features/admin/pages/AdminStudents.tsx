@@ -96,7 +96,7 @@ const DEFAULT_FILTERS: StudentFilters = {
   search: '',
   department: '',
   placement_status: '',
-  academic_year: '2026/2027',
+  academic_year: '',
   min_cgpa: '',
   max_cgpa: '',
   sortBy: 'name',
@@ -452,7 +452,7 @@ export default function AdminStudents() {
             icon: CancelCircleIcon,
             color: 'text-amber-700',
             bg: 'bg-amber-50',
-            filter: { placement_status: 'Unplaced' },
+            filter: { placement_status: 'Not Placed' },
           },
           {
             label: 'Profile Complete',
@@ -591,7 +591,7 @@ export default function AdminStudents() {
               >
                 <option value="">All Statuses</option>
                 <option value="Placed">Placed</option>
-                <option value="Unplaced">Unplaced</option>
+                <option value="Not Placed">Unplaced</option>
               </select>
               <ArrowDown01Icon className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>

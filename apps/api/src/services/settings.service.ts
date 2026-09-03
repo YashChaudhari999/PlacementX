@@ -1,12 +1,19 @@
 import prisma from '../utils/prisma';
 import { getRedisClient, isRedisConnected } from '../config/redis';
 
+// Helper to auto-calculate current academic year (June to June)
+const getCurrentAcademicYear = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  return now.getMonth() >= 5 ? `${year}/${year + 1}` : `${year - 1}/${year}`;
+};
+
 // Default configuration fallback
 const DEFAULT_SETTINGS: Record<string, any> = {
   // General
   institutionName: 'NMIMS Placement Cell',
   supportEmail: 'placements@nmims.edu',
-  academicYear: '2025-2026',
+  academicYear: getCurrentAcademicYear(),
   
   // Placement Rules
   maxApplicationsPerStudent: 4,

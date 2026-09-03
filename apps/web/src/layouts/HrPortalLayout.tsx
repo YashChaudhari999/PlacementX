@@ -19,8 +19,8 @@ export const HrPortalLayout = () => {
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-3"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-white shadow-md shadow-slate-900/20">
-            <Briefcase01Icon className="h-5 w-5" />
+          <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-slate-200 p-1.5">
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-full h-full object-contain" />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-slate-800">
             PlacementX <span className="font-medium text-slate-400 mx-2">|</span>{' '}
@@ -55,8 +55,8 @@ export const HrPortalLayout = () => {
       {/* Footer */}
       <footer className="py-8 z-10">
         <div className="max-w-[1400px] mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-200/60 pt-6">
-          <div className="flex items-center gap-2 opacity-50">
-            <Briefcase01Icon className="w-4 h-4" />
+          <div className="flex items-center gap-2 opacity-60">
+            <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-5 h-5 object-contain grayscale" />
             <span className="text-sm font-bold tracking-tight">PlacementX</span>
           </div>
           <p className="text-slate-400 text-sm font-medium">

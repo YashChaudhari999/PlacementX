@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Button, Input } from '@/components/ui';
+import { Select } from '@/components/ui/selection';
 import { GlobalIcon, FloppyDiskIcon } from 'hugeicons-react';
 
 export default function GeneralSettings({
@@ -10,6 +11,19 @@ export default function GeneralSettings({
   hasUnsavedChanges,
   saving,
 }: any) {
+  // Dynamically generate academic year options
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [];
+  for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+    yearOptions.push({ label: `${i}/${i + 1}`, value: `${i}/${i + 1}` });
+  }
+  
+  const currentAcademicYear = getValue('academicYear') || '';
+  if (currentAcademicYear && !yearOptions.find((o) => o.value === currentAcademicYear)) {
+    yearOptions.push({ label: currentAcademicYear, value: currentAcademicYear });
+  }
+  yearOptions.sort((a, b) => b.value.localeCompare(a.value)); // Newest first
+
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
@@ -48,8 +62,9 @@ export default function GeneralSettings({
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Current Academic Year</label>
-          <Input
-            value={getValue('academicYear') || ''}
+          <Select
+            options={yearOptions}
+            value={currentAcademicYear}
             onChange={(e) => handleChange('academicYear', e.target.value)}
           />
         </div>

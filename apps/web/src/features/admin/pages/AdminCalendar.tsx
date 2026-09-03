@@ -30,7 +30,7 @@ export default function AdminCalendar() {
   const [eventToEdit, setEventToEdit] = useState<any>(null);
 
   const [activeFilters, setActiveFilters] = useState<any>({
-    academicYear: '2026-2027',
+    academicYear: '',
     semester: 'semester7',
     week: 'ALL',
     eventType: 'ALL',

@@ -13,6 +13,7 @@ import {
 } from 'hugeicons-react';
 import api from '@/lib/api';
 import ResultUploadFlow from '../components/ResultUploadFlow';
+import { Loading } from '@/components/common/Loading';
 
 interface RecruiterWorkspaceProps {
   token: string;
@@ -108,11 +109,7 @@ export default function RecruiterWorkspace({ token }: RecruiterWorkspaceProps) {
   };
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-      </div>
-    );
+    return <Loading message="Loading workspace..." />;
   }
 
   if (error || !eventData) {
