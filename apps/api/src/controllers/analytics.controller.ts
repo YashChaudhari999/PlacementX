@@ -380,18 +380,17 @@ export const mlForecast = async (req: Request, res: Response) => {
 // ── 15. Filter Options (dynamic dropdown values) ──────────
 export const getFilterOptions = async (_req: Request, res: Response) => {
   try {
-    const [academicYears, departments, companies, seasons] = await Promise.all([
+    const [academicYears, departments, seasons, drivesData] = await Promise.all([
       getDistinctAcademicYears(),
       getDistinctDepartments(),
-      prisma.importedStudent.groupBy({
-        by: ['companyName'],
-        where: { companyName: { not: null } },
-        orderBy: { companyName: 'asc' },
-      }),
       prisma.importedStudent.groupBy({
         by: ['placementSeason'],
         where: { placementSeason: { not: null } },
       }),
+      prisma.placementDrive.findMany({
+        include: { company: true },
+        orderBy: { createdAt: 'desc' }
+      })
     ]);
 
     // Also get drive-related options
@@ -408,7 +407,11 @@ export const getFilterOptions = async (_req: Request, res: Response) => {
     res.status(200).json({
       academicYears,
       departments,
-      companies: companies.map(c => c.companyName).filter(Boolean),
+      drives: drivesData.map(d => ({
+        id: d.id,
+        companyName: d.company.name,
+        jobRole: d.jobRole
+      })),
       seasons: seasons.map(s => s.placementSeason).filter(Boolean),
       jobRoles: jobRoles.map(j => j.jobRole).filter(Boolean),
       driveStatuses: driveStatuses.map(d => d.status),

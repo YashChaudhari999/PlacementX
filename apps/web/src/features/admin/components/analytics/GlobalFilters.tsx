@@ -31,14 +31,14 @@ const filterLabels: Record<string, string> = {
 };
 
 export default function GlobalFilters() {
-  const { filters, updateFilter, clearFilters, hasActiveFilters, activeFilterCount } =
+  const { filters, updateFilter, updateFilters, clearFilters, hasActiveFilters, activeFilterCount } =
     useAnalyticsFilters();
   const { data: options, isLoading: optionsLoading } = useFilterOptions();
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const academicYears = options?.academicYears || [];
   const departments = options?.departments || [];
-  const companies = options?.companies || [];
+  const drives = options?.drives || [];
 
   const handleExport = async () => {
     try {
@@ -167,20 +167,28 @@ export default function GlobalFilters() {
         {/* ── Advanced Filters ──────────────────────── */}
         {showAdvanced && (
           <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3">
-            {/* Company */}
+            {/* Company / Drive */}
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">
-                Company
+                Company / Drive
               </label>
               <select
                 className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl outline-none"
-                value={filters.companyName || ''}
-                onChange={(e) => updateFilter('companyName', e.target.value || undefined)}
+                value={filters.driveId || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (!val) {
+                    updateFilters({ driveId: undefined, companyName: undefined });
+                  } else {
+                    const selectedDrive = drives.find((d: any) => d.id === val);
+                    updateFilters({ driveId: val, companyName: selectedDrive?.companyName });
+                  }
+                }}
               >
-                <option value="">All Companies</option>
-                {companies.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                <option value="">All Companies / Drives</option>
+                {drives.map((d: any) => (
+                  <option key={d.id} value={d.id}>
+                    {d.companyName} / {d.jobRole}
                   </option>
                 ))}
               </select>
