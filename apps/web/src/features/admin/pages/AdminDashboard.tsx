@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                             variants={listItemVariants}
                             key={idx}
                             className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
-                            onClick={() => navigate('/admin/placement-events')}
+                            onClick={() => item.driveId ? navigate(`/admin/placement-events/${item.driveId}`) : navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
                               <div
@@ -445,7 +445,7 @@ export default function AdminDashboard() {
                             variants={listItemVariants}
                             key={idx}
                             className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
-                            onClick={() => navigate('/admin/placement-events')}
+                            onClick={() => item.driveId ? navigate(`/admin/placement-events/${item.driveId}`) : navigate('/admin/placement-events')}
                           >
                             <div className="flex items-center gap-3.5">
                               <div

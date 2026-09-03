@@ -958,17 +958,19 @@ export const getAdminDashboard = async (req: any, res: any) => {
       const studentIds = await filterEligibleStudents(drive as any);
       return {
         company: drive.company.name,
-        count: studentIds.length
+        count: studentIds.length,
+        driveId: drive.id
       };
     });
     
     const eligibleList = await Promise.all(eligiblePromises);
     
-    const eligibleMap = new Map<string, number>();
+    const eligibleMap = new Map<string, { count: number; driveId: string }>();
     eligibleList.forEach(item => {
-      eligibleMap.set(item.company, (eligibleMap.get(item.company) || 0) + item.count);
+      const existing = eligibleMap.get(item.company) || { count: 0, driveId: item.driveId };
+      eligibleMap.set(item.company, { count: existing.count + item.count, driveId: existing.driveId });
     });
-    const eligibleByCompany = Array.from(eligibleMap, ([company, count]) => ({ company, count }))
+    const eligibleByCompany = Array.from(eligibleMap, ([company, data]) => ({ company, count: data.count, driveId: data.driveId }))
       .filter(item => item.count > 0)
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
@@ -986,15 +988,16 @@ export const getAdminDashboard = async (req: any, res: any) => {
     });
     const driveCompanyMap = new Map(drivesForApps.map(d => [d.id, d.company.name]));
     
-    const appsMap = new Map<string, number>();
+    const appsMap = new Map<string, { count: number; driveId: string }>();
     applicationsCount.forEach(app => {
       const companyName = driveCompanyMap.get(app.driveId);
       if (companyName) {
-        appsMap.set(companyName, (appsMap.get(companyName) || 0) + app._count.id);
+        const existing = appsMap.get(companyName) || { count: 0, driveId: app.driveId };
+        appsMap.set(companyName, { count: existing.count + app._count.id, driveId: existing.driveId });
       }
     });
     
-    const applicationsByCompany = Array.from(appsMap, ([company, applications]) => ({ company, applications }))
+    const applicationsByCompany = Array.from(appsMap, ([company, data]) => ({ company, applications: data.count, driveId: data.driveId }))
       .filter(item => item.applications > 0)
       .sort((a, b) => b.applications - a.applications)
       .slice(0, 5);
