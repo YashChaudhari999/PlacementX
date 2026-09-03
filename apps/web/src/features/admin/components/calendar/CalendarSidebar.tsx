@@ -188,7 +188,7 @@ export default function CalendarSidebar({ events, summary, onDateSelect }: Calen
                   </div>
                   {event.extendedProps?.driveId && (
                     <Link
-                      to={`/admin/drives/${event.extendedProps.driveId}`}
+                      to={`/admin/placement-events/${event.extendedProps.driveId}`}
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center opacity-0 group-hover:opacity-100 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                     >
                       <ArrowRight01Icon className="w-4 h-4" />

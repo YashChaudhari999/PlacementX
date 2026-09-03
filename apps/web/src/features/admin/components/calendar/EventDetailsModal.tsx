@@ -159,7 +159,7 @@ export default function EventDetailsModal({ event, onClose, onEdit }: EventDetai
 
             {extendedProps?.driveId && (
               <Link
-                to={`/admin/drives/${extendedProps.driveId}`}
+                to={`/admin/placement-events/${extendedProps.driveId}`}
                 className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2"
               >
                 View Drive <Link02Icon className="w-4 h-4" />
