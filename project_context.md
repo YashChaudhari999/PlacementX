@@ -160,6 +160,15 @@ The core web application, backend API, and mobile app are all actively under dev
 - `[x]` **P3.4 Update `.env.example`**
   - **Task**: Ensure all new environment variables required by the recent implementations (like Redis) are documented.
 
+### Phase 5: UI/UX Production Overhaul (P4)
+
+- `[x]` **P4.1 Global Design System Standardization**
+  - **Task**: Eliminate hardcoded legacy colors and implement a semantic token system using Tailwind v4 (e.g., `bg-background`, `text-primary`). Apply unified component standards (Buttons, Cards, LoadingStates).
+- `[x]` **P4.2 Portal Layout Refactoring**
+  - **Task**: Overhaul the Student, Placement Cell (Admin), HR, and Public layouts to ensure professional and accessible navigation structures.
+- `[x]` **P4.3 Workflow Simplification & Polishing**
+  - **Task**: Modernize complex views such as the Student Profile Wizard (2000+ lines), Admin Event Details, Data Tables, and Recruiter Dashboards to align with industry SaaS standards.
+
 ---
 
 # 4. Technology Stack
