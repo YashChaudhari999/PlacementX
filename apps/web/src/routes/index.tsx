@@ -63,6 +63,9 @@ const StudentInterviews = lazy(() => import('@/features/student/pages/StudentInt
 const StudentDocuments = lazy(() => import('@/features/student/pages/StudentDocuments'));
 const StudentNotifications = lazy(() => import('@/features/student/pages/StudentNotifications'));
 const StudentSettings = lazy(() => import('@/features/student/pages/StudentSettings'));
+const StudentCalendar = lazy(
+  () => import('@/features/student/calendar/components/StudentCalendar')
+);
 
 export const router = createBrowserRouter([
   // PUBLIC ROUTES
@@ -225,6 +228,14 @@ export const router = createBrowserRouter([
         element: (
           <Suspense fallback={<Loading />}>
             <StudentSettings />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'calendar',
+        element: (
+          <Suspense fallback={<Loading />}>
+            <StudentCalendar />
           </Suspense>
         ),
       },
