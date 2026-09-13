@@ -42,13 +42,14 @@ export default function CalendarFilters({
       const activeSem =
         activeYear.semesters.find((s: any) => s.isActive) || activeYear.semesters[0];
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters((prev) => ({
         ...prev,
         academicYear: activeYear.id,
         semester: activeSem ? activeSem.id : '',
       }));
     }
-  }, [fullConfig]);
+  }, [fullConfig, filters.academicYear]);
 
   useEffect(() => {
     // Pass the correct structure back to parent

@@ -28,7 +28,7 @@ export const HeroSection = () => {
               <span className="text-gradient">Placement Platform</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-xl leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-xl leading-relaxed">
               Streamline the entire recruitment lifecycle with NMIMS University's official decision
               support platform. Connect students, placement cells, and recruiters seamlessly.
             </p>
@@ -47,7 +47,7 @@ export const HeroSection = () => {
                 to="/student/login"
                 className={
                   buttonVariants({ variant: 'outline', size: 'lg' }) +
-                  ' h-14 px-8 text-base rounded-xl bg-white/50 backdrop-blur-sm border-slate-200 shadow-sm hover:bg-slate-50 transition-colors'
+                  ' h-14 px-8 text-base rounded-xl bg-card/50 backdrop-blur-sm border-border shadow-sm hover:bg-muted transition-colors'
                 }
               >
                 Student Portal
@@ -58,7 +58,7 @@ export const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, staggerChildren: 0.1 }}
-              className="flex flex-wrap items-center gap-6 text-sm text-slate-600 font-medium"
+              className="flex flex-wrap items-center gap-6 text-sm text-foreground/80 font-medium"
             >
               <motion.div
                 whileHover={{
@@ -66,7 +66,7 @@ export const HeroSection = () => {
                   boxShadow:
                     '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                 }}
-                className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
+                className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg shadow-sm border border-border transition-all cursor-default"
               >
                 <Building02Icon className="h-5 w-5 text-primary" />
                 500+ Recruiters
@@ -77,7 +77,7 @@ export const HeroSection = () => {
                   boxShadow:
                     '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                 }}
-                className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
+                className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg shadow-sm border border-border transition-all cursor-default"
               >
                 <Mortarboard01Icon className="h-5 w-5 text-primary" />
                 10k+ Students
@@ -88,7 +88,7 @@ export const HeroSection = () => {
                   boxShadow:
                     '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
                 }}
-                className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-100 transition-all cursor-default"
+                className="flex items-center gap-2 bg-card px-4 py-2 rounded-lg shadow-sm border border-border transition-all cursor-default"
               >
                 <BarChartIcon className="h-5 w-5 text-primary" />
                 98% Placement
@@ -109,7 +109,7 @@ export const HeroSection = () => {
             <motion.div
               animate={{ y: [0, -15, 0] }}
               transition={{ repeat: Infinity, duration: 6, ease: 'easeInOut' }}
-              className="relative rounded-2xl bg-white/40 backdrop-blur-xl shadow-2xl overflow-hidden flex items-center justify-center ring-1 ring-slate-900/5 aspect-square sm:aspect-[4/3] lg:aspect-square max-w-md mx-auto lg:max-w-none"
+              className="relative rounded-2xl bg-card/40 backdrop-blur-xl shadow-2xl overflow-hidden flex items-center justify-center ring-1 ring-ring/10 aspect-square sm:aspect-[4/3] lg:aspect-square max-w-md mx-auto lg:max-w-none"
             >
               <img
                 src="/hero-image.png"

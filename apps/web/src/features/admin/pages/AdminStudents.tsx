@@ -434,40 +434,40 @@ export default function AdminStudents() {
             label: 'Total Students',
             value: stats?.total,
             icon: UserMultipleIcon,
-            color: 'text-slate-700',
-            bg: 'bg-white',
+            color: 'text-foreground',
+            bg: 'bg-card',
             filter: {},
           },
           {
             label: 'Placed',
             value: stats?.placed,
             icon: Tick02Icon,
-            color: 'text-emerald-700',
-            bg: 'bg-emerald-50',
+            color: 'text-success',
+            bg: 'bg-success-muted',
             filter: { placement_status: 'Placed' },
           },
           {
             label: 'Unplaced',
             value: stats?.unplaced,
             icon: CancelCircleIcon,
-            color: 'text-amber-700',
-            bg: 'bg-amber-50',
+            color: 'text-warning',
+            bg: 'bg-warning-muted',
             filter: { placement_status: 'Not Placed' },
           },
           {
             label: 'Profile Complete',
             value: stats?.profileComplete,
             icon: Note01Icon,
-            color: 'text-blue-700',
-            bg: 'bg-blue-50',
+            color: 'text-info',
+            bg: 'bg-info-muted',
             filter: {},
           },
           {
             label: 'Avg CGPA',
             value: stats?.avgCgpa,
             icon: ArrowUp01Icon,
-            color: 'text-violet-700',
-            bg: 'bg-violet-50',
+            color: 'text-primary',
+            bg: 'bg-primary/10',
             filter: {},
           },
         ].map((kpi) => (
@@ -477,13 +477,13 @@ export default function AdminStudents() {
               if (kpi.filter.placement_status)
                 updateFilter('placement_status', kpi.filter.placement_status);
             }}
-            className={`${kpi.bg} border border-slate-200/80 rounded-xl p-4 text-left hover:shadow-md transition-shadow group cursor-pointer`}
+            className={`${kpi.bg} border border-border rounded-xl p-4 text-left hover:border-primary/50 transition-colors group cursor-pointer`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {kpi.label}
               </span>
-              <kpi.icon className={`w-4 h-4 ${kpi.color} opacity-60`} />
+              <kpi.icon className={`w-4 h-4 ${kpi.color} opacity-80`} />
             </div>
             <div className={`text-2xl font-bold ${kpi.color} tracking-tight`}>
               {statsLoading ? (
@@ -500,8 +500,8 @@ export default function AdminStudents() {
       {(pendingVerificationCount > 0 || pendingUpdateCount > 0) && (
         <div className="flex flex-col sm:flex-row gap-2">
           {pendingVerificationCount > 0 && (
-            <div className="flex items-center justify-between gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 flex-1">
-              <div className="flex items-center gap-2 text-amber-800 text-sm font-medium">
+            <div className="flex items-center justify-between gap-3 bg-warning-muted border border-warning/30 rounded-lg px-4 py-2.5 flex-1">
+              <div className="flex items-center gap-2 text-warning text-sm font-semibold">
                 <Alert01Icon className="w-4 h-4" />
                 <span>
                   {pendingVerificationCount} Pending Verification
@@ -510,15 +510,15 @@ export default function AdminStudents() {
               </div>
               <Link
                 to="/admin/students/verifications"
-                className="text-xs font-semibold text-amber-700 hover:text-amber-900 whitespace-nowrap"
+                className="text-xs font-bold text-warning hover:opacity-80 whitespace-nowrap"
               >
                 View →
               </Link>
             </div>
           )}
           {pendingUpdateCount > 0 && (
-            <div className="flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5 flex-1">
-              <div className="flex items-center gap-2 text-blue-800 text-sm font-medium">
+            <div className="flex items-center justify-between gap-3 bg-info-muted border border-info/30 rounded-lg px-4 py-2.5 flex-1">
+              <div className="flex items-center gap-2 text-info text-sm font-semibold">
                 <Note01Icon className="w-4 h-4" />
                 <span>
                   {pendingUpdateCount} Update Request{pendingUpdateCount > 1 ? 's' : ''}
@@ -526,7 +526,7 @@ export default function AdminStudents() {
               </div>
               <Link
                 to="/admin/students/update-requests"
-                className="text-xs font-semibold text-blue-700 hover:text-blue-900 whitespace-nowrap"
+                className="text-xs font-bold text-info hover:opacity-80 whitespace-nowrap"
               >
                 View →
               </Link>
@@ -739,16 +739,16 @@ export default function AdminStudents() {
       )}
 
       {/* ─── Data Table ────────────────────────────────────────────────── */}
-      <Card className="overflow-hidden border border-slate-200/80 shadow-sm">
+      <Card className="overflow-hidden border border-border shadow-sm p-0">
         {isLoading ? (
           <div className="p-6">
             <ListSkeleton />
           </div>
         ) : isError ? (
           <div className="p-16 text-center">
-            <Alert01Icon className="w-10 h-10 mx-auto mb-3 text-red-400" />
-            <p className="text-base font-semibold text-slate-800">Unable to load students</p>
-            <p className="text-sm text-slate-500 mt-1">
+            <Alert01Icon className="w-10 h-10 mx-auto mb-3 text-destructive" />
+            <p className="text-base font-semibold text-foreground">Unable to load students</p>
+            <p className="text-sm text-muted-foreground mt-1">
               Something went wrong while loading student data.
             </p>
             <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
@@ -760,13 +760,13 @@ export default function AdminStudents() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[1100px]">
                 <thead>
-                  <tr className="bg-slate-50/80 border-b border-slate-200">
+                  <tr className="bg-muted border-b border-border">
                     <th className="w-10 px-4 py-3">
                       <input
                         type="checkbox"
                         checked={allOnPageSelected}
                         onChange={toggleSelectAll}
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20"
+                        className="rounded border-border text-primary focus:ring-primary/20"
                         aria-label="Select all students"
                       />
                     </th>
@@ -783,7 +783,7 @@ export default function AdminStudents() {
                     ].map((col, i) => (
                       <th
                         key={i}
-                        className={`px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider ${col.width} ${col.key ? 'cursor-pointer select-none group/th hover:text-slate-700' : ''}`}
+                        className={`px-4 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider ${col.width} ${col.key ? 'cursor-pointer select-none group/th hover:text-foreground' : ''}`}
                         onClick={() => col.key && handleSort(col.key)}
                       >
                         <span className="inline-flex items-center gap-1">
@@ -794,15 +794,15 @@ export default function AdminStudents() {
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border">
                   {students.length === 0 ? (
                     <tr>
                       <td colSpan={10} className="p-16 text-center">
-                        <Mortarboard01Icon className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-                        <p className="text-base font-semibold text-slate-700">
+                        <Mortarboard01Icon className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+                        <p className="text-base font-semibold text-foreground">
                           No students match your filters
                         </p>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Try removing some filters or adjusting your search.
                         </p>
                         {hasActiveFilters && (
@@ -821,7 +821,7 @@ export default function AdminStudents() {
                     students.map((student: any) => (
                       <tr
                         key={student.id}
-                        className={`transition-colors group ${selectedIds.has(student.id) ? 'bg-indigo-50/50' : 'hover:bg-slate-50/80'}`}
+                        className={`transition-colors group ${selectedIds.has(student.id) ? 'bg-primary/5' : 'hover:bg-muted/50'}`}
                       >
                         {/* Checkbox */}
                         <td className="px-4 py-3">
@@ -829,7 +829,7 @@ export default function AdminStudents() {
                             type="checkbox"
                             checked={selectedIds.has(student.id)}
                             onChange={() => toggleSelect(student.id)}
-                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500/20"
+                            className="rounded border-border text-primary focus:ring-primary/20"
                             aria-label={`Select ${student.name}`}
                           />
                         </td>
@@ -840,14 +840,14 @@ export default function AdminStudents() {
                             className="flex items-center gap-2.5 text-left w-full"
                             onClick={() => navigate(`/admin/students/${student.studentId}`)}
                           >
-                            <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-[11px] shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-[11px] shrink-0">
                               {getInitials(student.name)}
                             </div>
                             <div className="min-w-0">
-                              <div className="text-sm font-semibold text-slate-900 truncate hover:text-indigo-600 transition-colors">
+                              <div className="text-sm font-semibold text-foreground truncate hover:text-primary transition-colors">
                                 {student.name}
                               </div>
-                              <div className="text-[11px] text-slate-500 font-mono">
+                              <div className="text-[11px] text-muted-foreground font-mono">
                                 {student.studentId}
                               </div>
                             </div>
@@ -856,15 +856,17 @@ export default function AdminStudents() {
 
                         {/* Department */}
                         <td className="px-4 py-3">
-                          <div className="text-sm text-slate-700 truncate" title={student.branch}>
+                          <div className="text-sm text-foreground truncate" title={student.branch}>
                             {student.branch}
                           </div>
-                          <div className="text-[11px] text-slate-400">{student.academicYear}</div>
+                          <div className="text-[11px] text-muted-foreground">
+                            {student.academicYear}
+                          </div>
                         </td>
 
                         {/* CGPA */}
                         <td className="px-4 py-3">
-                          <span className="text-sm font-bold text-slate-900">
+                          <span className="text-sm font-bold text-foreground">
                             {student.cgpa !== null ? student.cgpa : '—'}
                           </span>
                         </td>
@@ -872,11 +874,11 @@ export default function AdminStudents() {
                         {/* Backlogs */}
                         <td className="px-4 py-3">
                           {student.activeBacklogs > 0 ? (
-                            <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded px-1.5 py-0.5">
+                            <span className="text-[11px] font-bold text-warning bg-warning-muted border border-warning/20 rounded px-1.5 py-0.5">
                               {student.activeBacklogs} Active
                             </span>
                           ) : (
-                            <span className="text-xs text-slate-500">0</span>
+                            <span className="text-[11px] font-medium text-muted-foreground">0</span>
                           )}
                         </td>
 
@@ -896,11 +898,11 @@ export default function AdminStudents() {
                         {/* Placement */}
                         <td className="px-4 py-3">
                           {student.status === 'Placed' ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-success bg-success-muted border border-success/20 rounded-full px-2 py-0.5">
                               <Tick02Icon className="w-3 h-3" /> Placed
                             </span>
                           ) : (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-500 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground bg-muted border border-border rounded-full px-2 py-0.5">
                               Unplaced
                             </span>
                           )}
@@ -909,7 +911,7 @@ export default function AdminStudents() {
                         {/* Package */}
                         <td className="px-4 py-3">
                           <span
-                            className={`text-sm ${student.fixedSalaryLpa ? 'font-semibold text-slate-800' : 'text-slate-400'}`}
+                            className={`text-sm ${student.fixedSalaryLpa ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}
                           >
                             {formatPackage(student.fixedSalaryLpa)}
                           </span>

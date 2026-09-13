@@ -20,11 +20,11 @@ interface EventDetailsModalProps {
 }
 
 export default function EventDetailsModal({ event, onClose, onEdit }: EventDetailsModalProps) {
+  const deleteEvent = useDeleteCustomEvent();
   if (!event) return null;
 
   const { title, start, end, allDay, extendedProps, color } = event;
   const isCustom = extendedProps?.isCustom;
-  const deleteEvent = useDeleteCustomEvent();
 
   const handleDelete = () => {
     if (confirm('Are you sure you want to delete this event?')) {

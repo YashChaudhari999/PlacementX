@@ -15,14 +15,14 @@ export const Loading = ({ message }: LoadingProps) => (
       />
       {/* Outer subtle ring */}
       <div className="absolute h-24 w-24 rounded-full border-[3px] border-[#800000]/10" />
-      
+
       {/* Center Logo */}
       <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-white shadow-sm overflow-hidden p-3 border border-slate-100">
         <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-full h-full object-contain" />
       </div>
     </div>
     {message && (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-slate-600 font-medium text-lg text-center"

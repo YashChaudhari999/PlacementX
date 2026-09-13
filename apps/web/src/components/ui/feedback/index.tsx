@@ -116,7 +116,7 @@ export const Progress = ({ value, max = 100, className }: ProgressProps) => {
 // ============================================
 // Skeleton
 // ============================================
-export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+export type SkeletonProps = React.HTMLAttributes<HTMLDivElement>;
 
 export const Skeleton = ({ className, ...props }: SkeletonProps) => {
   return <div className={['animate-pulse rounded-md bg-muted', className].join(' ')} {...props} />;
@@ -163,4 +163,53 @@ export interface ToastData {
 }
 
 // export * from './DataLoader'; // Deleted
+// ============================================
+// EmptyState
+// ============================================
+export interface EmptyStateProps {
+  title: string;
+  description?: string;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}
+
+export const EmptyState = ({ title, description, icon, action, className }: EmptyStateProps) => {
+  return (
+    <div
+      className={[
+        'flex flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-8 text-center animate-in fade-in-50 duration-500',
+        className,
+      ].join(' ')}
+    >
+      {icon && <div className="mb-4 text-muted-foreground/50">{icon}</div>}
+      <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+      {description && <p className="mt-2 text-sm text-muted-foreground max-w-sm">{description}</p>}
+      {action && <div className="mt-6">{action}</div>}
+    </div>
+  );
+};
+
+// ============================================
+// LoadingState
+// ============================================
+export interface LoadingStateProps {
+  message?: string;
+  className?: string;
+}
+
+export const LoadingState = ({ message = 'Loading...', className }: LoadingStateProps) => {
+  return (
+    <div
+      className={[
+        'flex flex-col items-center justify-center p-8 text-muted-foreground',
+        className,
+      ].join(' ')}
+    >
+      <Spinner size="lg" className="mb-4 text-primary" />
+      <p className="text-sm font-medium animate-pulse">{message}</p>
+    </div>
+  );
+};
+
 export * from './GlobalLoader';

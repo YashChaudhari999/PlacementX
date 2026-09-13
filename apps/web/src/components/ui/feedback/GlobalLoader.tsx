@@ -7,7 +7,7 @@ export const GlobalLoader = () => {
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
   const isLoading = isFetching > 0 || isMutating > 0;
-  
+
   const containerRef = useRef<HTMLDivElement>(null);
   const [spinnerStyle, setSpinnerStyle] = useState<React.CSSProperties>({});
 
@@ -16,11 +16,11 @@ export const GlobalLoader = () => {
     if (isLoading && containerRef.current) {
       document.body.style.overflow = 'hidden';
       const rect = containerRef.current.getBoundingClientRect();
-      
+
       // Calculate perfectly centered position within the visible viewport.
       // The sticky navbar is roughly 80px tall. The available visible height is from 80 to window.innerHeight.
       const visibleCenterViewportY = 80 + (window.innerHeight - 80) / 2;
-      
+
       // Because 'backdrop-blur' creates a containing block, 'fixed' positioning acts like 'absolute'.
       // Therefore, we calculate the exact absolute 'top' offset relative to the container itself.
       const topOffset = visibleCenterViewportY - rect.top;
@@ -65,10 +65,14 @@ export const GlobalLoader = () => {
               />
               {/* Outer subtle ring */}
               <div className="absolute h-24 w-24 rounded-full border-[3px] border-[#800000]/10" />
-              
+
               {/* Center Logo */}
               <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-white shadow-sm overflow-hidden p-3 border border-slate-100">
-                <img src="/nmimslogo.png" alt="NMIMS Logo" className="w-full h-full object-contain" />
+                <img
+                  src="/nmimslogo.png"
+                  alt="NMIMS Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
           </div>

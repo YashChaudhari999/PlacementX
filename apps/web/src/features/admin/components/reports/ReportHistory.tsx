@@ -12,9 +12,13 @@ import { Button } from '@/components/ui/button';
 
 export default function ReportHistory() {
   const [history, setHistory] = useState<any[]>([]);
-  
+
   // Trigger initial fetch via React Query so GlobalLoader detects it
-  const { data: initialHistory = [], isLoading: loading, refetch } = useQuery({
+  const {
+    data: initialHistory = [],
+    isLoading: loading,
+    refetch,
+  } = useQuery({
     queryKey: ['adminReportsHistory'],
     queryFn: async () => {
       const res = await api.get('/admin/reports/history');
@@ -24,6 +28,7 @@ export default function ReportHistory() {
 
   // Sync initial query data to local state
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!loading) setHistory(initialHistory);
   }, [initialHistory, loading]);
 
@@ -37,7 +42,7 @@ export default function ReportHistory() {
         console.error('Failed to fetch history:', error);
       }
     };
-    
+
     const interval = setInterval(fetchHistorySilent, 10000);
     return () => clearInterval(interval);
   }, []);
@@ -85,10 +90,10 @@ export default function ReportHistory() {
         <div>
           <h3 className="text-lg font-semibold">Export History</h3>
           <p className="text-sm text-muted-foreground mt-1">
-            Download01Icon previously generated reports.
+            Download previously generated reports.
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchHistory}>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
           Refresh
         </Button>
       </div>
@@ -152,7 +157,7 @@ export default function ReportHistory() {
                         }
                       >
                         <Download01Icon className="h-4 w-4 mr-2" />
-                        Download01Icon
+                        Download
                       </Button>
                     ) : (
                       <Button size="sm" variant="ghost" disabled>

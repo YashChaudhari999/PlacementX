@@ -11,51 +11,56 @@
   
   /* Brand Primitives */
   --color-brand-maroon: #8B0000;
+  --color-brand-maroon-light: #A52A2A;
+  --color-brand-maroon-dark: #660000;
   --color-brand-navy: #1C3D58;
   --color-brand-gold: #F5C518;
   --color-brand-teal: #0B9E8A;
   
   /* Core Semantics (shadcn/ui compatible) */
-  --color-background: #EFEFEF; /* Light Background */
-  --color-foreground: #1A1A1A; /* Body Text */
+  --color-background: #F8FAFC; /* slate-50 */
+  --color-foreground: #0F172A; /* slate-900 */
   
   --color-card: #FFFFFF; /* White */
-  --color-card-foreground: #2B2B2B; /* Charcoal */
+  --color-card-foreground: #0F172A; /* slate-900 */
   
   --color-popover: #FFFFFF; /* White */
-  --color-popover-foreground: #2B2B2B; /* Charcoal */
+  --color-popover-foreground: #0F172A; /* slate-900 */
   
   --color-primary: var(--color-brand-maroon);
   --color-primary-foreground: #FFFFFF; /* White */
   
-  --color-secondary: var(--color-brand-navy);
-  --color-secondary-foreground: #FFFFFF; /* White */
+  --color-secondary: #F1F5F9; /* slate-100 */
+  --color-secondary-foreground: #1E293B; /* slate-800 */
   
-  --color-muted: #DCDCDC; /* Light Gray */
-  --color-muted-foreground: #555555; /* Secondary Text */
+  --color-muted: #F1F5F9; /* slate-100 */
+  --color-muted-foreground: #64748B; /* slate-500 */
   
   --color-accent: var(--color-brand-gold);
-  --color-accent-foreground: #1A1A1A; /* Body Text */
+  --color-accent-foreground: #0F172A; /* slate-900 */
   
-  --color-destructive: #DC3545; /* Error */
+  --color-destructive: #EF4444; /* red-500 */
   --color-destructive-foreground: #FFFFFF; /* White */
   
-  --color-border: #DCDCDC; /* Light Gray */
-  --color-input: #DCDCDC; /* Light Gray */
+  --color-border: #E2E8F0; /* slate-200 */
+  --color-input: #E2E8F0; /* slate-200 */
   --color-ring: var(--color-brand-maroon);
   
   /* Status Semantics */
-  --color-success: #28A745;
+  --color-success: #10B981; /* emerald-500 */
   --color-success-foreground: #FFFFFF;
+  --color-success-muted: #D1FAE5; /* emerald-100 */
   
-  --color-warning: #FD7E14;
+  --color-warning: #F59E0B; /* amber-500 */
   --color-warning-foreground: #FFFFFF;
+  --color-warning-muted: #FEF3C7; /* amber-100 */
   
-  --color-info: #007BFF;
+  --color-info: #3B82F6; /* blue-500 */
   --color-info-foreground: #FFFFFF;
+  --color-info-muted: #DBEAFE; /* blue-100 */
 
   /* TYPOGRAPHY */
-  --font-sans: 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Inter', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   
   /* Font Sizes */
   --text-display: 4.5rem;
@@ -90,12 +95,12 @@
   --radius-2xl: 1.5rem;
 
   /* SHADOWS - Subtle, enterprise feel */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-  --shadow-card: 0 4px 20px -2px rgb(0 0 0 / 0.05);
-  --shadow-dropdown: 0 10px 25px -5px rgb(0 0 0 / 0.08);
-  --shadow-modal: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --shadow-dropdown: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 @layer base {

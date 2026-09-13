@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button } from '@/components/ui';
+import { Card, Button, EmptyState } from '@/components/ui';
 import {
   Notification01Icon,
   Briefcase01Icon,
@@ -8,14 +8,12 @@ import {
   Tick01Icon,
   Sun01Icon,
   Moon01Icon,
-  Location01Icon,
   Calendar01Icon,
 } from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
 import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNotifications';
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
 import { DashboardSkeleton } from '@/components/common/Skeletons';
-import { EmptyState } from '@/components/common/EmptyState';
 import { motion } from 'framer-motion';
 
 import StudentInsightsPanel from '../components/StudentInsightsPanel';
@@ -40,9 +38,11 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const hour = new Date().getHours();
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (hour < 12) setGreeting('Good morning');
     else if (hour < 18) setGreeting('Good afternoon');
     else setGreeting('Good evening');
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const markAsRead = (id: string) => {
@@ -60,7 +60,7 @@ export default function StudentDashboard() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     visible: { opacity: 1, y: 0 },
   };
 
@@ -69,34 +69,34 @@ export default function StudentDashboard() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="space-y-8 max-w-5xl mx-auto p-4 md:p-6 pb-20"
+      className="space-y-8 pb-20"
     >
       {/* Hero Welcome Section */}
       <motion.div
         variants={itemVariants}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-600/20"
+        className="bg-card border border-border rounded-2xl p-8 shadow-sm relative overflow-hidden"
       >
-        <div className="absolute top-0 right-0 p-8 opacity-10">
-          <Briefcase01Icon className="w-64 h-64 transform rotate-12 translate-x-16 -translate-y-16" />
+        <div className="absolute -right-10 -top-10 opacity-5 pointer-events-none">
+          <Briefcase01Icon className="w-64 h-64" />
         </div>
-        <div className="relative z-10 p-8 md:p-10 flex flex-col justify-center min-h-[200px] backdrop-blur-sm bg-black/5">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="relative z-10 flex flex-col justify-center max-w-2xl">
+          <div className="flex items-center gap-2 mb-3">
             {greeting.includes('morning') ? (
-              <Sun01Icon className="text-yellow-300 w-6 h-6" />
+              <Sun01Icon className="text-warning w-5 h-5" />
             ) : (
-              <Moon01Icon className="text-indigo-200 w-6 h-6" />
+              <Moon01Icon className="text-primary w-5 h-5" />
             )}
-            <span className="text-indigo-100 font-medium tracking-wide uppercase text-sm">
+            <span className="text-muted-foreground font-semibold tracking-wide uppercase text-xs">
               {greeting}
             </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-2">
-            Welcome back, {studentName}!
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-3">
+            Welcome back, {studentName}
           </h1>
-          <p className="text-indigo-100 max-w-lg text-lg">
-            Stay on top of your placement journey. You have{' '}
-            <strong className="text-white">{drives.length} active drives</strong> available right
-            now.
+          <p className="text-muted-foreground text-base sm:text-lg">
+            You have{' '}
+            <strong className="text-foreground">{drives.length} active placement drives</strong>{' '}
+            available. Review and apply to maximize your chances.
           </p>
         </div>
       </motion.div>
@@ -105,81 +105,83 @@ export default function StudentDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content: Active Drives */}
-        <div className="lg:col-span-2 space-y-6">
-          <motion.div variants={itemVariants} className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-              <Briefcase01Icon className="w-6 h-6 text-blue-600" />
-              Active Drives
-            </h2>
+        <div className="lg:col-span-2 space-y-4">
+          <motion.div
+            variants={itemVariants}
+            className="flex items-center justify-between pb-2 border-b border-border"
+          >
+            <h2 className="text-xl font-bold text-foreground">Active Drives</h2>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/student/drives')}>
+              View All
+            </Button>
           </motion.div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 pt-2">
             {drives.length === 0 ? (
               <motion.div variants={itemVariants}>
                 <EmptyState
-                  icon={Briefcase01Icon}
+                  icon={<Briefcase01Icon className="w-12 h-12" />}
                   title="No active drives"
                   description="There are no placement drives actively recruiting at the moment."
-                  variant="card"
                 />
               </motion.div>
             ) : (
               drives.map((drive: any, idx: number) => (
                 <motion.div key={drive.id} variants={itemVariants} custom={idx}>
-                  <Card className="group p-6 border-slate-300 shadow-md hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-500/20 hover:-translate-y-1 transition-all duration-300 bg-white/90 backdrop-blur-md overflow-hidden relative">
-                    <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-indigo-400 to-violet-600 transform origin-left scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out" />
+                  <Card
+                    variant="interactive"
+                    padding="md"
+                    className="group border-border hover:border-primary/50 overflow-hidden relative"
+                  >
+                    <div className="absolute inset-y-0 left-0 w-1 bg-primary transform origin-left scale-y-0 group-hover:scale-y-100 transition-transform duration-300 ease-out" />
 
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="font-bold text-xl text-slate-900">{drive.company.name}</h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-bold text-lg text-foreground truncate">
+                            {drive.company.name}
+                          </h3>
                           {idx === 0 && (
-                            <span className="px-2.5 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] uppercase tracking-wider font-bold rounded border border-indigo-200 shadow-sm animate-pulse">
-                              95% Match
+                            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] uppercase tracking-wider font-bold rounded">
+                              Recommended
                             </span>
                           )}
-                          <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 shadow-sm">
+                          <span className="px-2.5 py-0.5 bg-success-muted text-success text-xs font-bold rounded">
                             {drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'TBD'}
                           </span>
                         </div>
-                        <p className="text-indigo-600 font-semibold mb-4">{drive.jobRole}</p>
+                        <p className="text-muted-foreground font-medium text-sm mb-4 truncate">
+                          {drive.jobRole}
+                        </p>
 
-                        <div className="flex flex-wrap gap-4 text-sm text-slate-600">
-                          <div className="flex items-center gap-1.5 bg-slate-100 px-3 py-1.5 rounded-md">
-                            <Briefcase01Icon className="w-4 h-4 text-slate-400" />
+                        <div className="flex flex-wrap gap-3 text-xs font-medium">
+                          <div className="flex items-center gap-1.5 bg-secondary text-secondary-foreground px-2.5 py-1 rounded">
+                            <Briefcase01Icon className="w-3.5 h-3.5" />
                             {drive.employmentType}
                           </div>
                           {drive.registrationStart &&
                           new Date(drive.registrationStart) > new Date() ? (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-blue-600 font-medium bg-blue-50 border border-blue-100 shadow-sm">
-                              <Calendar01Icon className="w-4 h-4 text-blue-500 animate-pulse" />
-                              Starts:{' '}
-                              {new Date(drive.registrationStart).toLocaleDateString('en-GB', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                              })}
+                            <div className="flex items-center gap-1.5 bg-info-muted text-info px-2.5 py-1 rounded">
+                              <Calendar01Icon className="w-3.5 h-3.5" />
+                              Starts: {new Date(drive.registrationStart).toLocaleDateString()}
                             </div>
                           ) : (
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-red-600 font-medium bg-red-50 border border-red-100 shadow-sm">
-                              <Notification01Icon className="w-4 h-4 text-red-500 animate-bounce" />
+                            <div className="flex items-center gap-1.5 bg-warning-muted text-warning px-2.5 py-1 rounded">
+                              <Notification01Icon className="w-3.5 h-3.5" />
                               Deadline:{' '}
                               {drive.registrationEnd
-                                ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric',
-                                  })
+                                ? new Date(drive.registrationEnd).toLocaleDateString()
                                 : 'TBD'}
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="w-full sm:w-auto flex-shrink-0 mt-4 sm:mt-0">
+                      <div className="flex-shrink-0 mt-2 sm:mt-0">
                         <Button
-                          className="w-full sm:w-auto bg-slate-900 hover:bg-indigo-600 transition-colors shadow-md"
+                          variant="outline"
                           onClick={() => navigate(`/student/drives/${drive.id}`)}
+                          className="w-full sm:w-auto"
                         >
                           View Details
                         </Button>
@@ -193,50 +195,46 @@ export default function StudentDashboard() {
         </div>
 
         {/* Sidebar: Notifications */}
-        <div className="space-y-6">
-          <motion.div variants={itemVariants} className="sticky top-24">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Notification01Icon className="w-5 h-5 text-indigo-600" />
-                Notifications
-              </div>
+        <div className="space-y-4">
+          <motion.div variants={itemVariants} className="sticky top-24 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground">Notifications</h2>
               {notifications.filter((n: any) => !n.isRead).length > 0 && (
-                <span className="bg-red-500 text-white text-xs px-2.5 py-1 rounded-full font-bold shadow-sm shadow-red-500/30 animate-pulse">
+                <span className="bg-destructive text-destructive-foreground text-[10px] uppercase px-2 py-0.5 rounded font-bold">
                   {notifications.filter((n: any) => !n.isRead).length} New
                 </span>
               )}
-            </h2>
+            </div>
 
-            <Card className="bg-white/80 backdrop-blur-xl border-slate-200/60 shadow-xl shadow-slate-200/40 overflow-hidden">
-              <div className="p-2 space-y-2 max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar">
+            <Card padding="none" className="overflow-hidden border-border bg-card">
+              <div className="p-2 space-y-1 max-h-[500px] overflow-y-auto scrollbar-hide">
                 {notifications.length === 0 ? (
                   <div className="p-8 text-center flex flex-col items-center justify-center opacity-70">
-                    <Notification01Icon className="w-10 h-10 text-slate-300 mb-3" />
-                    <p className="text-sm font-medium text-slate-500">You're all caught up!</p>
+                    <Notification01Icon className="w-8 h-8 text-muted-foreground mb-3" />
+                    <p className="text-sm font-medium text-muted-foreground">
+                      You're all caught up!
+                    </p>
                   </div>
                 ) : (
-                  notifications.map((notification: any, idx: number) => (
-                    <motion.div
+                  notifications.map((notification: any) => (
+                    <div
                       key={notification.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className={`relative p-4 rounded-xl transition-all duration-200 ${notification.isRead ? 'bg-transparent hover:bg-slate-50' : 'bg-blue-50/50 shadow-sm shadow-blue-900/5'}`}
+                      className={`relative p-3 rounded-lg transition-colors border-l-2 ${
+                        notification.isRead
+                          ? 'border-transparent hover:bg-muted/50'
+                          : 'border-primary bg-primary/5'
+                      }`}
                     >
-                      {!notification.isRead && (
-                        <div className="absolute top-4 left-0 w-1 h-8 bg-blue-500 rounded-r-full" />
-                      )}
-
-                      <div className="flex justify-between items-start mb-1 pl-2">
+                      <div className="flex justify-between items-start mb-1">
                         <h4
-                          className={`text-sm font-bold ${notification.isRead ? 'text-slate-700' : 'text-blue-900'}`}
+                          className={`text-sm font-semibold ${notification.isRead ? 'text-foreground' : 'text-primary'}`}
                         >
                           {notification.title}
                         </h4>
                         {!notification.isRead && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="text-blue-500 hover:text-blue-700 hover:bg-blue-100 p-1 rounded-md transition-colors"
+                            className="text-primary hover:text-primary/80 p-1"
                             title="Mark as read"
                           >
                             <Tick01Icon className="w-4 h-4" />
@@ -244,29 +242,21 @@ export default function StudentDashboard() {
                         )}
                       </div>
 
-                      <p className="text-xs text-slate-600 mb-3 pl-2 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
                         {notification.message}
                       </p>
 
-                      <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-100 pl-2">
-                        <span className="text-[10px] font-medium text-slate-400">
-                          {new Date(notification.createdAt).toLocaleDateString('en-GB', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })}
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="text-[10px] font-medium text-muted-foreground">
+                          {new Date(notification.createdAt).toLocaleDateString()}
                         </span>
                         {notification.link && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 text-[10px] px-2 py-0 hover:bg-slate-100 text-blue-600"
-                          >
+                          <Button variant="link" size="sm" className="h-auto p-0 text-[10px]">
                             Details <Link02Icon className="w-3 h-3 ml-1" />
                           </Button>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   ))
                 )}
               </div>

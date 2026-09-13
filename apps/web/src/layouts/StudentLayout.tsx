@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import {
@@ -11,7 +11,6 @@ import {
   Settings01Icon,
   Logout01Icon,
   Menu01Icon,
-  Search01Icon,
   UserIcon,
   Award01Icon,
   ArrowDown01Icon,
@@ -19,12 +18,13 @@ import {
   Download01Icon,
 } from 'hugeicons-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input } from '@/components/ui';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useFCMToken } from '@/hooks/useFCMToken';
 import { useStudentProfile, useUpdateStudentPhoto } from '@/hooks/queries/useStudent';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 import { GlobalLoader } from '@/components/ui/feedback';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Button } from '@/components/ui/button';
 
 export const StudentLayout = () => {
   const { user } = useAuthStore();
@@ -57,108 +57,86 @@ export const StudentLayout = () => {
     navigate('/student/login');
   };
 
-  const navItems = [
-    { name: 'Dashboard', path: '/student/dashboard', icon: DashboardSquare01Icon },
-    { name: 'My Profile', path: '/student/profile', icon: UserIcon },
-    { name: 'Applications', path: '/student/applications', icon: Briefcase01Icon },
-    { name: 'Rounds', path: '/student/interviews', icon: Calendar01Icon },
-    { name: 'Documents', path: '/student/documents', icon: Note01Icon },
-    { name: 'Notifications', path: '/student/notifications', icon: Notification01Icon },
-    { name: 'Settings', path: '/student/settings', icon: Settings01Icon },
+  const navGroups = [
+    {
+      title: 'Menu',
+      items: [
+        { name: 'Dashboard', href: '/student/dashboard', icon: DashboardSquare01Icon },
+        { name: 'My Profile', href: '/student/profile', icon: UserIcon },
+        { name: 'Applications', href: '/student/applications', icon: Briefcase01Icon },
+        { name: 'Rounds', href: '/student/interviews', icon: Calendar01Icon },
+        { name: 'Documents', href: '/student/documents', icon: Note01Icon },
+      ],
+    },
+    {
+      title: 'Updates',
+      items: [
+        {
+          name: 'Notifications',
+          href: '/student/notifications',
+          icon: Notification01Icon,
+          badge: unreadCount,
+        },
+        { name: 'Settings', href: '/student/settings', icon: Settings01Icon },
+      ],
+    },
   ];
 
   const pageTitle =
-    navItems.find((item) => location.pathname.startsWith(item.path))?.name || 'Dashboard';
+    navGroups.flatMap((g) => g.items).find((item) => location.pathname.startsWith(item.href))
+      ?.name || 'Dashboard';
 
-  const sidebarContentJSX = (
-    <div className="flex flex-col h-full bg-white/90 backdrop-blur-xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-slate-300">
-      <div className="h-24 flex items-center justify-center px-6 border-b border-slate-100/50">
-        <div
-          className="flex items-center gap-3 justify-center w-full h-full py-4 transition-transform duration-300 hover:scale-105 cursor-pointer"
-          onClick={() => navigate('/student/dashboard')}
-        >
-          <img
-            src="/nmimslogo.png"
-            alt="NMIMS Logo"
-            className="h-full w-auto object-contain mix-blend-multiply"
+  const sidebarLogo = (
+    <button
+      onClick={() => navigate('/student/dashboard')}
+      className="flex items-center gap-2 transition-opacity hover:opacity-80 mx-auto lg:mx-0"
+    >
+      <img
+        src="/nmimslogo.png"
+        alt="NMIMS Logo"
+        className="h-10 w-auto object-contain mix-blend-multiply"
+      />
+      <span className="font-extrabold text-lg text-primary tracking-tight hidden lg:block">
+        PlacementX
+      </span>
+    </button>
+  );
+
+  const sidebarFooter = (
+    <div className="flex flex-col gap-4">
+      <div className="bg-muted rounded-xl p-3 shadow-sm border border-border">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Award01Icon className="h-4 w-4 text-warning animate-pulse" />
+            <span className="text-xs font-bold text-foreground">Profile Strength</span>
+          </div>
+          <span className="text-xs font-black text-success">{completionPercentage}%</span>
+        </div>
+        <div className="w-full bg-border rounded-full h-1.5 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${completionPercentage}%` }}
+            transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
+            className="bg-success h-1.5 rounded-full"
           />
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2 scrollbar-hide">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
-          const isNotif = item.path === '/student/notifications';
-          return (
-            <NavLink
-              key={item.name}
-              to={item.path}
-              onClick={() => setIsMobileMenuOpen(false)}
-              className={() =>
-                `group flex items-center gap-4 px-4 py-3.5 rounded-2xl text-sm font-bold transition-all duration-300 relative ${
-                  isActive
-                    ? 'bg-[#8B0000] text-white shadow-lg shadow-red-900/30 transform scale-[1.02]'
-                    : 'text-slate-500 hover:bg-slate-50/80 hover:text-slate-900 hover:translate-x-1'
-                }`
-              }
-            >
-              <Icon
-                className={`h-5 w-5 transition-transform duration-300 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-700 group-hover:scale-110'}`}
-              />
-              <span className="flex-1 tracking-wide">{item.name}</span>
-              {isNotif && unreadCount > 0 && (
-                <span
-                  className={`ml-auto text-[10px] font-black px-2 py-1 rounded-full transition-transform duration-300 ${isActive ? 'bg-white text-[#8B0000]' : 'bg-red-500 text-white shadow-sm group-hover:scale-110'}`}
-                >
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </NavLink>
-          );
-        })}
-      </div>
-
-      {/* Profile Completion Widget */}
-      <div className="px-4 py-6 border-t border-slate-100/50 bg-slate-50/50 rounded-b-3xl">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 mb-4 transition-all duration-300 hover:shadow-md hover:border-slate-200">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Award01Icon className="h-4 w-4 text-yellow-500 animate-pulse" />
-              <span className="text-xs font-bold text-slate-700">Profile Strength</span>
-            </div>
-            <span className="text-xs font-black text-emerald-600">{completionPercentage}%</span>
-          </div>
-          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${completionPercentage}%` }}
-              transition={{ duration: 1, delay: 0.5, ease: 'easeOut' }}
-              className="bg-gradient-to-r from-emerald-400 to-emerald-500 h-2 rounded-full"
-            />
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="group flex items-center justify-center gap-2 px-4 py-3 w-full rounded-2xl text-sm font-bold text-slate-600 bg-white border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all duration-300 shadow-sm hover:shadow-md"
-        >
-          <Logout01Icon className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-          Log Out
-        </button>
-      </div>
+      <Button
+        variant="outline"
+        onClick={handleLogout}
+        className="w-full gap-2 text-destructive hover:bg-destructive/10 border-border"
+      >
+        <Logout01Icon className="h-4 w-4" />
+        Log Out
+      </Button>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-indigo-50/60 relative overflow-hidden">
-      {/* Abstract Background Elements - Softened for eye comfort */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-400/10 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-400/10 rounded-full blur-[100px] pointer-events-none translate-y-1/3 -translate-x-1/4" />
-      <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-
-      {/* Desktop Sidebar (Floating) */}
-      <aside className="hidden lg:flex flex-col w-[300px] fixed inset-y-0 z-20 p-6">
-        {sidebarContentJSX}
+    <div className="flex min-h-screen bg-background relative overflow-hidden text-foreground">
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex flex-col w-[280px] fixed inset-y-0 z-20">
+        <Sidebar groups={navGroups} logo={sidebarLogo} footer={sidebarFooter} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -170,51 +148,50 @@ export const StudentLayout = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-slate-900/40 z-40 lg:hidden backdrop-blur-sm"
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
-              className="fixed inset-y-0 left-0 w-[300px] z-50 flex flex-col lg:hidden p-4"
+              className="fixed inset-y-0 left-0 w-[280px] z-50 flex flex-col lg:hidden"
             >
-              {sidebarContentJSX}
+              <Sidebar
+                groups={navGroups}
+                logo={sidebarLogo}
+                footer={sidebarFooter}
+                onItemClick={() => setIsMobileMenuOpen(false)}
+              />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:pl-[300px] min-w-0 relative z-10">
+      <div className="flex-1 flex flex-col lg:pl-[280px] min-w-0 relative z-10">
         {/* Dynamic Header */}
-        <header className="h-24 px-6 sm:px-10 flex items-center justify-between sticky top-0 z-30 bg-indigo-50/80 backdrop-blur-md">
+        <header className="h-16 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2.5 -ml-2 text-slate-700 bg-white shadow-sm rounded-xl border border-slate-200"
+              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
             >
               <Menu01Icon className="h-5 w-5" />
             </button>
-            <div>
-              <h1 className="text-2xl font-extrabold text-slate-900 hidden sm:block tracking-tight">
-                {pageTitle}
-              </h1>
-              <p className="text-sm font-medium text-slate-500 hidden sm:block mt-0.5">
-                Let's find your dream job today.
-              </p>
-            </div>
+            <h1 className="text-xl font-bold text-foreground hidden sm:block tracking-tight">
+              {pageTitle}
+            </h1>
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6">
-            {/* Download App Button */}
             <a
               href="/placementx-student-app.apk"
               download="PlacementX_Student.apk"
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-full transition-colors"
             >
-              <Download01Icon className="h-4 w-4" />
-              <span>Download App</span>
+              <Download01Icon className="h-3.5 w-3.5" />
+              <span>Mobile App</span>
             </a>
 
             <NotificationBell />
@@ -222,9 +199,9 @@ export const StudentLayout = () => {
             <div className="relative">
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl shadow-sm border border-slate-200 hover:border-slate-300 transition-all"
+                className="flex items-center gap-2 hover:bg-muted p-1 pr-2 rounded-full transition-colors"
               >
-                <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
+                <div className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center overflow-hidden border border-border">
                   <img
                     src={
                       serverProfile?.photoUrl ||
@@ -234,30 +211,20 @@ export const StudentLayout = () => {
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <div className="hidden sm:flex flex-col items-start">
-                  <span className="text-sm font-bold text-slate-800 leading-tight">
-                    {serverProfile?.firstName
-                      ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim()
-                      : user?.email?.split('@')[0]}
-                  </span>
-                  <span className="text-xs font-semibold text-slate-400">
-                    {serverProfile?.branch || 'B.Tech CS'}
-                  </span>
-                </div>
-                <ArrowDown01Icon className="h-4 w-4 text-slate-400 ml-1 hidden sm:block" />
+                <ArrowDown01Icon className="h-4 w-4 text-muted-foreground hidden sm:block" />
               </button>
 
               <AnimatePresence>
                 {isProfileDropdownOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 15, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute right-0 mt-4 w-64 rounded-2xl shadow-2xl bg-white border border-slate-100 overflow-hidden"
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-64 rounded-xl shadow-dropdown bg-popover border border-border overflow-hidden"
                   >
-                    <div className="p-5 border-b border-slate-100 bg-gradient-to-b from-slate-50 to-white text-center">
-                      <div className="h-16 w-16 mx-auto rounded-2xl bg-slate-100 mb-3 overflow-hidden shadow-inner relative group">
+                    <div className="p-4 border-b border-border bg-muted/30 text-center">
+                      <div className="h-16 w-16 mx-auto rounded-full bg-secondary mb-3 overflow-hidden shadow-sm relative group border border-border">
                         <img
                           src={
                             serverProfile?.photoUrl ||
@@ -266,7 +233,7 @@ export const StudentLayout = () => {
                           alt="avatar"
                           className="h-full w-full object-cover"
                         />
-                        <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <label className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                           <Camera01Icon className="w-5 h-5 mb-0.5" />
                           <span className="text-[9px] font-bold uppercase tracking-wider">
                             Change
@@ -291,40 +258,40 @@ export const StudentLayout = () => {
                           />
                         </label>
                       </div>
-                      <p className="text-base font-bold text-slate-800">
+                      <p className="text-sm font-bold text-foreground">
                         {serverProfile?.firstName
                           ? `${serverProfile.firstName} ${serverProfile.lastName || ''}`.trim()
                           : user?.email?.split('@')[0]}
                       </p>
-                      <p className="text-sm font-medium text-slate-500 mt-0.5 truncate">
+                      <p className="text-xs font-medium text-muted-foreground mt-0.5 truncate">
                         {user?.email}
                       </p>
                     </div>
-                    <div className="p-3">
+                    <div className="p-2">
                       <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
                           navigate('/student/profile');
                         }}
-                        className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-3"
                       >
-                        <UserIcon className="w-4 h-4 text-slate-400" /> View Profile
+                        <UserIcon className="w-4 h-4 text-muted-foreground" /> View Profile
                       </button>
                       <button
                         onClick={() => {
                           setIsProfileDropdownOpen(false);
                           navigate('/student/settings');
                         }}
-                        className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl transition-colors flex items-center gap-3"
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-3"
                       >
-                        <Settings01Icon className="w-4 h-4 text-slate-400" /> Preferences
+                        <Settings01Icon className="w-4 h-4 text-muted-foreground" /> Preferences
                       </button>
-                      <div className="h-px bg-slate-100 my-2 mx-2" />
+                      <div className="h-px bg-border my-1 mx-1" />
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 rounded-xl transition-colors flex items-center gap-3"
+                        className="w-full text-left px-3 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-md transition-colors flex items-center gap-3"
                       >
-                        <Logout01Icon className="w-4 h-4 text-red-500" /> Sign out
+                        <Logout01Icon className="w-4 h-4" /> Sign out
                       </button>
                     </div>
                   </motion.div>
@@ -335,16 +302,16 @@ export const StudentLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 px-6 sm:px-10 pb-10 relative">
+        <main className="flex-1 p-6 sm:p-8 relative">
           <GlobalLoader />
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="w-full max-w-[1400px] mx-auto"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-6xl mx-auto"
             >
               <Outlet />
             </motion.div>

@@ -58,13 +58,24 @@ export { DataTable, Pagination, TableEmptyState, TableLoadingState, TableSearch 
 export type { DataTableProps, ColumnDef, SortDirection, PaginationProps } from './table';
 
 // Feedback
-export { Alert, alertVariants, Banner, Progress, Skeleton, Spinner } from './feedback';
+export {
+  Alert,
+  alertVariants,
+  Banner,
+  Progress,
+  Skeleton,
+  Spinner,
+  EmptyState,
+  LoadingState,
+} from './feedback';
 export type {
   AlertProps,
   BannerProps,
   ProgressProps,
   SkeletonProps,
   SpinnerProps,
+  EmptyStateProps,
+  LoadingStateProps,
   ToastData,
   ToastVariant,
 } from './feedback';

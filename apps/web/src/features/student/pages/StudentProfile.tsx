@@ -55,12 +55,12 @@ import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebas
 import { storage } from '@/lib/firebase/config/firebaseApp';
 
 const SectionCard = ({ title, icon: Icon, children }: any) => (
-  <div className="bg-white/90 backdrop-blur-xl rounded-3xl p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 transition-all duration-300 hover:shadow-xl hover:border-indigo-200 group">
-    <div className="flex items-center gap-3 mb-6">
-      <div className="p-2 bg-gradient-to-br from-indigo-50 to-white rounded-xl shadow-sm border border-indigo-100/50 group-hover:scale-110 transition-transform duration-300">
-        <Icon className="w-5 h-5 text-indigo-600" />
+  <div className="bg-card rounded-2xl p-6 border border-border shadow-sm transition-all duration-300 hover:border-primary/50 group">
+    <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+      <div className="p-2 bg-muted rounded-lg border border-border group-hover:bg-primary/10 transition-colors duration-300">
+        <Icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
       </div>
-      <h3 className="text-lg font-bold text-slate-800">{title}</h3>
+      <h3 className="text-lg font-bold text-foreground">{title}</h3>
     </div>
     {children}
   </div>
@@ -68,12 +68,14 @@ const SectionCard = ({ title, icon: Icon, children }: any) => (
 
 const Field = ({ label, icon: Icon, children, labelEnd }: any) => (
   <div className="space-y-2">
-    <label className="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-2 mb-1">
-      <Icon className="w-4 h-4 text-slate-400" />
+    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2 mb-1">
+      <Icon className="w-4 h-4" />
       <span className="flex-1 flex justify-between items-center">
         {label}
         {labelEnd && (
-          <span className="text-[10px] normal-case font-medium text-slate-400">{labelEnd}</span>
+          <span className="text-[10px] normal-case font-medium text-muted-foreground">
+            {labelEnd}
+          </span>
         )}
       </span>
     </label>
@@ -100,13 +102,13 @@ const TagInput = ({ tags, setTags, placeholder, disabled, label }: any) => {
         {tags.map((tag: string) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-sm font-medium"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-secondary text-secondary-foreground border border-border text-xs font-semibold"
           >
             {tag}
             {!disabled && (
               <button
                 onClick={() => removeTag(tag)}
-                className="hover:bg-blue-200 p-0.5 rounded-full transition-colors"
+                className="hover:bg-muted p-0.5 rounded transition-colors"
               >
                 <Cancel01Icon className="w-3 h-3" />
               </button>
@@ -120,9 +122,9 @@ const TagInput = ({ tags, setTags, placeholder, disabled, label }: any) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={placeholder}
-            className="flex-1 h-12 bg-white focus:bg-white text-lg rounded-xl border-slate-200"
+            className="flex-1"
           />
-          <Button type="submit" variant="outline" className="h-12 px-4 rounded-xl shrink-0">
+          <Button type="submit" variant="secondary" className="shrink-0">
             <PlusSignIcon className="w-4 h-4 mr-2" /> Add
           </Button>
         </form>
@@ -142,6 +144,8 @@ export default function StudentProfile() {
 
   const [activeTab, setActiveTab] = useState('personal');
   const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [updateReason, setUpdateReason] = useState('');
   const [uploadingMarkings, setUploadingMarkings] = useState<Record<number, boolean>>({});
@@ -205,6 +209,7 @@ export default function StudentProfile() {
 
   useEffect(() => {
     if (serverProfile) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setProfile({
         ...serverProfile,
         photoUrl: serverProfile.photoUrl || '',
@@ -233,6 +238,7 @@ export default function StudentProfile() {
         semesterMarks: serverProfile.semesterMarks || [],
         documents: serverProfile.documents || [],
       });
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [serverProfile]);
 
@@ -243,12 +249,14 @@ export default function StudentProfile() {
     requiredFields.forEach((field) => {
       if (profile[field as keyof typeof profile]) filled++;
     });
-    
+
     // Check required academic documents
-    const has10th = profile.documents?.some(d => d.documentType === '10TH_MARKSHEET');
-    const has12thOrDiploma = profile.documents?.some(d => d.documentType === '12TH_DIPLOMA_MARKSHEET');
-    const hasDegree = profile.documents?.some(d => d.documentType === 'DEGREE_MARKSHEETS');
-    
+    const has10th = profile.documents?.some((d) => d.documentType === '10TH_MARKSHEET');
+    const has12thOrDiploma = profile.documents?.some(
+      (d) => d.documentType === '12TH_DIPLOMA_MARKSHEET'
+    );
+    const hasDegree = profile.documents?.some((d) => d.documentType === 'DEGREE_MARKSHEETS');
+
     if (has10th) filled += 1;
     if (has12thOrDiploma) filled += 1;
     if (hasDegree) filled += 1;
@@ -259,6 +267,7 @@ export default function StudentProfile() {
     if (profile.portfolioUrl) filled += 0.5;
 
     const percentage = Math.min(Math.round((filled / 11) * 100), 100);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCompletionPercentage(percentage);
   }, [profile]);
 
@@ -301,7 +310,7 @@ export default function StudentProfile() {
       id: 'personal',
       label: 'Personal Info',
       icon: UserIcon,
-      color: 'text-slate-500',
+      color: 'text-muted-foreground',
       bg: 'bg-slate-100',
     },
     {
@@ -362,10 +371,7 @@ export default function StudentProfile() {
       className="max-w-5xl mx-auto space-y-8 p-4 md:p-6 pb-32"
     >
       {/* Header Profile Card */}
-      <div className="bg-white/90 backdrop-blur-xl rounded-3xl shadow-xl shadow-indigo-900/5 border border-slate-200/60 p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-400/20 to-violet-400/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-emerald-400/10 to-teal-400/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3" />
-
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
         {/* Circular Progress / Avatar Uploader */}
         <div className="relative w-32 h-32 shrink-0 group">
           <svg
@@ -379,7 +385,7 @@ export default function StudentProfile() {
               fill="none"
               stroke="currentColor"
               strokeWidth="4"
-              className="text-slate-100"
+              className="text-muted"
             />
             <motion.circle
               cx="50"
@@ -389,7 +395,7 @@ export default function StudentProfile() {
               stroke="currentColor"
               strokeWidth="4"
               strokeLinecap="round"
-              className={completionPercentage === 100 ? 'text-emerald-500' : 'text-blue-600'}
+              className={completionPercentage === 100 ? 'text-success' : 'text-primary'}
               initial={{ strokeDasharray: '0 1000' }}
               animate={{ strokeDasharray: `${(completionPercentage / 100) * 301} 1000` }}
               transition={{ duration: 1.5, ease: 'easeOut' }}
@@ -401,17 +407,17 @@ export default function StudentProfile() {
               <img src={profile.photoUrl} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <div className="flex flex-col items-center justify-center">
-                <span className="text-xl font-extrabold text-slate-800">
+                <span className="text-xl font-extrabold text-foreground">
                   {completionPercentage}%
                 </span>
-                <span className="text-[8px] uppercase font-bold tracking-wider text-slate-400">
+                <span className="text-[8px] uppercase font-bold tracking-wider text-muted-foreground">
                   Complete
                 </span>
               </div>
             )}
 
             {!isReadOnly && (
-              <label className="absolute inset-0 bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+              <label className="absolute inset-0 bg-black/60 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                 <Camera01Icon className="w-6 h-6 mb-1" />
                 <span className="text-[10px] font-bold uppercase tracking-wider">Upload</span>
                 <input
@@ -437,30 +443,30 @@ export default function StudentProfile() {
         </div>
 
         <div className="flex-1 text-center md:text-left z-10">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-2">
+          <h1 className="text-3xl font-extrabold text-foreground tracking-tight mb-2">
             {profile.firstName || profile.lastName
               ? `${profile.firstName} ${profile.lastName}`
               : 'Complete your profile'}
           </h1>
-          <p className="text-lg text-slate-500 mb-4">{user?.email}</p>
+          <p className="text-lg text-muted-foreground mb-4">{user?.email}</p>
           <div className="flex flex-wrap justify-center md:justify-start gap-3">
             {profileStatus === 'PENDING_VERIFICATION' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-100 text-blue-700 text-sm font-bold border border-blue-200 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-info-muted text-info text-sm font-bold border border-info/20 shadow-sm">
                 <Alert02Icon className="w-4 h-4" /> Pending Verification
               </span>
             )}
             {profileStatus === 'UPDATE_REQUESTED' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-sm font-bold border border-amber-200 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning-muted text-warning text-sm font-bold border border-warning/20 shadow-sm">
                 <Alert02Icon className="w-4 h-4" /> Update Request Pending
               </span>
             )}
             {profileStatus === 'VERIFIED' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 text-sm font-bold border border-emerald-200 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success-muted text-success text-sm font-bold border border-success/20 shadow-sm">
                 <Tick02Icon className="w-4 h-4" /> Verified Profile
               </span>
             )}
             {(profileStatus === 'NOT_COMPLETED' || profileStatus === 'UPDATE_REJECTED') && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 text-sm font-bold border border-amber-200 shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-warning-muted text-warning text-sm font-bold border border-warning/20 shadow-sm">
                 Action Required: Complete your profile
               </span>
             )}
@@ -483,41 +489,37 @@ export default function StudentProfile() {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6 shadow-inner"
+          className="bg-muted border border-border rounded-xl p-6 mb-6"
         >
-          <label className="block text-sm font-bold text-blue-800 mb-2 flex items-center gap-2">
-            <Alert02Icon className="w-4 h-4" /> Reason for Update (Required)
+          <label className="block text-sm font-bold text-foreground mb-2 flex items-center gap-2">
+            <Alert02Icon className="w-4 h-4 text-warning" /> Reason for Update (Required)
           </label>
           <Input
             value={updateReason}
             onChange={(e) => setUpdateReason(e.target.value)}
             placeholder="e.g. Updated my CGPA after 6th semester results"
-            className="bg-white border-blue-200 shadow-sm"
+            className="bg-card border-border"
           />
         </motion.div>
       )}
 
       {/* Main Content Area */}
-      <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-lg border border-slate-200 overflow-hidden">
+      <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
         {/* Modern Tab Navigation */}
-        <div className="flex overflow-x-auto hide-scrollbar border-b border-slate-100 bg-slate-50/50 p-3 gap-3">
+        <div className="flex overflow-x-auto hide-scrollbar border-b border-border bg-muted p-2 gap-2">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative flex items-center gap-3 px-6 py-3.5 text-sm font-bold rounded-2xl transition-all duration-300 whitespace-nowrap ${
+                className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-lg transition-all duration-300 whitespace-nowrap ${
                   isActive
-                    ? 'text-slate-900 bg-white shadow-sm ring-1 ring-slate-200/50'
-                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                    ? 'text-foreground bg-card shadow-sm border border-border'
+                    : 'text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground'
                 }`}
               >
-                <div
-                  className={`p-2 rounded-xl transition-colors ${isActive ? tab.bg : 'bg-slate-200/50'} ${isActive ? tab.color : 'text-slate-400'}`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                </div>
+                <tab.icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'opacity-70'}`} />
                 {tab.label}
               </button>
             );
@@ -544,7 +546,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
                           placeholder="John"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Last Name" icon={UserIcon}>
@@ -553,7 +555,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
                           placeholder="Doe"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Date of Birth" icon={Calendar01Icon}>
@@ -562,12 +564,12 @@ export default function StudentProfile() {
                           value={profile.dateOfBirth}
                           onChange={(e) => setProfile({ ...profile, dateOfBirth: e.target.value })}
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Gender" icon={UserCircleIcon}>
                         <select
-                          className="w-full h-12 px-4 rounded-xl border border-slate-200 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70"
+                          className="w-full h-12 px-4 rounded-xl border-border bg-card text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70"
                           value={profile.gender}
                           onChange={(e) => setProfile({ ...profile, gender: e.target.value })}
                           disabled={isReadOnly}
@@ -588,7 +590,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                           placeholder="+91 9876543210"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Alternate CallIcon" icon={CallIcon}>
@@ -599,7 +601,7 @@ export default function StudentProfile() {
                           }
                           placeholder="+91 9876543210"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <div className="col-span-full">
@@ -610,7 +612,7 @@ export default function StudentProfile() {
                             placeholder="Full Address"
                             disabled={isReadOnly}
                             rows={3}
-                            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70 resize-none"
+                            className="w-full px-4 py-3 rounded-xl border-border bg-card text-foreground rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all disabled:opacity-70 resize-none"
                           />
                         </Field>
                       </div>
@@ -629,7 +631,7 @@ export default function StudentProfile() {
                           value={profile.branch}
                           onChange={(e) => setProfile({ ...profile, branch: e.target.value })}
                           disabled={isReadOnly}
-                          className="w-full h-12 bg-white border border-slate-200 text-lg rounded-xl px-4 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-70"
+                          className="w-full h-12 bg-card border-border rounded-md text-foreground px-4 outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-70"
                         >
                           <option value="">Select Branch</option>
                           <option value="Information Technology">Information Technology</option>
@@ -647,7 +649,7 @@ export default function StudentProfile() {
                           }
                           placeholder="e.g. 6"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="CGPA" icon={Award01Icon}>
@@ -658,7 +660,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, cgpa: e.target.value })}
                           placeholder="8.5"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Passing Year" icon={Calendar01Icon}>
@@ -668,7 +670,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, passingYear: e.target.value })}
                           placeholder="2025"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Active Backlogs" icon={Alert02Icon}>
@@ -679,7 +681,7 @@ export default function StudentProfile() {
                             setProfile({ ...profile, activeBacklogs: e.target.value })
                           }
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Total Backlogs" icon={Alert02Icon}>
@@ -690,7 +692,7 @@ export default function StudentProfile() {
                             setProfile({ ...profile, totalBacklogs: e.target.value })
                           }
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Year Gap" icon={Clock01Icon}>
@@ -699,7 +701,7 @@ export default function StudentProfile() {
                           value={profile.yearGap}
                           onChange={(e) => setProfile({ ...profile, yearGap: e.target.value })}
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                     </div>
@@ -707,8 +709,9 @@ export default function StudentProfile() {
 
                   {/* Mandatory Academic Documents */}
                   <SectionCard title="Mandatory Academic Documents" icon={Note01Icon}>
-                    <p className="text-xs text-slate-500 mb-5 leading-relaxed">
-                      Please upload clear PDF scans of your marksheets. These are required for verification and are securely stored. Max 15MB each.
+                    <p className="text-xs text-muted-foreground mb-5 leading-relaxed">
+                      Please upload clear PDF scans of your marksheets. These are required for
+                      verification and are securely stored. Max 15MB each.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       {[
@@ -716,17 +719,29 @@ export default function StudentProfile() {
                         { type: '12TH_DIPLOMA_MARKSHEET', title: '12th / Diploma Marksheet' },
                         { type: 'DEGREE_MARKSHEETS', title: 'Degree Marksheets (Consolidated)' },
                       ].map((docDef) => {
-                        const uploadedDoc = serverProfile?.documents?.find((d: any) => d.documentType === docDef.type);
-                        const uploading = uploadMutation.isPending && uploadMutation.variables?.documentType === docDef.type;
+                        const uploadedDoc = serverProfile?.documents?.find(
+                          (d: any) => d.documentType === docDef.type
+                        );
+                        const uploading =
+                          uploadMutation.isPending &&
+                          uploadMutation.variables?.documentType === docDef.type;
                         const anyUploading = uploadMutation.isPending;
-                        
+
                         return (
-                          <div key={docDef.type} className={`p-4 border rounded-xl transition-all ${uploadedDoc ? 'border-indigo-100 bg-indigo-50/30' : 'border-slate-200 bg-slate-50'}`}>
+                          <div
+                            key={docDef.type}
+                            className={`p-4 border rounded-xl transition-all ${uploadedDoc ? 'border-primary/20 bg-primary/5' : 'border-border bg-muted'}`}
+                          >
                             <div className="flex justify-between items-start mb-3">
                               <div className="flex-1 pr-2">
-                                <span className="font-semibold text-sm text-slate-800 block">{docDef.title}</span>
+                                <span className="font-semibold text-sm text-foreground block">
+                                  {docDef.title}
+                                </span>
                                 {uploadedDoc && (
-                                  <span className="text-[10px] text-slate-500 truncate block mt-1" title={uploadedDoc.fileName}>
+                                  <span
+                                    className="text-[10px] text-muted-foreground truncate block mt-1"
+                                    title={uploadedDoc.fileName}
+                                  >
                                     {uploadedDoc.fileName}
                                   </span>
                                 )}
@@ -735,14 +750,19 @@ export default function StudentProfile() {
                                 <TickDouble02Icon className="w-5 h-5 text-emerald-500 shrink-0" />
                               )}
                             </div>
-                            
+
                             {uploadedDoc ? (
                               <div className="flex items-center gap-2">
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="flex-1 bg-white hover:bg-slate-50 text-xs h-8"
-                                  onClick={() => window.open(uploadedDoc.signedUrl || uploadedDoc.fileUrl, '_blank')}
+                                  className="flex-1 bg-white hover:bg-muted text-xs h-8"
+                                  onClick={() =>
+                                    window.open(
+                                      uploadedDoc.signedUrl || uploadedDoc.fileUrl,
+                                      '_blank'
+                                    )
+                                  }
                                 >
                                   View
                                 </Button>
@@ -751,10 +771,14 @@ export default function StudentProfile() {
                                     <input
                                       type="file"
                                       accept="application/pdf"
+                                      aria-label={`Replace ${docDef.title}`}
                                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                       onChange={(e) => {
                                         if (e.target.files && e.target.files[0]) {
-                                          uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                                          uploadMutation.mutate({
+                                            file: e.target.files[0],
+                                            documentType: docDef.type,
+                                          });
                                         }
                                       }}
                                       disabled={anyUploading}
@@ -779,13 +803,18 @@ export default function StudentProfile() {
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
                                     onChange={(e) => {
                                       if (e.target.files && e.target.files[0]) {
-                                        uploadMutation.mutate({ file: e.target.files[0], documentType: docDef.type });
+                                        uploadMutation.mutate({
+                                          file: e.target.files[0],
+                                          documentType: docDef.type,
+                                        });
                                       }
                                     }}
                                     disabled={anyUploading}
                                   />
                                 )}
-                                <div className={`w-full py-2.5 px-3 border border-dashed rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-colors ${uploading ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white border-slate-300 text-slate-600 group-hover:border-indigo-400 group-hover:bg-indigo-50/50 group-hover:text-indigo-600'}`}>
+                                <div
+                                  className={`w-full py-2.5 px-3 border border-dashed rounded-lg flex items-center justify-center gap-2 text-sm font-medium transition-colors ${uploading ? 'bg-indigo-50 border-indigo-200 text-indigo-600' : 'bg-white border-slate-300 text-muted-foreground group-hover:border-indigo-400 group-hover:bg-indigo-50/50 group-hover:text-indigo-600'}`}
+                                >
                                   {uploading ? (
                                     <>
                                       <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -815,7 +844,7 @@ export default function StudentProfile() {
                           <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-xs">
                             10
                           </div>
-                          <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                          <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             10th Standard
                           </h4>
                         </div>
@@ -859,7 +888,7 @@ export default function StudentProfile() {
                           <div className="w-6 h-6 rounded bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-xs">
                             12
                           </div>
-                          <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                          <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             12th Standard
                           </h4>
                         </div>
@@ -907,7 +936,7 @@ export default function StudentProfile() {
                           <div className="w-6 h-6 rounded bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xs">
                             DP
                           </div>
-                          <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                          <h4 className="text-sm font-bold text-foreground uppercase tracking-wider">
                             Diploma
                           </h4>
                         </div>
@@ -956,30 +985,30 @@ export default function StudentProfile() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left border-collapse">
                         <thead>
-                          <tr className="bg-slate-50 border-b border-slate-200">
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                          <tr className="bg-muted border-b border-slate-200">
+                            <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                               Semester
                             </th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                               CGPA
                             </th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                               Ongoing Backlogs
                             </th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                               Total Backlogs
                             </th>
-                            <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider text-center">
+                            <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-center">
                               Marksheet
                             </th>
                             {!isReadOnly && (
-                              <th className="py-3 px-4 text-xs font-bold text-slate-600 uppercase tracking-wider"></th>
+                              <th className="py-3 px-4 text-xs font-bold text-muted-foreground uppercase tracking-wider"></th>
                             )}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200">
                           {profile.semesterMarks?.map((mark: any, idx: number) => (
-                            <tr key={idx} className="hover:bg-slate-50/50">
+                            <tr key={idx} className="hover:bg-muted/50">
                               <td className="py-3 px-4">
                                 <Input
                                   type="number"
@@ -1178,26 +1207,100 @@ export default function StudentProfile() {
                   <SectionCard title="Links & Profiles" icon={Link01Icon}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="col-span-full">
-                        <Field label="Resume Link" labelEnd="(Required)" icon={Note01Icon}>
+                        <Field label="Resume PDF" labelEnd="(Required)" icon={Note01Icon}>
                           <div className="relative">
-                            <Input
-                              value={profile.resumeUrl}
-                              onChange={(e) =>
-                                setProfile({ ...profile, resumeUrl: e.target.value })
-                              }
-                              placeholder="https://drive.google.com/..."
-                              disabled={isReadOnly}
-                              className="h-12 bg-white focus:bg-white text-lg rounded-xl pl-4 pr-12 disabled:opacity-70 border-slate-200"
-                            />
-                            {profile.resumeUrl && (
-                              <a
-                                href={profile.resumeUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-500 hover:text-blue-700 bg-blue-50 p-1 rounded-md"
-                              >
-                                <Link02Icon className="w-5 h-5" />
-                              </a>
+                            {profile.resumeUrl ? (
+                              <div className="flex items-center gap-3 p-3 border border-emerald-100 bg-emerald-50/50 rounded-xl">
+                                <div className="p-2 bg-emerald-100 rounded-lg shrink-0">
+                                  <Note01Icon className="w-5 h-5 text-emerald-600" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-emerald-900 truncate">
+                                    Resume Uploaded
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2 shrink-0">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      window.open(profile.resumeUrl, '_blank');
+                                    }}
+                                  >
+                                    <Link02Icon className="w-4 h-4" />
+                                  </Button>
+                                  {!isReadOnly && (
+                                    <div className="relative">
+                                      <input
+                                        type="file"
+                                        accept="application/pdf"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        onChange={(e) => {
+                                          if (e.target.files && e.target.files[0]) {
+                                            uploadMutation.mutate({
+                                              file: e.target.files[0],
+                                              documentType: 'RESUME',
+                                            });
+                                          }
+                                        }}
+                                        disabled={uploadMutation.isPending}
+                                      />
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-8 text-xs bg-white text-muted-foreground border-slate-200"
+                                        disabled={uploadMutation.isPending}
+                                      >
+                                        {uploadMutation.isPending &&
+                                        uploadMutation.variables?.documentType === 'RESUME'
+                                          ? 'Uploading...'
+                                          : 'Replace'}
+                                      </Button>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="relative group">
+                                <input
+                                  type="file"
+                                  accept="application/pdf"
+                                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
+                                  onChange={(e) => {
+                                    if (e.target.files && e.target.files[0]) {
+                                      uploadMutation.mutate({
+                                        file: e.target.files[0],
+                                        documentType: 'RESUME',
+                                      });
+                                    }
+                                  }}
+                                  disabled={isReadOnly || uploadMutation.isPending}
+                                />
+                                <div
+                                  className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl transition-colors ${
+                                    uploadMutation.isPending &&
+                                    uploadMutation.variables?.documentType === 'RESUME'
+                                      ? 'bg-muted border-slate-300'
+                                      : 'bg-muted/50 border-slate-200 hover:border-blue-400 hover:bg-blue-50/30'
+                                  }`}
+                                >
+                                  <div
+                                    className={`p-3 rounded-full mb-3 ${uploadMutation.isPending && uploadMutation.variables?.documentType === 'RESUME' ? 'bg-slate-200 animate-pulse' : 'bg-white shadow-sm'}`}
+                                  >
+                                    <CloudUploadIcon
+                                      className={`w-6 h-6 ${uploadMutation.isPending && uploadMutation.variables?.documentType === 'RESUME' ? 'text-muted-foreground' : 'text-blue-500'}`}
+                                    />
+                                  </div>
+                                  <p className="text-sm font-medium text-slate-700">
+                                    {uploadMutation.isPending &&
+                                    uploadMutation.variables?.documentType === 'RESUME'
+                                      ? 'Uploading...'
+                                      : 'Upload PDF'}
+                                  </p>
+                                </div>
+                              </div>
                             )}
                           </div>
                         </Field>
@@ -1209,7 +1312,7 @@ export default function StudentProfile() {
                             onChange={(e) => setProfile({ ...profile, githubUrl: e.target.value })}
                             placeholder="https://github.com/username"
                             disabled={isReadOnly}
-                            className={`h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200 ${profile.githubUrl?.includes('github.com') ? 'border-emerald-300 ring-1 ring-emerald-200' : ''}`}
+                            className={`h-12 bg-card border-border rounded-md text-foreground ${profile.githubUrl?.includes('github.com') ? 'border-emerald-300 ring-1 ring-emerald-200' : ''}`}
                           />
                           {profile.githubUrl?.includes('github.com') && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded text-xs font-bold">
@@ -1224,7 +1327,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, linkedinUrl: e.target.value })}
                           placeholder="https://linkedin.com/in/username"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                       <Field label="Portfolio Website" labelEnd="(Optional)" icon={GlobalIcon}>
@@ -1233,7 +1336,7 @@ export default function StudentProfile() {
                           onChange={(e) => setProfile({ ...profile, portfolioUrl: e.target.value })}
                           placeholder="https://myportfolio.com"
                           disabled={isReadOnly}
-                          className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                          className="h-12 bg-card border-border rounded-md text-foreground"
                         />
                       </Field>
                     </div>
@@ -1244,7 +1347,7 @@ export default function StudentProfile() {
                       {profile.codingProfiles.map((cp: any, idx: number) => (
                         <div
                           key={idx}
-                          className="flex gap-4 items-end bg-slate-50 p-4 rounded-xl border border-slate-100"
+                          className="flex gap-4 items-end bg-muted p-4 rounded-xl border border-slate-100"
                         >
                           <div className="flex-1 grid grid-cols-2 gap-4">
                             <Field label="Platform" icon={DashboardSquare01Icon}>
@@ -1256,7 +1359,7 @@ export default function StudentProfile() {
                                   setProfile({ ...profile, codingProfiles: newCp });
                                 }}
                                 disabled={isReadOnly}
-                                className="w-full h-12 bg-white border border-slate-200 text-lg rounded-xl px-4 outline-none disabled:opacity-70"
+                                className="w-full h-12 bg-card border-border rounded-md text-foreground px-4 outline-none disabled:opacity-70"
                               >
                                 <option value="">Select Platform</option>
                                 <option value="LeetCode">LeetCode</option>
@@ -1276,7 +1379,7 @@ export default function StudentProfile() {
                                 }}
                                 placeholder="Profile URL"
                                 disabled={isReadOnly}
-                                className="h-12 bg-white focus:bg-white text-lg rounded-xl disabled:opacity-70 border-slate-200"
+                                className="h-12 bg-card border-border rounded-md text-foreground"
                               />
                             </Field>
                           </div>
@@ -1310,7 +1413,7 @@ export default function StudentProfile() {
                               ],
                             });
                           }}
-                          className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
+                          className="w-full border-dashed border-2 text-muted-foreground hover:text-slate-700 hover:bg-muted py-6"
                         >
                           <PlusSignIcon className="w-4 h-4 mr-2" /> Add Coding Profile
                         </Button>
@@ -1354,7 +1457,7 @@ export default function StudentProfile() {
                       {profile.languages.map((lang: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-slate-50 p-6 rounded-xl border border-slate-100 space-y-4"
+                          className="bg-muted p-6 rounded-xl border border-slate-100 space-y-4"
                         >
                           <div className="flex gap-4 items-end">
                             <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1380,7 +1483,7 @@ export default function StudentProfile() {
                                     setProfile({ ...profile, languages: newL });
                                   }}
                                   disabled={isReadOnly}
-                                  className="w-full h-12 bg-white border border-slate-200 text-lg rounded-xl px-4 outline-none disabled:opacity-70"
+                                  className="w-full h-12 bg-card border-border rounded-md text-foreground px-4 outline-none disabled:opacity-70"
                                 >
                                   <option value="">Select Proficiency</option>
                                   <option value="Native">Native</option>
@@ -1469,7 +1572,7 @@ export default function StudentProfile() {
                               ],
                             });
                           }}
-                          className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
+                          className="w-full border-dashed border-2 text-muted-foreground hover:text-slate-700 hover:bg-muted py-6"
                         >
                           <PlusSignIcon className="w-4 h-4 mr-2" /> Add Language
                         </Button>
@@ -1486,7 +1589,7 @@ export default function StudentProfile() {
                       {profile.projects.map((proj: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 relative group"
+                          className="bg-muted/80 p-6 rounded-2xl border border-slate-200 relative group"
                         >
                           {!isReadOnly && (
                             <button
@@ -1678,7 +1781,7 @@ export default function StudentProfile() {
                               ],
                             });
                           }}
-                          className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
+                          className="w-full border-dashed border-2 text-muted-foreground hover:text-slate-700 hover:bg-muted py-6"
                         >
                           <PlusSignIcon className="w-4 h-4 mr-2" /> Add Project
                         </Button>
@@ -1695,7 +1798,7 @@ export default function StudentProfile() {
                       {profile.experience.map((exp: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 relative group"
+                          className="bg-muted/80 p-6 rounded-2xl border border-slate-200 relative group"
                         >
                           {!isReadOnly && (
                             <button
@@ -1793,7 +1896,7 @@ export default function StudentProfile() {
                                   className="bg-white h-11"
                                 />
                               </Field>
-                              <label className="flex items-center gap-2 text-sm text-slate-600 mt-2">
+                              <label className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
                                 <input
                                   type="checkbox"
                                   checked={exp.isCurrent}
@@ -1890,7 +1993,7 @@ export default function StudentProfile() {
                               ],
                             });
                           }}
-                          className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
+                          className="w-full border-dashed border-2 text-muted-foreground hover:text-slate-700 hover:bg-muted py-6"
                         >
                           <PlusSignIcon className="w-4 h-4 mr-2" /> Add Experience
                         </Button>
@@ -1907,7 +2010,7 @@ export default function StudentProfile() {
                       {profile.certifications.map((cert: any, idx: number) => (
                         <div
                           key={idx}
-                          className="bg-slate-50/80 p-6 rounded-2xl border border-slate-200 relative group"
+                          className="bg-muted/80 p-6 rounded-2xl border border-slate-200 relative group"
                         >
                           {!isReadOnly && (
                             <button
@@ -2027,7 +2130,7 @@ export default function StudentProfile() {
                               ],
                             });
                           }}
-                          className="w-full border-dashed border-2 text-slate-500 hover:text-slate-700 hover:bg-slate-50 py-6"
+                          className="w-full border-dashed border-2 text-muted-foreground hover:text-slate-700 hover:bg-muted py-6"
                         >
                           <PlusSignIcon className="w-4 h-4 mr-2" /> Add Certification
                         </Button>

@@ -32,7 +32,9 @@ export interface CardProps
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, padding, ...props }, ref) => {
-    return <div ref={ref} className={cn(cardVariants({ variant, padding }), className)} {...props} />;
+    return (
+      <div ref={ref} className={cn(cardVariants({ variant, padding }), className)} {...props} />
+    );
   }
 );
 Card.displayName = 'Card';

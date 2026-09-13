@@ -20,9 +20,11 @@ export function TabDocuments({
   });
 
   const academicDocuments = academicData?.academicDocuments || [];
-  
-  const getDocUrl = (type: string) => academicDocuments.find((d: any) => d.documentType === type)?.signedUrl;
-  const getDocDate = (type: string) => academicDocuments.find((d: any) => d.documentType === type)?.uploadedAt;
+
+  const getDocUrl = (type: string) =>
+    academicDocuments.find((d: any) => d.documentType === type)?.signedUrl;
+  const getDocDate = (type: string) =>
+    academicDocuments.find((d: any) => d.documentType === type)?.uploadedAt;
 
   const documents = [
     {
@@ -56,7 +58,7 @@ export function TabDocuments({
       url: getDocUrl('DEGREE_MARKSHEETS'),
       status: getDocUrl('DEGREE_MARKSHEETS') ? 'Uploaded' : 'Missing',
       date: getDocDate('DEGREE_MARKSHEETS'),
-    }
+    },
   ];
 
   return (

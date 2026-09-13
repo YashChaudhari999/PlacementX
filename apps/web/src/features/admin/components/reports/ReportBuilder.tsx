@@ -92,7 +92,9 @@ export default function ReportBuilder() {
               setGenerating(false);
               alert('Report generation failed.');
             }
-          } catch (e) {}
+          } catch (e) {
+            console.error('Polling error:', e);
+          }
         }, 2000);
       }
     } catch (error: any) {

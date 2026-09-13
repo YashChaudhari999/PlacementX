@@ -17,7 +17,7 @@ export default function GeneralSettings({
   for (let i = currentYear - 2; i <= currentYear + 2; i++) {
     yearOptions.push({ label: `${i}/${i + 1}`, value: `${i}/${i + 1}` });
   }
-  
+
   const currentAcademicYear = getValue('academicYear') || '';
   if (currentAcademicYear && !yearOptions.find((o) => o.value === currentAcademicYear)) {
     yearOptions.push({ label: currentAcademicYear, value: currentAcademicYear });

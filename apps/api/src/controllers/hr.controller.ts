@@ -78,6 +78,10 @@ export const validateHrLink = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Link not found.' });
     }
 
+    if (invite.isUsed) {
+      return res.status(403).json({ success: false, message: 'Link has already been used.' });
+    }
+
     if (invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link has expired.' });
     }
@@ -457,32 +461,32 @@ export const confirmResultUpload = async (req: Request, res: Response) => {
     
     // Using transaction for safe bulk upsert
     await prisma.$transaction(async (tx) => {
-      for (const res of results) {
+      for (const resultEntry of results) {
         // Upsert ApplicationRoundResult
         await tx.applicationRoundResult.upsert({
-          where: { applicationId_roundId: { applicationId: res.applicationId, roundId } },
+          where: { applicationId_roundId: { applicationId: resultEntry.applicationId, roundId } },
           create: {
-            applicationId: res.applicationId,
+            applicationId: resultEntry.applicationId,
             roundId,
-            score: res.score ? parseFloat(res.score) : null,
-            result: res.result,
-            remarks: res.remarks,
+            score: resultEntry.score ? parseFloat(resultEntry.score) : null,
+            result: resultEntry.result,
+            remarks: resultEntry.remarks,
             uploadedBy: 'HR User'
           },
           update: {
-            score: res.score ? parseFloat(res.score) : null,
-            result: res.result,
-            remarks: res.remarks,
+            score: resultEntry.score ? parseFloat(resultEntry.score) : null,
+            result: resultEntry.result,
+            remarks: resultEntry.remarks,
             uploadedAt: new Date()
           }
         });
         
         // Optional: Update application status automatically based on "updateStatus" mapping
         // Example: If result is 'Pass' and updateStatus is 'SELECTED_FOR_INTERVIEW'
-        if (updateStatus && updateStatus[res.result]) {
+        if (updateStatus && updateStatus[resultEntry.result]) {
           await tx.driveApplication.update({
-            where: { id: res.applicationId },
-            data: { status: updateStatus[res.result] }
+            where: { id: resultEntry.applicationId },
+            data: { status: updateStatus[resultEntry.result] }
           });
         }
       }

@@ -31,8 +31,14 @@ const filterLabels: Record<string, string> = {
 };
 
 export default function GlobalFilters() {
-  const { filters, updateFilter, updateFilters, clearFilters, hasActiveFilters, activeFilterCount } =
-    useAnalyticsFilters();
+  const {
+    filters,
+    updateFilter,
+    updateFilters,
+    clearFilters,
+    hasActiveFilters,
+    activeFilterCount,
+  } = useAnalyticsFilters();
   const { data: options, isLoading: optionsLoading } = useFilterOptions();
   const [showAdvanced, setShowAdvanced] = useState(false);
 

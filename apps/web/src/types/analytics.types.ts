@@ -33,6 +33,7 @@ export interface FilterOptions {
   academicYears: string[];
   departments: string[];
   companies: string[];
+  drives: any[];
   seasons: string[];
   jobRoles: string[];
   driveStatuses: string[];

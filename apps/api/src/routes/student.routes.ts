@@ -9,6 +9,12 @@ const router = Router();
 // Require authentication for all student routes
 router.use(authenticate);
 
+// Admin specific routes on student profile
+router.post('/:studentId/ml-predict', authorize('SUPER_ADMIN', 'COORDINATOR'), mlPredictSuccess);
+
+// Only students can access the following routes
+router.use(authorize('STUDENT'));
+
 router.get('/profile', getProfile);
 router.get('/profile/status', getProfileStatus);
 router.put('/profile', updateProfile);
@@ -19,7 +25,6 @@ router.get('/applications', getApplications);
 router.get('/interviews', getInterviews);
 router.get('/documents', getDocuments);
 router.post('/documents/academic', upload.single('file'), uploadAcademicDoc);
-router.post('/:studentId/ml-predict', authorize('SUPER_ADMIN', 'COORDINATOR'), mlPredictSuccess);
 
 export default router;
 

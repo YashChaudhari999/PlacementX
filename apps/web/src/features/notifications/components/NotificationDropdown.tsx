@@ -45,7 +45,7 @@ export default function NotificationDropdown({ onClose }: { onClose: () => void 
       markAsRead(notification.id);
     }
     if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
+      window.location.assign(notification.actionUrl);
     }
   };
 

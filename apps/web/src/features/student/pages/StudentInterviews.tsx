@@ -16,7 +16,7 @@ import { ListSkeleton } from '@/components/common/Skeletons';
 
 export default function StudentInterviews() {
   const { user } = useAuthStore();
-  
+
   const { data: interviews = [], isLoading } = useQuery({
     queryKey: ['studentInterviews', user?.id],
     queryFn: async () => {
@@ -69,7 +69,7 @@ export default function StudentInterviews() {
             </Card>
           </motion.div>
         ) : (
-          interviews.map((app, idx) => (
+          interviews.map((app: any, idx: number) => (
             <motion.div key={app.applicationId} variants={itemVariants} custom={idx}>
               <Card className="overflow-hidden border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1">
                 {/* Header */}

@@ -14,6 +14,29 @@ import {
 import type { DepartmentResponse } from '@/types/analytics.types';
 import { Target01Icon } from 'hugeicons-react';
 
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl border border-slate-800 text-xs">
+        <p className="font-bold text-sm mb-1">{data.name}</p>
+        <div className="space-y-1 text-slate-300">
+          <p>
+            Placement Rate: <span className="font-bold text-white">{data.x.toFixed(1)}%</span>
+          </p>
+          <p>
+            Avg Package: <span className="font-bold text-white">₹{data.y.toFixed(2)} LPA</span>
+          </p>
+          <p>
+            Students: <span className="font-bold text-white">{data.z}</span> ({data.placed} placed)
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 export default function DepartmentPerformanceChart({ data }: { data: DepartmentResponse }) {
   if (!data?.departments?.length) return null;
 
@@ -27,30 +50,6 @@ export default function DepartmentPerformanceChart({ data }: { data: DepartmentR
 
   const avgPlacementRate = data.institutionRate;
   const avgPackage = chartData.reduce((acc, curr) => acc + curr.y, 0) / chartData.length;
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl border border-slate-800 text-xs">
-          <p className="font-bold text-sm mb-1">{data.name}</p>
-          <div className="space-y-1 text-slate-300">
-            <p>
-              Placement Rate: <span className="font-bold text-white">{data.x.toFixed(1)}%</span>
-            </p>
-            <p>
-              Avg Package: <span className="font-bold text-white">₹{data.y.toFixed(2)} LPA</span>
-            </p>
-            <p>
-              Students: <span className="font-bold text-white">{data.z}</span> ({data.placed}{' '}
-              placed)
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Card className="p-6 border-slate-200">

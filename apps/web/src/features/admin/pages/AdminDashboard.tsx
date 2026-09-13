@@ -18,9 +18,9 @@ import {
   RefreshIcon,
   ArrowRight01Icon,
 } from 'hugeicons-react';
-import { Card } from '@/components/ui';
-import { EmptyState } from '@/components/common/EmptyState';
+import { Card, Button, EmptyState } from '@/components/ui';
 import { adminService } from '@/services/admin.service';
+
 // --- Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,7 +31,7 @@ const containerVariants = {
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 15 },
+  hidden: { opacity: 0, y: 10 },
   show: { opacity: 1, y: 0 },
 };
 
@@ -48,32 +48,17 @@ const listItemVariants = {
   show: { opacity: 1, x: 0 },
 };
 
-// Helper function to get distinct colors based on text
-const getAvatarColors = (text: string) => {
-  const colors = [
-    'from-indigo-100 to-indigo-50 text-indigo-700 border-indigo-200/60',
-    'from-emerald-100 to-emerald-50 text-emerald-700 border-emerald-200/60',
-    'from-rose-100 to-rose-50 text-rose-700 border-rose-200/60',
-    'from-amber-100 to-amber-50 text-amber-700 border-amber-200/60',
-    'from-purple-100 to-purple-50 text-purple-700 border-purple-200/60',
-    'from-blue-100 to-blue-50 text-blue-700 border-blue-200/60',
-    'from-cyan-100 to-cyan-50 text-cyan-700 border-cyan-200/60',
-  ];
-  const charCodeSum = text.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  return colors[charCodeSum % colors.length];
-};
-
 // --- Skeleton Components ---
 const StatCardSkeleton = () => (
-  <Card className="p-6 flex flex-col justify-between animate-pulse border-slate-100">
+  <Card className="p-6 flex flex-col justify-between animate-pulse">
     <div className="flex items-start justify-between">
       <div className="space-y-3 w-full">
-        <div className="h-4 bg-slate-200/60 rounded w-1/2"></div>
-        <div className="h-8 bg-slate-200/80 rounded w-3/4"></div>
+        <div className="h-4 bg-muted rounded w-1/2"></div>
+        <div className="h-8 bg-muted rounded w-3/4"></div>
       </div>
-      <div className="p-3 rounded-xl bg-slate-100/80 h-12 w-12 shrink-0"></div>
+      <div className="p-3 rounded-xl bg-muted h-12 w-12 shrink-0"></div>
     </div>
-    <div className="mt-6 h-4 bg-slate-100/80 rounded w-2/3"></div>
+    <div className="mt-6 h-4 bg-muted rounded w-2/3"></div>
   </Card>
 );
 
@@ -95,9 +80,6 @@ interface StatCardProps {
   trend?: string;
   colorClass: string;
   bgClass: string;
-  trendColor?: string;
-  chartData?: { value: number }[];
-  chartColor?: string;
   onClick?: () => void;
 }
 
@@ -108,53 +90,25 @@ const StatCard = ({
   trend,
   colorClass,
   bgClass,
-  trendColor = 'text-emerald-600',
-  chartData,
-  chartColor = '#6366f1',
   onClick,
 }: StatCardProps) => (
   <Card
     onClick={onClick}
-    className={`p-6 flex flex-col h-full min-h-[160px] justify-between transition-all duration-300 group relative overflow-hidden bg-white border-slate-200 rounded-2xl ${
-      onClick ? 'cursor-pointer hover:shadow-lg hover:border-indigo-200 hover:-translate-y-1' : ''
+    className={`p-6 flex flex-col h-full min-h-[160px] justify-between transition-all duration-300 group overflow-hidden ${
+      onClick ? 'cursor-pointer hover:border-primary/50 hover:shadow-md' : ''
     }`}
   >
-    {/* Animated Wave Background */}
-    <div className="absolute inset-x-0 bottom-0 overflow-hidden h-24 rounded-b-2xl pointer-events-none z-0">
-      <motion.svg
-        className="absolute bottom-0 w-[200%] h-full origin-bottom"
-        viewBox="0 0 1200 120"
-        preserveAspectRatio="none"
-        initial={{ x: '0%' }}
-        animate={{ x: '-50%' }}
-        transition={{
-          repeat: Infinity,
-          ease: 'linear',
-          duration: 10,
-        }}
-      >
-        <path
-          d="M0,40 C300,100 300,0 600,40 C900,80 900,0 1200,40 L1200,120 L0,120 Z"
-          fill={chartColor}
-          opacity="0.1"
-        />
-        <path
-          d="M0,60 C300,20 300,120 600,60 C900,0 900,100 1200,60 L1200,120 L0,120 Z"
-          fill={chartColor}
-          opacity="0.15"
-        />
-      </motion.svg>
-    </div>
-
     <div className="flex items-start justify-between relative z-10">
       <div className="flex flex-col">
-        <p className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-2">{label}</p>
-        <p className="text-4xl font-black text-slate-900 tracking-tight group-hover:scale-[1.03] transition-transform origin-left">
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+          {label}
+        </p>
+        <p className="text-3xl font-black text-foreground tracking-tight group-hover:scale-[1.02] transition-transform origin-left">
           {value}
         </p>
       </div>
       <div
-        className={`w-14 h-14 rounded-full ${bgClass} transition-colors group-hover:bg-opacity-80 flex items-center justify-center shrink-0 shadow-sm`}
+        className={`w-12 h-12 rounded-lg ${bgClass} transition-colors flex items-center justify-center shrink-0 shadow-sm border border-border`}
       >
         <Icon className={`h-6 w-6 ${colorClass}`} />
       </div>
@@ -162,7 +116,7 @@ const StatCard = ({
     {trend && (
       <div className="mt-6 flex items-center text-sm relative z-10">
         <span
-          className={`${trendColor} font-bold bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-xs inline-flex items-center gap-1 shadow-sm border border-slate-100/50`}
+          className={`text-xs font-semibold px-2.5 py-1 rounded-md bg-secondary text-secondary-foreground border border-border`}
         >
           {trend}
         </span>
@@ -185,20 +139,19 @@ export default function AdminDashboard() {
 
   if (isError) {
     return (
-      <div className="p-10 text-center flex flex-col items-center justify-center min-h-[400px]">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-50 mb-6 ring-8 ring-red-50/50">
-          <Activity01Icon className="h-10 w-10 text-red-500" />
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800">Failed to load dashboard</h2>
-        <p className="text-slate-500 mt-3 max-w-md">
-          {error?.message || 'An unexpected error occurred while connecting to the server.'}
-        </p>
-        <button
-          onClick={() => refetch()}
-          className="mt-6 px-6 py-2.5 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
-        >
-          <RefreshIcon className="w-4 h-4" /> Try Again
-        </button>
+      <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <EmptyState
+          icon={<Activity01Icon className="h-10 w-10" />}
+          title="Failed to load dashboard"
+          description={
+            error?.message || 'An unexpected error occurred while connecting to the server.'
+          }
+          action={
+            <Button onClick={() => refetch()}>
+              <RefreshIcon className="w-4 h-4 mr-2" /> Try Again
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -206,19 +159,19 @@ export default function AdminDashboard() {
   const formatNum = (num: number) => num.toLocaleString('en-IN');
 
   return (
-    <div className="space-y-12 pb-12 max-w-7xl mx-auto">
+    <div className="space-y-8 pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 border-b border-border">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Overview</h1>
-          <p className="text-slate-500 text-sm mt-1.5 font-medium">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Overview</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Real-time metrics for placement drives, students, and offers.
           </p>
         </div>
 
         <div className="flex items-center gap-4">
           {dataUpdatedAt && (
-            <div className="text-xs font-medium text-slate-400 flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100">
+            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-md border border-border">
               <Clock01Icon className="w-3.5 h-3.5" />
               Last updated:{' '}
               {new Date(dataUpdatedAt).toLocaleTimeString([], {
@@ -227,17 +180,15 @@ export default function AdminDashboard() {
               })}
             </div>
           )}
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => refetch()}
             disabled={isRefetching || isLoading}
-            className="p-2.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all disabled:opacity-50 flex items-center gap-2 text-sm font-bold border border-slate-200 hover:border-indigo-200 hover:shadow-sm bg-white"
-            title="Refresh Dashboard"
           >
-            <RefreshIcon
-              className={`w-4 h-4 ${isRefetching ? 'animate-spin text-indigo-600' : ''}`}
-            />
+            <RefreshIcon className={`w-4 h-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Refresh</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -245,23 +196,22 @@ export default function AdminDashboard() {
         variants={containerVariants}
         initial="hidden"
         animate="show"
-        className="space-y-12"
+        className="space-y-10"
       >
         {/* SECTION 1: DRIVES */}
         <section>
-          <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-indigo-100 rounded-md">
-                <Calendar01Icon className="w-5 h-5 text-indigo-600" />
-              </div>{' '}
-              Drives
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Calendar01Icon className="w-5 h-5 text-muted-foreground" /> Drives
             </h2>
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => navigate('/admin/placement-events')}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
+              className="text-primary"
             >
-              View All <ArrowRight01Icon className="w-4 h-4" />
-            </button>
+              View All <ArrowRight01Icon className="w-4 h-4 ml-1" />
+            </Button>
           </div>
 
           {isLoading ? (
@@ -274,18 +224,8 @@ export default function AdminDashboard() {
                   value={formatNum(data?.drives?.open || 0)}
                   icon={Briefcase01Icon}
                   trend="Accepting Applications"
-                  colorClass="text-emerald-600"
-                  bgClass="bg-emerald-50"
-                  trendColor="text-emerald-700"
-                  chartColor="#10b981"
-                  chartData={[
-                    { value: 4 },
-                    { value: 3 },
-                    { value: 5 },
-                    { value: 8 },
-                    { value: 7 },
-                    { value: 10 },
-                  ]}
+                  colorClass="text-success"
+                  bgClass="bg-success-muted"
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -295,18 +235,8 @@ export default function AdminDashboard() {
                   value={formatNum(data?.drives?.upcoming || 0)}
                   icon={Calendar01Icon}
                   trend="Registration Starts Soon"
-                  colorClass="text-blue-600"
-                  bgClass="bg-blue-50"
-                  trendColor="text-blue-700"
-                  chartColor="#3b82f6"
-                  chartData={[
-                    { value: 2 },
-                    { value: 5 },
-                    { value: 3 },
-                    { value: 7 },
-                    { value: 4 },
-                    { value: 8 },
-                  ]}
+                  colorClass="text-info"
+                  bgClass="bg-info-muted"
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -316,18 +246,8 @@ export default function AdminDashboard() {
                   value={formatNum(data?.drives?.closed || 0)}
                   icon={Clock01Icon}
                   trend="Registration Closed"
-                  colorClass="text-indigo-600"
-                  bgClass="bg-indigo-50"
-                  trendColor="text-indigo-700"
-                  chartColor="#6366f1"
-                  chartData={[
-                    { value: 1 },
-                    { value: 3 },
-                    { value: 2 },
-                    { value: 4 },
-                    { value: 6 },
-                    { value: 5 },
-                  ]}
+                  colorClass="text-muted-foreground"
+                  bgClass="bg-muted"
                   onClick={() => navigate('/admin/placement-events')}
                 />
               </motion.div>
@@ -337,19 +257,18 @@ export default function AdminDashboard() {
 
         {/* SECTION 2: STUDENTS */}
         <section>
-          <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-amber-100 rounded-md">
-                <UserMultipleIcon className="w-5 h-5 text-amber-600" />
-              </div>{' '}
-              Students
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <UserMultipleIcon className="w-5 h-5 text-muted-foreground" /> Students
             </h2>
-            <button
+            <Button
+              variant="link"
+              size="sm"
               onClick={() => navigate('/admin/students')}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
+              className="text-primary"
             >
-              Manage Students <ArrowRight01Icon className="w-4 h-4" />
-            </button>
+              Manage Students <ArrowRight01Icon className="w-4 h-4 ml-1" />
+            </Button>
           </div>
 
           {isLoading ? (
@@ -360,120 +279,102 @@ export default function AdminDashboard() {
           ) : (
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               <motion.div variants={itemVariants} className="h-full">
-                <Card className="p-0 overflow-hidden flex flex-col h-full border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <Card className="p-0 overflow-hidden flex flex-col h-full border-border">
+                  <div className="p-4 border-b border-border flex justify-between items-center bg-card">
                     <div>
-                      <h3 className="font-bold text-slate-800">Eligible Students by Company</h3>
-                      <p className="text-xs font-medium text-slate-500 mt-0.5">
+                      <h3 className="font-bold text-foreground text-base">
+                        Eligible Students by Company
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         For active & upcoming drives
                       </p>
                     </div>
-                    <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <TickDouble02Icon className="w-5 h-5 text-slate-600" />
-                    </div>
                   </div>
-                  <div className="flex-1 bg-slate-50/50 p-5">
+                  <div className="flex-1 p-4 bg-muted/30">
                     {data?.students?.eligibleByCompany?.length > 0 ? (
                       <motion.div
                         variants={listVariants}
                         initial="hidden"
                         animate="show"
-                        className="space-y-3"
+                        className="space-y-2"
                       >
                         {data.students.eligibleByCompany.map((item: any, idx: number) => (
                           <motion.div
                             variants={listItemVariants}
                             key={idx}
-                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
-                            onClick={() => item.driveId ? navigate(`/admin/placement-events/${item.driveId}`) : navigate('/admin/placement-events')}
+                            className="flex items-center justify-between bg-card px-4 py-3 rounded-md border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                            onClick={() =>
+                              item.driveId
+                                ? navigate(`/admin/placement-events/${item.driveId}`)
+                                : navigate('/admin/placement-events')
+                            }
                           >
-                            <div className="flex items-center gap-3.5">
-                              <div
-                                className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}
-                              >
-                                {item.company.substring(0, 2)}
-                              </div>
-                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
-                                {item.company}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <span className="font-black text-lg text-indigo-600 bg-indigo-50 px-3 py-1 rounded-md border border-indigo-100/50">
-                                {formatNum(item.count)}
-                              </span>
-                              <ArrowRight01Icon className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
-                            </div>
+                            <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
+                              {item.company}
+                            </span>
+                            <span className="font-bold text-sm bg-muted px-2.5 py-1 rounded border border-border">
+                              {formatNum(item.count)}
+                            </span>
                           </motion.div>
                         ))}
                       </motion.div>
                     ) : (
-                      <div className="h-full flex flex-col items-center justify-center py-10">
-                        <EmptyState
-                          icon={TickDouble02Icon}
-                          title="No active drives"
-                          description="When drives are open or upcoming, eligible student counts will appear here."
-                        />
-                      </div>
+                      <EmptyState
+                        icon={<TickDouble02Icon className="w-8 h-8" />}
+                        title="No active drives"
+                        description="When drives are open or upcoming, eligible student counts will appear here."
+                      />
                     )}
                   </div>
                 </Card>
               </motion.div>
 
               <motion.div variants={itemVariants} className="h-full">
-                <Card className="p-0 overflow-hidden flex flex-col h-full border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
+                <Card className="p-0 overflow-hidden flex flex-col h-full border-border">
+                  <div className="p-4 border-b border-border flex justify-between items-center bg-card">
                     <div>
-                      <h3 className="font-bold text-slate-800">Applications by Company</h3>
-                      <p className="text-xs font-medium text-slate-500 mt-0.5">
+                      <h3 className="font-bold text-foreground text-base">
+                        Applications by Company
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         Top recruiters by volume
                       </p>
                     </div>
-                    <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                      <Building02Icon className="w-5 h-5 text-slate-600" />
-                    </div>
                   </div>
-                  <div className="flex-1 bg-slate-50/50 p-5">
+                  <div className="flex-1 p-4 bg-muted/30">
                     {data?.students?.applicationsByCompany?.length > 0 ? (
                       <motion.div
                         variants={listVariants}
                         initial="hidden"
                         animate="show"
-                        className="space-y-3"
+                        className="space-y-2"
                       >
                         {data.students.applicationsByCompany.map((item: any, idx: number) => (
                           <motion.div
                             variants={listItemVariants}
                             key={idx}
-                            className="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-slate-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-indigo-200 transition-all group cursor-pointer"
-                            onClick={() => item.driveId ? navigate(`/admin/placement-events/${item.driveId}`) : navigate('/admin/placement-events')}
+                            className="flex items-center justify-between bg-card px-4 py-3 rounded-md border border-border hover:border-primary/50 transition-colors group cursor-pointer"
+                            onClick={() =>
+                              item.driveId
+                                ? navigate(`/admin/placement-events/${item.driveId}`)
+                                : navigate('/admin/placement-events')
+                            }
                           >
-                            <div className="flex items-center gap-3.5">
-                              <div
-                                className={`w-10 h-10 rounded-lg bg-gradient-to-br flex items-center justify-center font-black text-sm uppercase shadow-inner border ${getAvatarColors(item.company)}`}
-                              >
-                                {item.company.substring(0, 2)}
-                              </div>
-                              <span className="font-bold text-slate-700 group-hover:text-indigo-600 transition-colors">
-                                {item.company}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <span className="font-black text-lg text-emerald-600 bg-emerald-50 px-3 py-1 rounded-md border border-emerald-100/50">
-                                {formatNum(item.applications)}
-                              </span>
-                              <ArrowRight01Icon className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all" />
-                            </div>
+                            <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">
+                              {item.company}
+                            </span>
+                            <span className="font-bold text-sm bg-muted px-2.5 py-1 rounded border border-border">
+                              {formatNum(item.applications)}
+                            </span>
                           </motion.div>
                         ))}
                       </motion.div>
                     ) : (
-                      <div className="h-full flex flex-col items-center justify-center py-10">
-                        <EmptyState
-                          icon={Note01Icon}
-                          title="No applications yet"
-                          description="When students apply to drives, the top companies will appear here."
-                        />
-                      </div>
+                      <EmptyState
+                        icon={<Note01Icon className="w-8 h-8" />}
+                        title="No applications yet"
+                        description="When students apply to drives, the top companies will appear here."
+                      />
                     )}
                   </div>
                 </Card>
@@ -484,12 +385,9 @@ export default function AdminDashboard() {
 
         {/* SECTION 3: PACKAGES */}
         <section>
-          <div className="mb-5 pb-3 border-b border-slate-100">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-rose-100 rounded-md">
-                <Award01Icon className="w-5 h-5 text-rose-600" />
-              </div>{' '}
-              Placement Packages
+          <div className="mb-4">
+            <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+              <Award01Icon className="w-5 h-5 text-muted-foreground" /> Placement Packages
             </h2>
           </div>
 
@@ -499,13 +397,11 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <motion.div variants={itemVariants}>
                 <StatCard
-                  label="Placement Percentage"
+                  label="Placement %"
                   value={`${data?.packages?.placementPercentage || 0}%`}
                   icon={Mortarboard01Icon}
-                  trend="Target: 95%"
-                  colorClass="text-rose-600"
-                  bgClass="bg-rose-50"
-                  trendColor="text-rose-700"
+                  colorClass="text-primary"
+                  bgClass="bg-primary/10"
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -513,10 +409,8 @@ export default function AdminDashboard() {
                   label="Highest Package"
                   value={`${data?.packages?.highest || 0} LPA`}
                   icon={ArrowUp01Icon}
-                  trend="Maximum Offer"
-                  colorClass="text-purple-600"
-                  bgClass="bg-purple-50"
-                  trendColor="text-purple-700"
+                  colorClass="text-accent"
+                  bgClass="bg-accent/20"
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -524,10 +418,8 @@ export default function AdminDashboard() {
                   label="Average Package"
                   value={`${data?.packages?.average || 0} LPA`}
                   icon={Activity01Icon}
-                  trend="Across all offers"
-                  colorClass="text-fuchsia-600"
-                  bgClass="bg-fuchsia-50"
-                  trendColor="text-fuchsia-700"
+                  colorClass="text-success"
+                  bgClass="bg-success-muted"
                 />
               </motion.div>
               <motion.div variants={itemVariants}>
@@ -535,57 +427,8 @@ export default function AdminDashboard() {
                   label="Median Package"
                   value={`${data?.packages?.median || 0} LPA`}
                   icon={Money01Icon}
-                  trend="Middle value"
-                  colorClass="text-pink-600"
-                  bgClass="bg-pink-50"
-                  trendColor="text-pink-700"
-                />
-              </motion.div>
-            </div>
-          )}
-        </section>
-
-        {/* SECTION 4: OVERALL STATISTICS */}
-        <section>
-          <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2.5">
-              <div className="p-1.5 bg-cyan-100 rounded-md">
-                <Building01Icon className="w-5 h-5 text-cyan-600" />
-              </div>{' '}
-              Overall Statistics
-            </h2>
-            <button
-              onClick={() => navigate('/admin/reports')}
-              className="text-sm font-semibold text-indigo-600 hover:text-indigo-700 hover:underline inline-flex items-center gap-1"
-            >
-              View Reports <ArrowRight01Icon className="w-4 h-4" />
-            </button>
-          </div>
-
-          {isLoading ? (
-            <SectionSkeleton count={2} />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <motion.div variants={itemVariants}>
-                <StatCard
-                  label="Total Companies Visited"
-                  value={formatNum(data?.overall?.companiesVisited || 0)}
-                  icon={Building02Icon}
-                  trend="Across all seasons"
-                  colorClass="text-cyan-600"
-                  bgClass="bg-cyan-50"
-                  trendColor="text-cyan-700"
-                />
-              </motion.div>
-              <motion.div variants={itemVariants}>
-                <StatCard
-                  label="Total Offers"
-                  value={formatNum(data?.overall?.totalOffers || 0)}
-                  icon={Note01Icon}
-                  trend="Dream, Super Dream, PPO"
-                  colorClass="text-teal-600"
-                  bgClass="bg-teal-50"
-                  trendColor="text-teal-700"
+                  colorClass="text-info"
+                  bgClass="bg-info-muted"
                 />
               </motion.div>
             </div>

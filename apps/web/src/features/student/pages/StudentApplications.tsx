@@ -103,7 +103,7 @@ export default function StudentApplications() {
             </Card>
           </motion.div>
         ) : (
-          applications.map((app, idx) => (
+          applications.map((app: any, idx: number) => (
             <motion.div key={app.id} variants={itemVariants} custom={idx} whileHover={{ y: -5 }}>
               <Link to={`/student/drives/${app.driveId}`} className="block h-full">
                 <Card className="h-full p-6 flex flex-col justify-between border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-indigo-300 hover:-translate-y-1 group">

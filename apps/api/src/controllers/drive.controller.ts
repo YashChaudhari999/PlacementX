@@ -1,5 +1,6 @@
 import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
+import { signDocuments } from '../services/student-document.service';
 
 const driveSelectFields = {
   id: true,
@@ -353,14 +354,36 @@ export const getDriveApplications = async (req: any, res: any) => {
           include: {
             user: {
               select: { email: true }
-            }
+            },
+            documents: true,
           }
         }
       },
       orderBy: { appliedAt: 'desc' }
     });
 
-    return res.status(200).json(applications);
+    // Inject signed URLs for Resume
+    const appsWithResumes = await Promise.all(
+      applications.map(async (app) => {
+        if (app.student && app.student.documents && app.student.documents.length > 0) {
+          const signedDocs = await signDocuments(app.student.documents);
+          const resumeDoc = signedDocs.find(d => d.documentType === 'RESUME');
+          if (resumeDoc && resumeDoc.signedUrl) {
+            return {
+              ...app,
+              student: { ...app.student, resumeUrl: resumeDoc.signedUrl, documents: signedDocs }
+            };
+          }
+          return {
+            ...app,
+            student: { ...app.student, documents: signedDocs }
+          };
+        }
+        return app;
+      })
+    );
+
+    return res.status(200).json(appsWithResumes);
   } catch (error: any) {
     console.error('Get drive applications error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });

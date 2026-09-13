@@ -10,7 +10,7 @@ export function useUploadAcademicDocument() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('documentType', documentType);
-      
+
       const res = await api.post('/student/documents/academic', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',

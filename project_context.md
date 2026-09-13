@@ -2,8 +2,8 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-01 23:48 IST
-**Last Verified Against Codebase:** 2026-09-01 23:48 IST
+**Last Updated:** 2026-09-13 18:53 IST
+**Last Verified Against Codebase:** 2026-09-13 18:53 IST
 **Context Version:** 1.3
 
 ---
@@ -1146,8 +1146,6 @@ services:
 
 ### ⏳ Pending
 
-- AI Mock Interview module
-- AI Resume Builder module
 - AI Admin Analytics module
 - Recruiter Event Portal (route exists, page is placeholder)
 - Cloud Functions for server-side triggers
@@ -1394,3 +1392,32 @@ Verified against actual repository structure, source code, and existing document
 - Polished layout navigations (`StudentLayout`, `PlacementCellLayout`) and student dashboard features (`StudentProfile`, `DriveList`, `StudentDriveDetails`) using modern card structuring, gradients, and framer-motion animations.
 - Resolved prop collisions and React rendering crashes.
 - Addressed all severe TypeScript typing errors causing build failures in analytical charts (`ForecastChart.tsx`, `PlacementHealthScore.tsx`, `SalaryAnalytics.tsx`). The `npm run build` command now completes successfully.
+
+### 2026-09-10 - Academic Documents, HR Portal & Global UI Loader
+**Type:** Feature / UX Improvement / Bug Fix
+
+**Summary:**
+- Resolved academic document upload UI state and added signed URLs to profile API.
+- Implemented HR collaboration portal and separated academic document uploads to support PDF resume handling.
+- Integrated GlobalLoader across student and admin portals using React Query, fixed viewport centering issues, and cleaned up unused components.
+- Added Admin student profile view with a dedicated tabbed page for complete placement journey tracking.
+- Added semester-wise performance tracking for students.
+- Resolved build and linting errors across the monorepo.
+
+### 2026-09-03 - Bug Fixes & Refactoring
+**Type:** Bug Fix / Refactor
+
+**Summary:**
+- Cleaned up unwanted testing and scratch files from the repository.
+- Changed the analytics company filter to use actual placement drives.
+- Added direct drive linking to the Admin Dashboard.
+- Removed `dump.rdb` and added it to `.gitignore`.
+- Fixed a dead link in the Calendar component to point to `placement-events`.
+
+### 2026-09-13 - Resume PDF Upload & Report Download Fix
+**Type:** Feature / Bug Fix
+
+**Summary:**
+- Replaced the external "Resume Link" with a "Resume PDF" file upload logic in the student profile.
+- Introduced `signDocuments` to inject signed URLs for the 'RESUME' document type into backend responses.
+- Fixed typo in the report export component, changing "Download01Icon" to "Download".

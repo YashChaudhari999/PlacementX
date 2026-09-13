@@ -44,8 +44,10 @@ export default function AdminEventDetails() {
 
   useEffect(() => {
     if (id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchApplications = async () => {
@@ -104,20 +106,22 @@ export default function AdminEventDetails() {
         <div className="flex items-center gap-4">
           <Link
             to="/admin/dashboard"
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500"
+            className="p-2 hover:bg-muted rounded-full transition-colors text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft01Icon className="w-6 h-6" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Drive Tracker</h1>
-            <p className="text-slate-500">Manage applications and track selection progress.</p>
+            <h1 className="text-2xl font-bold text-foreground">Drive Tracker</h1>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Manage applications and track selection progress.
+            </p>
           </div>
         </div>
         <div>
           <Link to={`/admin/placement-events/edit/${drive.id}`}>
             <Button
               variant="outline"
-              className="text-slate-700 bg-white border-slate-200 hover:bg-slate-50 shadow-sm"
+              className="bg-card border-border hover:bg-muted shadow-sm text-foreground"
             >
               <Note01Icon className="w-4 h-4 mr-2" /> Edit Drive Details
             </Button>
@@ -126,11 +130,11 @@ export default function AdminEventDetails() {
       </div>
 
       {drive.status === 'SUBMITTED' && (
-        <Card className="p-6 bg-blue-50 border-blue-200">
+        <Card className="p-6 bg-info/10 border-info/20">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h3 className="text-lg font-bold text-blue-900">HR Submission Pending Review</h3>
-              <p className="text-sm text-blue-700 mt-1">
+              <h3 className="text-lg font-bold text-info">HR Submission Pending Review</h3>
+              <p className="text-sm text-info/80 mt-1">
                 Review the details submitted by {drive.company?.hrName || 'HR'} before publishing to
                 students.
               </p>
@@ -139,20 +143,20 @@ export default function AdminEventDetails() {
               <Button
                 onClick={() => handleDriveReview('reject')}
                 variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50"
+                className="border-destructive/20 text-destructive hover:bg-destructive/10"
               >
                 <CancelCircleIcon className="w-4 h-4 mr-2" /> Reject
               </Button>
               <Button
                 onClick={() => handleDriveReview('request-changes')}
                 variant="outline"
-                className="border-amber-200 text-amber-600 hover:bg-amber-50"
+                className="border-warning/20 text-warning hover:bg-warning/10"
               >
                 Request Changes
               </Button>
               <Button
                 onClick={() => handleDriveReview('approve')}
-                className="bg-green-600 hover:bg-green-700 text-white"
+                className="bg-success hover:bg-success/90 text-white"
               >
                 <Tick02Icon className="w-4 h-4 mr-2" /> Approve & Publish
               </Button>
@@ -162,11 +166,11 @@ export default function AdminEventDetails() {
       )}
 
       {drive.status === 'DRAFT' && (
-        <Card className="p-6 bg-slate-50 border-slate-200">
+        <Card className="p-6 bg-muted border-border">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">Draft Drive</h3>
-              <p className="text-sm text-slate-700 mt-1">
+              <h3 className="text-lg font-bold text-foreground">Draft Drive</h3>
+              <p className="text-sm text-muted-foreground mt-1">
                 This drive is currently a draft and is not visible to students. Publish it to start
                 accepting applications.
               </p>
@@ -174,7 +178,7 @@ export default function AdminEventDetails() {
             <div className="flex gap-3">
               <Button
                 onClick={() => handleDriveReview('approve')}
-                className="bg-primary hover:bg-primary/90 text-white"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground"
               >
                 <Tick02Icon className="w-4 h-4 mr-2" /> Publish Drive
               </Button>
@@ -184,23 +188,25 @@ export default function AdminEventDetails() {
       )}
 
       {drive.hrInvitations && drive.hrInvitations.length > 0 && (
-        <Card className="p-6 bg-indigo-50 border-indigo-200">
+        <Card className="p-6 bg-primary/5 border-primary/20">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-              <h3 className="text-lg font-bold text-indigo-900">HR Portal Link Active</h3>
-              <p className="text-sm text-indigo-700 mt-1">
+              <h3 className="text-lg font-bold text-primary">HR Portal Link Active</h3>
+              <p className="text-sm text-primary/80 mt-1">
                 Share this link with the HR for them to manage the drive details.
               </p>
-              <div className="mt-3 bg-white px-4 py-2 rounded-md border border-indigo-100 flex items-center gap-3">
-                <span className="text-sm font-mono text-slate-600 select-all">
+              <div className="mt-3 bg-card px-4 py-2 rounded-md border border-border flex items-center gap-3">
+                <span className="text-sm font-mono text-muted-foreground select-all">
                   {`${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`}
                 </span>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-8 hover:bg-indigo-50 text-indigo-600"
+                  className="h-8 hover:bg-muted text-primary"
                   onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`);
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`
+                    );
                     toast.success('Link copied to clipboard');
                   }}
                 >
@@ -217,19 +223,19 @@ export default function AdminEventDetails() {
         <div className="lg:col-span-1 space-y-6">
           <Card className="p-6">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-12 h-12 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400">
+              <div className="w-12 h-12 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground">
                 <Building02Icon className="w-6 h-6" />
               </div>
               <div>
-                <h2 className="font-bold text-lg text-slate-800">{drive.company?.name}</h2>
+                <h2 className="font-bold text-lg text-foreground">{drive.company?.name}</h2>
                 <div className="flex items-center gap-2 mt-1">
                   <select
-                    className={`text-xs font-bold px-2 py-1 rounded-full outline-none cursor-pointer border-r-4 border-transparent ${
+                    className={`text-xs font-bold px-2 py-1 rounded-md outline-none cursor-pointer border border-transparent ${
                       drive.status === 'PUBLISHED'
-                        ? 'bg-green-100 text-green-700'
+                        ? 'bg-success/10 text-success border-success/20'
                         : drive.status === 'COMPLETED'
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-slate-100 text-slate-700'
+                          ? 'bg-primary/10 text-primary border-primary/20'
+                          : 'bg-muted text-muted-foreground border-border'
                     }`}
                     value={drive.status}
                     onChange={(e) => handleUpdateDriveStatus(e.target.value)}
@@ -243,22 +249,21 @@ export default function AdminEventDetails() {
               </div>
             </div>
 
-            <div className="space-y-3 pt-4 border-t border-slate-100 text-sm text-slate-600">
+            <div className="space-y-3 pt-4 border-t border-border text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <Briefcase01Icon className="w-4 h-4 text-slate-400" /> {drive.jobRole}
+                <Briefcase01Icon className="w-4 h-4" /> {drive.jobRole}
               </div>
               <div className="flex items-center gap-2">
-                <Location01Icon className="w-4 h-4 text-slate-400" /> {drive.workMode}
+                <Location01Icon className="w-4 h-4" /> {drive.workMode}
               </div>
               <div className="flex items-center gap-2">
-                <Money01Icon className="w-4 h-4 text-slate-400" /> {drive.fixedSalary} LPA
+                <Money01Icon className="w-4 h-4" /> {drive.fixedSalary} LPA
               </div>
               <div className="flex items-center gap-2">
-                <UserMultipleIcon className="w-4 h-4 text-slate-400" /> {drive.vacancies || 'TBD'}{' '}
-                Vacancies
+                <UserMultipleIcon className="w-4 h-4" /> {drive.vacancies || 'TBD'} Vacancies
               </div>
               <div className="flex items-center gap-2">
-                <Calendar01Icon className="w-4 h-4 text-slate-400" /> Closes{' '}
+                <Calendar01Icon className="w-4 h-4" /> Closes{' '}
                 {new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
                   day: '2-digit',
                   month: '2-digit',
@@ -269,26 +274,28 @@ export default function AdminEventDetails() {
           </Card>
 
           <Card className="p-6">
-            <h3 className="font-bold text-slate-800 mb-4">Pipeline Stats</h3>
+            <h3 className="font-bold text-foreground mb-4">Pipeline Stats</h3>
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-600">Eligible Students</span>
-                  <span className="font-bold">{drive.eligibleStudentsCount || 0}</span>
+                  <span className="text-muted-foreground">Eligible Students</span>
+                  <span className="font-bold text-foreground">
+                    {drive.eligibleStudentsCount || 0}
+                  </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
-                  <div className="bg-slate-400 h-2 rounded-full" style={{ width: '100%' }}></div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div className="bg-primary/40 h-2 rounded-full" style={{ width: '100%' }}></div>
                 </div>
               </div>
 
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-600">Total Applied</span>
-                  <span className="font-bold">{applications.length}</span>
+                  <span className="text-muted-foreground">Total Applied</span>
+                  <span className="font-bold text-foreground">{applications.length}</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div
-                    className="bg-blue-500 h-2 rounded-full"
+                    className="bg-info h-2 rounded-full"
                     style={{
                       width: drive.eligibleStudentsCount
                         ? `${(applications.length / drive.eligibleStudentsCount) * 100}%`
@@ -300,8 +307,8 @@ export default function AdminEventDetails() {
 
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-600">Shortlisted</span>
-                  <span className="font-bold">
+                  <span className="text-muted-foreground">Shortlisted</span>
+                  <span className="font-bold text-foreground">
                     {
                       applications.filter((a) =>
                         ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(
@@ -311,11 +318,11 @@ export default function AdminEventDetails() {
                     }
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div
-                    className="bg-purple-500 h-2 rounded-full"
+                    className="bg-primary h-2 rounded-full"
                     style={{
-                      width: `${(applications.filter((a) => ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(a.status)).length / applications.length) * 100}%`,
+                      width: `${(applications.filter((a) => ['ASSESSMENT_SCHEDULED', 'TECHNICAL_INTERVIEW', 'HR_INTERVIEW'].includes(a.status)).length / (applications.length || 1)) * 100}%`,
                     }}
                   ></div>
                 </div>
@@ -323,16 +330,16 @@ export default function AdminEventDetails() {
 
               <div>
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="text-slate-600">Selected</span>
-                  <span className="font-bold">
+                  <span className="text-muted-foreground">Selected</span>
+                  <span className="font-bold text-foreground">
                     {applications.filter((a) => a.status === 'SELECTED').length}
                   </span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2">
+                <div className="w-full bg-muted rounded-full h-2">
                   <div
-                    className="bg-green-500 h-2 rounded-full"
+                    className="bg-success h-2 rounded-full"
                     style={{
-                      width: `${(applications.filter((a) => a.status === 'SELECTED').length / applications.length) * 100}%`,
+                      width: `${(applications.filter((a) => a.status === 'SELECTED').length / (applications.length || 1)) * 100}%`,
                     }}
                   ></div>
                 </div>
@@ -344,14 +351,14 @@ export default function AdminEventDetails() {
         {/* Applicants Table */}
         <div className="lg:col-span-2">
           <Card className="overflow-hidden">
-            <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-              <h3 className="font-bold text-slate-800">Applicants ({applications.length})</h3>
+            <div className="p-4 border-b border-border bg-muted/50 flex justify-between items-center">
+              <h3 className="font-bold text-foreground">Applicants ({applications.length})</h3>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                  <tr className="bg-muted text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
                     <th className="p-4 font-semibold">Student</th>
                     <th className="p-4 font-semibold">Branch</th>
                     <th className="p-4 font-semibold">CGPA</th>
@@ -360,36 +367,38 @@ export default function AdminEventDetails() {
                     <th className="p-4 font-semibold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-border bg-card">
                   {applications.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-slate-500">
+                      <td colSpan={6} className="p-8 text-center text-muted-foreground">
                         No applications received yet.
                       </td>
                     </tr>
                   ) : (
                     applications.map((app) => (
-                      <tr key={app.id} className="hover:bg-slate-50">
+                      <tr key={app.id} className="hover:bg-muted/50">
                         <td className="p-4 whitespace-nowrap">
-                          <div className="font-medium text-slate-800">
+                          <div className="font-medium text-foreground">
                             {app.student.firstName} {app.student.lastName}
                           </div>
-                          <div className="text-xs text-slate-500">{app.student.user.email}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            {app.student.user.email}
+                          </div>
                         </td>
-                        <td className="p-4 text-sm text-slate-600 whitespace-nowrap">
+                        <td className="p-4 text-sm text-muted-foreground whitespace-nowrap">
                           {app.student.branch}
                         </td>
-                        <td className="p-4 text-sm text-slate-600 font-medium whitespace-nowrap">
+                        <td className="p-4 text-sm text-foreground font-medium whitespace-nowrap">
                           {app.student.cgpa}
                         </td>
                         <td className="p-4 whitespace-nowrap">
                           <span
-                            className={`text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-block ${
+                            className={`text-[11px] font-bold px-2.5 py-1 rounded-md whitespace-nowrap inline-block border ${
                               app.status === 'SELECTED'
-                                ? 'bg-green-100 text-green-700'
+                                ? 'bg-success/10 text-success border-success/20'
                                 : app.status === 'REJECTED'
-                                  ? 'bg-red-100 text-red-700'
-                                  : 'bg-blue-100 text-blue-700'
+                                  ? 'bg-destructive/10 text-destructive border-destructive/20'
+                                  : 'bg-info/10 text-info border-info/20'
                             }`}
                           >
                             {app.status.replace('_', ' ')}
@@ -401,17 +410,17 @@ export default function AdminEventDetails() {
                               href={app.student.resumeUrl}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-primary hover:underline flex items-center gap-1 text-sm"
+                              className="text-primary hover:underline flex items-center gap-1 text-sm font-medium"
                             >
                               <Note01Icon className="w-4 h-4" /> View
                             </a>
                           ) : (
-                            <span className="text-xs text-slate-400">N/A</span>
+                            <span className="text-xs text-muted-foreground">N/A</span>
                           )}
                         </td>
                         <td className="p-4 text-right whitespace-nowrap">
                           <select
-                            className="text-xs border border-slate-200 rounded px-3 py-1.5 bg-white focus:outline-none focus:border-primary min-w-[130px]"
+                            className="text-xs border border-border rounded-md px-3 py-1.5 bg-card text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary min-w-[140px]"
                             value={app.status}
                             onChange={(e) => handleUpdateStatus(app.id, e.target.value)}
                           >

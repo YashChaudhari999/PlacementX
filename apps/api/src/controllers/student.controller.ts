@@ -81,6 +81,8 @@ export const updateProfile = async (req: any, res: any) => {
     const has12thOrDiploma = existingProfile?.documents.some(d => d.documentType === '12TH_DIPLOMA_MARKSHEET');
     const hasDegree = existingProfile?.documents.some(d => d.documentType === 'DEGREE_MARKSHEETS');
 
+    const hasResume = existingProfile?.documents.some(d => d.documentType === 'RESUME');
+
     // Check if profile is complete (basic validation)
     const isProfileComplete = !!(
       data.firstName && 
@@ -89,7 +91,7 @@ export const updateProfile = async (req: any, res: any) => {
       data.branch && 
       data.cgpa && 
       data.passingYear &&
-      data.resumeUrl &&
+      hasResume &&
       has10th &&
       has12thOrDiploma &&
       hasDegree
@@ -367,6 +369,10 @@ export const applyForDrive = async (req: any, res: any) => {
     // Double check eligibility
     const drive = await prisma.placementDrive.findUnique({ where: { id: driveId } });
     if (!drive) return res.status(404).json({ message: 'Drive not found' });
+
+    if (drive.status !== 'ACTIVE') {
+      return res.status(400).json({ message: 'This drive is not currently accepting applications' });
+    }
 
     const { checkEligibility } = await import('../services/eligibility.service');
     const eligibility = await checkEligibility(student, drive);

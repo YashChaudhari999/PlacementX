@@ -35,6 +35,7 @@ export default function CreateEventModal({
   const updateEvent = useUpdateCustomEvent();
 
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     if (editEvent) {
       setTitle(editEvent.title || '');
       const sDate = new Date(editEvent.start);
@@ -59,6 +60,7 @@ export default function CreateEventModal({
       setColor('#4f46e5');
       setDescription('');
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [selectedDate, editEvent, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -116,6 +118,7 @@ export default function CreateEventModal({
               <input
                 autoFocus
                 type="text"
+                aria-label="Event Title"
                 placeholder="Event Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -131,6 +134,7 @@ export default function CreateEventModal({
                 <div className="flex items-center gap-4">
                   <input
                     type="date"
+                    aria-label="Event Date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     className="border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
@@ -152,6 +156,7 @@ export default function CreateEventModal({
                     <Clock01Icon className="w-4 h-4 text-slate-400" />
                     <input
                       type="time"
+                      aria-label="Start Time"
                       value={startTime}
                       onChange={(e) => setStartTime(e.target.value)}
                       className="border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 py-1.5"
@@ -160,6 +165,7 @@ export default function CreateEventModal({
                     <span className="text-slate-400 text-sm">to</span>
                     <input
                       type="time"
+                      aria-label="End Time"
                       value={endTime}
                       onChange={(e) => setEndTime(e.target.value)}
                       className="border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 py-1.5"
@@ -176,6 +182,7 @@ export default function CreateEventModal({
               <div className="flex-1 flex gap-4">
                 <select
                   value={type}
+                  aria-label="Event Type"
                   onChange={(e) => setType(e.target.value)}
                   className="border-slate-200 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 flex-1"
                 >
@@ -189,6 +196,7 @@ export default function CreateEventModal({
                   <span className="text-sm text-slate-500">Color:</span>
                   <input
                     type="color"
+                    aria-label="Event Color"
                     value={color}
                     onChange={(e) => setColor(e.target.value)}
                     className="w-8 h-8 rounded cursor-pointer border-0 p-0"
@@ -202,6 +210,7 @@ export default function CreateEventModal({
               <AlignLeftIcon className="w-5 h-5 text-slate-400 mt-2.5 shrink-0" />
               <textarea
                 value={description}
+                aria-label="Event Description"
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add description..."
                 rows={4}

@@ -97,19 +97,15 @@ export const uploadAcademicDocument = async (
   return document;
 };
 
-export const getAcademicDocuments = async (studentId: string) => {
-  const documents = await prisma.studentDocument.findMany({
-    where: {
-      studentId,
-    },
-  });
-
+export const signDocuments = async (documents: any[]) => {
   if (!documents || documents.length === 0) {
     return [];
   }
 
   const documentsWithUrls = await Promise.all(
     documents.map(async (doc) => {
+      if (!doc.filePath) return doc; // Safety check
+      
       // Generate signed URL (expires in 15 minutes)
       const { data, error } = await supabaseAdmin.storage
         .from(BUCKET_NAME)
@@ -127,6 +123,16 @@ export const getAcademicDocuments = async (studentId: string) => {
   );
 
   return documentsWithUrls;
+};
+
+export const getAcademicDocuments = async (studentId: string) => {
+  const documents = await prisma.studentDocument.findMany({
+    where: {
+      studentId,
+    },
+  });
+
+  return signDocuments(documents);
 };
 
 export const getAcademicDocumentForAdmin = async (studentId: string) => {

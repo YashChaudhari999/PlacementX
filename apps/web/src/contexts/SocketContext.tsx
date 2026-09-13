@@ -30,11 +30,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     if (!token || !userId) {
-      if (socket) {
-        socket.disconnect();
-        setSocket(null);
-        setIsConnected(false);
-      }
       return;
     }
 
@@ -90,13 +85,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       );
     });
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSocket(newSocket);
 
     return () => {
       newSocket.disconnect();
+      setSocket(null);
+      setIsConnected(false);
     };
     // Depend only on stable primitives, not the whole user object
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, userId, userRole, userBranch]);
 
   const joinRooms = (rooms: string[]) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { authService } from '@/lib/authService';
 import {
@@ -21,6 +21,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import NotificationBell from '@/features/notifications/components/NotificationBell';
 import { GlobalLoader } from '@/components/ui/feedback';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Button } from '@/components/ui/button';
 
 export const PlacementCellLayout = () => {
   const { user } = useAuthStore();
@@ -38,118 +40,91 @@ export const PlacementCellLayout = () => {
     {
       title: 'Overview',
       items: [
-        { name: 'Dashboard', path: '/admin/dashboard', icon: DashboardSquare01Icon },
-        { name: 'Analytics', path: '/admin/analytics', icon: ChartLineData01Icon },
+        { name: 'Dashboard', href: '/admin/dashboard', icon: DashboardSquare01Icon },
+        { name: 'Analytics', href: '/admin/analytics', icon: ChartLineData01Icon },
       ],
     },
     {
       title: 'Placements',
       items: [
-        { name: 'Placement Drives', path: '/admin/placement-events', icon: Briefcase01Icon },
-        { name: 'Reports', path: '/admin/reports', icon: Note01Icon },
+        { name: 'Placement Drives', href: '/admin/placement-events', icon: Briefcase01Icon },
+        { name: 'Reports', href: '/admin/reports', icon: Note01Icon },
       ],
     },
     {
       title: 'Student Management',
       items: [
-        { name: 'Students', path: '/admin/students', icon: UserMultipleIcon },
-        { name: 'Verifications', path: '/admin/students/verifications', icon: Shield01Icon },
-        { name: 'Update Requests', path: '/admin/students/update-requests', icon: FileEditIcon },
+        { name: 'Students', href: '/admin/students', icon: UserMultipleIcon },
+        { name: 'Verifications', href: '/admin/students/verifications', icon: Shield01Icon },
+        { name: 'Update Requests', href: '/admin/students/update-requests', icon: FileEditIcon },
       ],
     },
     {
       title: 'System',
       items: [
-        { name: 'Notifications', path: '/admin/notifications', icon: Notification01Icon },
-        { name: 'Calendar', path: '/admin/calendar', icon: Calendar01Icon },
-        { name: 'Settings', path: '/admin/settings', icon: Settings01Icon },
+        { name: 'Notifications', href: '/admin/notifications', icon: Notification01Icon },
+        { name: 'Calendar', href: '/admin/calendar', icon: Calendar01Icon },
+        { name: 'Settings', href: '/admin/settings', icon: Settings01Icon },
       ],
     },
   ];
 
   const allNavItems = navGroups.flatMap((g) => g.items);
   const pageTitle =
-    allNavItems.find((item) => location.pathname.startsWith(item.path))?.name || 'Dashboard';
+    allNavItems.find((item) => location.pathname.startsWith(item.href))?.name || 'Dashboard';
 
-  const sidebarContentJSX = (
-    <div className="flex flex-col h-full bg-slate-950 text-slate-300">
-      <div className="h-20 flex items-center px-6 border-b border-slate-800">
-        <div className="flex items-center gap-4 w-full py-3">
-          <div className="bg-white p-1.5 rounded-xl flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.05)] ring-1 ring-white/10 shrink-0">
-            <img src="/nmimslogo.png" alt="NMIMS Logo" className="h-9 w-9 object-contain" />
-          </div>
-          <div className="flex flex-col justify-center">
-            <span className="text-white font-extrabold text-lg leading-none tracking-tight mb-0.5">
-              PlacementX
-            </span>
-            <span className="text-primary text-[10px] font-black uppercase tracking-[0.2em] leading-none">
-              Admin Portal
-            </span>
-          </div>
+  const sidebarLogo = (
+    <button
+      onClick={() => navigate('/admin/dashboard')}
+      className="flex items-center gap-2 transition-opacity hover:opacity-80 w-full"
+    >
+      <div className="bg-primary/10 p-1.5 rounded-lg flex items-center justify-center border border-primary/20 shrink-0">
+        <img
+          src="/nmimslogo.png"
+          alt="NMIMS Logo"
+          className="h-7 w-7 object-contain mix-blend-multiply"
+        />
+      </div>
+      <div className="flex flex-col text-left hidden lg:block">
+        <span className="font-extrabold text-[15px] leading-tight text-foreground tracking-tight">
+          PlacementX
+        </span>
+        <span className="text-[10px] font-black uppercase text-primary tracking-widest leading-none">
+          Admin
+        </span>
+      </div>
+    </button>
+  );
+
+  const sidebarFooter = (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted border border-border">
+        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shadow-sm">
+          A
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground truncate">Admin User</p>
+          <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+            <Tick02Icon className="w-3 h-3 text-success" /> Super Admin
+          </p>
         </div>
       </div>
-
-      <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-slate-800">
-        {navGroups.map((group) => (
-          <div key={group.title} className="flex flex-col gap-1.5">
-            <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 px-3">
-              {group.title}
-            </div>
-            {group.items.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname.startsWith(item.path);
-              return (
-                <NavLink
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={() =>
-                    `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
-                      isActive
-                        ? 'bg-primary text-white shadow-md shadow-primary/20'
-                        : 'text-slate-400 hover:bg-slate-800/80 hover:text-white'
-                    }`
-                  }
-                >
-                  <Icon
-                    className={`h-[18px] w-[18px] transition-colors ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-300'}`}
-                  />
-                  {item.name}
-                </NavLink>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
-      <div className="p-4 border-t border-slate-800 bg-slate-900/50">
-        <div className="flex items-center gap-3 px-2 py-3 mb-2 rounded-lg bg-slate-900 border border-slate-800">
-          <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white font-bold">
-            A
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-white truncate">Admin User</p>
-            <p className="text-xs text-slate-500 truncate flex items-center gap-1">
-              <Tick02Icon className="w-3 h-3 text-emerald-500" /> Super Admin
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-colors"
-        >
-          <Logout01Icon className="h-5 w-5 text-slate-500 group-hover:text-red-400" />
-          Secure Sign Out
-        </button>
-      </div>
+      <Button
+        variant="outline"
+        onClick={handleLogout}
+        className="w-full gap-2 text-destructive hover:bg-destructive/10 border-border h-9"
+      >
+        <Logout01Icon className="h-4 w-4" />
+        Secure Sign Out
+      </Button>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-50/50">
+    <div className="flex min-h-screen bg-background relative overflow-hidden text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-72 bg-slate-950 border-r border-slate-800 fixed inset-y-0 z-20 shadow-2xl">
-        {sidebarContentJSX}
+      <aside className="hidden lg:flex flex-col w-[280px] fixed inset-y-0 z-20">
+        <Sidebar groups={navGroups} logo={sidebarLogo} footer={sidebarFooter} />
       </aside>
 
       {/* Mobile Sidebar Overlay */}
@@ -161,38 +136,43 @@ export const PlacementCellLayout = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-slate-900/80 z-40 lg:hidden backdrop-blur-sm"
+              className="fixed inset-0 bg-black/40 z-40 lg:hidden backdrop-blur-sm"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
-              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
-              className="fixed inset-y-0 left-0 w-72 bg-slate-950 shadow-2xl z-50 flex flex-col lg:hidden border-r border-slate-800"
+              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+              className="fixed inset-y-0 left-0 w-[280px] z-50 flex flex-col lg:hidden"
             >
-              {sidebarContentJSX}
+              <Sidebar
+                groups={navGroups}
+                logo={sidebarLogo}
+                footer={sidebarFooter}
+                onItemClick={() => setIsMobileMenuOpen(false)}
+              />
             </motion.aside>
           </>
         )}
       </AnimatePresence>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col lg:pl-72 min-w-0 transition-all">
-        {/* Top Navbar */}
-        <header className="h-20 bg-white/80 backdrop-blur-xl border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-40 shadow-sm">
+      <div className="flex-1 flex flex-col lg:pl-[280px] min-w-0 relative z-10 transition-all">
+        {/* Dynamic Header */}
+        <header className="h-16 px-6 sm:px-8 flex items-center justify-between sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-md"
+              className="lg:hidden p-2 -ml-2 text-muted-foreground hover:bg-muted rounded-md"
             >
-              <Menu01Icon className="h-6 w-6" />
+              <Menu01Icon className="h-5 w-5" />
             </button>
             <div>
-              <h1 className="text-xl font-bold text-slate-800 hidden sm:block tracking-tight">
+              <h1 className="text-xl font-bold text-foreground hidden sm:block tracking-tight">
                 {pageTitle}
               </h1>
-              <div className="hidden sm:flex items-center text-xs text-slate-500 font-medium mt-1">
-                Admin <span className="mx-2">•</span> {pageTitle}
+              <div className="hidden sm:flex items-center text-xs text-muted-foreground font-medium mt-0.5">
+                Admin <span className="mx-2 text-border">•</span> {pageTitle}
               </div>
             </div>
           </div>
@@ -203,13 +183,13 @@ export const PlacementCellLayout = () => {
             <div className="relative">
               <button
                 onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                className="flex items-center gap-2 hover:bg-slate-50 p-1.5 pr-3 rounded-full transition-colors border border-slate-200 hover:border-slate-300 bg-white shadow-sm"
+                className="flex items-center gap-2 hover:bg-muted p-1 pr-2 rounded-full transition-colors border border-border bg-card shadow-sm"
               >
-                <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-primary to-blue-500 flex items-center justify-center text-white font-bold text-sm shadow-inner">
+                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-inner">
                   A
                 </div>
-                <span className="text-sm font-semibold text-slate-700 hidden sm:block">Admin</span>
-                <ArrowDown01Icon className="h-4 w-4 text-slate-400 hidden sm:block" />
+                <span className="text-sm font-semibold text-foreground hidden sm:block">Admin</span>
+                <ArrowDown01Icon className="h-4 w-4 text-muted-foreground hidden sm:block" />
               </button>
 
               <AnimatePresence>
@@ -219,11 +199,13 @@ export const PlacementCellLayout = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-3 w-56 rounded-xl shadow-xl bg-white ring-1 ring-slate-900/5 focus:outline-none overflow-hidden"
+                    className="absolute right-0 mt-3 w-56 rounded-xl shadow-dropdown bg-popover border border-border overflow-hidden"
                   >
-                    <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-                      <p className="text-sm font-semibold text-slate-800">Admin User</p>
-                      <p className="text-xs font-medium text-slate-500 truncate">{user?.email}</p>
+                    <div className="px-4 py-3 border-b border-border bg-muted/50">
+                      <p className="text-sm font-semibold text-foreground">Admin User</p>
+                      <p className="text-xs font-medium text-muted-foreground truncate">
+                        {user?.email}
+                      </p>
                     </div>
                     <div className="p-2">
                       <button
@@ -231,16 +213,17 @@ export const PlacementCellLayout = () => {
                           setIsProfileDropdownOpen(false);
                           navigate('/admin/settings');
                         }}
-                        className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md transition-colors flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted rounded-md transition-colors flex items-center gap-2"
                       >
-                        <Settings01Icon className="w-4 h-4 text-slate-400" /> Account Settings
+                        <Settings01Icon className="w-4 h-4 text-muted-foreground" /> Account
+                        Settings
                       </button>
-                      <div className="h-px bg-slate-100 my-1 mx-2" />
+                      <div className="h-px bg-border my-1 mx-2" />
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 font-medium rounded-md transition-colors flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 text-sm text-destructive hover:bg-destructive/10 font-medium rounded-md transition-colors flex items-center gap-2"
                       >
-                        <Logout01Icon className="w-4 h-4 text-red-500" /> Sign out
+                        <Logout01Icon className="w-4 h-4 text-destructive" /> Sign out
                       </button>
                     </div>
                   </motion.div>
@@ -251,16 +234,20 @@ export const PlacementCellLayout = () => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-x-hidden relative">
+        <main className="flex-1 p-6 sm:p-8 overflow-x-hidden relative">
           <GlobalLoader />
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="w-full max-w-[1600px] mx-auto"
-          >
-            <Outlet />
-          </motion.div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-7xl mx-auto"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>

@@ -13,24 +13,23 @@ import {
 } from 'recharts';
 import type { SalaryResponse } from '@/types/analytics.types';
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl border border-slate-800 text-xs">
+        <p className="font-bold text-sm mb-1">{label} LPA</p>
+        <p className="text-slate-300">
+          Offers: <span className="font-bold text-white">{payload[0].value}</span>
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 export default function SalaryAnalytics({ data }: { data: SalaryResponse }) {
   if (!data?.current?.distribution?.length) return null;
 
   const { current, insight } = data;
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-slate-900 text-white p-3 rounded-xl shadow-xl border border-slate-800 text-xs">
-          <p className="font-bold text-sm mb-1">{label} LPA</p>
-          <p className="text-slate-300">
-            Offers: <span className="font-bold text-white">{payload[0].value}</span>
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Card className="p-6 border-slate-200">

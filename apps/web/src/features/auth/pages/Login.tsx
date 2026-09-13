@@ -98,8 +98,7 @@ export default function Login() {
           </div>
 
           <h1 className="text-3xl font-black text-white mb-3 leading-tight drop-shadow">
-            Launch Your Career.
-            <br />
+            Launch Your Career. <br />
             <span className="text-white/80">Land Your Dream.</span>
           </h1>
           <p className="text-white/70 text-sm font-medium mb-2">
@@ -159,6 +158,9 @@ export default function Login() {
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Email */}
             <div>
+              <label htmlFor="email" className="sr-only">
+                University Email ID
+              </label>
               <input
                 id="email"
                 name="email"
@@ -172,6 +174,9 @@ export default function Login() {
 
             {/* Password */}
             <div className="relative">
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
               <input
                 id="password"
                 name="password"
@@ -184,6 +189,8 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                aria-pressed={showPassword}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
                 tabIndex={-1}
               >
@@ -225,12 +232,16 @@ export default function Login() {
 
             {/* Forgot password */}
             <div className="flex justify-end">
-              <a
-                href="#"
-                className="text-xs font-bold text-[#C8102E] hover:text-[#a00c25] transition-colors"
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert('Forgot password flow is not implemented yet.');
+                }}
+                className="text-xs font-bold text-[#C8102E] hover:text-[#a00c25] transition-colors bg-transparent border-none p-0 cursor-pointer"
               >
                 Forgot Password? Click Here!
-              </a>
+              </button>
             </div>
 
             {/* Submit */}

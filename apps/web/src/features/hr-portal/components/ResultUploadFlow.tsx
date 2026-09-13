@@ -1,7 +1,13 @@
 import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { Button, Card, Badge } from '@/components/ui';
-import { CloudUploadIcon, TickDouble02Icon, Alert02Icon, Loading02Icon, Delete01Icon } from 'hugeicons-react';
+import {
+  CloudUploadIcon,
+  TickDouble02Icon,
+  Alert02Icon,
+  Loading02Icon,
+  Delete01Icon,
+} from 'hugeicons-react';
 import api from '@/lib/api';
 
 interface ResultUploadFlowProps {
@@ -12,12 +18,18 @@ interface ResultUploadFlowProps {
   onCancel: () => void;
 }
 
-export default function ResultUploadFlow({ token, roundId, roundName, onSuccess, onCancel }: ResultUploadFlowProps) {
+export default function ResultUploadFlow({
+  token,
+  roundId,
+  roundName,
+  onSuccess,
+  onCancel,
+}: ResultUploadFlowProps) {
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileName, setFileName] = useState('');
-  
+
   const [previewData, setPreviewData] = useState<{ matches: any[]; missing: any[] } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,11 +47,21 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
         const bstr = evt.target?.result;
         const workbook = XLSX.read(bstr, { type: 'binary' });
         const firstSheetName = workbook.SheetNames[0];
+        if (!firstSheetName) {
+          setError('No sheets found in the uploaded file.');
+          setLoading(false);
+          return;
+        }
         const worksheet = workbook.Sheets[firstSheetName];
-        
+        if (!worksheet) {
+          setError('Could not read the worksheet.');
+          setLoading(false);
+          return;
+        }
+
         // Convert to JSON
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        
+
         // Send to backend for preview
         const response = await api.post(`/hr/workspace/${token}/results/process`, {
           roundId,
@@ -62,29 +84,29 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
       setError('Failed to read file.');
       setLoading(false);
     };
-    
+
     reader.readAsBinaryString(file);
   };
 
   const handleConfirm = async () => {
     if (!previewData || previewData.matches.length === 0) return;
-    
+
     setLoading(true);
     try {
       // Optional: Ask HR if they want to update status to next phase automatically based on result
       // Here we just upload results safely
       const updateStatusMap: Record<string, string> = {
-        'Selected': 'FINAL_SELECTED',
-        'Pass': 'TEST_COMPLETED',
-        'Interview': 'SELECTED_FOR_INTERVIEW',
-        'Reject': 'REJECTED',
-        'Fail': 'REJECTED'
+        Selected: 'FINAL_SELECTED',
+        Pass: 'TEST_COMPLETED',
+        Interview: 'SELECTED_FOR_INTERVIEW',
+        Reject: 'REJECTED',
+        Fail: 'REJECTED',
       };
 
       await api.post(`/hr/workspace/${token}/results/confirm`, {
         roundId,
         results: previewData.matches,
-        updateStatus: updateStatusMap
+        updateStatus: updateStatusMap,
       });
 
       alert('Results uploaded successfully!');
@@ -116,7 +138,7 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
           </div>
         )}
 
-        <div 
+        <div
           className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
           onClick={() => fileInputRef.current?.click()}
         >
@@ -131,14 +153,18 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
                 <CloudUploadIcon className="w-8 h-8 text-indigo-500" />
               </div>
               <p className="font-bold text-slate-800 mb-1">Click to upload file</p>
-              <p className="text-sm text-slate-500 mb-4">File must contain "Email" and "Result" columns.</p>
-              <Button size="sm" variant="outline">Browse Files</Button>
+              <p className="text-sm text-slate-500 mb-4">
+                File must contain "Email" and "Result" columns.
+              </p>
+              <Button size="sm" variant="outline">
+                Browse Files
+              </Button>
             </>
           )}
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileUpload} 
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
             accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
             className="hidden"
           />
@@ -171,7 +197,9 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
           <TickDouble02Icon className="w-6 h-6 text-emerald-600" />
           <div>
             <p className="text-sm text-emerald-700 font-medium">Matched Candidates</p>
-            <p className="text-2xl font-bold text-emerald-800">{previewData?.matches.length || 0}</p>
+            <p className="text-2xl font-bold text-emerald-800">
+              {previewData?.matches.length || 0}
+            </p>
           </div>
         </Card>
         <Card className="p-4 bg-amber-50 border-amber-200 flex items-center gap-3">
@@ -217,8 +245,12 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
 
       {previewData?.missing && previewData.missing.length > 0 && (
         <div className="mb-6 p-4 border border-amber-200 bg-amber-50 rounded-xl">
-          <p className="text-sm font-bold text-amber-800 mb-2">Notice: {previewData.missing.length} rows couldn't be matched.</p>
-          <p className="text-xs text-amber-700">Ensure the email addresses match the students who applied to this drive.</p>
+          <p className="text-sm font-bold text-amber-800 mb-2">
+            Notice: {previewData.missing.length} rows couldn't be matched.
+          </p>
+          <p className="text-xs text-amber-700">
+            Ensure the email addresses match the students who applied to this drive.
+          </p>
         </div>
       )}
 
@@ -226,8 +258,16 @@ export default function ResultUploadFlow({ token, roundId, roundName, onSuccess,
         <Button variant="outline" onClick={() => setStep(1)} disabled={loading}>
           Back
         </Button>
-        <Button variant="primary" onClick={handleConfirm} disabled={loading || previewData?.matches.length === 0}>
-          {loading ? <Loading02Icon className="w-4 h-4 animate-spin mr-2" /> : <TickDouble02Icon className="w-4 h-4 mr-2" />}
+        <Button
+          variant="primary"
+          onClick={handleConfirm}
+          disabled={loading || previewData?.matches.length === 0}
+        >
+          {loading ? (
+            <Loading02Icon className="w-4 h-4 animate-spin mr-2" />
+          ) : (
+            <TickDouble02Icon className="w-4 h-4 mr-2" />
+          )}
           Confirm & Save Results
         </Button>
       </div>

@@ -31,6 +31,7 @@ export const Navbar = () => {
 
   // Close mobile menu on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
@@ -40,7 +41,7 @@ export const Navbar = () => {
         className={twMerge(
           'fixed top-0 z-50 w-full transition-all duration-300',
           isScrolled
-            ? 'bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm'
+            ? 'bg-card/80 backdrop-blur-md border-b border-border shadow-sm'
             : 'bg-transparent border-b border-transparent'
         )}
         initial={{ y: -100 }}
@@ -70,7 +71,7 @@ export const Navbar = () => {
                   to={link.path}
                   className={twMerge(
                     'text-sm font-medium transition-colors hover:text-primary relative py-2',
-                    isActive ? 'text-primary' : 'text-slate-600'
+                    isActive ? 'text-primary' : 'text-muted-foreground'
                   )}
                 >
                   {link.name}
@@ -96,9 +97,8 @@ export const Navbar = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu01Icon Toggle */}
           <button
-            className="lg:hidden flex items-center justify-center p-2 rounded-md text-slate-600 hover:text-primary hover:bg-slate-100 transition-colors"
+            className="lg:hidden flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-primary hover:bg-muted transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -119,7 +119,7 @@ export const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-40 bg-white pt-24 px-4 pb-6 lg:hidden flex flex-col h-screen overflow-y-auto"
+            className="fixed inset-0 z-40 bg-background pt-24 px-4 pb-6 lg:hidden flex flex-col h-screen overflow-y-auto"
           >
             <nav className="flex flex-col gap-2 mb-8">
               {NAV_LINKS.map((link) => {
@@ -132,7 +132,9 @@ export const Navbar = () => {
                     to={link.path}
                     className={twMerge(
                       'flex items-center justify-between p-4 rounded-xl text-lg font-medium transition-colors',
-                      isActive ? 'bg-primary/5 text-primary' : 'text-slate-600 hover:bg-slate-50'
+                      isActive
+                        ? 'bg-primary/5 text-primary'
+                        : 'text-muted-foreground hover:bg-muted'
                     )}
                   >
                     {link.name}

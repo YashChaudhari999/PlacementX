@@ -43,7 +43,7 @@ export default function NotificationCenter() {
       markAsRead(notification.id);
     }
     if (notification.actionUrl) {
-      window.location.href = notification.actionUrl;
+      window.location.assign(notification.actionUrl);
     }
   };
 

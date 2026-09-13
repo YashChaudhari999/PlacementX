@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
-import { getAcademicDocumentForAdmin } from '../services/student-document.service';
+import { getAcademicDocumentForAdmin, signDocuments } from '../services/student-document.service';
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -1039,10 +1039,27 @@ export const getPendingProfiles = async (req: any, res: any) => {
       },
       include: {
         user: { select: { email: true } },
+        documents: true,
       },
       orderBy: { updatedAt: 'asc' },
     });
-    return res.status(200).json(profiles);
+
+    // Inject signed URLs for Resume so frontend doesn't break
+    const profilesWithSignedResumes = await Promise.all(
+      profiles.map(async (profile) => {
+        if (profile.documents && profile.documents.length > 0) {
+          const signedDocs = await signDocuments(profile.documents);
+          const resumeDoc = signedDocs.find(d => d.documentType === 'RESUME');
+          if (resumeDoc && resumeDoc.signedUrl) {
+            return { ...profile, resumeUrl: resumeDoc.signedUrl, documents: signedDocs };
+          }
+          return { ...profile, documents: signedDocs };
+        }
+        return profile;
+      })
+    );
+
+    return res.status(200).json(profilesWithSignedResumes);
   } catch (error: any) {
     // Silently return empty array for DB connectivity errors
     if (error?.code === 'P1001' || error?.code === 'P1017') {

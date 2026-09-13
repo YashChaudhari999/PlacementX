@@ -37,6 +37,7 @@ export default function AdminStudentProfile() {
 
   useEffect(() => {
     if (studentId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadStudentData();
     }
   }, [studentId]);

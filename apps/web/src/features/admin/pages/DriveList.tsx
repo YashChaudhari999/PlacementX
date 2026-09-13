@@ -66,23 +66,19 @@ export default function DriveList() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Placement Drives</h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Placement Drives</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             Manage company visits and recruitment events.
           </p>
         </div>
 
         <div className="flex gap-3">
-          <Button
-            onClick={() => setIsHrModalOpen(true)}
-            variant="outline"
-            className="border-primary text-primary hover:bg-primary/5"
-          >
+          <Button onClick={() => setIsHrModalOpen(true)} variant="outline">
             <Link01Icon className="w-4 h-4 mr-2" />
             Invite HR
           </Button>
           <Link to="/admin/placement-events/create">
-            <Button className="bg-primary hover:bg-primary/90 text-white shadow-sm">
+            <Button>
               <PlusSignIcon className="w-4 h-4 mr-2" />
               Manual Entry
             </Button>
@@ -91,19 +87,19 @@ export default function DriveList() {
       </div>
 
       {/* Filters Bar */}
-      <Card className="p-4 flex flex-col sm:flex-row gap-4">
+      <Card className="p-4 flex flex-col sm:flex-row gap-4 bg-card border-border shadow-sm">
         <div className="relative flex-1">
-          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search by company or role..."
-            className="pl-9 bg-slate-50 border-slate-200"
+            className="pl-9 bg-muted/50 border-border"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="flex gap-4">
           <select
-            className="h-10 rounded-md border border-slate-200 px-3 py-2 text-sm bg-slate-50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="h-10 rounded-md border border-border px-3 py-2 text-sm bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
@@ -113,7 +109,7 @@ export default function DriveList() {
             <option value="upcoming">Upcoming</option>
             <option value="closed">Closed</option>
           </select>
-          <Button variant="outline" className="text-slate-600">
+          <Button variant="outline" className="text-foreground">
             <FilterIcon className="w-4 h-4 mr-2" />
             More Filters
           </Button>
@@ -124,9 +120,9 @@ export default function DriveList() {
       {isPending ? (
         <ListSkeleton />
       ) : error ? (
-        <div className="py-12 text-center text-red-500">Failed to load drives</div>
+        <div className="py-12 text-center text-destructive">Failed to load drives</div>
       ) : drives.length === 0 ? (
-        <div className="py-12 text-center text-slate-500">No drives created yet.</div>
+        <div className="py-12 text-center text-muted-foreground">No drives created yet.</div>
       ) : (
         (() => {
           const filteredDrives = drives.filter((drive: Drive) => {
@@ -168,7 +164,7 @@ export default function DriveList() {
 
           if (filteredDrives.length === 0) {
             return (
-              <div className="py-12 text-center text-slate-500">
+              <div className="py-12 text-center text-muted-foreground">
                 No drives match your search filters.
               </div>
             );
@@ -179,15 +175,15 @@ export default function DriveList() {
               {filteredDrives.map((drive: Drive) => (
                 <Card
                   key={drive.id}
-                  className="p-6 hover:shadow-md transition-shadow group flex flex-col"
+                  className="p-6 hover:border-primary/50 transition-colors group flex flex-col border-border"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                      <div className="w-12 h-12 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground">
                         <Building02Icon className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-800 line-clamp-1">
+                        <h3 className="font-semibold text-foreground line-clamp-1">
                           {drive.company.name}
                         </h3>
                         <p className="text-sm text-primary font-medium">
@@ -201,21 +197,21 @@ export default function DriveList() {
                           e.stopPropagation();
                           setActiveMenuId(activeMenuId === drive.id ? null : drive.id);
                         }}
-                        className="text-slate-400 hover:text-slate-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-muted-foreground hover:text-foreground p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         <MoreHorizontalIcon className="w-5 h-5" />
                       </button>
                       {activeMenuId === drive.id && (
-                        <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg border border-slate-200 z-10 py-1">
+                        <div className="absolute right-0 mt-2 w-32 bg-card rounded-md shadow-lg border border-border z-10 py-1">
                           <Link
                             to={`/admin/placement-events/edit/${drive.id}`}
-                            className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                            className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
                           >
                             Edit
                           </Link>
                           <button
                             onClick={(e) => handleDeleteDrive(drive.id, e)}
-                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50"
+                            className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
                           >
                             Delete
                           </button>
@@ -225,12 +221,12 @@ export default function DriveList() {
                   </div>
 
                   <div className="space-y-3 mb-6 flex-1">
-                    <div className="flex items-center text-sm text-slate-600">
-                      <Briefcase01Icon className="w-4 h-4 mr-2 text-slate-400" />
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Briefcase01Icon className="w-4 h-4 mr-2" />
                       {drive.jobRole} • {drive.employmentType}
                     </div>
-                    <div className="flex items-center text-sm text-slate-600">
-                      <Calendar01Icon className="w-4 h-4 mr-2 text-slate-400" />
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <Calendar01Icon className="w-4 h-4 mr-2" />
                       {(drive as any).registrationEnd
                         ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', {
                             day: '2-digit',
@@ -239,13 +235,13 @@ export default function DriveList() {
                           })
                         : 'N/A'}
                     </div>
-                    <div className="flex items-center text-sm text-slate-600">
-                      <UserMultipleIcon className="w-4 h-4 mr-2 text-slate-400" />
+                    <div className="flex items-center text-sm text-muted-foreground">
+                      <UserMultipleIcon className="w-4 h-4 mr-2" />
                       {drive.applications?.length || 0} Applicants
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                  <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
                     {(() => {
                       const now = new Date();
                       const regStart = (drive as any).registrationStart
@@ -261,29 +257,28 @@ export default function DriveList() {
                       const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
 
                       let displayStatus = drive.status;
-                      let badgeColor = 'bg-slate-100 text-slate-600';
+                      let badgeColor = 'bg-muted text-muted-foreground';
 
                       if (drive.status === 'PUBLISHED') {
                         if (isUpcoming) {
                           displayStatus = 'UPCOMING';
-                          badgeColor = 'bg-blue-100 text-blue-700';
+                          badgeColor = 'bg-info-muted text-info border border-info/20';
                         } else if (isClosed) {
                           displayStatus = 'CLOSED';
-                          badgeColor = 'bg-red-100 text-red-700';
+                          badgeColor =
+                            'bg-destructive/10 text-destructive border border-destructive/20';
                         } else if (isOpen) {
                           displayStatus = 'OPEN';
-                          badgeColor = 'bg-emerald-100 text-emerald-700';
+                          badgeColor = 'bg-success-muted text-success border border-success/20';
                         } else {
-                          badgeColor = 'bg-emerald-100 text-emerald-700';
+                          badgeColor = 'bg-success-muted text-success border border-success/20';
                         }
                       } else if (drive.status === 'DRAFT') {
-                        badgeColor = 'bg-amber-100 text-amber-700';
+                        badgeColor = 'bg-warning-muted text-warning border border-warning/20';
                       }
 
                       return (
-                        <span
-                          className={`px-2.5 py-1 text-xs font-semibold rounded-md ${badgeColor}`}
-                        >
+                        <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${badgeColor}`}>
                           {displayStatus}
                         </span>
                       );

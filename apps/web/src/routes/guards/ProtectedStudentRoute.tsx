@@ -7,7 +7,7 @@ import { ProfileUnderReview } from '@/components/common/ProfileUnderReview';
 export const ProtectedStudentRoute = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated, user } = useAuthStore();
   const location = useLocation();
-  if (!isAuthenticated) return <Navigate to="/student/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (user?.role !== 'STUDENT') return <Navigate to="/unauthorized" replace />;
 
   // If profile is not verified, show a proper explanation page

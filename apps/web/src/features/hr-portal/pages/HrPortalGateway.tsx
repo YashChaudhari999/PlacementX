@@ -39,10 +39,10 @@ export default function HrPortalGateway() {
 
   if (error) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-xl shadow-sm border border-red-200 max-w-md">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Access Denied</h1>
-          <p className="text-slate-600">{error}</p>
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center p-6 text-center">
+        <div className="bg-card p-8 rounded-xl shadow-sm border border-destructive/20 max-w-md">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Access Denied</h1>
+          <p className="text-muted-foreground">{error}</p>
         </div>
       </div>
     );
@@ -55,12 +55,13 @@ export default function HrPortalGateway() {
 
   if (['UNDER_REVIEW', 'SUBMITTED'].includes(driveStatus || '')) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50 p-6 text-center">
-        <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 max-w-md">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Under Review</h1>
-          <p className="text-slate-600">
-            Your drive details have been submitted and are currently being reviewed by the placement cell.
-            Once approved, this link will transform into your recruiter workspace to manage candidates.
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center p-6 text-center">
+        <div className="bg-card p-8 rounded-xl shadow-sm border border-border max-w-md">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Under Review</h1>
+          <p className="text-muted-foreground">
+            Your drive details have been submitted and are currently being reviewed by the placement
+            cell. Once approved, this link will transform into your recruiter workspace to manage
+            candidates.
           </p>
         </div>
       </div>
