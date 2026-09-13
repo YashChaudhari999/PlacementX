@@ -3,6 +3,7 @@ import multer from 'multer';
 import { getProfile, updateProfile, updatePhoto, applyForDrive, getApplications, getInterviews, getDocuments, mlPredictSuccess, getProfileStatus, requestProfileUpdate, uploadAcademicDoc } from '../controllers/student.controller';
 import { getCalendarEvents } from '../controllers/student.calendar.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
+import studentSettingsRoutes from './student.settings.routes';
 
 const upload = multer({ storage: multer.memoryStorage() });
 const router = Router();
@@ -27,6 +28,8 @@ router.get('/interviews', getInterviews);
 router.get('/documents', getDocuments);
 router.post('/documents/academic', upload.single('file'), uploadAcademicDoc);
 router.get('/calendar', getCalendarEvents);
+
+router.use('/settings', studentSettingsRoutes);
 
 export default router;
 

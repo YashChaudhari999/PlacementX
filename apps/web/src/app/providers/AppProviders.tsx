@@ -6,6 +6,7 @@ import { PermissionProvider } from '@/features/auth/contexts/PermissionContext';
 import { AppShellProvider } from '@/app/shell/contexts/AppShellContext';
 import { ToastProvider } from '@/app/shell/components/ToastProvider';
 import { DialogProvider } from '@/app/shell/components/DialogProvider';
+import { ThemeProvider } from '@/app/providers/ThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
@@ -28,11 +29,13 @@ export const AppProviders = ({ children }: { children: ReactNode }) => {
           <SessionProvider>
             <RoleProvider>
               <PermissionProvider>
-                <AppShellProvider>
-                  <ToastProvider>
-                    <DialogProvider>{children}</DialogProvider>
-                  </ToastProvider>
-                </AppShellProvider>
+                <ThemeProvider>
+                  <AppShellProvider>
+                    <ToastProvider>
+                      <DialogProvider>{children}</DialogProvider>
+                    </ToastProvider>
+                  </AppShellProvider>
+                </ThemeProvider>
               </PermissionProvider>
             </RoleProvider>
           </SessionProvider>

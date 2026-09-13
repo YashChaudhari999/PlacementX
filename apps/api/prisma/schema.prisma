@@ -110,6 +110,7 @@ model StudentProfile {
   updateRequests ProfileUpdateRequest[]
   auditLogs      ProfileAuditLog[]
   documents      StudentDocument[]
+  preferences    StudentPreference?
   user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -360,6 +361,11 @@ model NotificationPreference {
   system       Boolean  @default(true)
   pushEnabled  Boolean  @default(true)
   emailEnabled Boolean  @default(true)
+  
+  quietHoursEnabled Boolean @default(false)
+  quietHoursStart   String? // e.g. "22:00"
+  quietHoursEnd     String? // e.g. "07:00"
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -588,4 +594,40 @@ model StudentDocument {
   student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, documentType])
+}
+
+model StudentPreference {
+  id                  String   @id @default(uuid())
+  studentId           String   @unique
+  
+  // Placement Preferences
+  jobCategories       Json?
+  industries          Json?
+  locations           Json?
+  workMode            Json?
+  salaryRange         String?
+  
+  // Privacy
+  profileVisibility   String @default("PUBLIC")
+  resumeVisibility    String @default("RECRUITER_ONLY")
+  
+  // Calendar & Reminders
+  defaultCalendarView String @default("month")
+  interviewReminders  Json?  
+  deadlineReminders   Json?
+  
+  // Application Preferences
+  confirmBeforeApply  Boolean @default(true)
+  
+  // Appearance & Regional
+  theme               String @default("system")
+  compactMode         Boolean @default(false)
+  language            String @default("en")
+  timezone            String @default("Asia/Kolkata")
+  timeFormat          String @default("12-hour")
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  student             StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
