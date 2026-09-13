@@ -2,8 +2,8 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-13 18:53 IST
-**Last Verified Against Codebase:** 2026-09-13 18:53 IST
+**Last Updated:** 2026-09-13 21:22 IST
+**Last Verified Against Codebase:** 2026-09-13 21:22 IST
 **Context Version:** 1.3
 
 ---
@@ -80,6 +80,9 @@ The core web application, backend API, and mobile app are all actively under dev
 | **Recruiter Event Portal** | Public recruiter event view via token | Recruiter | ✅ Completed |
 | **Global UI Loader** | Centralized React Query fetching loader across the application | All | ✅ Completed |
 | **Separated Academic Documents** | Secure individual PDF uploads of student academic documents (10th, 12th/Diploma, Degree) to Supabase Storage | Student, Admin | ✅ Completed |
+| **Student Calendar** | FullCalendar implementation for student interview and drive schedules | Student | ✅ Completed |
+| **Student Settings** | Robust settings module for managing preferences, privacy, security, and appearance | Student | ✅ Completed |
+| **Theme Engine** | Global dark mode and compact mode support using Tailwind v4 css variables and ThemeProvider | All | ✅ Completed |
 
 ---
 
