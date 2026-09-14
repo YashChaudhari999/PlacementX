@@ -1,0 +1,14 @@
+{
+    "model_name": "forecast_highest_package",
+    "version": "forecast-2026.09.14.1643",
+    "timestamp": "2026-09-14T16:43:07.823431Z",
+    "metrics": {
+        "MAE": 0.3000000000000007
+    },
+    "hyperparameters": {
+        "model": "LinearRegression"
+    },
+    "checksum": "783e74fc6fca8154cbcbe70e185439979c6425080681d74f7c60b8396d0490cb",
+    "status": "APPROVED",
+    "environment": "development"
+}
