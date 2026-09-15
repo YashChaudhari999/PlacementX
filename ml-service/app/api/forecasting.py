@@ -16,12 +16,14 @@ async def get_forecast(request: ForecastRequest):
         if not models:
             raise HTTPException(status_code=503, detail="Forecast models not loaded")
             
-        target_year = int(request.year.split('/')[0])
-        input_data = pd.DataFrame({'year': [target_year]})
+        target_year = int(request.year.split('/')[0]) if '/' in request.year else int(request.year.split('-')[0])
+        input_data = pd.DataFrame({'year_int': [target_year]})
         
         preds = {}
         for metric, model in models.items():
             preds[metric] = model.predict(input_data)[0]
+            
+        meta = MODELS.get("forecast_meta", {}).get("placement_percentage", {})
             
         return {
             "projectedPlacementRate": float(preds.get('placement_percentage', 85.0)),
@@ -34,7 +36,7 @@ async def get_forecast(request: ForecastRequest):
             "trend": "upward" if target_year > 2025 else "stable",
             "department": request.department,
             "targetYear": request.year,
-            "modelVersion": "1.0.0"
+            "modelVersion": meta.get("version", "unknown")
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

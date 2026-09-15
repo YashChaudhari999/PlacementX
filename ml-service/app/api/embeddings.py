@@ -1,9 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+from typing import List
 import sys
 
-# Hack to import MODELS from main (in a real app you'd use Dependency Injection)
-from app.main import MODELS
 from app.services.embedding_service import EmbeddingService
 
 router = APIRouter()
@@ -11,9 +10,13 @@ router = APIRouter()
 class TextPayload(BaseModel):
     text: str
 
+class BatchTextPayload(BaseModel):
+    texts: List[str]
+
 @router.post("/match")
 async def generate_embedding(payload: TextPayload):
     try:
+        from app.main import MODELS
         model = MODELS.get("embedding")
         if not model:
             raise HTTPException(status_code=503, detail="Embedding model not loaded")
@@ -24,5 +27,27 @@ async def generate_embedding(payload: TextPayload):
         return {
             "embedding": embedding
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/batch")
+async def generate_batch_embeddings(payload: BatchTextPayload):
+    try:
+        from app.main import MODELS
+        model = MODELS.get("embedding")
+        if not model:
+            raise HTTPException(status_code=503, detail="Embedding model not loaded")
+            
+        service = EmbeddingService(model)
+        embeddings = [service.generate_embedding(t) for t in payload.texts]
+        
+        return {
+            "embeddings": embeddings
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

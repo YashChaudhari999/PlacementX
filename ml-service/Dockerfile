@@ -17,4 +17,16 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 
 COPY . .
 
+# Create a nonroot user and group
+RUN groupadd -r mluser && useradd -r -g mluser mluser
+
+# Ensure the app directory is owned by the nonroot user
+RUN chown -R mluser:mluser /app
+# Make artifacts and datasets directories explicitly if they don't exist and chown them
+RUN mkdir -p /app/artifacts /app/datasets && chown -R mluser:mluser /app/artifacts /app/datasets
+
+USER mluser
+
+# Expose port and command
+EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
