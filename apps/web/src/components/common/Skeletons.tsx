@@ -68,3 +68,17 @@ export const AnalyticsSkeleton = () => (
     </div>
   </div>
 );
+
+export const SettingsSkeleton = () => (
+  <Card className="p-6 h-[400px] animate-pulse flex flex-col gap-6">
+    <div className="h-6 bg-slate-200 rounded-md w-1/3" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {[1, 2, 3, 4].map(i => (
+        <div key={i} className="space-y-2">
+          <div className="h-4 bg-slate-200 rounded-md w-1/4" />
+          <div className="h-10 bg-slate-200 rounded-md w-full" />
+        </div>
+      ))}
+    </div>
+  </Card>
+);

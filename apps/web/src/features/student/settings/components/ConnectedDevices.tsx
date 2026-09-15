@@ -1,6 +1,6 @@
 import { Card, Button } from '@/components/ui';
 import { useDevices, useDeleteDevice } from '../hooks/useSettings';
-import { Loading } from '@/components/common/Loading';
+import { SettingsSkeleton } from '@/components/common/Skeletons';
 import { SmartPhone01Icon, Globe02Icon } from 'hugeicons-react';
 import { format } from 'date-fns';
 
@@ -8,7 +8,7 @@ export default function ConnectedDevices() {
   const { data: devices, isLoading, isError } = useDevices();
   const { mutate: deleteDevice, isPending } = useDeleteDevice();
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <SettingsSkeleton />;
   if (isError || !devices) return <div>Failed to load devices</div>;
 
   return (

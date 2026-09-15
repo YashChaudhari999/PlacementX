@@ -1,11 +1,11 @@
 import { Card } from '@/components/ui';
 import { useSettings } from '../hooks/useSettings';
-import { Loading } from '@/components/common/Loading';
+import { SettingsSkeleton } from '@/components/common/Skeletons';
 
 export default function AccountSettings() {
   const { data, isLoading, isError } = useSettings();
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <SettingsSkeleton />;
   if (isError || !data) return <div>Failed to load account settings</div>;
 
   const { account, profile } = data;

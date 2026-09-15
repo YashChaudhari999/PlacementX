@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Button } from '@/components/ui';
 import { useSettings, useUpdateRegional } from '../hooks/useSettings';
-import { Loading } from '@/components/common/Loading';
+import { SettingsSkeleton } from '@/components/common/Skeletons';
 import { Settings02Icon, Moon02Icon, Sun01Icon } from 'hugeicons-react';
 import { useTheme } from '@/app/providers/ThemeProvider';
 
@@ -36,7 +36,7 @@ export default function AppearanceSettings() {
     );
   };
 
-  if (isLoading) return <Loading />;
+  if (isLoading) return <SettingsSkeleton />;
 
   return (
     <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl">
