@@ -2,5 +2,5 @@
 // @ts-nocheck
 import { DBAccess } from '../utils/dbAccess';
 export class NotificationRepository {
-  // ONLY Firebase communication here
+ // ONLY Firebase communication here
 }

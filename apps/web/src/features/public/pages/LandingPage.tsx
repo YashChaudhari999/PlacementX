@@ -7,15 +7,15 @@ import { TestimonialsSection } from '../components/TestimonialsSection';
 import { CTASection } from '../components/CTASection';
 
 export default function LandingPage() {
-  return (
-    <div className="flex flex-col w-full">
-      <HeroSection />
-      <StatisticsSection />
-      <FeaturesGrid />
-      <WorkflowTimeline />
-      <PlatformModules />
-      <TestimonialsSection />
-      <CTASection />
-    </div>
-  );
+ return (
+ <div className="flex flex-col w-full">
+ <HeroSection />
+ <StatisticsSection />
+ <FeaturesGrid />
+ <WorkflowTimeline />
+ <PlatformModules />
+ <TestimonialsSection />
+ <CTASection />
+ </div>
+ );
 }

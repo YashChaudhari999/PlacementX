@@ -2,5 +2,5 @@
 // @ts-nocheck
 import { AdminRepository } from '../repositories/adminRepository';
 export class AdminService {
-  // Business logic belongs here
+ // Business logic belongs here
 }

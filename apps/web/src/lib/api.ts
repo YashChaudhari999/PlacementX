@@ -2,39 +2,39 @@ import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+ baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+ headers: {
+ 'Content-Type': 'application/json',
+ },
 });
 
 // Add a request interceptor to inject the JWT token
 api.interceptors.request.use(
-  (config) => {
-    const token = useAuthStore.getState().token;
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
+ (config) => {
+ const token = useAuthStore.getState().token;
+ if (token) {
+ config.headers.Authorization = `Bearer ${token}`;
+ }
+ return config;
+ },
+ (error) => Promise.reject(error)
 );
 
 // Add a response interceptor to handle 401s (expired token, etc)
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 401) {
-      // Clear auth state and redirect to login
-      useAuthStore.getState().logout();
+ (response) => response,
+ (error) => {
+ if (error.response && error.response.status === 401) {
+ // Clear auth state and redirect to login
+ useAuthStore.getState().logout();
 
-      // Do not redirect HR portal users to login
-      if (!window.location.pathname.startsWith('/hr-drive')) {
-        window.location.assign('/login');
-      }
-    }
-    return Promise.reject(error);
-  }
+ // Do not redirect HR portal users to login
+ if (!window.location.pathname.startsWith('/hr-drive')) {
+ window.location.assign('/login');
+ }
+ }
+ return Promise.reject(error);
+ }
 );
 
 export default api;

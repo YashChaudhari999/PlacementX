@@ -1,3 +1,3 @@
 export const useAuth = () => {
-  // Placeholder for useAuth architecture
+ // Placeholder for useAuth architecture
 };

@@ -2,5 +2,5 @@
 // @ts-nocheck
 import { PlacementRepository } from '../repositories/placementRepository';
 export class PlacementService {
-  // Business logic belongs here
+ // Business logic belongs here
 }

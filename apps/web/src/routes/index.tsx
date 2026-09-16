@@ -46,10 +46,10 @@ const AdminStudents = lazy(() => import('@/features/admin/pages/AdminStudents'))
 const AdminStudentProfile = lazy(() => import('@/features/admin/pages/AdminStudentProfile'));
 const AdminStudentImport = lazy(() => import('@/features/admin/pages/AdminStudentImport'));
 const AdminProfileVerifications = lazy(
-  () => import('@/features/admin/pages/AdminProfileVerifications')
+ () => import('@/features/admin/pages/AdminProfileVerifications')
 );
 const AdminProfileUpdateRequests = lazy(
-  () => import('@/features/admin/pages/AdminProfileUpdateRequests')
+ () => import('@/features/admin/pages/AdminProfileUpdateRequests')
 );
 const AdminReports = lazy(() => import('@/features/admin/pages/AdminReports'));
 const AdminNotifications = lazy(() => import('@/features/admin/pages/AdminNotifications'));
@@ -64,366 +64,366 @@ const StudentDocuments = lazy(() => import('@/features/student/pages/StudentDocu
 const StudentNotifications = lazy(() => import('@/features/student/pages/StudentNotifications'));
 const StudentSettings = lazy(() => import('@/features/student/pages/StudentSettings'));
 const StudentCalendar = lazy(
-  () => import('@/features/student/calendar/components/StudentCalendar')
+ () => import('@/features/student/calendar/components/StudentCalendar')
 );
 
 export const router = createBrowserRouter([
-  // PUBLIC ROUTES
-  {
-    path: '/',
-    element: <PublicLayout />,
-    errorElement: <NotFound />,
-    children: [
-      { index: true, element: <Navigate to="/login" replace /> },
-      {
-        path: 'about',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AboutPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'features',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <FeaturesPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'modules',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <ModulesPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'how-it-works',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <HowItWorksPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'faq',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <FAQPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'contact',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <ContactPage />
-          </Suspense>
-        ),
-      },
-    ],
-  },
+ // PUBLIC ROUTES
+ {
+ path: '/',
+ element: <PublicLayout />,
+ errorElement: <NotFound />,
+ children: [
+ { index: true, element: <Navigate to="/login"replace /> },
+ {
+ path: 'about',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AboutPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'features',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <FeaturesPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'modules',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <ModulesPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'how-it-works',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <HowItWorksPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'faq',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <FAQPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'contact',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <ContactPage />
+ </Suspense>
+ ),
+ },
+ ],
+ },
 
-  // AUTH ROUTES (Guest only)
-  {
-    path: '/login',
-    element: (
-      <GuestRoute>
-        <AuthLayout />
-      </GuestRoute>
-    ),
-    children: [
-      {
-        index: true,
-        element: (
-          <Suspense fallback={<Loading />}>
-            <Login />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-  // Legacy paths redirect to /login
-  { path: '/student/login', element: <Navigate to="/login" replace /> },
-  { path: '/admin/login', element: <Navigate to="/login" replace /> },
+ // AUTH ROUTES (Guest only)
+ {
+ path: '/login',
+ element: (
+ <GuestRoute>
+ <AuthLayout />
+ </GuestRoute>
+ ),
+ children: [
+ {
+ index: true,
+ element: (
+ <Suspense fallback={<Loading />}>
+ <Login />
+ </Suspense>
+ ),
+ },
+ ],
+ },
+ // Legacy paths redirect to /login
+ { path: '/student/login', element: <Navigate to="/login"replace /> },
+ { path: '/admin/login', element: <Navigate to="/login"replace /> },
 
-  // STUDENT ROUTES
-  {
-    path: '/student',
-    element: (
-      <ProtectedStudentRoute>
-        <StudentLayout />
-      </ProtectedStudentRoute>
-    ),
-    children: [
-      { index: true, element: <Navigate to="dashboard" replace /> },
-      {
-        path: 'dashboard',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentDashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'drives/:id',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentDriveDetails />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'profile',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentProfile />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'placements',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'applications',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentApplications />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'notifications',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentNotifications />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'interviews',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentInterviews />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'documents',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentDocuments />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'settings',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentSettings />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'calendar',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <StudentCalendar />
-          </Suspense>
-        ),
-      },
-      // Future AI module placeholder
-      {
-        path: 'ai-mock-interview',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'ai-resume-builder',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-    ],
-  },
+ // STUDENT ROUTES
+ {
+ path: '/student',
+ element: (
+ <ProtectedStudentRoute>
+ <StudentLayout />
+ </ProtectedStudentRoute>
+ ),
+ children: [
+ { index: true, element: <Navigate to="dashboard"replace /> },
+ {
+ path: 'dashboard',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentDashboard />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'drives/:id',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentDriveDetails />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'profile',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentProfile />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'placements',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <LazyPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'applications',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentApplications />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'notifications',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentNotifications />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'interviews',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentInterviews />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'documents',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentDocuments />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'settings',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentSettings />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'calendar',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <StudentCalendar />
+ </Suspense>
+ ),
+ },
+ // Future AI module placeholder
+ {
+ path: 'ai-mock-interview',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <LazyPage />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'ai-resume-builder',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <LazyPage />
+ </Suspense>
+ ),
+ },
+ ],
+ },
 
-  // PLACEMENT CELL (ADMIN) ROUTES
-  {
-    path: '/admin',
-    element: (
-      <ProtectedAdminRoute>
-        <PlacementCellLayout />
-      </ProtectedAdminRoute>
-    ),
-    children: [
-      { index: true, element: <Navigate to="dashboard" replace /> },
-      {
-        path: 'dashboard',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminDashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'analytics',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AnalyticsDashboard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'students',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminStudents />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'students/:studentId',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminStudentProfile />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'students/import',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminStudentImport />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'students/verifications',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminProfileVerifications />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'students/update-requests',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminProfileUpdateRequests />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'placement-events',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <DriveList />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'placement-events/create',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <CreateDriveWizard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'placement-events/edit/:id',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <CreateDriveWizard />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'placement-events/:id',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminEventDetails />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'calendar',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminCalendar />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'notifications',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminNotifications />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'reports',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminReports />
-          </Suspense>
-        ),
-      },
-      {
-        path: 'settings',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <AdminSettings />
-          </Suspense>
-        ),
-      },
-      // Future AI module placeholder for Admin
-      {
-        path: 'ai-analytics',
-        element: (
-          <Suspense fallback={<Loading />}>
-            <LazyPage />
-          </Suspense>
-        ),
-      },
-    ],
-  },
+ // PLACEMENT CELL (ADMIN) ROUTES
+ {
+ path: '/admin',
+ element: (
+ <ProtectedAdminRoute>
+ <PlacementCellLayout />
+ </ProtectedAdminRoute>
+ ),
+ children: [
+ { index: true, element: <Navigate to="dashboard"replace /> },
+ {
+ path: 'dashboard',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminDashboard />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'analytics',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AnalyticsDashboard />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'students',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminStudents />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'students/:studentId',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminStudentProfile />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'students/import',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminStudentImport />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'students/verifications',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminProfileVerifications />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'students/update-requests',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminProfileUpdateRequests />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'placement-events',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <DriveList />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'placement-events/create',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <CreateDriveWizard />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'placement-events/edit/:id',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <CreateDriveWizard />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'placement-events/:id',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminEventDetails />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'calendar',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminCalendar />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'notifications',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminNotifications />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'reports',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminReports />
+ </Suspense>
+ ),
+ },
+ {
+ path: 'settings',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <AdminSettings />
+ </Suspense>
+ ),
+ },
+ // Future AI module placeholder for Admin
+ {
+ path: 'ai-analytics',
+ element: (
+ <Suspense fallback={<Loading />}>
+ <LazyPage />
+ </Suspense>
+ ),
+ },
+ ],
+ },
 
-  // HR COLLABORATION PORTAL
-  {
-    path: '/hr-drive/:token',
-    element: <HrPortalLayout />,
-    children: [
-      {
-        index: true,
-        element: (
-          <Suspense fallback={<Loading />}>
-            <HrPortalGateway />
-          </Suspense>
-        ),
-      },
-    ],
-  },
+ // HR COLLABORATION PORTAL
+ {
+ path: '/hr-drive/:token',
+ element: <HrPortalLayout />,
+ children: [
+ {
+ index: true,
+ element: (
+ <Suspense fallback={<Loading />}>
+ <HrPortalGateway />
+ </Suspense>
+ ),
+ },
+ ],
+ },
 
-  // COMMON FALLBACKS
-  {
-    path: '/unauthorized',
-    element: <Unauthorized />,
-  },
-  {
-    path: '*',
-    element: <NotFound />,
-  },
+ // COMMON FALLBACKS
+ {
+ path: '/unauthorized',
+ element: <Unauthorized />,
+ },
+ {
+ path: '*',
+ element: <NotFound />,
+ },
 ]);

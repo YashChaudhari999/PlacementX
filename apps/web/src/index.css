@@ -41,6 +41,7 @@
   
   --color-destructive: #EF4444; /* red-500 */
   --color-destructive-foreground: #FFFFFF; /* White */
+  --color-destructive-muted: #FEE2E2; /* red-100 */
   
   --color-border: #E2E8F0; /* slate-200 */
   --color-input: #E2E8F0; /* slate-200 */
@@ -180,9 +181,9 @@
   --color-popover-foreground: #F8FAFC;
   
   /* Adapted brand colors for dark mode visibility */
-  --color-primary: #E11D48; /* rose-600 - brighter than maroon */
+  --color-primary: #9F1239; /* rose-800 - elegant crimson, not overly neon */
   --color-primary-foreground: #FFFFFF;
-  --color-ring: #E11D48;
+  --color-ring: #9F1239;
   
   /* Interactive & secondary elements */
   --color-secondary: #1E293B; /* slate-800 */
@@ -193,6 +194,246 @@
   
   --color-border: #1E293B; /* slate-800 */
   --color-input: #1E293B;
+
+  /* Status Semantics - Softer variants for dark mode */
+  --color-success: #059669; /* emerald-600 */
+  --color-success-muted: rgba(16, 185, 129, 0.1);
+  
+  --color-warning: #D97706; /* amber-600 */
+  --color-warning-muted: rgba(245, 158, 11, 0.1);
+  
+  --color-info: #2563EB; /* blue-600 */
+  --color-info-muted: rgba(59, 130, 246, 0.1);
+  
+  --color-destructive: #DC2626; /* red-600 */
+  --color-destructive-muted: rgba(239, 68, 68, 0.1);
+}
+
+/* FullCalendar Dark Mode Global Overrides */
+.dark .fc {
+  --fc-page-bg-color: var(--color-background);
+  --fc-neutral-bg-color: var(--color-card);
+  --fc-neutral-text-color: var(--color-foreground);
+  --fc-border-color: var(--color-border);
+  --fc-button-text-color: var(--color-primary-foreground);
+  --fc-button-bg-color: var(--color-primary);
+  --fc-button-border-color: var(--color-primary);
+  --fc-button-hover-bg-color: #BE123C;
+  --fc-button-hover-border-color: #BE123C;
+  --fc-button-active-bg-color: #881337;
+  --fc-button-active-border-color: #881337;
+  --fc-event-bg-color: var(--color-primary);
+  --fc-event-border-color: var(--color-primary);
+  --fc-event-text-color: var(--color-primary-foreground);
+  --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
+  --fc-more-link-bg-color: var(--color-secondary);
+  --fc-more-link-text-color: var(--color-secondary-foreground);
+  --fc-non-business-color: rgba(255, 255, 255, 0.02);
+  --fc-bg-event-color: var(--color-success-muted);
+  --fc-highlight-color: rgba(255, 255, 255, 0.05);
+  --fc-today-bg-color: rgba(255, 255, 255, 0.03);
+  --fc-now-indicator-color: var(--color-primary);
+}
+.dark .fc-theme-standard td, .dark .fc-theme-standard th {
+  border-color: var(--color-border);
+}
+.dark .fc-theme-standard .fc-scrollgrid {
+  border-color: var(--color-border);
+}
+
+.compact-mode {
+  --spacing-1: 0.125rem;
+  --spacing-2: 0.25rem;
+  --spacing-3: 0.5rem;
+  --spacing-4: 0.75rem;
+  --spacing-5: 1rem;
+  --spacing-6: 1.25rem;
+  --color-warning-foreground: #FFFFFF;
+  --color-warning-muted: #FEF3C7; /* amber-100 */
+  
+  --color-info: #3B82F6; /* blue-500 */
+  --color-info-foreground: #FFFFFF;
+  --color-info-muted: #DBEAFE; /* blue-100 */
+
+  /* TYPOGRAPHY */
+  --font-sans: 'Inter', 'Outfit', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Font Sizes */
+  --text-display: 4.5rem;
+  --text-heading: 3rem;
+  --text-title: 2rem;
+  --text-subtitle: 1.5rem;
+  --text-body: 1rem;
+  --text-caption: 0.875rem;
+  --text-label: 0.75rem;
+  --text-button: 0.875rem;
+
+  /* SPACING - 8px scale */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-32: 8rem;
+
+  /* BORDER RADIUS */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+
+  /* SHADOWS - Subtle, enterprise feel */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.04), 0 2px 4px -2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.04), 0 4px 6px -4px rgb(0 0 0 / 0.04);
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.04);
+  --shadow-dropdown: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: var(--font-sans);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Custom Selection Colors */
+  ::selection {
+    background-color: var(--color-brand-maroon);
+    color: white;
+  }
+
+  /* Custom Sleek Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1; /* slate-300 */
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #94a3b8; /* slate-400 */
+  }
+}
+
+/* Custom Utilities for Premium feel */
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_8px_30px_rgb(0,0,0,0.04)];
+  }
+  
+  :is(.dark .glass) {
+    @apply bg-slate-900/70 border-slate-700/40 shadow-[0_8px_30px_rgb(0,0,0,0.2)];
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent;
+  }
+}
+
+/* Functional Appearance Settings */
+.dark {
+  /* Deep, immersive background */
+  --color-background: #020617; /* slate-950 */
+  --color-foreground: #F8FAFC; /* slate-50 */
+  
+  /* Elevated elements */
+  --color-card: #0F172A; /* slate-900 */
+  --color-card-foreground: #F8FAFC;
+  
+  --color-popover: #0F172A; /* slate-900 */
+  --color-popover-foreground: #F8FAFC;
+  
+  /* Adapted brand colors for dark mode visibility */
+  --color-primary: #9F1239; /* rose-800 - elegant crimson, not overly neon */
+  --color-primary-foreground: #FFFFFF;
+  --color-ring: #9F1239;
+  
+  /* Interactive & secondary elements */
+  --color-secondary: #1E293B; /* slate-800 */
+  --color-secondary-foreground: #F8FAFC;
+  
+  --color-muted: #1E293B; /* slate-800 */
+  --color-muted-foreground: #94A3B8; /* slate-400 */
+  
+  --color-border: #1E293B; /* slate-800 */
+  --color-input: #1E293B;
+
+  /* Status Semantics - Softer variants for dark mode */
+  --color-success: #059669; /* emerald-600 */
+  --color-success-muted: rgba(16, 185, 129, 0.1);
+  
+  --color-warning: #D97706; /* amber-600 */
+  --color-warning-muted: rgba(245, 158, 11, 0.1);
+  
+  --color-info: #2563EB; /* blue-600 */
+  --color-info-muted: rgba(59, 130, 246, 0.1);
+  
+  --color-destructive: #DC2626; /* red-600 */
+  --color-destructive-muted: rgba(239, 68, 68, 0.1);
+}
+
+/* FullCalendar Dark Mode Global Overrides */
+.dark .fc {
+  --fc-page-bg-color: var(--color-background);
+  --fc-neutral-bg-color: var(--color-card);
+  --fc-neutral-text-color: var(--color-foreground);
+  --fc-border-color: var(--color-border);
+  --fc-button-text-color: var(--color-primary-foreground);
+  --fc-button-bg-color: var(--color-primary);
+  --fc-button-border-color: var(--color-primary);
+  --fc-button-hover-bg-color: #BE123C;
+  --fc-button-hover-border-color: #BE123C;
+  --fc-button-active-bg-color: #881337;
+  --fc-button-active-border-color: #881337;
+  --fc-event-bg-color: var(--color-primary);
+  --fc-event-border-color: var(--color-primary);
+  --fc-event-text-color: var(--color-primary-foreground);
+  --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
+  --fc-more-link-bg-color: var(--color-secondary);
+  --fc-more-link-text-color: var(--color-secondary-foreground);
+  --fc-non-business-color: rgba(255, 255, 255, 0.02);
+  --fc-bg-event-color: var(--color-success-muted);
+  --fc-highlight-color: rgba(255, 255, 255, 0.05);
+  --fc-today-bg-color: rgba(255, 255, 255, 0.03);
+  --fc-now-indicator-color: var(--color-primary);
+}
+.dark .fc-theme-standard td, .dark .fc-theme-standard th {
+  border-color: var(--color-border);
+}
+.dark .fc-theme-standard .fc-scrollgrid {
+  border-color: var(--color-border);
 }
 
 .compact-mode {
@@ -206,4 +447,24 @@
   
   --text-body: 0.875rem;
   --text-button: 0.75rem;
+}
+
+/* Recharts Dark Mode Global Overrides */
+.dark .recharts-default-tooltip {
+  background-color: var(--color-popover) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-popover-foreground) !important;
+}
+.dark .recharts-tooltip-item {
+  color: var(--color-popover-foreground) !important;
+}
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: var(--color-border) !important;
+}
+.dark .recharts-text {
+  fill: var(--color-muted-foreground) !important;
+}
+.dark .recharts-legend-item-text {
+  color: var(--color-foreground) !important;
 }

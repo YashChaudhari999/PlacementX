@@ -12,85 +12,85 @@ import { useSettings } from '@/hooks/useSettings';
 import { useAuthStore } from '@/stores/authStore';
 
 export default function AdminSettings() {
-  const [activeTab, setActiveTab] = useState('general');
-  const [searchQuery, setSearchQuery] = useState('');
+ const [activeTab, setActiveTab] = useState('general');
+ const [searchQuery, setSearchQuery] = useState('');
 
-  const { user } = useAuthStore();
-  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+ const { user } = useAuthStore();
+ const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
-  const { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving, loading } =
-    useSettings();
+ const { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving, loading } =
+ useSettings();
 
-  if (loading) {
-    return <div className="p-8 text-center text-slate-500 animate-pulse">Loading settings...</div>;
-  }
+ if (loading) {
+ return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading settings...</div>;
+ }
 
-  // Handle unsaved changes warning before switching tabs
-  const handleTabChange = (newTab: string) => {
-    if (hasUnsavedChanges) {
-      if (
-        window.confirm(
-          'You have unsaved changes. Are you sure you want to switch tabs without saving?'
-        )
-      ) {
-        // Discarding could be implemented here or just ignore and keep them in state
-        setActiveTab(newTab);
-      }
-    } else {
-      setActiveTab(newTab);
-    }
-  };
+ // Handle unsaved changes warning before switching tabs
+ const handleTabChange = (newTab: string) => {
+ if (hasUnsavedChanges) {
+ if (
+ window.confirm(
+ 'You have unsaved changes. Are you sure you want to switch tabs without saving?'
+ )
+ ) {
+ // Discarding could be implemented here or just ignore and keep them in state
+ setActiveTab(newTab);
+ }
+ } else {
+ setActiveTab(newTab);
+ }
+ };
 
-  const renderContent = () => {
-    const props = { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving };
+ const renderContent = () => {
+ const props = { settings, getValue, handleChange, saveChanges, hasUnsavedChanges, saving };
 
-    switch (activeTab) {
-      case 'general':
-        return <GeneralSettings {...props} />;
-      case 'placement':
-        return <PlacementSettings {...props} />;
-      case 'students':
-        return <StudentSettings {...props} />;
-      case 'communications':
-        return <NotificationSettings {...props} />;
-      case 'appearance':
-        return <AppearanceSettings />;
-      case 'security':
-        return isSuperAdmin ? (
-          <SecuritySettings />
-        ) : (
-          <div className="p-8 text-center text-slate-500">Access Denied</div>
-        );
-      case 'system':
-        return <SystemHealth />;
-      case 'advanced':
-        return isSuperAdmin ? (
-          <DangerZone />
-        ) : (
-          <div className="p-8 text-center text-slate-500">Access Denied</div>
-        );
-      default:
-        return <div className="p-8 text-center text-slate-500">Select a category</div>;
-    }
-  };
+ switch (activeTab) {
+ case 'general':
+ return <GeneralSettings {...props} />;
+ case 'placement':
+ return <PlacementSettings {...props} />;
+ case 'students':
+ return <StudentSettings {...props} />;
+ case 'communications':
+ return <NotificationSettings {...props} />;
+ case 'appearance':
+ return <AppearanceSettings />;
+ case 'security':
+ return isSuperAdmin ? (
+ <SecuritySettings />
+ ) : (
+ <div className="p-8 text-center text-muted-foreground">Access Denied</div>
+ );
+ case 'system':
+ return <SystemHealth />;
+ case 'advanced':
+ return isSuperAdmin ? (
+ <DangerZone />
+ ) : (
+ <div className="p-8 text-center text-muted-foreground">Access Denied</div>
+ );
+ default:
+ return <div className="p-8 text-center text-muted-foreground">Select a category</div>;
+ }
+ };
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Administration Control Center</h1>
-        <p className="text-slate-500">Centralized configuration, security, and placement rules.</p>
-      </div>
+ return (
+ <div className="max-w-6xl mx-auto space-y-6">
+ <div>
+ <h1 className="text-2xl font-bold text-foreground">Administration Control Center</h1>
+ <p className="text-muted-foreground">Centralized configuration, security, and placement rules.</p>
+ </div>
 
-      <div className="flex flex-col md:flex-row gap-6 items-start">
-        <SettingsSidebar
-          activeTab={activeTab}
-          setActiveTab={handleTabChange}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+ <div className="flex flex-col md:flex-row gap-6 items-start">
+ <SettingsSidebar
+ activeTab={activeTab}
+ setActiveTab={handleTabChange}
+ searchQuery={searchQuery}
+ setSearchQuery={setSearchQuery}
+ />
 
-        <div className="flex-1 w-full min-w-0">{renderContent()}</div>
-      </div>
-    </div>
-  );
+ <div className="flex-1 w-full min-w-0">{renderContent()}</div>
+ </div>
+ </div>
+ );
 }

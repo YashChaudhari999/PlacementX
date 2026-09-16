@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
-  PlusSignIcon,
-  Search01Icon,
-  FilterIcon,
-  MoreHorizontalIcon,
-  Building02Icon,
-  Calendar01Icon,
-  UserMultipleIcon,
-  Briefcase01Icon,
-  Link01Icon,
+ PlusSignIcon,
+ Search01Icon,
+ FilterIcon,
+ MoreHorizontalIcon,
+ Building02Icon,
+ Calendar01Icon,
+ UserMultipleIcon,
+ Briefcase01Icon,
+ Link01Icon,
 } from 'hugeicons-react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card } from '@/components/ui';
@@ -19,284 +19,284 @@ import { toast } from 'sonner';
 import api from '@/lib/api';
 
 interface Drive {
-  id: string;
-  company: {
-    name: string;
-    logoUrl?: string;
-  };
-  jobRole: string;
-  employmentType: string;
-  fixedSalary?: number;
-  status: string;
-  registrationEnd?: string;
-  applications?: any[];
+ id: string;
+ company: {
+ name: string;
+ logoUrl?: string;
+ };
+ jobRole: string;
+ employmentType: string;
+ fixedSalary?: number;
+ status: string;
+ registrationEnd?: string;
+ applications?: any[];
 }
 
 export default function DriveList() {
-  const { data: drives = [], isPending, error, refetch } = useDrives();
-  const [isHrModalOpen, setIsHrModalOpen] = useState(false);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+ const { data: drives = [], isPending, error, refetch } = useDrives();
+ const [isHrModalOpen, setIsHrModalOpen] = useState(false);
+ const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+ const [searchQuery, setSearchQuery] = useState('');
+ const [statusFilter, setStatusFilter] = useState('');
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = () => setActiveMenuId(null);
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+ // Close menu when clicking outside
+ useEffect(() => {
+ const handleClickOutside = () => setActiveMenuId(null);
+ document.addEventListener('click', handleClickOutside);
+ return () => document.removeEventListener('click', handleClickOutside);
+ }, []);
 
-  const handleDeleteDrive = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setActiveMenuId(null);
-    if (window.confirm('Are you sure you want to delete this drive?')) {
-      try {
-        await api.delete(`/admin/drives/${id}`);
-        toast.success('Drive deleted successfully');
-        refetch();
-      } catch (err: any) {
-        toast.error('Failed to delete drive');
-        console.error(err);
-      }
-    }
-  };
+ const handleDeleteDrive = async (id: string, e: React.MouseEvent) => {
+ e.stopPropagation();
+ setActiveMenuId(null);
+ if (window.confirm('Are you sure you want to delete this drive?')) {
+ try {
+ await api.delete(`/admin/drives/${id}`);
+ toast.success('Drive deleted successfully');
+ refetch();
+ } catch (err: any) {
+ toast.error('Failed to delete drive');
+ console.error(err);
+ }
+ }
+ };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Placement Drives</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Manage company visits and recruitment events.
-          </p>
-        </div>
+ return (
+ <div className="space-y-6">
+ {/* Header */}
+ <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+ <div>
+ <h1 className="text-2xl font-bold text-foreground">Placement Drives</h1>
+ <p className="text-muted-foreground text-sm mt-1">
+ Manage company visits and recruitment events.
+ </p>
+ </div>
 
-        <div className="flex gap-3">
-          <Button onClick={() => setIsHrModalOpen(true)} variant="outline">
-            <Link01Icon className="w-4 h-4 mr-2" />
-            Invite HR
-          </Button>
-          <Link to="/admin/placement-events/create">
-            <Button>
-              <PlusSignIcon className="w-4 h-4 mr-2" />
-              Manual Entry
-            </Button>
-          </Link>
-        </div>
-      </div>
+ <div className="flex gap-3">
+ <Button onClick={() => setIsHrModalOpen(true)} variant="outline">
+ <Link01Icon className="w-4 h-4 mr-2"/>
+ Invite HR
+ </Button>
+ <Link to="/admin/placement-events/create">
+ <Button>
+ <PlusSignIcon className="w-4 h-4 mr-2"/>
+ Manual Entry
+ </Button>
+ </Link>
+ </div>
+ </div>
 
-      {/* Filters Bar */}
-      <Card className="p-4 flex flex-col sm:flex-row gap-4 bg-card border-border shadow-sm">
-        <div className="relative flex-1">
-          <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by company or role..."
-            className="pl-9 bg-muted/50 border-border"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-4">
-          <select
-            className="h-10 rounded-md border border-border px-3 py-2 text-sm bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="">All Statuses</option>
-            <option value="open">Open</option>
-            <option value="published">Published</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="closed">Closed</option>
-          </select>
-          <Button variant="outline" className="text-foreground">
-            <FilterIcon className="w-4 h-4 mr-2" />
-            More Filters
-          </Button>
-        </div>
-      </Card>
+ {/* Filters Bar */}
+ <Card className="p-4 flex flex-col sm:flex-row gap-4 bg-card border-border shadow-sm">
+ <div className="relative flex-1">
+ <Search01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+ <Input
+ placeholder="Search by company or role..."
+ className="pl-9 bg-muted/50 border-border"
+ value={searchQuery}
+ onChange={(e) => setSearchQuery(e.target.value)}
+ />
+ </div>
+ <div className="flex gap-4">
+ <select
+ className="h-10 rounded-md border border-border px-3 py-2 text-sm bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/20"
+ value={statusFilter}
+ onChange={(e) => setStatusFilter(e.target.value)}
+ >
+ <option value="">All Statuses</option>
+ <option value="open">Open</option>
+ <option value="published">Published</option>
+ <option value="upcoming">Upcoming</option>
+ <option value="closed">Closed</option>
+ </select>
+ <Button variant="outline"className="text-foreground">
+ <FilterIcon className="w-4 h-4 mr-2"/>
+ More Filters
+ </Button>
+ </div>
+ </Card>
 
-      {/* Drives Grid */}
-      {isPending ? (
-        <ListSkeleton />
-      ) : error ? (
-        <div className="py-12 text-center text-destructive">Failed to load drives</div>
-      ) : drives.length === 0 ? (
-        <div className="py-12 text-center text-muted-foreground">No drives created yet.</div>
-      ) : (
-        (() => {
-          const filteredDrives = drives.filter((drive: Drive) => {
-            const matchesSearch =
-              drive.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
+ {/* Drives Grid */}
+ {isPending ? (
+ <ListSkeleton />
+ ) : error ? (
+ <div className="py-12 text-center text-destructive">Failed to load drives</div>
+ ) : drives.length === 0 ? (
+ <div className="py-12 text-center text-muted-foreground">No drives created yet.</div>
+ ) : (
+ (() => {
+ const filteredDrives = drives.filter((drive: Drive) => {
+ const matchesSearch =
+ drive.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+ drive.jobRole.toLowerCase().includes(searchQuery.toLowerCase());
 
-            const now = new Date();
-            const regStart = (drive as any).registrationStart
-              ? new Date((drive as any).registrationStart)
-              : null;
-            const regEnd = (drive as any).registrationEnd
-              ? new Date((drive as any).registrationEnd)
-              : null;
+ const now = new Date();
+ const regStart = (drive as any).registrationStart
+ ? new Date((drive as any).registrationStart)
+ : null;
+ const regEnd = (drive as any).registrationEnd
+ ? new Date((drive as any).registrationEnd)
+ : null;
 
-            const isUpcoming = regStart ? regStart > now : false;
-            const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
-            const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
+ const isUpcoming = regStart ? regStart > now : false;
+ const isClosed = (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
+ const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
 
-            const matchesStatus = () => {
-              if (statusFilter === '') return true;
+ const matchesStatus = () => {
+ if (statusFilter === '') return true;
 
-              switch (statusFilter.toLowerCase()) {
-                case 'published':
-                  return drive.status === 'PUBLISHED';
-                case 'upcoming':
-                  return isUpcoming && drive.status === 'PUBLISHED';
-                case 'open':
-                  return isOpen;
-                case 'closed':
-                  return isClosed;
-                default:
-                  return drive.status.toLowerCase() === statusFilter.toLowerCase();
-              }
-            };
+ switch (statusFilter.toLowerCase()) {
+ case 'published':
+ return drive.status === 'PUBLISHED';
+ case 'upcoming':
+ return isUpcoming && drive.status === 'PUBLISHED';
+ case 'open':
+ return isOpen;
+ case 'closed':
+ return isClosed;
+ default:
+ return drive.status.toLowerCase() === statusFilter.toLowerCase();
+ }
+ };
 
-            return matchesSearch && matchesStatus();
-          });
+ return matchesSearch && matchesStatus();
+ });
 
-          if (filteredDrives.length === 0) {
-            return (
-              <div className="py-12 text-center text-muted-foreground">
-                No drives match your search filters.
-              </div>
-            );
-          }
+ if (filteredDrives.length === 0) {
+ return (
+ <div className="py-12 text-center text-muted-foreground">
+ No drives match your search filters.
+ </div>
+ );
+ }
 
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {filteredDrives.map((drive: Drive) => (
-                <Card
-                  key={drive.id}
-                  className="p-6 hover:border-primary/50 transition-colors group flex flex-col border-border"
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground">
-                        <Building02Icon className="w-6 h-6" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground line-clamp-1">
-                          {drive.company.name}
-                        </h3>
-                        <p className="text-sm text-primary font-medium">
-                          {drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="relative">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(activeMenuId === drive.id ? null : drive.id);
-                        }}
-                        className="text-muted-foreground hover:text-foreground p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <MoreHorizontalIcon className="w-5 h-5" />
-                      </button>
-                      {activeMenuId === drive.id && (
-                        <div className="absolute right-0 mt-2 w-32 bg-card rounded-md shadow-lg border border-border z-10 py-1">
-                          <Link
-                            to={`/admin/placement-events/edit/${drive.id}`}
-                            className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
-                          >
-                            Edit
-                          </Link>
-                          <button
-                            onClick={(e) => handleDeleteDrive(drive.id, e)}
-                            className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+ return (
+ <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+ {filteredDrives.map((drive: Drive) => (
+ <Card
+ key={drive.id}
+ className="p-6 hover:border-primary/50 transition-colors group flex flex-col border-border"
+ >
+ <div className="flex justify-between items-start mb-4">
+ <div className="flex items-center gap-3">
+ <div className="w-12 h-12 rounded-lg bg-muted border border-border flex items-center justify-center text-muted-foreground">
+ <Building02Icon className="w-6 h-6"/>
+ </div>
+ <div>
+ <h3 className="font-semibold text-foreground line-clamp-1">
+ {drive.company.name}
+ </h3>
+ <p className="text-sm text-primary font-medium">
+ {drive.fixedSalary ? `${drive.fixedSalary} LPA` : 'N/A'}
+ </p>
+ </div>
+ </div>
+ <div className="relative">
+ <button
+ onClick={(e) => {
+ e.stopPropagation();
+ setActiveMenuId(activeMenuId === drive.id ? null : drive.id);
+ }}
+ className="text-muted-foreground hover:text-foreground p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+ >
+ <MoreHorizontalIcon className="w-5 h-5"/>
+ </button>
+ {activeMenuId === drive.id && (
+ <div className="absolute right-0 mt-2 w-32 bg-card rounded-md shadow-lg border border-border z-10 py-1">
+ <Link
+ to={`/admin/placement-events/edit/${drive.id}`}
+ className="block w-full text-left px-4 py-2 text-sm text-foreground hover:bg-muted"
+ >
+ Edit
+ </Link>
+ <button
+ onClick={(e) => handleDeleteDrive(drive.id, e)}
+ className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-muted"
+ >
+ Delete
+ </button>
+ </div>
+ )}
+ </div>
+ </div>
 
-                  <div className="space-y-3 mb-6 flex-1">
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Briefcase01Icon className="w-4 h-4 mr-2" />
-                      {drive.jobRole} • {drive.employmentType}
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Calendar01Icon className="w-4 h-4 mr-2" />
-                      {(drive as any).registrationEnd
-                        ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })
-                        : 'N/A'}
-                    </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <UserMultipleIcon className="w-4 h-4 mr-2" />
-                      {drive.applications?.length || 0} Applicants
-                    </div>
-                  </div>
+ <div className="space-y-3 mb-6 flex-1">
+ <div className="flex items-center text-sm text-muted-foreground">
+ <Briefcase01Icon className="w-4 h-4 mr-2"/>
+ {drive.jobRole} • {drive.employmentType}
+ </div>
+ <div className="flex items-center text-sm text-muted-foreground">
+ <Calendar01Icon className="w-4 h-4 mr-2"/>
+ {(drive as any).registrationEnd
+ ? new Date((drive as any).registrationEnd).toLocaleDateString('en-GB', {
+ day: '2-digit',
+ month: '2-digit',
+ year: 'numeric',
+ })
+ : 'N/A'}
+ </div>
+ <div className="flex items-center text-sm text-muted-foreground">
+ <UserMultipleIcon className="w-4 h-4 mr-2"/>
+ {drive.applications?.length || 0} Applicants
+ </div>
+ </div>
 
-                  <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
-                    {(() => {
-                      const now = new Date();
-                      const regStart = (drive as any).registrationStart
-                        ? new Date((drive as any).registrationStart)
-                        : null;
-                      const regEnd = (drive as any).registrationEnd
-                        ? new Date((drive as any).registrationEnd)
-                        : null;
+ <div className="flex items-center justify-between pt-4 border-t border-border mt-auto">
+ {(() => {
+ const now = new Date();
+ const regStart = (drive as any).registrationStart
+ ? new Date((drive as any).registrationStart)
+ : null;
+ const regEnd = (drive as any).registrationEnd
+ ? new Date((drive as any).registrationEnd)
+ : null;
 
-                      const isUpcoming = regStart ? regStart > now : false;
-                      const isClosed =
-                        (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
-                      const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
+ const isUpcoming = regStart ? regStart > now : false;
+ const isClosed =
+ (regEnd ? regEnd < now : false) || drive.status === 'COMPLETED';
+ const isOpen = drive.status === 'PUBLISHED' && !isUpcoming && !isClosed;
 
-                      let displayStatus = drive.status;
-                      let badgeColor = 'bg-muted text-muted-foreground';
+ let displayStatus = drive.status;
+ let badgeColor = 'bg-muted text-muted-foreground';
 
-                      if (drive.status === 'PUBLISHED') {
-                        if (isUpcoming) {
-                          displayStatus = 'UPCOMING';
-                          badgeColor = 'bg-info-muted text-info border border-info/20';
-                        } else if (isClosed) {
-                          displayStatus = 'CLOSED';
-                          badgeColor =
-                            'bg-destructive/10 text-destructive border border-destructive/20';
-                        } else if (isOpen) {
-                          displayStatus = 'OPEN';
-                          badgeColor = 'bg-success-muted text-success border border-success/20';
-                        } else {
-                          badgeColor = 'bg-success-muted text-success border border-success/20';
-                        }
-                      } else if (drive.status === 'DRAFT') {
-                        badgeColor = 'bg-warning-muted text-warning border border-warning/20';
-                      }
+ if (drive.status === 'PUBLISHED') {
+ if (isUpcoming) {
+ displayStatus = 'UPCOMING';
+ badgeColor = 'bg-info-muted text-info border border-info/20';
+ } else if (isClosed) {
+ displayStatus = 'CLOSED';
+ badgeColor =
+ 'bg-destructive/10 text-destructive border border-destructive/20';
+ } else if (isOpen) {
+ displayStatus = 'OPEN';
+ badgeColor = 'bg-success-muted text-success border border-success/20';
+ } else {
+ badgeColor = 'bg-success-muted text-success border border-success/20';
+ }
+ } else if (drive.status === 'DRAFT') {
+ badgeColor = 'bg-warning-muted text-warning border border-warning/20';
+ }
 
-                      return (
-                        <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${badgeColor}`}>
-                          {displayStatus}
-                        </span>
-                      );
-                    })()}
-                    <Link to={`/admin/placement-events/${drive.id}`}>
-                      <Button variant="outline" size="sm" className="text-xs h-8">
-                        View Details
-                      </Button>
-                    </Link>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          );
-        })()
-      )}
+ return (
+ <span className={`px-2.5 py-1 text-xs font-bold rounded-md ${badgeColor}`}>
+ {displayStatus}
+ </span>
+ );
+ })()}
+ <Link to={`/admin/placement-events/${drive.id}`}>
+ <Button variant="outline"size="sm"className="text-xs h-8">
+ View Details
+ </Button>
+ </Link>
+ </div>
+ </Card>
+ ))}
+ </div>
+ );
+ })()
+ )}
 
-      <GenerateHrInviteModal isOpen={isHrModalOpen} onClose={() => setIsHrModalOpen(false)} />
-    </div>
-  );
+ <GenerateHrInviteModal isOpen={isHrModalOpen} onClose={() => setIsHrModalOpen(false)} />
+ </div>
+ );
 }

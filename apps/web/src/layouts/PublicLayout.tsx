@@ -6,20 +6,20 @@ import { PageTransition } from '@/components/common/PageTransition';
 import { GlobalLoader } from '@/components/ui/feedback';
 
 export const PublicLayout = () => {
-  const location = useLocation();
+ const location = useLocation();
 
-  return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <Navbar />
-      <main className="flex-1 flex flex-col relative">
-        <GlobalLoader />
-        <AnimatePresence mode="wait">
-          <PageTransition key={location.pathname}>
-            <Outlet />
-          </PageTransition>
-        </AnimatePresence>
-      </main>
-      <Footer />
-    </div>
-  );
+ return (
+ <div className="flex min-h-screen flex-col bg-background">
+ <Navbar />
+ <main className="flex-1 flex flex-col relative">
+ <GlobalLoader />
+ <AnimatePresence mode="wait">
+ <PageTransition key={location.pathname}>
+ <Outlet />
+ </PageTransition>
+ </AnimatePresence>
+ </main>
+ <Footer />
+ </div>
+ );
 };

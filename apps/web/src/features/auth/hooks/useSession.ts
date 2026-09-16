@@ -1,3 +1,3 @@
 export const useSession = () => {
-  // Placeholder for useSession architecture
+ // Placeholder for useSession architecture
 };

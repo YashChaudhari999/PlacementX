@@ -10,37 +10,37 @@ import { ThemeProvider } from '@/app/providers/ThemeProvider';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
+ defaultOptions: {
+ queries: {
+ staleTime: 1000 * 60 * 5, // 5 minutes
+ refetchOnWindowFocus: false,
+ },
+ },
 });
 
 import { SocketProvider } from '@/contexts/SocketContext';
 
 // Wrapping order is critical: Auth -> Session -> Roles -> Permissions -> AppShell -> UI Providers
 export const AppProviders = ({ children }: { children: ReactNode }) => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SocketProvider>
-          <SessionProvider>
-            <RoleProvider>
-              <PermissionProvider>
-                <ThemeProvider>
-                  <AppShellProvider>
-                    <ToastProvider>
-                      <DialogProvider>{children}</DialogProvider>
-                    </ToastProvider>
-                  </AppShellProvider>
-                </ThemeProvider>
-              </PermissionProvider>
-            </RoleProvider>
-          </SessionProvider>
-        </SocketProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
+ return (
+ <QueryClientProvider client={queryClient}>
+ <AuthProvider>
+ <SocketProvider>
+ <SessionProvider>
+ <RoleProvider>
+ <PermissionProvider>
+ <ThemeProvider>
+ <AppShellProvider>
+ <ToastProvider>
+ <DialogProvider>{children}</DialogProvider>
+ </ToastProvider>
+ </AppShellProvider>
+ </ThemeProvider>
+ </PermissionProvider>
+ </RoleProvider>
+ </SessionProvider>
+ </SocketProvider>
+ </AuthProvider>
+ </QueryClientProvider>
+ );
 };

@@ -1,3 +1,3 @@
 export const usePermissions = () => {
-  // Placeholder for usePermissions architecture
+ // Placeholder for usePermissions architecture
 };
