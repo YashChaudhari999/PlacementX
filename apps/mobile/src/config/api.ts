@@ -1,21 +1,31 @@
 import { Platform } from 'react-native';
 
+import Constants from 'expo-constants';
+
 /**
  * API Configuration
  *
  * Android emulator uses 10.0.2.2 to reach host machine's localhost.
  * iOS simulator can use localhost directly.
- * For physical devices, replace with your machine's LAN IP.
+ * For physical devices on Expo Go, we extract the LAN IP dynamically.
  */
 const getBaseUrl = (): string => {
   if (__DEV__) {
+    // Extract IP dynamically from Expo's hostUri to support physical devices seamlessly
+    const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.debuggerHost;
+    if (debuggerHost) {
+      const ip = debuggerHost.split(':')[0];
+      return `http://${ip}:5000/api`;
+    }
+
     if (Platform.OS === 'android') {
       return 'http://10.0.2.2:5000/api';
     }
     return 'http://localhost:5000/api';
   }
-  // In production, replace with your actual API URL
-  return 'https://api.placementx.com/api';
+  // In production, use environment variable if provided, otherwise fallback to placeholder
+  // TODO(Production): Ensure EXPO_PUBLIC_API_URL is set in the production environment or CI/CD pipeline
+  return process.env.EXPO_PUBLIC_API_URL || 'https://api.placementx.com/api';
 };
 
 export const API_BASE_URL = getBaseUrl();
@@ -55,6 +65,8 @@ export const API_ENDPOINTS = {
   ADMIN_REPORTS_DATA: '/admin/reports/data',
   ADMIN_ANALYTICS_SUMMARY: '/admin/analytics/summary',
   ADMIN_ANALYTICS_CHARTS: '/admin/analytics/charts',
+  ADMIN_PENDING_PROFILES: '/admin/profile-verifications',
+  ADMIN_VERIFY_PROFILE: (id: string) => `/admin/profile-verifications/${id}/verify`,
 
   // Notifications
   NOTIFICATIONS: '/notifications',

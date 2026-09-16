@@ -26,10 +26,11 @@ export default function DriveDetailsScreen() {
     }
     
     try {
-      await applyMutation.mutateAsync(driveId);
-      Toast.success('Successfully applied for the drive');
+      if (!drive) return;
+      await applyMutation.mutateAsync(drive.id);
+      Toast.success('Application submitted successfully!');
     } catch (error: any) {
-      Toast.error(error.response?.data?.message || 'Failed to apply');
+      Toast.error(error.message || 'Failed to submit application');
     }
   };
 
@@ -216,7 +217,7 @@ export default function DriveDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background,
   },
   safeArea: {
     flex: 1,
@@ -268,7 +269,7 @@ const styles = StyleSheet.create({
   quickInfoCard: {
     padding: 0,
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderWidth: 0,
     shadowColor: theme.colors.primary,
     shadowOffset: { width: 0, height: 6 },
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing[3],
   },
   eligibleBox: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     padding: theme.spacing[5],
     borderRadius: 20,
     borderWidth: 1,
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing[6],
   },
   descriptionCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     padding: theme.spacing[5],
     borderRadius: 20,
     shadowColor: '#000',
@@ -395,7 +396,7 @@ const styles = StyleSheet.create({
   },
   criteriaTile: {
     width: (width - theme.spacing[4] * 2 - theme.spacing[3]) / 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     padding: theme.spacing[4],
     borderRadius: 16,
     shadowColor: '#000',
@@ -415,7 +416,7 @@ const styles = StyleSheet.create({
     color: theme.colors.foreground,
   },
   timelineCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderRadius: 20,
     padding: theme.spacing[5],
     shadowColor: '#000',

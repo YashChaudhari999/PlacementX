@@ -34,22 +34,4 @@ jobs:
     - run: npm run type-check --workspace=apps/api
     - run: npm test --workspace=apps/api
 
-  ml-service:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
-        cache: 'pip'
-    - name: Install dependencies
-      run: |
-        cd ml-service
-        python -m pip install --upgrade pip
-        pip install pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Test with pytest
-      run: |
-        cd ml-service
-        pytest
+

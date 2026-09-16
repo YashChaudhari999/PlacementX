@@ -11,12 +11,14 @@ import {
   Alert01Icon,
 } from 'hugeicons-react';
 import { useAuthStore } from '@/stores/authStore';
+import { PaintBoardIcon } from 'hugeicons-react';
 
 export const SETTINGS_CATEGORIES = [
   { id: 'general', label: 'General', icon: GlobalIcon, restricted: false },
   { id: 'placement', label: 'Placement Rules', icon: DatabaseIcon, restricted: false },
   { id: 'students', label: 'Students', icon: Mortarboard01Icon, restricted: false },
   { id: 'communications', label: 'Communications', icon: Notification01Icon, restricted: false },
+  { id: 'appearance', label: 'Appearance', icon: PaintBoardIcon, restricted: false },
   { id: 'security', label: 'Security & Access', icon: Shield01Icon, restricted: true },
   { id: 'system', label: 'System Health', icon: Activity01Icon, restricted: false },
   { id: 'advanced', label: 'Advanced', icon: Alert01Icon, restricted: true, danger: true },

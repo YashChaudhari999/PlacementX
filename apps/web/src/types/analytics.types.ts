@@ -205,8 +205,7 @@ export interface StudentRiskRow {
   department: string | null;
   cgpa: number | null;
   profileStatus: string;
-  readinessScore: number | null;
-  riskLevel: string | null;
+
   applicationsCount: number;
   shortlistsCount: number;
   offersCount: number;
@@ -301,8 +300,7 @@ export type InsightCategory =
   | 'SALARY'
   | 'DRIVE'
   | 'RECRUITER'
-  | 'OPERATIONS'
-  | 'FORECAST';
+  | 'OPERATIONS';
 
 export interface PlacementInsight {
   id: string;
@@ -378,17 +376,4 @@ export interface YearComparisonRow {
   placementRate: number;
   averagePackage: number;
   recruiters: number;
-}
-
-// ── Forecast Types ────────────────────────────────────────
-export interface ForecastResponse {
-  projectedPlacementRate: number | null;
-  confidenceInterval: [number, number] | null;
-  projectedAveragePackage: number | null;
-  projectedVisitingCompanies: number | null;
-  trend: string;
-  department: string;
-  targetYear: string;
-  modelVersion: string;
-  error?: string;
 }

@@ -29,9 +29,26 @@ export default function LoginScreen() {
       const roleToUse = activeTab === 'Student' ? 'STUDENT' : 'SUPER_ADMIN';
       const data = await authService.login({ email: email.trim(), password, role: roleToUse });
       // login method from authStore will save token and user state
-      setAuth(data.user, data.token);
+      setAuth(data.user, data.token, data.user.mustChangePassword === true);
     } catch (error: any) {
-      const message = error.response?.data?.error || error.response?.data?.message || 'Invalid credentials or server error';
+      let message = error.message || 'Invalid credentials or server error';
+      
+      // Handle Firebase specific error codes
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/user-not-found':
+          case 'auth/wrong-password':
+          case 'auth/invalid-credential':
+            message = 'Invalid email or password';
+            break;
+          case 'auth/too-many-requests':
+            message = 'Too many failed attempts. Please try again later.';
+            break;
+          default:
+            message = error.message || 'Authentication failed';
+        }
+      }
+      
       Toast.error(message);
     } finally {
       setIsLoading(false);
@@ -40,7 +57,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
+      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.card} />
       
       {/* Dynamic Background Elements */}
       <View style={styles.bgCircleTopRight} />
@@ -59,7 +76,7 @@ export default function LoginScreen() {
           <View style={styles.headerContainer}>
             <View style={styles.logoContainer}>
               <View style={styles.logoCircle}>
-                <GraduationCap size={36} color="#ffffff" strokeWidth={2.5} />
+                <GraduationCap size={36} color={theme.colors.card} strokeWidth={2.5} />
               </View>
               <Text style={styles.brandName}>PlacementX</Text>
             </View>
@@ -130,7 +147,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
   },
   bgCircleTopRight: {
     position: 'absolute',
@@ -186,13 +203,13 @@ const styles = StyleSheet.create({
   brandName: {
     fontSize: 28,
     fontWeight: '900',
-    color: '#0f172a',
+    color: theme.colors.foreground,
     letterSpacing: -0.5,
   },
   welcomeTitle: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#0f172a',
+    color: theme.colors.foreground,
     marginBottom: 8,
     letterSpacing: -0.5,
   },
@@ -202,7 +219,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   cardWrapper: {
-    shadowColor: '#0f172a',
+    shadowColor: theme.colors.foreground,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.05,
     shadowRadius: 20,
@@ -212,7 +229,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing[6],
     paddingTop: theme.spacing[5],
     borderRadius: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderWidth: 1,
     borderColor: '#f1f5f9',
   },

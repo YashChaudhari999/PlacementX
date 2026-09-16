@@ -9,7 +9,6 @@ import analyticsRoutes from './routes/analytics.routes';
 import adminRoutes from './routes/admin.routes';
 import hrRoutes from './routes/hr.routes';
 import publicRoutes from './routes/public.routes';
-import aiRoutes from './routes/ai.routes';
 import settingsRoutes from './routes/settings.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
 import { initRedis, closeRedis } from './config/redis';
@@ -65,8 +64,6 @@ app.use('/api/hr', hrRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
-app.use('/api/ai', aiRoutes);
-
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'PlacementX API is running' });
 });

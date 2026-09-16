@@ -425,6 +425,9 @@ export const getNotificationPreferences = async (userId: string) => {
       system: true,
       pushEnabled: true,
       emailEnabled: true,
+      quietHoursEnabled: false,
+      quietHoursStart: null,
+      quietHoursEnd: null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { getProfile, updateProfile, updatePhoto, applyForDrive, getApplications, getInterviews, getDocuments, mlPredictSuccess, getProfileStatus, requestProfileUpdate, uploadAcademicDoc } from '../controllers/student.controller';
+import { getProfile, updateProfile, updatePhoto, applyForDrive, getApplications, getInterviews, getDocuments, getProfileStatus, requestProfileUpdate, uploadAcademicDoc } from '../controllers/student.controller';
 import { getCalendarEvents } from '../controllers/student.calendar.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import studentSettingsRoutes from './student.settings.routes';
@@ -12,7 +12,6 @@ const router = Router();
 router.use(authenticate);
 
 // Admin specific routes on student profile
-router.post('/:studentId/ml-predict', authorize('SUPER_ADMIN', 'COORDINATOR'), mlPredictSuccess);
 
 // Only students can access the following routes
 router.use(authorize('STUDENT'));

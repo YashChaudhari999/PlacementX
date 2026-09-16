@@ -13,6 +13,7 @@ export const usePublishedDrives = () => {
   return useQuery({
     queryKey: ['published-drives'],
     queryFn: () => drivesService.getPublishedDrives(),
+    staleTime: 5 * 60 * 1000,
   });
 };
 

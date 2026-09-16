@@ -15,6 +15,7 @@ export interface User {
   lastName?: string;
   name?: string;
   isProfileComplete?: boolean;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginCredentials {
@@ -44,6 +45,14 @@ export interface StudentProfile {
   academics?: any;
   department?: string;
   graduationYear?: string | number;
+  alternatePhone?: string;
+  category?: string;
+  tenthPercentage?: string | number;
+  twelfthPercentage?: string | number;
+  diplomaPercentage?: string | number;
+  currentSemester?: string | number;
+  totalBacklogs?: string | number;
+  linkedinUrl?: string;
 }
 
 // ─── Drives ─────────────────────────────────────────────

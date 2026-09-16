@@ -6,6 +6,7 @@ interface ButtonProps extends TouchableOpacityProps {
   children?: React.ReactNode;
   title?: string;
   icon?: React.ReactNode;
+  iconRight?: React.ReactNode;
   variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   isLoading?: boolean;
@@ -16,6 +17,7 @@ export const Button = ({
   children,
   title,
   icon,
+  iconRight,
   variant = 'default',
   size = 'default',
   isLoading,
@@ -83,6 +85,10 @@ export const Button = ({
       ]}
       disabled={disabled || isLoading}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={props.accessibilityLabel || title || (typeof children === 'string' ? children : undefined)}
+      accessibilityState={{ disabled: disabled || isLoading, busy: isLoading }}
+      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       {...props}
     >
       {isLoading ? (
@@ -95,6 +101,7 @@ export const Button = ({
               {title || children}
             </Text>
           )}
+          {iconRight && <View style={[styles.iconContainer, (title || children) ? { marginLeft: theme.spacing[2] } : null]}>{iconRight}</View>}
         </>
       )}
     </TouchableOpacity>

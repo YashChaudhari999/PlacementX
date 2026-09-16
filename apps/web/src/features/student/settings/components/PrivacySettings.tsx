@@ -9,14 +9,14 @@ export default function PrivacySettings() {
 
   const [formData, setFormData] = useState({
     profileVisibility: 'PUBLIC',
-    resumeVisibility: 'RECRUITER_ONLY'
+    resumeVisibility: 'RECRUITER_ONLY',
   });
 
   useEffect(() => {
     if (data?.preferences) {
       setFormData({
         profileVisibility: data.preferences.profileVisibility || 'PUBLIC',
-        resumeVisibility: data.preferences.resumeVisibility || 'RECRUITER_ONLY'
+        resumeVisibility: data.preferences.resumeVisibility || 'RECRUITER_ONLY',
       });
     }
   }, [data]);
@@ -34,13 +34,14 @@ export default function PrivacySettings() {
         Privacy Settings
       </h3>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
         <div className="space-y-2 max-w-md">
           <label className="text-sm font-medium text-slate-700">Profile Visibility</label>
-          <p className="text-xs text-slate-500 mb-2">Control who can view your basic profile details.</p>
-          <select 
+          <p className="text-xs text-slate-500 mb-2">
+            Control who can view your basic profile details.
+          </p>
+          <select
             value={formData.profileVisibility}
-            onChange={(e) => setFormData({...formData, profileVisibility: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, profileVisibility: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="PUBLIC">Public (Visible to everyone)</option>
@@ -51,10 +52,12 @@ export default function PrivacySettings() {
 
         <div className="space-y-2 max-w-md">
           <label className="text-sm font-medium text-slate-700">Resume Visibility</label>
-          <p className="text-xs text-slate-500 mb-2">Control who can download your default resume.</p>
-          <select 
+          <p className="text-xs text-slate-500 mb-2">
+            Control who can download your default resume.
+          </p>
+          <select
             value={formData.resumeVisibility}
-            onChange={(e) => setFormData({...formData, resumeVisibility: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, resumeVisibility: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="PUBLIC">Public (Visible to everyone)</option>

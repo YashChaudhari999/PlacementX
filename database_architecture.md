@@ -195,14 +195,6 @@ erDiagram
     }
   },
 
-  "metadata": {
-    "ai_extensions": {
-      "student_id_1": {
-        "predictedSuccessRate": 85,
-        "recommendedCompanies": ["company_id_1", "company_id_3"],
-        "lastAnalyzed": "2026-07-12T10:00:00Z"
-      }
-    }
   }
 }
 ```
@@ -231,8 +223,3 @@ erDiagram
    - `recruiterSubmissions` is write-only for non-authenticated users possessing the exact `submissionToken`.
 4. **Indexes**: Crucial `.indexOn` rules must be generated for `applications` on `studentId` and `driveId`, and for `recruiterSubmissions` on `submissionToken` and `status`.
 
-## 6. Future AI Extension Points
-
-The architecture strictly segregates AI-generated data from transactional core data. 
-- **`metadata/ai_extensions` node**: This dedicated node stores all non-critical, asynchronously generated AI data (e.g., `predictedSuccessRate`, `recommendedCompanies`, embeddings). 
-- **Why?** It prevents the core `students` node from becoming bloated with frequent AI metadata updates, which would trigger unnecessary re-renders in the UI or consume excessive realtime bandwidth. The AI can write here without modifying transactional logic.

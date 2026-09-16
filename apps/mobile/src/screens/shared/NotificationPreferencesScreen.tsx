@@ -93,7 +93,7 @@ export default function NotificationPreferencesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <ArrowLeft size={24} color="#0f172a" />
+          <ArrowLeft size={24} color={theme.colors.foreground} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notification Settings</Text>
         <View style={{ width: 40 }} />
@@ -194,7 +194,7 @@ export default function NotificationPreferencesScreen() {
             disabled={updatePrefs.isPending}
           >
             {updatePrefs.isPending ? (
-              <ActivityIndicator size="small" color="#ffffff" />
+              <ActivityIndicator size="small" color={theme.colors.card} />
             ) : (
               <Text style={styles.saveBtnText}>Save Changes</Text>
             )}
@@ -210,7 +210,7 @@ export default function NotificationPreferencesScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
   },
   loadingContainer: {
     flex: 1,
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#0f172a',
+    color: theme.colors.foreground,
   },
   scrollContent: {
     padding: 16,
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
     paddingLeft: 4,
   },
   card: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#f1f5f9',
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     right: 0,
     padding: 16,
     paddingBottom: 32,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
     shadowColor: '#000',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   saveBtnText: {
-    color: '#ffffff',
+    color: theme.colors.card,
     fontSize: 16,
     fontWeight: '700',
   },

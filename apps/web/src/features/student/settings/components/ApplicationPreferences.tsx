@@ -28,19 +28,21 @@ export default function ApplicationPreferences() {
         Application Preferences
       </h3>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
         <div className="space-y-2 max-w-md">
           <label className="flex items-center gap-3">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={confirmBeforeApply}
               onChange={(e) => setConfirmBeforeApply(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" 
+              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
             />
-            <span className="text-sm font-medium text-slate-700">Confirm before applying to a drive</span>
+            <span className="text-sm font-medium text-slate-700">
+              Confirm before applying to a drive
+            </span>
           </label>
           <p className="text-xs text-slate-500 ml-7">
-            When enabled, you will be asked to confirm your action before submitting an application to a placement drive. This helps prevent accidental applications.
+            When enabled, you will be asked to confirm your action before submitting an application
+            to a placement drive. This helps prevent accidental applications.
           </p>
         </div>
 

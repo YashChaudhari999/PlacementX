@@ -16,8 +16,6 @@ export interface StudentRiskRow {
   department: string | null;
   cgpa: number | null;
   profileStatus: string;
-  readinessScore: number | null;
-  riskLevel: string | null;
   applicationsCount: number;
   shortlistsCount: number;
   offersCount: number;
@@ -62,36 +60,9 @@ export async function getStudentRisk(filters: AnalyticsFilterInput): Promise<Stu
   const page = filters.page || 1;
   const pageSize = filters.pageSize || 20;
 
-  // Summary: risk distribution from ML predictions
-  const riskStats = await prisma.studentProfile.groupBy({
-    by: ['riskLevel'],
-    where,
-    _count: { _all: true },
-  });
-
   const totalProfiles = await prisma.studentProfile.count({ where });
 
-  // Readiness tiers from predictedSuccessRate
-  const profiles = await prisma.studentProfile.findMany({
-    where,
-    select: { predictedSuccessRate: true },
-  });
-
   let highReadiness = 0, moderateReadiness = 0, needsImprovement = 0, highIntervention = 0;
-  for (const p of profiles) {
-    const rate = p.predictedSuccessRate ?? 0;
-    if (rate >= READINESS_TIERS.high.min) highReadiness++;
-    else if (rate >= READINESS_TIERS.moderate.min) moderateReadiness++;
-    else if (rate >= READINESS_TIERS.needsImprovement.min) needsImprovement++;
-    else highIntervention++;
-  }
-
-  // Use risk level grouping if ML predictions not available
-  if (highReadiness + moderateReadiness + needsImprovement + highIntervention === 0) {
-    highReadiness = riskStats.find((r: any) => r.riskLevel === 'LOW')?._count._all || 0;
-    moderateReadiness = riskStats.find((r: any) => r.riskLevel === 'MEDIUM')?._count._all || 0;
-    highIntervention = riskStats.find((r: any) => r.riskLevel === 'HIGH')?._count._all || 0;
-  }
 
   // Paginated student list (sorted by risk: high priority first)
   const studentsRaw = await prisma.studentProfile.findMany({
@@ -103,9 +74,6 @@ export async function getStudentRisk(filters: AnalyticsFilterInput): Promise<Stu
       branch: true,
       cgpa: true,
       profileStatus: true,
-      predictedSuccessRate: true,
-      riskLevel: true,
-      isProfileComplete: true,
       resumeUrl: true,
       skills: true,
       _count: { select: { applications: true } },
@@ -114,7 +82,7 @@ export async function getStudentRisk(filters: AnalyticsFilterInput): Promise<Stu
       },
     },
     orderBy: [
-      { predictedSuccessRate: 'asc' },
+      { cgpa: 'desc' },
     ],
     skip: (page - 1) * pageSize,
     take: pageSize,
@@ -132,8 +100,6 @@ export async function getStudentRisk(filters: AnalyticsFilterInput): Promise<Stu
       department: s.branch,
       cgpa: s.cgpa,
       profileStatus: s.profileStatus,
-      readinessScore: s.predictedSuccessRate ? parseFloat((s.predictedSuccessRate * 100).toFixed(1)) : null,
-      riskLevel: s.riskLevel,
       applicationsCount: s._count.applications,
       shortlistsCount: shortlists,
       offersCount: offers,

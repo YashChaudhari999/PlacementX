@@ -7,7 +7,12 @@ import { useTheme } from '@/app/providers/ThemeProvider';
 
 export default function AppearanceSettings() {
   const { data, isLoading } = useSettings();
-  const { theme: globalTheme, setTheme: setGlobalTheme, compactMode: globalCompactMode, setCompactMode: setGlobalCompactMode } = useTheme();
+  const {
+    theme: globalTheme,
+    setTheme: setGlobalTheme,
+    compactMode: globalCompactMode,
+    setCompactMode: setGlobalCompactMode,
+  } = useTheme();
   const { mutate: updateRegional, isPending } = useUpdateRegional();
 
   const [theme, setTheme] = useState(globalTheme);
@@ -25,13 +30,13 @@ export default function AppearanceSettings() {
     // Optimistic UI update instantly for settings page
     setGlobalTheme(theme as any);
     setGlobalCompactMode(compactMode);
-    
+
     updateRegional(
       { theme, compactMode },
       {
         onSuccess: () => {
           // Additional success logic if needed
-        }
+        },
       }
     );
   };
@@ -44,7 +49,6 @@ export default function AppearanceSettings() {
         Appearance Settings
       </h3>
       <form onSubmit={handleSubmit} className="space-y-8">
-        
         <div className="space-y-4">
           <label className="text-sm font-medium text-slate-700">Interface Theme</label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
@@ -53,7 +57,9 @@ export default function AppearanceSettings() {
               type="button"
               onClick={() => setTheme('system')}
               className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-3 transition-all ${
-                theme === 'system' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+                theme === 'system'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               <Settings02Icon className="w-8 h-8" />
@@ -64,7 +70,9 @@ export default function AppearanceSettings() {
               type="button"
               onClick={() => setTheme('light')}
               className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-3 transition-all ${
-                theme === 'light' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+                theme === 'light'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               <Sun01Icon className="w-8 h-8" />
@@ -75,7 +83,9 @@ export default function AppearanceSettings() {
               type="button"
               onClick={() => setTheme('dark')}
               className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-3 transition-all ${
-                theme === 'dark' ? 'border-primary bg-primary/5 text-primary' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+                theme === 'dark'
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
               }`}
             >
               <Moon02Icon className="w-8 h-8" />
@@ -83,22 +93,24 @@ export default function AppearanceSettings() {
             </button>
           </div>
           <p className="text-xs text-slate-500 mt-2">
-            Select your preferred interface theme. "System" will automatically match your OS settings.
+            Select your preferred interface theme. "System" will automatically match your OS
+            settings.
           </p>
         </div>
 
         <div className="space-y-2 max-w-md pt-4 border-t border-slate-100">
           <label className="flex items-center gap-3">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={compactMode}
               onChange={(e) => setCompactMode(e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary" 
+              className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
             />
             <span className="text-sm font-medium text-slate-700">Compact Mode</span>
           </label>
           <p className="text-xs text-slate-500 ml-7">
-            When enabled, the interface will use tighter spacing and smaller text to show more information on screen.
+            When enabled, the interface will use tighter spacing and smaller text to show more
+            information on screen.
           </p>
         </div>
 

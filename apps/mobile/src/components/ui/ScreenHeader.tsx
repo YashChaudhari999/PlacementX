@@ -22,6 +22,8 @@ export const ScreenHeader = ({ title, subtitle, showBack = false, rightElement }
             style={styles.backButton}
             onPress={() => navigation.goBack()}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <ChevronLeft color={theme.colors.foreground} size={24} />
           </TouchableOpacity>

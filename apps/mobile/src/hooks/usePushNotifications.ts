@@ -4,7 +4,7 @@
 // and notification tap → deep link navigation.
 
 import { useEffect, useRef } from 'react';
-// import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../stores/authStore';
 import { useNotificationStore } from '../stores/notificationStore';
@@ -49,12 +49,33 @@ export const usePushNotifications = () => {
 
     // ─── Foreground Notification Listener ──────────────
     // Fires when a notification is received while app is in foreground.
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      // For foreground notifications, socket.io already handles updating the cache,
+      // but if socket fails, this is a fallback.
+      incrementUnreadCount();
+    });
     
     // ─── Notification Response Listener ───────────────
     // Fires when user taps on a notification (foreground, background, or killed).
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const data = response.notification.request.content.data as Record<string, any>;
+      if (data?.deepLinkRoute) {
+        handleDeepLink(navigation as any, {
+          deepLinkRoute: data.deepLinkRoute as string,
+          deepLinkParams: data.deepLinkParams as Record<string, any>,
+          notificationId: data.notificationId as string,
+        });
+      }
+    });
     
     // Cleanup listeners on unmount
     return () => {
+      if (notificationListener.current) {
+        notificationListener.current.remove();
+      }
+      if (responseListener.current) {
+        responseListener.current.remove();
+      }
     };
   }, [isAuthenticated, token]);
 
@@ -64,7 +85,17 @@ export const usePushNotifications = () => {
     if (!isAuthenticated) return;
 
     const checkLastNotification = async () => {
-      // mocked
+      const response = await Notifications.getLastNotificationResponseAsync();
+      if (response) {
+        const data = response.notification.request.content.data as Record<string, any>;
+        if (data?.deepLinkRoute) {
+          handleDeepLink(navigation as any, {
+            deepLinkRoute: data.deepLinkRoute as string,
+            deepLinkParams: data.deepLinkParams as Record<string, any>,
+            notificationId: data.notificationId as string,
+          });
+        }
+      }
     };
     checkLastNotification();
   }, [isAuthenticated]);

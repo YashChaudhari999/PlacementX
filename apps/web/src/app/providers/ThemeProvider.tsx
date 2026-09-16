@@ -15,14 +15,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(
     () => (localStorage.getItem('theme') as Theme) || 'system'
   );
-  
+
   const [compactMode, setCompactMode] = useState<boolean>(
     () => localStorage.getItem('compactMode') === 'true'
   );
 
   useEffect(() => {
     const root = window.document.documentElement;
-    
+
     // Handle theme
     root.classList.remove('light', 'dark');
     if (theme === 'system') {
@@ -33,7 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } else {
       root.classList.add(theme);
     }
-    
+
     // Handle compact mode
     if (compactMode) {
       root.classList.add('compact-mode');
@@ -55,16 +55,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     },
   };
 
-  return (
-    <ThemeProviderContext.Provider value={value}>
-      {children}
-    </ThemeProviderContext.Provider>
-  );
+  return <ThemeProviderContext.Provider value={value}>{children}</ThemeProviderContext.Provider>;
 }
 
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
-  if (context === undefined)
-    throw new Error('useTheme must be used within a ThemeProvider');
+  if (context === undefined) throw new Error('useTheme must be used within a ThemeProvider');
   return context;
 };

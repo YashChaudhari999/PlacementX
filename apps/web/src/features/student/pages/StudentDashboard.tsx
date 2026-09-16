@@ -16,8 +16,7 @@ import { usePublishedDrives } from '@/hooks/queries/useDrives';
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 import { motion } from 'framer-motion';
 
-import StudentInsightsPanel from '../components/StudentInsightsPanel';
-import { useStudentProfile, useStudentMLPrediction } from '@/hooks/queries/useStudent';
+import { useStudentProfile } from '@/hooks/queries/useStudent';
 
 export default function StudentDashboard() {
   const user = useAuthStore((state) => state.user);
@@ -28,7 +27,6 @@ export default function StudentDashboard() {
   const { data: drives = [], isPending: drivesLoading } = usePublishedDrives();
   const markAsReadMutation = useMarkNotificationRead();
   const { data: profileData } = useStudentProfile(user?.id);
-  const { data: mlPrediction } = useStudentMLPrediction(user?.id, profileData);
 
   const studentName = profileData?.firstName
     ? `${profileData.firstName} ${profileData.lastName || ''}`.trim()
@@ -38,11 +36,10 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     const hour = new Date().getHours();
-    /* eslint-disable react-hooks/set-state-in-effect */
+
     if (hour < 12) setGreeting('Good morning');
     else if (hour < 18) setGreeting('Good afternoon');
     else setGreeting('Good evening');
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
   const markAsRead = (id: string) => {
@@ -100,8 +97,6 @@ export default function StudentDashboard() {
           </p>
         </div>
       </motion.div>
-
-      <StudentInsightsPanel prediction={mlPrediction} />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content: Active Drives */}

@@ -9,7 +9,7 @@ export default function HelpSupport() {
   const [formData, setFormData] = useState({
     category: '',
     subject: '',
-    message: ''
+    message: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,13 +33,15 @@ export default function HelpSupport() {
       <form onSubmit={handleSubmit} className="space-y-5 max-w-2xl">
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Category</label>
-          <select 
+          <select
             required
             value={formData.category}
-            onChange={(e) => setFormData({...formData, category: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
-            <option value="" disabled>Select a category...</option>
+            <option value="" disabled>
+              Select a category...
+            </option>
             <option value="profile">Profile Update Issue</option>
             <option value="drive">Placement Drive Inquiry</option>
             <option value="interview">Interview Scheduling</option>
@@ -50,22 +52,22 @@ export default function HelpSupport() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Subject</label>
-          <Input 
+          <Input
             required
             value={formData.subject}
-            onChange={(e) => setFormData({...formData, subject: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
             placeholder="Brief summary of your issue"
           />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Message</label>
-          <textarea 
+          <textarea
             required
             minLength={10}
             rows={5}
             value={formData.message}
-            onChange={(e) => setFormData({...formData, message: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, message: e.target.value })}
             placeholder="Describe your issue in detail..."
             className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-y"
           />

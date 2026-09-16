@@ -313,7 +313,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
   },
   // Header
   header: {
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#0f172a',
+    color: theme.colors.foreground,
   },
   unreadBadge: {
     marginLeft: 8,
@@ -344,7 +344,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   unreadBadgeText: {
-    color: '#ffffff',
+    color: theme.colors.card,
     fontSize: 12,
     fontWeight: '800',
   },
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   headerBtn: {
     padding: 8,
     borderRadius: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
   },
   markAllBtn: {
     flexDirection: 'row',
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   searchBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     borderWidth: 1,
     borderColor: '#e2e8f0',
     borderRadius: 12,
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f1f5f9',
   },
   filterTabActive: {
-    backgroundColor: '#0f172a',
+    backgroundColor: theme.colors.foreground,
   },
   filterTabText: {
     fontSize: 13,
@@ -421,13 +421,13 @@ const styles = StyleSheet.create({
     color: '#64748b',
   },
   filterTabTextActive: {
-    color: '#ffffff',
+    color: theme.colors.card,
   },
   // Section Headers
   sectionHeader: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     borderBottomWidth: 1,
     borderBottomColor: '#f1f5f9',
   },
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,

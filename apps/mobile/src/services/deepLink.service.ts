@@ -87,6 +87,7 @@ export const handleDeepLink = async (
       break;
 
     case 'Drives':
+    case 'ApplicationStatus':
       navigation.navigate('StudentApp', {
         screen: 'Drives',
       });

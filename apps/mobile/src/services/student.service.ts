@@ -3,17 +3,13 @@ import { API_ENDPOINTS } from '../config/api';
 import type { StudentProfile, Application, Interview, StudentDocuments } from '../types';
 
 export const studentService = {
-  getProfile: async (userId: string) => {
-    const response = await apiClient.get<StudentProfile>(API_ENDPOINTS.STUDENT_PROFILE, {
-      headers: { 'x-user-id': userId }
-    });
+  getProfile: async () => {
+    const response = await apiClient.get<StudentProfile>(API_ENDPOINTS.STUDENT_PROFILE);
     return response.data;
   },
 
-  updateProfile: async (userId: string, data: Partial<StudentProfile>) => {
-    const response = await apiClient.put(API_ENDPOINTS.STUDENT_PROFILE, data, {
-      headers: { 'x-user-id': userId }
-    });
+  updateProfile: async (data: Partial<StudentProfile>) => {
+    const response = await apiClient.put(API_ENDPOINTS.STUDENT_PROFILE, data);
     return response.data;
   },
 
@@ -32,3 +28,4 @@ export const studentService = {
     return response.data;
   }
 };
+

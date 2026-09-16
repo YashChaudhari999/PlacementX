@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home, Briefcase, Bell, User, Settings as SettingsIcon } from 'lucide-react-native';
+import { Home, Briefcase, Bell, User, Calendar as CalendarIcon } from 'lucide-react-native';
 
 import { theme } from '../theme/theme';
 import type { StudentTabParamList, HomeStackParamList, ProfileStackParamList } from './types';
@@ -15,6 +15,8 @@ import ProfileScreen from '../screens/student/ProfileScreen';
 import DocumentsScreen from '../screens/student/DocumentsScreen';
 import InterviewsScreen from '../screens/student/InterviewsScreen';
 import SettingsScreen from '../screens/student/SettingsScreen';
+import CalendarScreen from '../screens/student/CalendarScreen';
+
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -32,6 +34,8 @@ const ProfileStackNavigator = () => (
     <ProfileStack.Screen name="ProfileHome" component={ProfileScreen} />
     <ProfileStack.Screen name="Documents" component={DocumentsScreen} />
     <ProfileStack.Screen name="Interviews" component={InterviewsScreen} />
+    <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+
   </ProfileStack.Navigator>
 );
 
@@ -72,6 +76,14 @@ export const StudentTabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={{
+          tabBarLabel: 'Calendar',
+          tabBarIcon: ({ color, size }) => <CalendarIcon color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
         name="Notifications"
         component={NotificationsScreen}
         options={{
@@ -89,14 +101,7 @@ export const StudentTabNavigator = () => {
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />
-      <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({ color, size }) => <SettingsIcon color={color} size={size} />,
-        }}
-      />
     </Tab.Navigator>
   );
 };
+

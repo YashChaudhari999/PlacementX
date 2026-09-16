@@ -10,15 +10,19 @@ export default function CalendarSettings() {
   const [formData, setFormData] = useState({
     defaultCalendarView: 'month',
     interviewReminders: '',
-    deadlineReminders: ''
+    deadlineReminders: '',
   });
 
   useEffect(() => {
     if (data?.preferences) {
       setFormData({
         defaultCalendarView: data.preferences.defaultCalendarView || 'month',
-        interviewReminders: Array.isArray(data.preferences.interviewReminders) ? data.preferences.interviewReminders.join(', ') : '',
-        deadlineReminders: Array.isArray(data.preferences.deadlineReminders) ? data.preferences.deadlineReminders.join(', ') : '',
+        interviewReminders: Array.isArray(data.preferences.interviewReminders)
+          ? data.preferences.interviewReminders.join(', ')
+          : '',
+        deadlineReminders: Array.isArray(data.preferences.deadlineReminders)
+          ? data.preferences.deadlineReminders.join(', ')
+          : '',
       });
     }
   }, [data]);
@@ -27,8 +31,14 @@ export default function CalendarSettings() {
     e.preventDefault();
     updateCal({
       defaultCalendarView: formData.defaultCalendarView,
-      interviewReminders: formData.interviewReminders.split(',').map(s => s.trim()).filter(Boolean),
-      deadlineReminders: formData.deadlineReminders.split(',').map(s => s.trim()).filter(Boolean),
+      interviewReminders: formData.interviewReminders
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      deadlineReminders: formData.deadlineReminders
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
     });
   };
 
@@ -40,12 +50,11 @@ export default function CalendarSettings() {
         Calendar & Reminders
       </h3>
       <form onSubmit={handleSubmit} className="space-y-5">
-        
         <div className="space-y-2">
           <label className="text-sm font-medium text-slate-700">Default Calendar View</label>
-          <select 
+          <select
             value={formData.defaultCalendarView}
-            onChange={(e) => setFormData({...formData, defaultCalendarView: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, defaultCalendarView: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="month">Month</option>
@@ -55,20 +64,24 @@ export default function CalendarSettings() {
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Interview Reminders (comma separated)</label>
+          <label className="text-sm font-medium text-slate-700">
+            Interview Reminders (comma separated)
+          </label>
           <p className="text-xs text-slate-500 mb-2">e.g. "1 day before", "1 hour before"</p>
-          <Input 
+          <Input
             value={formData.interviewReminders}
-            onChange={(e) => setFormData({...formData, interviewReminders: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, interviewReminders: e.target.value })}
             placeholder="1 day before, 1 hour before"
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Application Deadline Reminders (comma separated)</label>
-          <Input 
+          <label className="text-sm font-medium text-slate-700">
+            Application Deadline Reminders (comma separated)
+          </label>
+          <Input
             value={formData.deadlineReminders}
-            onChange={(e) => setFormData({...formData, deadlineReminders: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, deadlineReminders: e.target.value })}
             placeholder="24 hours before, 3 days before"
           />
         </div>

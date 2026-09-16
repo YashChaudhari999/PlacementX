@@ -32,5 +32,15 @@ export const adminService = {
   getReportsData: async () => {
     const response = await apiClient.get<any>(API_ENDPOINTS.ADMIN_REPORTS_DATA);
     return response.data;
+  },
+
+  getPendingProfiles: async () => {
+    const response = await apiClient.get<any[]>(API_ENDPOINTS.ADMIN_PENDING_PROFILES);
+    return response.data;
+  },
+
+  verifyProfile: async (id: string, action: 'APPROVE' | 'REJECT', remarks?: string) => {
+    const response = await apiClient.post(API_ENDPOINTS.ADMIN_VERIFY_PROFILE(id), { action, remarks });
+    return response.data;
   }
 };

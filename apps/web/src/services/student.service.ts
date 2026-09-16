@@ -23,13 +23,4 @@ export const studentService = {
     const res = await api.put('/student/profile/update-request', data);
     return res.data;
   },
-  getMLPrediction: async (userId: string, profileData: any) => {
-    if (!userId) return null;
-    try {
-      const res = await api.post(`/student/${userId}/ml-predict`, profileData, {});
-      return res.data;
-    } catch {
-      return null;
-    }
-  },
 };

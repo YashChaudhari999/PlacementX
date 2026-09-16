@@ -7,6 +7,7 @@ import NotificationSettings from '../components/settings/NotificationSettings';
 import SecuritySettings from '../components/settings/SecuritySettings';
 import SystemHealth from '../components/settings/SystemHealth';
 import DangerZone from '../components/settings/DangerZone';
+import AppearanceSettings from '../components/settings/AppearanceSettings';
 import { useSettings } from '@/hooks/useSettings';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -52,6 +53,8 @@ export default function AdminSettings() {
         return <StudentSettings {...props} />;
       case 'communications':
         return <NotificationSettings {...props} />;
+      case 'appearance':
+        return <AppearanceSettings />;
       case 'security':
         return isSuperAdmin ? (
           <SecuritySettings />

@@ -324,7 +324,7 @@ export default function AdminSettingsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
   },
   scrollContent: {
     padding: theme.spacing[4],
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#0f172a',
+    color: theme.colors.foreground,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   tabBtnActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
   },
   contentCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderRadius: 16,
     padding: theme.spacing[5],
     marginBottom: theme.spacing[6],
@@ -401,12 +401,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0f172a',
+    color: theme.colors.foreground,
   },
   profileSummaryCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     padding: theme.spacing[4],
     borderRadius: 16,
     marginBottom: theme.spacing[6],
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   profileSummaryName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#0f172a',
+    color: theme.colors.foreground,
     marginBottom: 2,
   },
   profileSummaryEmail: {
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   groupCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: '#e2e8f0',
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: theme.spacing[4],
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
   },
   settingItemBorder: {
     borderBottomWidth: 1,
@@ -474,7 +474,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 10,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: theme.spacing[3],
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   settingTitle: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#0f172a',
+    color: theme.colors.foreground,
   },
   settingSubtitle: {
     fontSize: 13,
@@ -512,8 +512,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: theme.spacing[3],
     fontSize: 15,
-    color: '#0f172a',
-    backgroundColor: '#f8fafc',
+    color: theme.colors.foreground,
+    backgroundColor: theme.colors.background,
   },
   actionRow: {
     marginTop: theme.spacing[2],

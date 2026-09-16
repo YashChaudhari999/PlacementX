@@ -1,13 +1,55 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
+import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { User, Role } from '../types';
+
+// Create a custom storage wrapper for Expo SecureStore
+const secureStorage: StateStorage = {
+  getItem: async (name: string): Promise<string | null> => {
+    try {
+      if (Platform.OS === 'web') {
+        return AsyncStorage.getItem(name);
+      }
+      return await SecureStore.getItemAsync(name);
+    } catch (e) {
+      console.error('SecureStore getItem error:', e);
+      return null;
+    }
+  },
+  setItem: async (name: string, value: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        await AsyncStorage.setItem(name, value);
+      } else {
+        await SecureStore.setItemAsync(name, value, {
+          keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+        });
+      }
+    } catch (e) {
+      console.error('SecureStore setItem error:', e);
+    }
+  },
+  removeItem: async (name: string): Promise<void> => {
+    try {
+      if (Platform.OS === 'web') {
+        await AsyncStorage.removeItem(name);
+      } else {
+        await SecureStore.deleteItemAsync(name);
+      }
+    } catch (e) {
+      console.error('SecureStore removeItem error:', e);
+    }
+  },
+};
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  setAuth: (user: User, token: string) => void;
+  mustChangePassword?: boolean;
+  setAuth: (user: User, token: string, mustChangePassword?: boolean) => void;
   logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
 }
@@ -18,7 +60,11 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
+      mustChangePassword: false,
+      
+      setAuth: (user, token, mustChangePassword = false) => 
+        set({ user, token, isAuthenticated: true, mustChangePassword }),
+        
       logout: async () => {
         try {
           const { useNotificationStore } = require('./notificationStore');
@@ -32,20 +78,23 @@ export const useAuthStore = create<AuthState>()(
           
           const { auth } = require('../lib/firebaseApp');
           const { signOut } = require('firebase/auth');
-          await signOut(auth);
+          if (auth.currentUser) {
+             await signOut(auth);
+          }
         } catch (error) {
           console.error('Logout cleanup error:', error);
         }
-        set({ user: null, token: null, isAuthenticated: false });
+        set({ user: null, token: null, isAuthenticated: false, mustChangePassword: false });
       },
+      
       updateUser: (updatedFields) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...updatedFields } : null,
         })),
     }),
     {
-      name: 'placementx-auth',
-      storage: createJSONStorage(() => AsyncStorage),
+      name: 'placementx-secure-auth', // new key to avoid conflicts with old AsyncStorage data
+      storage: createJSONStorage(() => secureStorage),
     }
   )
 );

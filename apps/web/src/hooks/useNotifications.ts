@@ -58,7 +58,6 @@ export function useNotifications() {
   }, [user?.id, navigate]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchNotifications();
     const interval = setInterval(fetchNotifications, POLL_INTERVAL);
     return () => clearInterval(interval);

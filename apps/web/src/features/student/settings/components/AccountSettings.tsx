@@ -27,19 +27,24 @@ export default function AccountSettings() {
           </div>
           <div>
             <label className="text-sm font-medium text-slate-500">Full Name</label>
-            <p className="text-base font-semibold text-slate-900 mt-1">{profile.firstName} {profile.lastName}</p>
+            <p className="text-base font-semibold text-slate-900 mt-1">
+              {profile.firstName} {profile.lastName}
+            </p>
           </div>
           <div>
             <label className="text-sm font-medium text-slate-500">Branch</label>
-            <p className="text-base font-semibold text-slate-900 mt-1">{profile.branch || 'Not Specified'}</p>
+            <p className="text-base font-semibold text-slate-900 mt-1">
+              {profile.branch || 'Not Specified'}
+            </p>
           </div>
         </div>
 
         <div className="mt-8 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100">
           <h4 className="text-sm font-semibold text-indigo-900">Note on Account Details</h4>
           <p className="text-sm text-indigo-700/80 mt-1 leading-relaxed">
-            These details are provided by your institution and cannot be modified directly. 
-            If you need to change your name or branch, please submit a profile update request from your Profile page.
+            These details are provided by your institution and cannot be modified directly. If you
+            need to change your name or branch, please submit a profile update request from your
+            Profile page.
           </p>
         </div>
       </Card>

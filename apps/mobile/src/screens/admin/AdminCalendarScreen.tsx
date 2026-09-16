@@ -98,7 +98,7 @@ export default function AdminCalendarScreen() {
               } else if (event.color === '#8b5cf6') { // Interview
                 iconBg = '#fae8ff'; iconColor = '#c026d3'; Icon = Megaphone;
               } else if (event.color === '#ef4444') { // Deadline
-                iconBg = '#fee2e2'; iconColor = '#dc2626'; Icon = Clock;
+                iconBg = (theme.colors.destructive + "15"); iconColor = theme.colors.destructive; Icon = Clock;
               }
 
               return (
@@ -164,7 +164,7 @@ export default function AdminCalendarScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff', // Clean white
+    backgroundColor: theme.colors.card, // Clean white
   },
   scrollContent: {
     padding: theme.spacing[4],
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 26,
     borderWidth: 2,
-    borderColor: '#ffffff',
+    borderColor: theme.colors.card,
   },
   timelineLineSegment: {
     width: 2,
@@ -311,7 +311,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 4,

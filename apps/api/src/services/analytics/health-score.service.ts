@@ -79,7 +79,7 @@ export async function getHealthScore(
     HEALTH_SCORE_WEIGHTS.recruiterDemand
   );
 
-  // 5. Student Readiness (from ML predictions)
+  // 5. Student Readiness
   const profileWhere: Record<string, unknown> = {};
   if (filters.department && filters.department !== 'All Departments') {
     profileWhere.branch = filters.department;

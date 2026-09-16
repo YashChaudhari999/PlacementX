@@ -13,7 +13,6 @@ import {
   getPlacementDrives,
   getActionCenter,
   getPlacementOperational,
-  mlForecast,
   getFilterOptions,
 } from '../controllers/analytics.controller';
 
@@ -33,8 +32,6 @@ router.get('/placement/departments', getPlacementDepartments);
 router.get('/placement/packages', getPlacementPackages);
 router.get('/placement/companies', getPlacementCompanies);
 router.get('/placement/funnel', getPlacementFunnel);
-router.get('/placement/forecast', mlForecast);
-
 // ── Advanced Analytics ────────────────────────────────────
 router.get('/placement/students', getPlacementStudents);
 router.get('/placement/skills', getPlacementSkills);

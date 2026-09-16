@@ -15,20 +15,20 @@ const { height } = Dimensions.get('window');
 export default function DashboardScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { user } = useAuthStore();
-  const { data: drives, isLoading: isLoadingDrives, refetch: refetchDrives } = usePublishedDrives();
-  const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile } = useStudentProfile(user?.id);
+  const { data: drives, isLoading: isLoadingDrives, refetch: refetchDrives, isRefetching: isRefetchingDrives } = usePublishedDrives();
+  const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useStudentProfile();
   const insets = useSafeAreaInsets();
 
-  const isRefreshing = false; 
+  const isRefreshing = isRefetchingDrives || isRefetchingProfile;
   
   const handleRefresh = React.useCallback(() => {
     refetchDrives();
     refetchProfile();
   }, [refetchDrives, refetchProfile]);
 
-  const handleDrivePress = (id: string) => {
+  const handleDrivePress = React.useCallback((id: string) => {
     navigation.navigate('DriveDetails', { id });
-  };
+  }, [navigation]);
 
   if (isLoadingDrives || isLoadingProfile) {
     return (
@@ -40,7 +40,7 @@ export default function DashboardScreen() {
     );
   }
 
-  const renderDriveCard = (drive: any) => (
+  const renderDriveCard = React.useCallback((drive: any) => (
     <TouchableOpacity 
       key={drive.id} 
       activeOpacity={0.8}
@@ -92,7 +92,7 @@ export default function DashboardScreen() {
         </View>
       </Card>
     </TouchableOpacity>
-  );
+  ), [handleDrivePress]);
 
   return (
     <View style={styles.container}>
@@ -118,7 +118,7 @@ export default function DashboardScreen() {
                 style={styles.headerIconButton}
                 onPress={() => navigation.navigate('Notifications')}
               >
-                <Bell color="#FFFFFF" size={22} />
+                <Bell color={theme.colors.card} size={22} />
                 {/* Notification dot */}
                 <View style={styles.notificationDot} />
               </TouchableOpacity>
@@ -126,7 +126,7 @@ export default function DashboardScreen() {
                 style={styles.headerIconButton}
                 onPress={() => navigation.navigate('ProfileStack')}
               >
-                <User color="#FFFFFF" size={22} />
+                <User color={theme.colors.card} size={22} />
               </TouchableOpacity>
             </View>
           </View>
@@ -169,7 +169,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC', // slightly cooler off-white background
+    backgroundColor: theme.colors.background, // slightly cooler off-white background
   },
   safeArea: {
     flex: 1,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
   greetingText: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: theme.colors.card,
     marginBottom: 4,
   },
   subtitleText: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   searchFakeInput: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderRadius: 16,
     padding: theme.spacing[4],
     gap: theme.spacing[3],
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   driveCard: {
     padding: theme.spacing[5],
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderWidth: 0,
   },
   driveHeader: {
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing[8],
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: theme.colors.border,

@@ -7,7 +7,6 @@ datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   directUrl  = env("DIRECT_URL")
-  extensions = [vector]
 }
 
 model User {
@@ -95,14 +94,7 @@ model StudentProfile {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  // AI Extensions
-  predictedSuccessRate Float?
-  riskLevel            String?
-  riskFactors          Json?
-  recommendedCompanies Json?
-  recommendedJobs      Json?
-  lastPredictionAt     DateTime?
-  profileEmbedding     Unsupported("vector(384)")?
+
   adminNotes           Json?
 
 
@@ -209,9 +201,6 @@ model PlacementDrive {
   technologyStack          String?
   trainingPeriod           String?
 
-  // AI Extensions
-  jobEmbedding Unsupported("vector(384)")?
-  semanticTags Json?
 
   applications    DriveApplication[]
   auditLogs       DriveAuditLog[]
@@ -392,15 +381,6 @@ model DriveAuditLog {
   drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
 
-model PlacementAnalytics {
-  id               String   @id @default(uuid())
-  forecastYear     Int
-  actualMetrics    Json?
-  predictedMetrics Json?
-  modelVersion     String?
-  predictionDate   DateTime @default(now())
-  trend            String?
-}
 
 model ProfileUpdateRequest {
   id               String    @id @default(uuid())

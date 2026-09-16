@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react-native';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, Input, Button, Toast } from '../../components/ui';
+import { Card, ScreenHeader, Input, Button, Toast, TabBar } from '../../components/ui';
 import { drivesService } from '../../services/drives.service';
-import { useQueryClient } from '@tanstack/react-query';
+
+const STEPS = ['Basic Info', 'Details', 'Eligibility'];
 
 export default function CreateDriveScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -32,16 +35,31 @@ export default function CreateDriveScreen() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleCreate = async () => {
-    if (!formData.companyName || !formData.role || !formData.registrationDeadline) {
-      Toast.error('Please fill all required fields');
-      return;
+  const handleNext = () => {
+    if (currentStep === 0) {
+      if (!formData.companyName || !formData.role) {
+        Toast.error('Company Name and Role are required');
+        return;
+      }
     }
+    if (currentStep === 1) {
+      if (!formData.registrationDeadline) {
+        Toast.error('Registration Deadline is required');
+        return;
+      }
+    }
+    setCurrentStep(prev => Math.min(prev + 1, STEPS.length - 1));
+  };
 
+  const handlePrev = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 0));
+  };
+
+  const handleCreate = async () => {
     try {
       setIsSubmitting(true);
       const driveData = {
-        companyId: 'company_uuid', // In a real app, this would be selected from a dropdown or created first
+        companyId: 'company_uuid', // Needs proper company selector in real app
         role: formData.role,
         description: formData.description,
         jobType: formData.jobType,
@@ -56,8 +74,7 @@ export default function CreateDriveScreen() {
         }
       };
 
-      // Real implementation would have a createDrive method in drivesService
-      // await drivesService.createDrive(driveData);
+      await drivesService.createDrive(driveData);
       
       Toast.success('Drive created successfully');
       queryClient.invalidateQueries({ queryKey: ['admin-drives'] });
@@ -69,42 +86,40 @@ export default function CreateDriveScreen() {
     }
   };
 
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader 
-        title="Create Drive" 
-        showBack
-      />
-      
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <Card style={styles.card}>
-            <Text style={styles.sectionTitle}>Basic Details</Text>
-            
+  const renderStep = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <View style={styles.stepContainer}>
             <Input
               label="Company Name *"
               placeholder="e.g. Google, Microsoft"
               value={formData.companyName}
               onChangeText={(text) => handleChange('companyName', text)}
             />
-            
             <Input
               label="Role *"
               placeholder="e.g. Software Engineer"
               value={formData.role}
               onChangeText={(text) => handleChange('role', text)}
             />
-            
+            <Input
+              label="Job Type"
+              placeholder="FULL_TIME or INTERNSHIP"
+              value={formData.jobType}
+              onChangeText={(text) => handleChange('jobType', text)}
+            />
+          </View>
+        );
+      case 1:
+        return (
+          <View style={styles.stepContainer}>
             <Input
               label="Location"
               placeholder="e.g. Bangalore, Remote"
               value={formData.location}
               onChangeText={(text) => handleChange('location', text)}
             />
-            
             <Input
               label="CTC / Salary (₹)"
               placeholder="e.g. 1500000"
@@ -112,7 +127,12 @@ export default function CreateDriveScreen() {
               value={formData.salary}
               onChangeText={(text) => handleChange('salary', text)}
             />
-            
+            <Input
+              label="Registration Deadline *"
+              placeholder="YYYY-MM-DD"
+              value={formData.registrationDeadline}
+              onChangeText={(text) => handleChange('registrationDeadline', text)}
+            />
             <Input
               label="Description"
               placeholder="Job description..."
@@ -122,18 +142,11 @@ export default function CreateDriveScreen() {
               onChangeText={(text) => handleChange('description', text)}
               style={styles.textArea}
             />
-
-            <Input
-              label="Registration Deadline *"
-              placeholder="YYYY-MM-DD"
-              value={formData.registrationDeadline}
-              onChangeText={(text) => handleChange('registrationDeadline', text)}
-            />
-
-            <View style={styles.divider} />
-            
-            <Text style={styles.sectionTitle}>Eligibility Criteria</Text>
-            
+          </View>
+        );
+      case 2:
+        return (
+          <View style={styles.stepContainer}>
             <View style={styles.row}>
               <View style={styles.col}>
                 <Input
@@ -152,7 +165,6 @@ export default function CreateDriveScreen() {
                 />
               </View>
             </View>
-
             <View style={styles.row}>
               <View style={styles.col}>
                 <Input
@@ -171,13 +183,76 @@ export default function CreateDriveScreen() {
                 />
               </View>
             </View>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
 
-            <Button
-              title="Create Placement Drive"
-              onPress={handleCreate}
-              isLoading={isSubmitting}
-              style={styles.submitBtn}
-            />
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <ScreenHeader title="Create Drive" showBack />
+      
+      <View style={styles.stepperHeader}>
+        {STEPS.map((step, index) => (
+          <React.Fragment key={step}>
+            <View style={styles.stepIndicator}>
+              <View style={[styles.stepCircle, currentStep >= index && styles.stepCircleActive]}>
+                {currentStep > index ? (
+                  <CheckCircle size={14} color="#FFF" />
+                ) : (
+                  <Text style={[styles.stepNumber, currentStep >= index && styles.stepNumberActive]}>
+                    {index + 1}
+                  </Text>
+                )}
+              </View>
+              <Text style={[styles.stepTitle, currentStep >= index && styles.stepTitleActive]}>
+                {step}
+              </Text>
+            </View>
+            {index < STEPS.length - 1 && (
+              <View style={[styles.stepLine, currentStep > index && styles.stepLineActive]} />
+            )}
+          </React.Fragment>
+        ))}
+      </View>
+
+      <KeyboardAvoidingView 
+        style={styles.keyboardAvoid} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <Card style={styles.card}>
+            {renderStep()}
+            
+            <View style={styles.actionsRow}>
+              {currentStep > 0 ? (
+                <Button 
+                  title="Back" 
+                  variant="outline" 
+                  onPress={handlePrev} 
+                  style={styles.actionBtn}
+                  icon={<ChevronLeft size={18} color={theme.colors.primary} />}
+                />
+              ) : <View style={styles.actionBtn} />}
+              
+              {currentStep < STEPS.length - 1 ? (
+                <Button 
+                  title="Next" 
+                  onPress={handleNext} 
+                  style={styles.actionBtn}
+                  iconRight={<ChevronRight size={18} color="#FFF" />}
+                />
+              ) : (
+                <Button 
+                  title="Publish Drive" 
+                  onPress={handleCreate} 
+                  isLoading={isSubmitting}
+                  style={styles.actionBtn}
+                />
+              )}
+            </View>
           </Card>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -186,42 +261,24 @@ export default function CreateDriveScreen() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  keyboardAvoid: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: theme.spacing[4],
-  },
-  card: {
-    padding: theme.spacing[4],
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: theme.colors.foreground,
-    marginBottom: theme.spacing[4],
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: theme.colors.border,
-    marginVertical: theme.spacing[6],
-  },
-  row: {
-    flexDirection: 'row',
-    gap: theme.spacing[3],
-  },
-  col: {
-    flex: 1,
-  },
-  submitBtn: {
-    marginTop: theme.spacing[4],
-  },
+  safeArea: { flex: 1, backgroundColor: theme.colors.background },
+  keyboardAvoid: { flex: 1 },
+  stepperHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing[4], backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+  stepIndicator: { alignItems: 'center', width: 80 },
+  stepCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: theme.colors.border, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  stepCircleActive: { backgroundColor: theme.colors.primary },
+  stepNumber: { fontSize: 13, fontWeight: '700', color: theme.colors.mutedForeground },
+  stepNumberActive: { color: '#FFF' },
+  stepTitle: { fontSize: 11, fontWeight: '600', color: theme.colors.mutedForeground, textAlign: 'center' },
+  stepTitleActive: { color: theme.colors.primary },
+  stepLine: { flex: 1, height: 2, backgroundColor: theme.colors.border, marginHorizontal: -15, marginTop: -20 },
+  stepLineActive: { backgroundColor: theme.colors.primary },
+  scrollContent: { padding: theme.spacing[4] },
+  card: { padding: theme.spacing[5] },
+  stepContainer: { gap: theme.spacing[4], marginBottom: theme.spacing[6] },
+  textArea: { height: 100, textAlignVertical: 'top' },
+  row: { flexDirection: 'row', gap: theme.spacing[3] },
+  col: { flex: 1 },
+  actionsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: theme.spacing[4] },
+  actionBtn: { flex: 1, borderRadius: 12 },
 });

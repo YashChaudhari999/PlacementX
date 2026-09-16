@@ -35,7 +35,6 @@ export default function CreateEventModal({
   const updateEvent = useUpdateCustomEvent();
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
     if (editEvent) {
       setTitle(editEvent.title || '');
       const sDate = new Date(editEvent.start);
@@ -60,7 +59,6 @@ export default function CreateEventModal({
       setColor('#4f46e5');
       setDescription('');
     }
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [selectedDate, editEvent, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {

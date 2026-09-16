@@ -13,7 +13,7 @@ interface UpcomingEventsProps {
 
 export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events, onEventClick }) => {
   const now = new Date();
-  
+
   const upcoming = events
     .filter((e) => e.start && isAfter(new Date(e.start), now))
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime())
@@ -29,8 +29,18 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events, onEventC
   const getStatusBadge = (event: CalendarEvent) => {
     const type = event.extendedProps?.type || 'Event';
     if (type.includes('Deadline')) return <Badge variant="warning">{type}</Badge>;
-    if (type.includes('Drive')) return <Badge variant="default" className="bg-primary">{type}</Badge>;
-    if (type.includes('Interview') || type.includes('Round')) return <Badge variant="success" className="bg-success text-success-foreground">{type}</Badge>;
+    if (type.includes('Drive'))
+      return (
+        <Badge variant="default" className="bg-primary">
+          {type}
+        </Badge>
+      );
+    if (type.includes('Interview') || type.includes('Round'))
+      return (
+        <Badge variant="success" className="bg-success text-success-foreground">
+          {type}
+        </Badge>
+      );
     return <Badge variant="secondary">{type}</Badge>;
   };
 
@@ -55,7 +65,7 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events, onEventC
         ) : (
           <div className="space-y-3">
             {upcoming.map((event, index) => (
-              <motion.div 
+              <motion.div
                 key={event.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -70,11 +80,11 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events, onEventC
                   </span>
                   {getStatusBadge(event)}
                 </div>
-                
+
                 <h4 className="font-semibold text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors leading-tight mb-2">
                   {event.title}
                 </h4>
-                
+
                 <div className="flex flex-col gap-1.5 mt-2">
                   {event.extendedProps?.company && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
@@ -82,7 +92,7 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({ events, onEventC
                       {event.extendedProps.company}
                     </p>
                   )}
-                  
+
                   {event.extendedProps?.venue && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <MapPin className="h-3.5 w-3.5 opacity-70" />

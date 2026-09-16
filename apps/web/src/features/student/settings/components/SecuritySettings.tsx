@@ -88,7 +88,7 @@ export default function SecuritySettings() {
           </div>
         </form>
       </Card>
-      
+
       <Card className="p-6 border border-slate-200/60 shadow-lg shadow-slate-200/40 bg-white/90 backdrop-blur-xl opacity-70">
         <h3 className="font-bold text-slate-800 text-lg border-b border-slate-100 pb-4 mb-4">
           Two-Factor Authentication (2FA)

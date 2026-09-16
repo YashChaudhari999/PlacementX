@@ -1,7 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getStudentCalendar } from '../services/calendar.service';
 import { useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+import { io } from 'socket.io-client';
 
 export const useStudentCalendar = (start?: string, end?: string) => {
   const queryClient = useQueryClient();
@@ -16,7 +17,7 @@ export const useStudentCalendar = (start?: string, end?: string) => {
     // We assume the token is automatically managed or we could retrieve it from auth store if needed
     const socketUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     let socket: Socket | null = null;
-    
+
     try {
       socket = io(socketUrl, {
         withCredentials: true,
@@ -36,7 +37,6 @@ export const useStudentCalendar = (start?: string, end?: string) => {
       socket.on('drive_date_changed', handleUpdate);
       socket.on('application_deadline_changed', handleUpdate);
       socket.on('notification_received', handleUpdate); // generic fallback
-      
     } catch (e) {
       console.error('Socket connection failed for calendar', e);
     }

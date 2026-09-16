@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Calendar, ChevronRight } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { theme } from '../../theme/theme';
-import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar } from '../../components/ui';
+import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar, EmptyState } from '../../components/ui';
 import { usePublishedDrives, useStudentApplications } from '../../hooks/queries';
 
 export default function ApplicationsScreen() {
@@ -31,12 +31,12 @@ export default function ApplicationsScreen() {
     refetchApps();
   };
 
-  const handleDrivePress = (id: string) => {
+  const handleDrivePress = React.useCallback((id: string) => {
     // Navigate to DriveDetails which is nested inside HomeStack
     navigation.navigate('HomeStack', { screen: 'DriveDetails', params: { id } });
-  };
+  }, [navigation]);
 
-  const renderDriveCard = ({ item }: { item: any }) => {
+  const renderDriveCard = React.useCallback(({ item }: { item: any }) => {
     const drive = activeTab === 'My Applications' ? item.drive : item;
     const status = activeTab === 'My Applications' ? item.status : drive.status;
 
@@ -92,7 +92,7 @@ export default function ApplicationsScreen() {
         </Card>
       </TouchableOpacity>
     );
-  };
+  }, [activeTab, handleDrivePress]);
 
   const getFilteredData = () => {
     let data: any[] = activeTab === 'All Drives' ? (allDrives || []) : (applications || []);
@@ -113,46 +113,51 @@ export default function ApplicationsScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader title="Placement Drives" />
-      
-      <View style={styles.searchContainer}>
-        <SearchBar 
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="Search company or role..."
-        />
-      </View>
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScreenHeader title="Drives & Applications" />
+        
+        <View style={styles.searchContainer}>
+          <SearchBar 
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search company or role..."
+          />
+        </View>
 
-      <View style={styles.tabContainer}>
-        <TabBar 
-          tabs={['All Drives', 'My Applications']}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
-      </View>
+        <View style={styles.tabContainer}>
+          <TabBar 
+            tabs={['All Drives', 'My Applications']}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+        </View>
 
-      {(loadingDrives || loadingApps) ? (
-        <ListSkeleton />
-      ) : (
-        <FlatList
-          data={getFilteredData()}
-          keyExtractor={(item) => item.id}
-          renderItem={renderDriveCard}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={false} onRefresh={handleRefresh} tintColor={theme.colors.primary} />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>
-                {activeTab === 'All Drives' 
-                  ? 'No drives found.' 
+        {(loadingDrives || loadingApps) ? (
+          <ListSkeleton />
+        ) : (
+          <FlatList
+            data={getFilteredData()}
+            keyExtractor={(item) => item.id}
+            renderItem={renderDriveCard}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl refreshing={false} onRefresh={handleRefresh} tintColor={theme.colors.primary} />
+            }
+            ListEmptyComponent={
+              <EmptyState
+                icon={<MapPin size={48} color={theme.colors.mutedForeground} />}
+                title={activeTab === 'All Drives' ? 'No Placement Drives' : 'No Applications'}
+                description={activeTab === 'All Drives' 
+                  ? 'There are currently no placement drives available.' 
                   : 'You have not applied to any drives yet.'}
-              </Text>
-            </View>
-          }
-        />
-      )}
+              />
+            }
+          />
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -160,7 +165,7 @@ export default function ApplicationsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: theme.colors.background,
   },
   searchContainer: {
     padding: theme.spacing[4],
@@ -185,7 +190,7 @@ const styles = StyleSheet.create({
   driveCard: {
     padding: theme.spacing[5],
     borderRadius: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderWidth: 0,
   },
   driveHeader: {
@@ -283,7 +288,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing[8],
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.colors.card,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: theme.colors.border,

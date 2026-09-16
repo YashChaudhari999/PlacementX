@@ -15,7 +15,6 @@ import type {
   ActionCenterResponse,
   OperationalHealth,
   YearComparisonRow,
-  ForecastResponse,
 } from '../types/analytics.types';
 
 const BASE = '/admin/analytics';
@@ -115,12 +114,6 @@ export const analyticsService = {
   // ── Operational Health ────────────────────────────────────
   getOperational: async (): Promise<OperationalHealth> => {
     const { data } = await api.get(`${BASE}/placement/operational`);
-    return data;
-  },
-
-  // ── ML Forecast ───────────────────────────────────────────
-  getForecast: async (params?: AnalyticsFilters): Promise<ForecastResponse> => {
-    const { data } = await api.get(`${BASE}/placement/forecast`, { params: toParams(params) });
     return data;
   },
 

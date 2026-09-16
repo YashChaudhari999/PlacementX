@@ -9,11 +9,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { theme } from '../../theme/theme';
 import { Card, ScreenHeader, StatusBadge, ListSkeleton, SearchBar, EmptyState } from '../../components/ui';
 import { useAdminDrives } from '../../hooks/queries';
+import { useAuthStore } from '../../stores/authStore';
 
 export default function DriveListScreen() {
   const drawerNav = useNavigation<DrawerNavigationProp<any>>();
   const stackNav = useNavigation<NativeStackNavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
+  const user = useAuthStore(state => state.user);
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
   
   const { data: drives, isLoading, refetch } = useAdminDrives();
 
@@ -75,12 +78,14 @@ export default function DriveListScreen() {
         title="Placement Drives" 
         rightElement={
           <View style={styles.headerActions}>
-            <TouchableOpacity 
-              onPress={() => stackNav.navigate('CreateDrive')}
-              style={styles.actionBtn}
-            >
-              <Plus color={theme.colors.primary} size={24} />
-            </TouchableOpacity>
+            {isSuperAdmin && (
+              <TouchableOpacity 
+                onPress={() => stackNav.navigate('CreateDrive')}
+                style={styles.actionBtn}
+              >
+                <Plus color={theme.colors.primary} size={24} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity 
               onPress={() => drawerNav.toggleDrawer()}
               style={styles.actionBtn}

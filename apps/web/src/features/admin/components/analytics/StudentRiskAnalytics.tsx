@@ -148,21 +148,6 @@ export default function StudentRiskAnalytics({ data }: { data: StudentRiskRespon
                   <td className="px-6 py-4 text-slate-600">{student.department || 'N/A'}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${
-                          student.readinessScore !== null
-                            ? student.readinessScore > 75
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : student.readinessScore > 50
-                                ? 'bg-blue-100 text-blue-700'
-                                : student.readinessScore > 30
-                                  ? 'bg-amber-100 text-amber-700'
-                                  : 'bg-rose-100 text-rose-700'
-                            : 'bg-slate-100 text-slate-600'
-                        }`}
-                      >
-                        {student.readinessScore !== null ? Math.round(student.readinessScore) : '-'}
-                      </div>
                       <div className="text-xs text-slate-500">
                         CGPA:{' '}
                         <span className="font-bold text-slate-900">

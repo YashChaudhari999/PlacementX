@@ -2,9 +2,9 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-14 22:25 IST
-**Last Verified Against Codebase:** 2026-09-14 22:25 IST
-**Context Version:** 1.4
+**Last Updated:** 2026-09-16 09:29 IST
+**Last Verified Against Codebase:** 2026-09-16 09:29 IST
+**Context Version:** 1.5
 
 ---
 
@@ -16,7 +16,7 @@ PlacementX
 
 ## Project Description
 
-PlacementX is an **Intelligent Campus Placement Automation and Decision Support Platform** built as a capstone project for **NMIMS University**. It is a full-stack, multi-platform application (web + mobile + AI/ML microservice) designed to digitize and automate the entire campus placement lifecycle — from student profile management to company drive creation, HR collaboration, application tracking, analytics, and AI-driven decision support.
+PlacementX is a **Campus Placement Automation Platform** built as a capstone project for **NMIMS University**. It is a full-stack, multi-platform application (web + mobile) designed to digitize and automate the entire campus placement lifecycle — from student profile management to company drive creation, HR collaboration, application tracking, and analytics.
 
 ## Problem Being Solved
 
@@ -32,16 +32,16 @@ Manual, spreadsheet-driven campus placement processes at NMIMS University. The p
 ## Main Goals
 
 1. End-to-end placement lifecycle automation
-2. AI/ML-powered decision support (student success prediction, placement forecasting)
+2. ~~AI/ML-powered decision support (Removed)~~
 3. Real-time notifications (web + push via Firebase Cloud Messaging)
 4. Multi-platform access (web now, React Native mobile in progress)
 5. Analytics and reporting dashboard for the placement cell
 
 ## Current Status
 
-**Development / MVP**
+**Production Ready (V1)**
 
-The core web application, backend API, and mobile app are all actively under development. Key features (auth, student profiles, placement drives, HR collaboration portal, notifications, analytics) are implemented. The ML microservice is fully production-ready with real data pipelines, hashed model registries, and secured endpoints. This is a university capstone project moving towards production.
+The core web application, backend API, and mobile app are all fully implemented and achieve functional parity. Key features (auth, student profiles, placement drives, HR collaboration portal, real-time notifications, analytics) are production-ready. This university capstone project is now positioned for final deployment.
 
 ---
 
@@ -69,14 +69,14 @@ The core web application, backend API, and mobile app are all actively under dev
 | **Push Notifications (FCM)** | Firebase Cloud Messaging for mobile push | All | ✅ Completed |
 | **Socket.io Real-time Updates** | Live notification delivery via WebSocket | All | ✅ Completed |
 | **Calendar View** | Admin calendar for drive scheduling (FullCalendar) | Admin | ✅ Completed |
-| **Reports Generation** | Exportable placement reports | Admin | 🚧 In Progress |
+| **Reports Generation** | Exportable placement reports | Admin | ✅ Completed |
 | **Admin Settings** | Coordinator management, system configuration | Admin | ✅ Completed |
-| **Mobile App (React Native)** | Student-facing mobile app with Expo | Student | 🚧 In Progress |
-| **AI Success Prediction** | ML model predicts student placement success probability | Admin, ML Service | ✅ Completed |
-| **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ✅ Completed |
-| **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ✅ Completed |
-| **AI Embeddings** | Generate profile/job embeddings for semantic matching | System | ✅ Completed |
-| **AI Admin Analytics** | Advanced AI analytics for admins | Admin | ✅ Completed |
+| **Mobile App (React Native)** | Student-facing mobile app with Expo | Student | ✅ Completed |
+| **AI Success Prediction** | ML model predicts student placement success probability | Admin, ML Service | ❌ Removed |
+| **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ❌ Removed |
+| **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ❌ Removed |
+| **AI Embeddings** | Generate profile/job embeddings for semantic matching | System | ❌ Removed |
+| **AI Admin Analytics** | Advanced AI analytics for admins | Admin | ❌ Removed |
 | **Recruiter Event Portal** | Public recruiter event view via token | Recruiter | ✅ Completed |
 | **Global UI Loader** | Centralized React Query fetching loader across the application | All | ✅ Completed |
 | **Separated Academic Documents** | Secure individual PDF uploads of student academic documents (10th, 12th/Diploma, Degree) to Supabase Storage | Student, Admin | ✅ Completed |
@@ -130,9 +130,7 @@ The core web application, backend API, and mobile app are all actively under dev
 - `[x]` **P1.1 Complete Mobile Core Screens**
   - **Problem**: `apps/mobile/src/screens/` has missing implementations for the student dashboard and profile view.
   - **Task**: Implement the remaining screens maintaining the existing React Native architecture.
-- `[x]` **P1.2 Complete NLP Resume Parsing**
-  - **Problem**: `ml-service/app/preprocessing/resume_processing.py` uses mock regex instead of the actual PyMuPDF + spaCy NLP logic.
-  - **Task**: Replace the mock implementation with actual NLP extraction (NER). The ML service is already set up and dependencies are in `requirements.txt`.
+- `[x]` ~~**P1.2 Complete NLP Resume Parsing**~~ (❌ Removed)
 
 ### Phase 3: Fix Outstanding Architecture Debt (P2)
 
@@ -238,7 +236,7 @@ The core web application, backend API, and mobile app are all actively under dev
 | DB Driver | pg | ^8.22.0 |
 | Supabase Client | @supabase/supabase-js | ^2.112.3 |
 
-## ML Service — `ml-service`
+## ML Service — `ml-service` (❌ Removed)
 
 | Concern | Technology |
 |---------|-----------|
@@ -261,13 +259,13 @@ The core web application, backend API, and mobile app are all actively under dev
 | **ORM** | Prisma (schema at `apps/api/prisma/schema.prisma`) |
 | **Legacy DB** | Firebase Realtime Database (auth + some legacy data; being migrated) |
 | **Local Dev DB** | SQLite (`prisma/dev.db`) exists for quick local development |
-| **Vector Extension** | pgvector v0.5.1 (for AI embeddings in Docker setup) |
+
 
 ## Infrastructure
 
 | Concern | Detail |
 |---------|--------|
-| Containerization | Docker + docker-compose (PostgreSQL + ML service) |
+| Containerization | Docker + docker-compose (PostgreSQL) |
 | Cloud Backend | Firebase (Auth, Realtime DB, Cloud Storage, FCM) |
 | Cloud Database | Supabase (PostgreSQL hosting) |
 | Queue Backend | Redis (for BullMQ notification queue) |
@@ -372,23 +370,6 @@ PlacementX/
 │   ├── utils/                      # Shared utilities
 │   └── validation/                 # Shared validation schemas
 │
-├── ml-service/                     # Python FastAPI ML microservice
-│   ├── app/
-│   │   ├── api/                    # FastAPI route handlers
-│   │   ├── database/               # Database connection
-│   │   ├── models/                 # ML model definitions
-│   │   ├── preprocessing/          # Data preprocessing
-│   │   ├── schemas/                # Pydantic schemas
-│   │   ├── services/               # ML service logic
-│   │   └── main.py                 # FastAPI entry point
-│   ├── artifacts/                  # Trained model files (.joblib)
-│   ├── datasets/                   # Training datasets
-│   ├── reports/                    # Training reports
-│   ├── tests/                      # ML tests
-│   ├── training/                   # Training scripts
-│   ├── Dockerfile
-│   └── requirements.txt
-│
 ├── Student_data/                   # Raw student data (Excel files for import)
 │   ├── Current/                    # Current year data
 │   └── previous/                   # Historical data
@@ -399,7 +380,7 @@ PlacementX/
 ├── database.rules.json             # Firebase Realtime Database security rules
 ├── database_architecture.md        # Firebase DB architecture documentation
 ├── database_scheme.md              # Firebase DB schema documentation
-├── docker-compose.yml              # Docker: PostgreSQL (pgvector) + ML service
+├── docker-compose.yml              # Docker: PostgreSQL
 ├── excel_schema.json               # Excel import schema definition
 ├── login_credentials.md            # Test account credentials
 ├── run.bat                         # Windows dev startup script
@@ -443,23 +424,16 @@ flowchart TB
         Redis["Redis\n(Queue Backend)"]
     end
 
-    subgraph AI
-        ML["FastAPI ML Service\n(port 8000)"]
-        Models["Trained Models\n(joblib artifacts)"]
-    end
-
+    
     Web -->|REST + Socket.io| API
     Mobile -->|REST + Socket.io| API
     HR -->|REST| API
     API --> PG
     API --> Firebase
     API --> Redis
-    API --> ML
-    SocketIO --- API
+        SocketIO --- API
     BullMQ --- Redis
-    ML --> Models
-    ML --> PG
-```
+        ```
 
 ### Data Flow
 
@@ -489,8 +463,7 @@ PostgreSQL Database
        │
        ├── Socket.io event → Client real-time update
        ├── BullMQ job → Push notification (FCM)
-       └── ML Service call → AI predictions
-```
+       ```
 
 ### Authentication & Authorization Flow
 
@@ -667,11 +640,11 @@ Schema source of truth: `apps/api/prisma/schema.prisma`
 | Entity | Purpose | Key Fields |
 |--------|---------|------------|
 | `User` | Core account | id, email, password, role, firebaseUid, mustChangePassword |
-| `StudentProfile` | Student details | userId, firstName, lastName, cgpa, branch, skills, resumeUrl, isProfileComplete, profileStatus, AI fields |
+| `StudentProfile` | Student details | userId, firstName, lastName, cgpa, branch, skills, resumeUrl, isProfileComplete, profileStatus |
 | `AdminProfile` | Admin details | userId, firstName, lastName |
 | `CoordinatorProfile` | Coordinator details | userId, firstName, lastName, department |
 | `Company` | Company registry | name, industry, hrName, hrEmail, logoUrl, website |
-| `PlacementDrive` | Placement event | companyId, status, jobRole, eligibility criteria, salary, schedule, AI fields |
+| `PlacementDrive` | Placement event | companyId, status, jobRole, eligibility criteria, salary, schedule |
 | `SelectionRound` | Drive round details | driveId, roundNumber, title, roundType, date, venue |
 | `DriveApplication` | Student application | driveId, studentId, status |
 | `OfferLetter` | Offer/joining letters | applicationId, offerLetterUrl, joiningLetterUrl |
@@ -783,7 +756,7 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 | GET | `/student/applications` | JWT | List own applications |
 | GET | `/student/interviews` | JWT | Get interview schedule |
 | GET | `/student/documents` | JWT | Get documents |
-| POST | `/student/:studentId/ml-predict` | Admin | Trigger ML prediction |
+| GET | `/student/documents` | JWT | Get documents |
 
 ### HR Endpoints
 
@@ -834,7 +807,7 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 
 *Note: Analytics routes do not have explicit auth middleware in the route file. Likely accessed from admin-authenticated context.
 
-### ML Service Endpoints (port 8000)
+### ML Service Endpoints (❌ Removed)
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -1039,7 +1012,6 @@ npm start                                    # Expo dev server
 # docker-compose.yml
 services:
   db: PostgreSQL + pgvector (port 5432)
-  ml-service: FastAPI ML service (port 8000)
 ```
 
 ### Future Deployment Architecture (Planned)
@@ -1047,7 +1019,6 @@ services:
 - **Frontend:** Could be deployed to Vercel, Netlify, or Firebase Hosting
 - **Backend API:** Could be deployed to Railway, Render, or GCP Cloud Run
 - **Database:** Supabase (already configured)
-- **ML Service:** Docker container on GCP Cloud Run or similar
 - **Firebase:** Already configured for Auth, Storage, FCM
 
 > Production deployment details: **Not documented in repository.**
@@ -1162,7 +1133,6 @@ services:
 
 ### ⏳ Pending
 
-- Recruiter Event Portal (backend controller missing, frontend placeholder)
 - Cloud Functions for server-side triggers
 - Full Firebase → PostgreSQL migration completion
 - Production deployment
@@ -1361,8 +1331,7 @@ Verified against actual repository structure, source code, and existing document
 | Firebase Rules | `database.rules.json` |
 | Environment Config | `.env.example` |
 | Dependencies | `package.json` (root + apps/*) |
-| ML Service | `ml-service/app/main.py`, `ml-service/requirements.txt` |
-| Docker Config | `docker-compose.yml`, `ml-service/Dockerfile` |
+| Docker Config | `docker-compose.yml` |
 | Seed Data | `apps/api/src/seed.ts` |
 | Test Credentials | `login_credentials.md` |
 | Dev Prompts | `All Prompts/` directory |
@@ -1445,3 +1414,32 @@ Verified against actual repository structure, source code, and existing document
 - Hardened the ML API Gateway with `verifyToken` and `isAdmin` middleware, restricted CORS, and converted the Docker execution context to a non-root `mluser`.
 - Replaced the mock/regex resume parser with a massive taxonomy engine capable of confidence scoring across hundreds of skills, gracefully degrading if NLP models fail.
 - Established rigorous API endpoints (including `/batch` embeddings, `/health`, `/ready`) covered by a 100% passing test suite.
+
+### 2026-09-15 - Mobile App Production Parity
+**Type:** Feature / UX Improvement
+
+**Summary:**
+- Transformed the `apps/mobile` Expo prototype into a fully production-ready client.
+- Achieved complete functional parity with the web platform for students (Dashboard, Drives, Profile, Applications).
+- Fixed all TypeScript compilation issues and navigation bugs.
+- Implemented deep-linking via Expo Push Notifications and Socket.io real-time listeners.
+- Refined UI components to perfectly match the web application's PlacementX design system (Maroon, Navy, Gold).
+
+### 2026-09-16 - API Security Hardening & Mobile Documentation Overhaul
+**Type:** Security / Documentation / Feature
+
+**Summary:**
+- Hardened AI routes (`ai.routes.ts`) by implementing granular role-based access control with `authenticate` and `authorize('SUPER_ADMIN', 'COORDINATOR')` middlewares.
+- Added comprehensive mobile production documentation suite in `docs/mobile/` covering Accessibility, Security, Design System, Interaction Audit, Performance, and Test Plans.
+- Introduced new untracked mobile app screens: `ChangePasswordScreen`, `AiResumeParserScreen`, and `CalendarScreen` to match web feature parity.
+
+
+### 2026-09-16 - Complete ML/AI Subsystem Removal & Admin Features
+**Type:** Refactor / Feature
+
+**Summary:**
+- Completely removed the ML/AI Python microservice (`ml-service`) and all its dependencies from the monorepo to streamline the architecture.
+- Removed AI-specific fields (`aiKeywords`, `matchScore`, `readinessScore`, `semanticTags`) from the Prisma database schema and API controllers.
+- Fixed residual `PrismaClientValidationError` in the `getDrives` API by ensuring stripped ML fields were removed from controller projection selections.
+- Added Appearance Settings (Theme and Compact Mode toggle) to the Admin Control Center, giving admins the same UI customization capabilities as students.
+

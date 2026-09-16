@@ -309,7 +309,7 @@ export default function AdminDashboardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff', // Clean white background like web
+    backgroundColor: theme.colors.card, // Clean white background like web
   },
   scrollContent: {
     padding: theme.spacing[4],
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     marginTop: theme.spacing[3],
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -464,7 +464,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing[4],
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
   },
   listCardTitle: {
     fontSize: 15,
@@ -479,13 +479,13 @@ const styles = StyleSheet.create({
   },
   listCardIconBox: {
     padding: 8,
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
   listContent: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.background,
     padding: theme.spacing[4],
     gap: theme.spacing[3],
   },
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: theme.spacing[3],
     paddingHorizontal: theme.spacing[4],
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.card,
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,

@@ -10,7 +10,7 @@ export default function RegionalSettings() {
   const [formData, setFormData] = useState({
     language: 'en',
     timezone: 'Asia/Kolkata',
-    timeFormat: '12-hour'
+    timeFormat: '12-hour',
   });
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export default function RegionalSettings() {
       setFormData({
         language: data.preferences.language || 'en',
         timezone: data.preferences.timezone || 'Asia/Kolkata',
-        timeFormat: data.preferences.timeFormat || '12-hour'
+        timeFormat: data.preferences.timeFormat || '12-hour',
       });
     }
   }, [data]);
@@ -36,12 +36,11 @@ export default function RegionalSettings() {
         Language & Regional Settings
       </h3>
       <form onSubmit={handleSubmit} className="space-y-6">
-        
         <div className="space-y-2 max-w-md">
           <label className="text-sm font-medium text-slate-700">Language</label>
-          <select 
+          <select
             value={formData.language}
-            onChange={(e) => setFormData({...formData, language: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, language: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="en">English (US)</option>
@@ -52,9 +51,9 @@ export default function RegionalSettings() {
 
         <div className="space-y-2 max-w-md">
           <label className="text-sm font-medium text-slate-700">Timezone</label>
-          <select 
+          <select
             value={formData.timezone}
-            onChange={(e) => setFormData({...formData, timezone: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="Asia/Kolkata">India Standard Time (IST)</option>
@@ -64,9 +63,9 @@ export default function RegionalSettings() {
 
         <div className="space-y-2 max-w-md">
           <label className="text-sm font-medium text-slate-700">Time Format</label>
-          <select 
+          <select
             value={formData.timeFormat}
-            onChange={(e) => setFormData({...formData, timeFormat: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, timeFormat: e.target.value })}
             className="w-full h-10 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           >
             <option value="12-hour">12-hour (1:00 PM)</option>

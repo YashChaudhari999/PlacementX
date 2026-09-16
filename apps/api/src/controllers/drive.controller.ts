@@ -56,7 +56,6 @@ const driveSelectFields = {
   specialInstructions: true,
   technologyStack: true,
   trainingPeriod: true,
-  semanticTags: true,
 };
 
 

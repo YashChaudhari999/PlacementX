@@ -6,14 +6,26 @@ import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState } from '../../components/ui';
-import { useAdminStudents } from '../../hooks/queries';
+import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState, TabBar, Button, Toast } from '../../components/ui';
+import { useAdminStudents, usePendingProfiles, useVerifyProfile } from '../../hooks/queries';
 
 export default function AdminStudentsScreen() {
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('All Students');
   
-  const { data: students, isLoading, refetch } = useAdminStudents();
+  const { data: students, isLoading: loadingStudents, refetch: refetchStudents } = useAdminStudents();
+  const { data: pendingProfiles, isLoading: loadingPending, refetch: refetchPending } = usePendingProfiles();
+  const verifyMutation = useVerifyProfile();
+
+  const handleVerify = async (id: string, action: 'APPROVE' | 'REJECT') => {
+    try {
+      await verifyMutation.mutateAsync({ id, action });
+      Toast.success(`Profile ${action.toLowerCase()}d successfully`);
+    } catch (e) {
+      // error handled in mutation
+    }
+  };
 
   const getFilteredStudents = () => {
     if (!students) return [];
@@ -64,6 +76,25 @@ export default function AdminStudentsScreen() {
           </Text>
         </View>
       </View>
+      
+      {activeTab === 'Pending Verification' && item.profileStatus === 'PENDING_VERIFICATION' && (
+        <View style={styles.actionRow}>
+          <Button 
+            title="Approve" 
+            variant="default" 
+            style={styles.actionBtnApprove} 
+            onPress={() => handleVerify(item.id, 'APPROVE')}
+            isLoading={verifyMutation.isPending}
+          />
+          <Button 
+            title="Reject" 
+            variant="outline" 
+            style={styles.actionBtnReject} 
+            onPress={() => handleVerify(item.id, 'REJECT')}
+            isLoading={verifyMutation.isPending}
+          />
+        </View>
+      )}
     </Card>
   );
 
@@ -85,7 +116,12 @@ export default function AdminStudentsScreen() {
           </View>
         }
       />
-      
+      <TabBar 
+        tabs={['All Students', 'Pending Verification']} 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+      />
+
       <View style={styles.searchContainer}>
         <SearchBar 
           value={searchQuery}
@@ -94,20 +130,25 @@ export default function AdminStudentsScreen() {
         />
       </View>
 
-      {isLoading ? (
+      {(activeTab === 'All Students' ? loadingStudents : loadingPending) ? (
         <ListSkeleton />
       ) : (
         <FlatList
-          data={getFilteredStudents()}
+          data={activeTab === 'All Students' ? getFilteredStudents() : pendingProfiles}
           keyExtractor={(item) => item.id}
           renderItem={renderStudentCard}
           contentContainerStyle={styles.listContent}
-          refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} />}
+          refreshControl={
+            <RefreshControl 
+              refreshing={false} 
+              onRefresh={activeTab === 'All Students' ? refetchStudents : refetchPending} 
+            />
+          }
           ListEmptyComponent={
             <EmptyState
               icon={<Search size={48} color={theme.colors.mutedForeground} />}
-              title="No Students Found"
-              description="No students match your current search criteria."
+              title={activeTab === 'All Students' ? "No Students Found" : "No Pending Verifications"}
+              description={activeTab === 'All Students' ? "No students match your current search criteria." : "All student profiles are verified."}
             />
           }
         />
@@ -187,5 +228,21 @@ const styles = StyleSheet.create({
   detailText: {
     fontSize: 14,
     color: theme.colors.mutedForeground,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: theme.spacing[3],
+    marginTop: theme.spacing[4],
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+    paddingTop: theme.spacing[4],
+  },
+  actionBtnApprove: {
+    flex: 1,
+    borderRadius: 8,
+  },
+  actionBtnReject: {
+    flex: 1,
+    borderRadius: 8,
   },
 });

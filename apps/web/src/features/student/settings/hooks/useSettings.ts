@@ -11,7 +11,7 @@ import {
   deleteDevice,
   submitSupportRequest,
   requestDeactivation,
-  exportData
+  exportData,
 } from '../services/settings.service';
 
 export const useSettings = () => {
@@ -32,7 +32,7 @@ export const useUpdatePreferences = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to update preferences');
-    }
+    },
   });
 };
 
@@ -46,7 +46,7 @@ export const useUpdatePrivacy = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to update privacy settings');
-    }
+    },
   });
 };
 
@@ -60,7 +60,7 @@ export const useUpdateCalendar = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to update calendar settings');
-    }
+    },
   });
 };
 
@@ -74,7 +74,7 @@ export const useUpdateRegional = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to update regional settings');
-    }
+    },
   });
 };
 
@@ -88,7 +88,7 @@ export const useUpdateNotifications = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to update notification settings');
-    }
+    },
   });
 };
 
@@ -110,7 +110,7 @@ export const useDeleteDevice = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to remove device');
-    }
+    },
   });
 };
 
@@ -122,7 +122,7 @@ export const useSubmitSupportRequest = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to submit support request');
-    }
+    },
   });
 };
 
@@ -134,7 +134,7 @@ export const useRequestDeactivation = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to request deactivation');
-    }
+    },
   });
 };
 
@@ -154,6 +154,6 @@ export const useExportData = () => {
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.error || 'Failed to export data');
-    }
+    },
   });
 };

@@ -58,7 +58,7 @@ export const READINESS_TIERS = {
 export const INSIGHT_CATEGORIES = [
   'PLACEMENT', 'DEPARTMENT', 'STUDENT', 'COMPANY',
   'SKILL', 'SALARY', 'DRIVE', 'RECRUITER',
-  'OPERATIONS', 'FORECAST',
+  'OPERATIONS',
 ] as const;
 
 export const INSIGHT_SEVERITIES = [

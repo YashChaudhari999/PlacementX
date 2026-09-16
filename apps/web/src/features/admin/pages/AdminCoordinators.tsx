@@ -37,7 +37,6 @@ export default function AdminCoordinators() {
   };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCoordinators();
   }, []);
 

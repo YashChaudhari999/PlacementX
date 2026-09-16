@@ -101,10 +101,3 @@ export const useOperationalHealth = () =>
     queryFn: () => analyticsService.getOperational(),
     staleTime: STALE,
   });
-
-export const useForecast = (params?: AnalyticsFilters) =>
-  useQuery({
-    queryKey: ['analytics', 'forecast', params],
-    queryFn: () => analyticsService.getForecast(params),
-    staleTime: STALE,
-  });

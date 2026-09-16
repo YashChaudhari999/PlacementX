@@ -1,11 +1,14 @@
 import api from '../../../../lib/api';
 import type { CalendarResponse, CalendarEvent } from '../types/calendar.types';
 
-export const getStudentCalendar = async (start?: string, end?: string): Promise<CalendarResponse> => {
+export const getStudentCalendar = async (
+  start?: string,
+  end?: string
+): Promise<CalendarResponse> => {
   const params: any = {};
   if (start) params.start = start;
   if (end) params.end = end;
-  
+
   const response = await api.get('/student/calendar', { params });
   return response.data;
 };
@@ -20,9 +23,10 @@ export const downloadIcs = (event: CalendarEvent) => {
 
   const start = formatIcsDate(event.start);
   const end = formatIcsDate(event.end || event.start); // fallback to start if end not provided
-  
+
   const props = event.extendedProps || {};
-  const description = `${props.type || ''}\n${props.description || ''}\n${props.instructions || ''}`.trim();
+  const description =
+    `${props.type || ''}\n${props.description || ''}\n${props.instructions || ''}`.trim();
   const location = props.venue || 'TBD';
 
   const icsContent = `BEGIN:VCALENDAR
@@ -41,7 +45,7 @@ END:VCALENDAR`;
 
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = window.URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.setAttribute('download', `${event.title.replace(/\s+/g, '_')}.ics`);

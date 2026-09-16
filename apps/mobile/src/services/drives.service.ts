@@ -24,7 +24,13 @@ export const drivesService = {
   },
 
   applyForDrive: async (id: string) => {
-    const response = await apiClient.post(API_ENDPOINTS.DRIVE_APPLICATIONS(id));
+    // Calling student endpoint for drive application
+    const response = await apiClient.post(API_ENDPOINTS.STUDENT_APPLICATIONS, { driveId: id });
+    return response.data;
+  },
+
+  createDrive: async (data: any) => {
+    const response = await apiClient.post(API_ENDPOINTS.ADMIN_DRIVES, data);
     return response.data;
   }
 };

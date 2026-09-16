@@ -26,15 +26,11 @@ export default function StudentCalendar() {
   if (error) {
     return (
       <div className="h-[70vh] flex flex-col justify-center">
-        <EmptyState 
+        <EmptyState
           icon={<Calendar01Icon className="w-12 h-12 text-muted-foreground" />}
           title="Failed to Load Schedule"
           description="We couldn't retrieve your placement calendar. Please check your connection and try again."
-          action={
-            <Button onClick={() => window.location.reload()}>
-              Try Again
-            </Button>
-          }
+          action={<Button onClick={() => window.location.reload()}>Try Again</Button>}
         />
       </div>
     );
@@ -49,7 +45,7 @@ export default function StudentCalendar() {
     <div className="max-w-[1600px] mx-auto pb-12 relative h-full">
       {/* Decorative Background Gradients */}
       <div className="absolute top-0 left-1/4 w-[800px] h-[400px] bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
-      
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -66,14 +62,14 @@ export default function StudentCalendar() {
             </h1>
           </div>
           <p className="text-muted-foreground text-base max-w-2xl leading-relaxed">
-            Track your application deadlines, upcoming drives, and interview schedules all in one place.
+            Track your application deadlines, upcoming drives, and interview schedules all in one
+            place.
           </p>
         </div>
       </motion.div>
 
       {/* Main Layout Grid */}
       <div className="flex flex-col xl:flex-row gap-8 items-start">
-        
         {/* Sidebar - Upcoming Events */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -81,10 +77,7 @@ export default function StudentCalendar() {
           transition={{ delay: 0.1 }}
           className="w-full xl:w-[340px] shrink-0"
         >
-          <UpcomingEvents 
-            events={data?.events || []} 
-            onEventClick={(e) => setSelectedEvent(e)}
-          />
+          <UpcomingEvents events={data?.events || []} onEventClick={(e) => setSelectedEvent(e)} />
         </motion.div>
 
         {/* Calendar Core area */}
@@ -95,11 +88,10 @@ export default function StudentCalendar() {
           className="flex-1 w-full min-w-0 flex flex-col gap-6"
         >
           <div className="bg-card/80 backdrop-blur-xl rounded-3xl border border-border shadow-sm p-4 sm:p-6 md:p-8 min-h-[600px] xl:h-[850px] calendar-wrapper relative overflow-hidden group/calendar">
-            
             {isPending && (
-               <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-3xl">
-                 <LoadingState text="Syncing your schedule..." />
-               </div>
+              <div className="absolute inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm rounded-3xl">
+                <LoadingState message="Syncing your schedule..." />
+              </div>
             )}
 
             <style>{`
@@ -222,7 +214,10 @@ export default function StudentCalendar() {
               headerToolbar={{
                 left: 'prev,next today',
                 center: 'title',
-                right: window.innerWidth < 768 ? 'listWeek,timeGridDay' : 'dayGridMonth,timeGridWeek,listWeek',
+                right:
+                  window.innerWidth < 768
+                    ? 'listWeek,timeGridDay'
+                    : 'dayGridMonth,timeGridWeek,listWeek',
               }}
               events={data?.events || []}
               eventClick={handleEventClick}

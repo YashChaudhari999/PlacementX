@@ -28,7 +28,6 @@ export default function ReportHistory() {
 
   // Sync initial query data to local state
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!loading) setHistory(initialHistory);
   }, [initialHistory, loading]);
 

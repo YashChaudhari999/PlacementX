@@ -209,7 +209,6 @@ export default function StudentProfile() {
 
   useEffect(() => {
     if (serverProfile) {
-      /* eslint-disable react-hooks/set-state-in-effect */
       setProfile({
         ...serverProfile,
         photoUrl: serverProfile.photoUrl || '',
@@ -238,7 +237,6 @@ export default function StudentProfile() {
         semesterMarks: serverProfile.semesterMarks || [],
         documents: serverProfile.documents || [],
       });
-      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [serverProfile]);
 
@@ -267,7 +265,7 @@ export default function StudentProfile() {
     if (profile.portfolioUrl) filled += 0.5;
 
     const percentage = Math.min(Math.round((filled / 11) * 100), 100);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+
     setCompletionPercentage(percentage);
   }, [profile]);
 

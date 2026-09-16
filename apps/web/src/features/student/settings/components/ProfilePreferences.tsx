@@ -12,17 +12,25 @@ export default function ProfilePreferences() {
     industries: '',
     locations: '',
     workMode: '',
-    salaryRange: ''
+    salaryRange: '',
   });
 
   useEffect(() => {
     if (data?.preferences) {
       setFormData({
-        jobCategories: Array.isArray(data.preferences.jobCategories) ? data.preferences.jobCategories.join(', ') : '',
-        industries: Array.isArray(data.preferences.industries) ? data.preferences.industries.join(', ') : '',
-        locations: Array.isArray(data.preferences.locations) ? data.preferences.locations.join(', ') : '',
-        workMode: Array.isArray(data.preferences.workMode) ? data.preferences.workMode.join(', ') : '',
-        salaryRange: data.preferences.salaryRange || ''
+        jobCategories: Array.isArray(data.preferences.jobCategories)
+          ? data.preferences.jobCategories.join(', ')
+          : '',
+        industries: Array.isArray(data.preferences.industries)
+          ? data.preferences.industries.join(', ')
+          : '',
+        locations: Array.isArray(data.preferences.locations)
+          ? data.preferences.locations.join(', ')
+          : '',
+        workMode: Array.isArray(data.preferences.workMode)
+          ? data.preferences.workMode.join(', ')
+          : '',
+        salaryRange: data.preferences.salaryRange || '',
       });
     }
   }, [data]);
@@ -30,11 +38,23 @@ export default function ProfilePreferences() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updatePrefs({
-      jobCategories: formData.jobCategories.split(',').map(s => s.trim()).filter(Boolean),
-      industries: formData.industries.split(',').map(s => s.trim()).filter(Boolean),
-      locations: formData.locations.split(',').map(s => s.trim()).filter(Boolean),
-      workMode: formData.workMode.split(',').map(s => s.trim()).filter(Boolean),
-      salaryRange: formData.salaryRange
+      jobCategories: formData.jobCategories
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      industries: formData.industries
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      locations: formData.locations
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      workMode: formData.workMode
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      salaryRange: formData.salaryRange,
     });
   };
 
@@ -47,43 +67,53 @@ export default function ProfilePreferences() {
       </h3>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Preferred Job Categories (comma separated)</label>
-          <Input 
+          <label className="text-sm font-medium text-slate-700">
+            Preferred Job Categories (comma separated)
+          </label>
+          <Input
             value={formData.jobCategories}
-            onChange={(e) => setFormData({...formData, jobCategories: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, jobCategories: e.target.value })}
             placeholder="e.g. Software Engineer, Data Scientist"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Target Industries (comma separated)</label>
-          <Input 
+          <label className="text-sm font-medium text-slate-700">
+            Target Industries (comma separated)
+          </label>
+          <Input
             value={formData.industries}
-            onChange={(e) => setFormData({...formData, industries: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, industries: e.target.value })}
             placeholder="e.g. Technology, Finance"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-sm font-medium text-slate-700">Preferred Locations (comma separated)</label>
-          <Input 
+          <label className="text-sm font-medium text-slate-700">
+            Preferred Locations (comma separated)
+          </label>
+          <Input
             value={formData.locations}
-            onChange={(e) => setFormData({...formData, locations: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, locations: e.target.value })}
             placeholder="e.g. Bangalore, Hyderabad, Remote"
           />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Work Mode (comma separated)</label>
-            <Input 
+            <label className="text-sm font-medium text-slate-700">
+              Work Mode (comma separated)
+            </label>
+            <Input
               value={formData.workMode}
-              onChange={(e) => setFormData({...formData, workMode: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, workMode: e.target.value })}
               placeholder="e.g. Remote, Hybrid, On-site"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Expected Salary Range (LPA)</label>
-            <Input 
+            <label className="text-sm font-medium text-slate-700">
+              Expected Salary Range (LPA)
+            </label>
+            <Input
               value={formData.salaryRange}
-              onChange={(e) => setFormData({...formData, salaryRange: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, salaryRange: e.target.value })}
               placeholder="e.g. 10 - 15 LPA"
             />
           </div>

@@ -6,11 +6,18 @@ import { LogOut, Bell, Shield, CircleHelp, Moon, ChevronRight } from 'lucide-rea
 import { theme } from '../../theme/theme';
 import { Card, ScreenHeader, Button } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
+import { useNotificationPreferences, useUpdateNotificationPreferences } from '../../hooks/queries/useNotifications';
 
 export default function SettingsScreen() {
   const { logout, user } = useAuthStore();
-  const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
   const [darkMode, setDarkMode] = React.useState(false);
+  
+  const { data: preferences, isLoading: prefsLoading } = useNotificationPreferences();
+  const updatePrefs = useUpdateNotificationPreferences();
+
+  const handleTogglePush = (value: boolean) => {
+    updatePrefs.mutate({ pushEnabled: value });
+  };
 
   const SettingRow = ({ icon, title, onPress, value }: { icon: React.ReactNode, title: string, onPress?: () => void, value?: React.ReactNode }) => (
     <TouchableOpacity 
@@ -23,7 +30,7 @@ export default function SettingsScreen() {
         <Text style={styles.settingTitle}>{title}</Text>
       </View>
       <View style={styles.settingRight}>
-        {value ? value : <ChevronRight size={20} color={theme.colors.mutedForeground} />}
+        {value !== undefined ? value : <ChevronRight size={20} color={theme.colors.mutedForeground} />}
       </View>
     </TouchableOpacity>
   );
@@ -41,8 +48,9 @@ export default function SettingsScreen() {
               title="Push Notifications"
               value={
                 <Switch 
-                  value={notificationsEnabled} 
-                  onValueChange={setNotificationsEnabled}
+                  value={preferences?.pushEnabled ?? true} 
+                  onValueChange={handleTogglePush}
+                  disabled={prefsLoading || updatePrefs.isPending}
                   trackColor={{ false: theme.colors.muted, true: theme.colors.primary }}
                 />
               }

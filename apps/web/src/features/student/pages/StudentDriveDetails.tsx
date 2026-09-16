@@ -51,10 +51,8 @@ export default function StudentDriveDetails() {
   }
 
   useEffect(() => {
-    /* eslint-disable react-hooks/set-state-in-effect */
     fetchDriveDetails();
     checkEligibility();
-    /* eslint-enable react-hooks/set-state-in-effect */
   }, [id, user]);
 
   const handleApply = async () => {

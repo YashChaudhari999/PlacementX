@@ -17,7 +17,8 @@ export default function ConnectedDevices() {
         Connected Devices
       </h3>
       <p className="text-sm text-slate-500 mb-6">
-        These are devices that currently receive push notifications from PlacementX. Revoke access if you no longer recognize a device.
+        These are devices that currently receive push notifications from PlacementX. Revoke access
+        if you no longer recognize a device.
       </p>
 
       {devices.length === 0 ? (
@@ -28,7 +29,10 @@ export default function ConnectedDevices() {
       ) : (
         <div className="space-y-4">
           {devices.map((device: any) => (
-            <div key={device.id} className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm">
+            <div
+              key={device.id}
+              className="flex items-center justify-between p-4 bg-white border border-slate-200 rounded-xl shadow-sm"
+            >
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-full">
                   {device.platform?.toLowerCase().includes('web') ? (
@@ -38,14 +42,17 @@ export default function ConnectedDevices() {
                   )}
                 </div>
                 <div>
-                  <h4 className="font-medium text-slate-900">{device.deviceName || 'Unknown Device'}</h4>
+                  <h4 className="font-medium text-slate-900">
+                    {device.deviceName || 'Unknown Device'}
+                  </h4>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Platform: {device.platform || 'Web/PWA'} • Last updated: {format(new Date(device.updatedAt), 'MMM d, yyyy')}
+                    Platform: {device.platform || 'Web/PWA'} • Last updated:{' '}
+                    {format(new Date(device.updatedAt), 'MMM d, yyyy')}
                   </p>
                 </div>
               </div>
-              <Button 
-                variant="destructive" 
+              <Button
+                variant="destructive"
                 size="sm"
                 onClick={() => deleteDevice(device.id)}
                 disabled={isPending}

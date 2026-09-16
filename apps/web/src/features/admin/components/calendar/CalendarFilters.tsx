@@ -42,7 +42,6 @@ export default function CalendarFilters({
       const activeSem =
         activeYear.semesters.find((s: any) => s.isActive) || activeYear.semesters[0];
 
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setFilters((prev) => ({
         ...prev,
         academicYear: activeYear.id,

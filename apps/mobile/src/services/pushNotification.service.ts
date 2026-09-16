@@ -2,15 +2,14 @@
 // Handles Expo push notification registration, permission
 // requests, token management, and notification listeners.
 
-// import * as Notifications from 'expo-notifications';
+import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import apiClient from '../lib/apiClient';
 import { API_ENDPOINTS } from '../config/api';
 
-// Mock AndroidImportance for compilation
-const AndroidImportance = { DEFAULT: 3, HIGH: 4, MAX: 5 };
+const AndroidImportance = { DEFAULT: Notifications.AndroidImportance.DEFAULT, HIGH: Notifications.AndroidImportance.HIGH, MAX: Notifications.AndroidImportance.MAX };
 
 // ─── Notification Channel Setup (Android) ───────────────
 
@@ -34,7 +33,12 @@ export const setupNotificationChannels = async (): Promise<void> => {
   ];
 
   for (const channel of channels) {
-    // Mock setNotificationChannelAsync
+    await Notifications.setNotificationChannelAsync(channel.id, {
+      name: channel.name,
+      importance: channel.importance,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF231F7C',
+    });
   }
 };
 
@@ -44,7 +48,15 @@ export const setupNotificationChannels = async (): Promise<void> => {
  * Configure how notifications are handled when received in foreground.
  */
 export const configureNotificationHandler = (): void => {
-  // Mock setNotificationHandler
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
 };
 
 // ─── Push Token Registration ────────────────────────────
@@ -54,9 +66,37 @@ export const configureNotificationHandler = (): void => {
  * Returns the push token string or null if permissions denied.
  */
 export const registerForPushNotifications = async (): Promise<string | null> => {
-  // Mocked out for Expo Go development
-  console.log('Push notifications mocked for Expo Go');
-  return null;
+  if (!Device.isDevice) {
+    console.log('Must use physical device for Push Notifications');
+    return null;
+  }
+
+  const { status: existingStatus } = await Notifications.getPermissionsAsync();
+  let finalStatus = existingStatus;
+  
+  if (existingStatus !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    finalStatus = status;
+  }
+  
+  if (finalStatus !== 'granted') {
+    console.log('Failed to get push token for push notification!');
+    return null;
+  }
+
+  try {
+    if (Constants.appOwnership === 'expo') {
+      console.log('Push notifications (remote) are not supported in Expo Go SDK 53+. Using mock token.');
+      return 'ExponentPushToken[mock-token-for-expo-go]';
+    }
+
+    const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+    const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+    return token;
+  } catch (error) {
+    console.error('Error getting Expo push token:', error);
+    return null;
+  }
 };
 
 // ─── Backend Token Registration ─────────────────────────
@@ -98,7 +138,7 @@ export const removePushTokenFromBackend = async (token: string): Promise<void> =
  */
 export const setBadgeCount = async (count: number): Promise<void> => {
   try {
-    // Mock setBadgeCountAsync
+    await Notifications.setBadgeCountAsync(count);
   } catch (error) {
     // Badge count not supported on all platforms
   }

@@ -57,3 +57,26 @@ export const useAdminReportsData = () => {
     queryFn: () => adminService.getReportsData(),
   });
 };
+
+export const usePendingProfiles = () => {
+  return useQuery({
+    queryKey: ['admin-pending-profiles'],
+    queryFn: () => adminService.getPendingProfiles(),
+  });
+};
+
+export const useVerifyProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, action, remarks }: { id: string; action: 'APPROVE' | 'REJECT'; remarks?: string }) =>
+      adminService.verifyProfile(id, action, remarks),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-pending-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-students'] });
+      showToast('Profile verification status updated');
+    },
+    onError: (error: any) => {
+      showToast(error.response?.data?.message || 'Failed to verify profile', true);
+    }
+  });
+};

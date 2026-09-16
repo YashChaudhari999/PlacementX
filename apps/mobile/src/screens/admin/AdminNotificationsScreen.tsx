@@ -175,7 +175,7 @@ export default function AdminNotificationsScreen() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.menuBtn}>
-            <Menu color="#0f172a" size={24} />
+            <Menu color={theme.colors.foreground} size={24} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Notifications</Text>
           {unreadCount > 0 && (
@@ -270,7 +270,7 @@ export default function AdminNotificationsScreen() {
         activeOpacity={0.8}
         onPress={() => setShowBroadcastModal(true)}
       >
-        <Send size={24} color="#ffffff" />
+        <Send size={24} color={theme.colors.card} />
       </TouchableOpacity>
 
       {/* ─── Broadcast Modal ─────────────────────────── */}
@@ -330,7 +330,7 @@ export default function AdminNotificationsScreen() {
                     style={[
                       styles.choiceBtn, 
                       broadcastForm.priority === priority && styles.choiceBtnActive,
-                      broadcastForm.priority === priority && priority === 'HIGH' && { backgroundColor: '#fee2e2', borderColor: '#ef4444' }
+                      broadcastForm.priority === priority && priority === 'HIGH' && { backgroundColor: (theme.colors.destructive + "15"), borderColor: '#ef4444' }
                     ]}
                     onPress={() => setBroadcastForm(prev => ({ ...prev, priority }))}
                   >
@@ -351,10 +351,10 @@ export default function AdminNotificationsScreen() {
                 disabled={!broadcastForm.title || !broadcastForm.message || isBroadcasting}
               >
                 {isBroadcasting ? (
-                  <ActivityIndicator color="#ffffff" />
+                  <ActivityIndicator color={theme.colors.card} />
                 ) : (
                   <>
-                    <Send size={18} color="#ffffff" />
+                    <Send size={18} color={theme.colors.card} />
                     <Text style={styles.submitBtnText}>Send Broadcast</Text>
                   </>
                 )}
@@ -371,31 +371,31 @@ export default function AdminNotificationsScreen() {
 // ─── Styles ─────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#ffffff' },
+  safeArea: { flex: 1, backgroundColor: theme.colors.card },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
   menuBtn: { marginRight: 12 },
-  headerTitle: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
+  headerTitle: { fontSize: 20, fontWeight: '800', color: theme.colors.foreground },
   unreadBadge: { marginLeft: 8, backgroundColor: '#ef4444', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2, minWidth: 24, alignItems: 'center' },
-  unreadBadgeText: { color: '#ffffff', fontSize: 12, fontWeight: '800' },
+  unreadBadgeText: { color: theme.colors.card, fontSize: 12, fontWeight: '800' },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  headerBtn: { padding: 8, borderRadius: 10, backgroundColor: '#f8fafc' },
+  headerBtn: { padding: 8, borderRadius: 10, backgroundColor: theme.colors.background },
   markAllBtn: { padding: 10, borderRadius: 10, backgroundColor: '#e0e7ff' },
   searchContainer: { paddingHorizontal: 16, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
-  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 12, height: 44, gap: 8 },
+  searchBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.colors.background, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 12, height: 44, gap: 8 },
   searchInput: { flex: 1, fontSize: 15, color: '#1e293b', fontWeight: '500' },
   filterContainer: { borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   filterList: { paddingHorizontal: 16, paddingVertical: 10, gap: 8 },
   filterTab: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: '#f1f5f9' },
-  filterTabActive: { backgroundColor: '#0f172a' },
+  filterTabActive: { backgroundColor: theme.colors.foreground },
   filterTabText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
-  filterTabTextActive: { color: '#ffffff' },
-  sectionHeader: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: '#f8fafc', borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
+  filterTabTextActive: { color: theme.colors.card },
+  sectionHeader: { paddingHorizontal: 20, paddingVertical: 10, backgroundColor: theme.colors.background, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   sectionTitle: { fontSize: 13, fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.5 },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyContainer: { flex: 1 },
   emptyState: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
-  emptyIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: '#f8fafc', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
+  emptyIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: theme.colors.background, alignItems: 'center', justifyContent: 'center', marginBottom: 20 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1e293b', marginBottom: 8 },
   emptyDesc: { fontSize: 14, color: '#94a3b8', fontWeight: '500', textAlign: 'center', paddingHorizontal: 40 },
   
@@ -404,20 +404,20 @@ const styles = StyleSheet.create({
   
   // Modal
   modalOverlay: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.4)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#ffffff', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
+  modalContent: { backgroundColor: theme.colors.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, maxHeight: '90%' },
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 20, fontWeight: '800', color: '#0f172a' },
+  modalTitle: { fontSize: 20, fontWeight: '800', color: theme.colors.foreground },
   modalClose: { padding: 4 },
   modalScroll: { paddingBottom: 40 },
   inputLabel: { fontSize: 13, fontWeight: '700', color: '#64748b', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 },
-  input: { backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1e293b', marginBottom: 20 },
+  input: { backgroundColor: theme.colors.background, borderWidth: 1, borderColor: '#e2e8f0', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 15, color: '#1e293b', marginBottom: 20 },
   textArea: { height: 100 },
   rowGroup: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 24 },
-  choiceBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', backgroundColor: '#ffffff' },
+  choiceBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', backgroundColor: theme.colors.card },
   choiceBtnActive: { backgroundColor: '#eff6ff', borderColor: '#3b82f6' },
   choiceText: { fontSize: 13, fontWeight: '600', color: '#64748b' },
   choiceTextActive: { color: '#2563eb' },
   submitBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#4f46e5', paddingVertical: 16, borderRadius: 14, gap: 8, marginTop: 10 },
   submitBtnDisabled: { backgroundColor: '#94a3b8' },
-  submitBtnText: { color: '#ffffff', fontSize: 16, fontWeight: '700' },
+  submitBtnText: { color: theme.colors.card, fontSize: 16, fontWeight: '700' },
 });
