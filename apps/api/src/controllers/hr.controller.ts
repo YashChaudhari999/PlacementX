@@ -2,6 +2,8 @@ import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { createNotification as sendNotification } from '../services/notification.service';
+import { z } from 'zod';
+import { isApplicationStatus } from '../domain/placement.rules';
 
 const HR_LINK_EXPIRY_DAYS = 7;
 
@@ -455,9 +457,46 @@ export const processResultUpload = async (req: Request, res: Response) => {
 export const confirmResultUpload = async (req: Request, res: Response) => {
   try {
     const { token } = req.params;
-    const { roundId, results, updateStatus } = req.body;
+    const payload = z.object({
+      roundId: z.string().uuid(),
+      results: z.array(z.object({
+        applicationId: z.string().uuid(),
+        score: z.union([z.string(), z.number()]).nullable().optional().refine(
+          (value) => value === null || value === undefined || Number.isFinite(Number(value)),
+          'Score must be numeric',
+        ),
+        result: z.string().trim().min(1).max(100),
+        remarks: z.string().max(2000).nullable().optional(),
+      })).min(1).max(1000),
+      updateStatus: z.record(z.string()).optional(),
+    }).parse(req.body);
+    const { roundId, results, updateStatus } = payload;
     
     const drive = await getWorkspaceDrive(token);
+
+    const round = await prisma.selectionRound.findFirst({
+      where: { id: roundId, driveId: drive.id },
+      select: { id: true },
+    });
+    if (!round) {
+      return res.status(404).json({ success: false, message: 'Selection round not found for this drive.' });
+    }
+
+    const applicationIds = [...new Set(results.map((result) => result.applicationId))];
+    const ownedApplications = await prisma.driveApplication.findMany({
+      where: { id: { in: applicationIds }, driveId: drive.id },
+      select: { id: true },
+    });
+    if (ownedApplications.length !== applicationIds.length) {
+      return res.status(400).json({
+        success: false,
+        message: 'One or more applications do not belong to this drive.',
+      });
+    }
+
+    if (updateStatus && Object.values(updateStatus).some((status) => !isApplicationStatus(status))) {
+      return res.status(400).json({ success: false, message: 'Invalid application status mapping.' });
+    }
     
     // Using transaction for safe bulk upsert
     await prisma.$transaction(async (tx) => {
@@ -468,13 +507,17 @@ export const confirmResultUpload = async (req: Request, res: Response) => {
           create: {
             applicationId: resultEntry.applicationId,
             roundId,
-            score: resultEntry.score ? parseFloat(resultEntry.score) : null,
+            score: resultEntry.score !== null && resultEntry.score !== undefined
+              ? Number(resultEntry.score)
+              : null,
             result: resultEntry.result,
             remarks: resultEntry.remarks,
             uploadedBy: 'HR User'
           },
           update: {
-            score: resultEntry.score ? parseFloat(resultEntry.score) : null,
+            score: resultEntry.score !== null && resultEntry.score !== undefined
+              ? Number(resultEntry.score)
+              : null,
             result: resultEntry.result,
             remarks: resultEntry.remarks,
             uploadedAt: new Date()
@@ -494,6 +537,9 @@ export const confirmResultUpload = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true, message: 'Results uploaded successfully.' });
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Invalid result payload', errors: error.errors });
+    }
     res.status(500).json({ success: false, message: error.message });
   }
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import api from '@/lib/api';
+import { downloadGeneratedReport } from '@/lib/downloadReport';
 import { Button } from '@/components/ui/button';
 import {
  ArrowRight01Icon,
@@ -86,7 +87,7 @@ export default function ReportBuilder() {
  if (target && target.status === 'COMPLETED') {
  clearInterval(interval);
  setGenerating(false);
- window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/admin/reports/download/${hId}`;
+ await downloadGeneratedReport(hId);
  } else if (target && target.status === 'FAILED') {
  clearInterval(interval);
  setGenerating(false);

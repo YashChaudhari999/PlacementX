@@ -245,7 +245,7 @@ export const broadcastNotification = async (req: any, res: any) => {
     } else if (targetAudience === 'STUDENT' && targetId) {
       receiverIds = [targetId];
     } else if (targetAudience === 'MENTOR') {
-      const mentors = await prisma.user.findMany({ where: { role: 'PLACEMENT_COORDINATOR' }, select: { id: true } });
+      const mentors = await prisma.user.findMany({ where: { role: 'COORDINATOR' }, select: { id: true } });
       receiverIds = mentors.map(m => m.id);
     } else if (targetAudience === 'ADMIN') {
       const admins = await prisma.user.findMany({ where: { role: 'SUPER_ADMIN' }, select: { id: true } });

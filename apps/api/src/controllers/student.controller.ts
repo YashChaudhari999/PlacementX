@@ -306,6 +306,7 @@ export const requestProfileUpdate = async (req: any, res: any) => {
 };
 
 import * as settingsService from '../services/settings.service';
+import { getApplicationWindowError } from '../domain/placement.rules';
 
 export const applyForDrive = async (req: any, res: any) => {
   try {
@@ -324,11 +325,9 @@ export const applyForDrive = async (req: any, res: any) => {
       return res.status(404).json({ message: 'Student profile not found' });
     }
 
-    if (!student.isProfileComplete) {
-      const requireVerification = await settingsService.getSetting('requireProfileVerification');
-      if (requireVerification) {
-        return res.status(400).json({ message: 'Please complete and verify your profile before applying' });
-      }
+    const requireVerification = await settingsService.getSetting('requireProfileVerification');
+    if (!student.isProfileComplete || (requireVerification && student.profileStatus !== 'VERIFIED')) {
+      return res.status(400).json({ message: 'Please complete and verify your profile before applying' });
     }
 
     // Check System Settings for Applications
@@ -370,8 +369,9 @@ export const applyForDrive = async (req: any, res: any) => {
     const drive = await prisma.placementDrive.findUnique({ where: { id: driveId } });
     if (!drive) return res.status(404).json({ message: 'Drive not found' });
 
-    if (drive.status !== 'ACTIVE') {
-      return res.status(400).json({ message: 'This drive is not currently accepting applications' });
+    const applicationWindowError = getApplicationWindowError(drive);
+    if (applicationWindowError) {
+      return res.status(400).json({ message: applicationWindowError });
     }
 
     const { checkEligibility } = await import('../services/eligibility.service');

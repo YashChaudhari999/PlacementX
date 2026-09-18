@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
+import multer from 'multer';
 
 export const errorHandler = (
   err: any,
@@ -27,6 +28,13 @@ export const errorHandler = (
   if (err.name === 'TokenExpiredError') {
     const message = 'Your token has expired! Please log in again.';
     error = new AppError(message, 401);
+  }
+
+  if (err instanceof multer.MulterError) {
+    const message = err.code === 'LIMIT_FILE_SIZE'
+      ? 'File size exceeds the 15MB limit'
+      : err.message;
+    error = new AppError(message, 400);
   }
 
   const statusCode = error.statusCode || 500;

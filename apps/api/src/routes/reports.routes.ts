@@ -11,11 +11,9 @@ import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Public route for downloading files (protected by unguessable UUID)
-router.get('/download/:id', downloadReport);
-
 router.use(authenticate, authorize('SUPER_ADMIN', 'COORDINATOR'));
 
+router.get('/download/:id', downloadReport);
 router.get('/kpis', getReportsKPIs);
 router.get('/templates', getReportTemplates);
 router.post('/preview', previewReport);

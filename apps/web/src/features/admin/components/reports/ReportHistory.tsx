@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
+import { downloadGeneratedReport } from '@/lib/downloadReport';
 import {
  Download01Icon,
  Note01Icon,
@@ -148,12 +149,7 @@ export default function ReportHistory() {
  size="sm"
  variant="ghost"
  className="text-primary hover:text-primary/80 hover:bg-primary/10"
- onClick={() =>
- window.open(
- `http://localhost:5000/api/admin/reports/download/${item.id}`,
- '_blank'
- )
- }
+ onClick={() => downloadGeneratedReport(item.id)}
  >
  <Download01Icon className="h-4 w-4 mr-2"/>
  Download

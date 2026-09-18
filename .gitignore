@@ -47,6 +47,11 @@ apps/api/prisma/dev.db-journal
 redis/
 redis.zip
 
+# Generated exports and credential handoff artifacts
+apps/api/uploads/
+login_credentials.md
+apps/api/User_Credentials.pdf
+
 # Firebase/Google Services configs
 google-services.json
 GoogleService-Info.plist

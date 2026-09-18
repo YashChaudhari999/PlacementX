@@ -5,9 +5,14 @@ import jwt from 'jsonwebtoken';
 let io: Server;
 
 export const initSocket = (httpServer: HttpServer) => {
+  const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:8081')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   io = new Server(httpServer, {
     cors: {
-      origin: '*', // For development, allow all. Change to specific origin in prod
+      origin: allowedOrigins,
       methods: ['GET', 'POST']
     }
   });
@@ -46,17 +51,9 @@ export const initSocket = (httpServer: HttpServer) => {
       socket.join('students');
     } else if (user.role === 'SUPER_ADMIN') {
       socket.join('admins');
-    } else if (user.role === 'PLACEMENT_COORDINATOR') {
+    } else if (user.role === 'COORDINATOR') {
       socket.join('placement-cell');
     }
-
-    // 3. Dynamic Room Joining (e.g. branch for students)
-    socket.on('notification:join', (rooms: string[]) => {
-      rooms.forEach(room => {
-        socket.join(room);
-        console.log(`Socket ${socket.id} joined room: ${room}`);
-      });
-    });
 
     socket.on('disconnect', () => {
       console.log(`Socket disconnected: ${socket.id}`);

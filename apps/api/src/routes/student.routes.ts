@@ -5,7 +5,16 @@ import { getCalendarEvents } from '../controllers/student.calendar.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import studentSettingsRoutes from './student.settings.routes';
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, callback) => {
+    if (file.mimetype !== 'application/pdf') {
+      return callback(new Error('Only PDF files are allowed'));
+    }
+    callback(null, true);
+  },
+});
 const router = Router();
 
 // Require authentication for all student routes

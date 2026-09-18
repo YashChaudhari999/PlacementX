@@ -10,16 +10,18 @@
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 19 · TypeScript · Vite |
+| **Frontend** | React 18 · TypeScript · Vite |
 | **Styling** | Tailwind CSS v4 · shadcn/ui |
-| **Backend** | Firebase (Auth · Realtime Database · Storage) |
+| **Backend API** | Express · Prisma · PostgreSQL |
+| **Identity & Messaging** | Firebase Authentication · Cloud Messaging |
+| **Files & Queues** | Supabase Storage · Redis · BullMQ |
 | **Forms** | React Hook Form · Zod |
 | **Data Fetching** | TanStack React Query |
 | **Routing** | React Router DOM v7 |
 | **Icons** | Lucide React |
 | **Notifications** | Sonner |
 | **Date Utilities** | date-fns |
-| **Mobile (Future)** | React Native (shared models & services) |
+| **Mobile** | Expo · React Native |
 
 ---
 
@@ -27,7 +29,9 @@
 
 - **Node.js** ≥ 20.x
 - **npm** ≥ 10.x
-- A **Firebase project** with Realtime Database, Authentication, and Storage enabled
+- PostgreSQL 16 and Redis, locally through Docker or managed equivalents
+- Firebase Authentication and Cloud Messaging credentials
+- A Supabase Storage bucket for private student documents
 
 ---
 
@@ -52,18 +56,9 @@ npm install
 cp .env.example .env.local
 ```
 
-Open `.env.local` and fill in your Firebase project credentials:
+Open `.env.local` and configure PostgreSQL, Firebase, Supabase Storage, Redis, JWT, and allowed browser origins. See `.env.example` for the complete list.
 
-```env
-VITE_FIREBASE_API_KEY=your-api-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_DATABASE_URL=https://your-project-default-rtdb.firebaseio.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-VITE_FIREBASE_APP_ID=your-app-id
-VITE_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
-```
+Start PostgreSQL and Redis locally with `docker compose up -d`, then apply the Prisma schema with `npm run db:push --workspace=@placementx/api`.
 
 ### 4. Start the development server
 

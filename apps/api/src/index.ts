@@ -15,6 +15,7 @@ import { initRedis, closeRedis } from './config/redis';
 import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
 import { initReportQueue, initReportWorker } from './services/reports/report-queue.service';
 import { errorHandler } from './middlewares/error.middleware';
+import { apiRateLimit, securityHeaders } from './middlewares/security.middleware';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ import { createServer } from 'http';
 import { initSocket } from './socket';
 
 const app = express();
+app.disable('x-powered-by');
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 5000;
 
@@ -49,7 +51,20 @@ initSocket(httpServer);
   }
 })();
 
-app.use(cors());
+const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:8081')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origin is not allowed by CORS'));
+  },
+  credentials: true,
+}));
+app.use(securityHeaders);
+app.use(apiRateLimit);
 app.use(express.json({ limit: '10mb' }));
 
 // API Routes

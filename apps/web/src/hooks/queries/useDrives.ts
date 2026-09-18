@@ -13,7 +13,7 @@ export const usePublishedDrives = () => {
  queryKey: ['drives', 'student'],
  queryFn: async () => {
  const allDrives = await driveService.getAllDrives();
- return allDrives.filter((d: any) => d.status === 'PUBLISHED');
+ return allDrives.filter((d: any) => ['PUBLISHED', 'ACTIVE'].includes(d.status));
  },
  });
 };

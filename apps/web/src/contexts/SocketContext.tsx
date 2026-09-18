@@ -7,13 +7,11 @@ import toast from 'react-hot-toast';
 interface SocketContextType {
  socket: Socket | null;
  isConnected: boolean;
- joinRooms: (rooms: string[]) => void;
 }
 
 const SocketContext = createContext<SocketContextType>({
  socket: null,
  isConnected: false,
- joinRooms: () => {},
 });
 
 export const useSocket = () => useContext(SocketContext);
@@ -25,8 +23,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
  // Use stable primitive values as deps to avoid reconnect loops on every render
  const userId = user?.id;
- const userRole = user?.role;
- const userBranch = (user as any)?.studentProfile?.branch;
 
  useEffect(() => {
  if (!token || !userId) {
@@ -45,9 +41,6 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
  newSocket.on('connect', () => {
  setIsConnected(true);
- if (userRole === 'STUDENT' && userBranch) {
- newSocket.emit('notification:join', [`department:${userBranch}`]);
- }
  });
 
  newSocket.on('disconnect', () => {
@@ -93,16 +86,10 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
  setIsConnected(false);
  };
  // Depend only on stable primitives, not the whole user object
- }, [token, userId, userRole, userBranch]);
-
- const joinRooms = (rooms: string[]) => {
- if (socket && isConnected) {
- socket.emit('notification:join', rooms);
- }
- };
+ }, [token, userId]);
 
  return (
- <SocketContext.Provider value={{ socket, isConnected, joinRooms }}>
+ <SocketContext.Provider value={{ socket, isConnected }}>
  {children}
  </SocketContext.Provider>
  );

@@ -1,6 +1,11 @@
 import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
 import { signDocuments } from '../services/student-document.service';
+import {
+  canTransitionDriveStatus,
+  isApplicationStatus,
+  isDriveStatus,
+} from '../domain/placement.rules';
 
 const driveSelectFields = {
   id: true,
@@ -394,6 +399,10 @@ export const updateApplicationStatus = async (req: any, res: any) => {
     const { id } = req.params; // applicationId
     const { status } = req.body;
 
+    if (!isApplicationStatus(status)) {
+      return res.status(400).json({ message: 'Invalid application status' });
+    }
+
     const application = await prisma.driveApplication.update({
       where: { id },
       data: { status }
@@ -642,8 +651,23 @@ export const updateDriveStatus = async (req: any, res: any) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['DRAFT', 'PUBLISHED', 'COMPLETED', 'CANCELLED'].includes(status)) {
+    if (!isDriveStatus(status)) {
       return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    const currentDrive = await prisma.placementDrive.findUnique({
+      where: { id },
+      select: { status: true },
+    });
+
+    if (!currentDrive) {
+      return res.status(404).json({ message: 'Drive not found' });
+    }
+
+    if (!canTransitionDriveStatus(currentDrive.status, status)) {
+      return res.status(409).json({
+        message: `Drive cannot transition from ${currentDrive.status} to ${status}`,
+      });
     }
 
     const drive = await prisma.placementDrive.update({

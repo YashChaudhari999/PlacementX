@@ -86,7 +86,12 @@ export const downloadReport = async (req: Request, res: Response) => {
     const { id } = req.params;
     const history = await prisma.reportExportHistory.findUnique({ where: { id } });
     
-    if (!history || history.status !== 'COMPLETED' || !history.fileUrl) {
+    if (
+      !history ||
+      history.status !== 'COMPLETED' ||
+      !history.fileUrl ||
+      (history.expiresAt && history.expiresAt <= new Date())
+    ) {
       return res.status(404).json({ success: false, message: 'Report not found or not ready' });
     }
 

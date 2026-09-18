@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
 import { getAcademicDocumentForAdmin, signDocuments } from '../services/student-document.service';
@@ -392,7 +394,15 @@ export const importStudents = async (req: any, res: any) => {
 export const getCoordinators = async (req: any, res: any) => {
   try {
     const coordinators = await prisma.user.findMany({
-      where: { role: 'PLACEMENT_COORDINATOR' },
+      where: { role: 'COORDINATOR' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        coordinatorProfile: true,
+      },
     });
     return res.status(200).json(coordinators);
   } catch (error: any) {
@@ -401,19 +411,39 @@ export const getCoordinators = async (req: any, res: any) => {
 };
 
 export const addCoordinator = async (req: any, res: any) => {
+  const coordinatorSchema = z.object({
+    firstName: z.string().trim().min(2).max(100),
+    lastName: z.string().trim().min(2).max(100),
+    email: z.string().trim().email().transform((value) => value.toLowerCase()),
+    password: z.string().min(8).max(128),
+  });
+
+  let firebaseUid: string | null = null;
   try {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password } = coordinatorSchema.parse(req.body);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: 'User with this email already exists' });
     }
 
+    const firebaseUser = await firebaseAdmin.auth().createUser({
+      email,
+      password,
+      displayName: `${firstName} ${lastName}`,
+    });
+    firebaseUid = firebaseUser.uid;
+
+    // Authentication is owned by Firebase. Keep an unusable random hash only
+    // while the legacy non-null database column remains in the schema.
+    const nonLoginPasswordHash = await bcrypt.hash(crypto.randomUUID(), 12);
+
     const coordinator = await prisma.user.create({
       data: {
         email,
-        password, // In a real app, hash this!
-        role: 'PLACEMENT_COORDINATOR',
+        firebaseUid,
+        password: nonLoginPasswordHash,
+        role: 'COORDINATOR',
         coordinatorProfile: {
           create: {
             firstName,
@@ -421,10 +451,24 @@ export const addCoordinator = async (req: any, res: any) => {
           },
         },
       },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        firebaseUid: true,
+        coordinatorProfile: true,
+        createdAt: true,
+      },
     });
 
     return res.status(201).json(coordinator);
   } catch (error: any) {
+    if (firebaseUid) {
+      await firebaseAdmin.auth().deleteUser(firebaseUid).catch(() => undefined);
+    }
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Invalid coordinator details', errors: error.errors });
+    }
     return res.status(500).json({ message: 'Error adding coordinator', error: error.message });
   }
 };
@@ -1091,36 +1135,39 @@ export const verifyProfile = async (req: any, res: any) => {
 
     const newStatus = action === 'APPROVE' ? 'VERIFIED' : 'UPDATE_REJECTED';
 
-    const updatedProfile = await prisma.studentProfile.update({
-      where: { id },
-      data: {
-        profileStatus: newStatus,
-        verifiedAt: action === 'APPROVE' ? new Date() : null,
-        verifiedBy: action === 'APPROVE' ? adminId : null,
-      },
-    });
+    const updatedProfile = await prisma.$transaction(async (tx) => {
+      const updated = await tx.studentProfile.update({
+        where: { id },
+        data: {
+          profileStatus: newStatus,
+          verifiedAt: action === 'APPROVE' ? new Date() : null,
+          verifiedBy: action === 'APPROVE' ? adminId : null,
+        },
+      });
 
-    await prisma.profileAuditLog.create({
-      data: {
-        studentId: profile.id,
-        action: action === 'APPROVE' ? 'PROFILE_VERIFIED' : 'PROFILE_REJECTED',
-        performedBy: adminId,
-        comments: reason || '',
-      },
-    });
+      await tx.profileAuditLog.create({
+        data: {
+          studentId: profile.id,
+          action: action === 'APPROVE' ? 'PROFILE_VERIFIED' : 'PROFILE_REJECTED',
+          performedBy: adminId,
+          comments: reason || '',
+        },
+      });
 
-    // Notify Student
-    await prisma.notification.create({
-      data: {
-        title: action === 'APPROVE' ? 'Profile Verified' : 'Profile Changes Requested',
-        message:
-          action === 'APPROVE'
-            ? 'Your profile has been verified successfully.'
-            : `Your profile requires changes: ${reason}`,
-        type: 'system',
-        receiverId: profile.userId,
-        priority: 'HIGH',
-      },
+      await tx.notification.create({
+        data: {
+          title: action === 'APPROVE' ? 'Profile Verified' : 'Profile Changes Requested',
+          message:
+            action === 'APPROVE'
+              ? 'Your profile has been verified successfully.'
+              : `Your profile requires changes: ${reason}`,
+          type: 'system',
+          receiverId: profile.userId,
+          priority: 'HIGH',
+        },
+      });
+
+      return updated;
     });
 
     return res
