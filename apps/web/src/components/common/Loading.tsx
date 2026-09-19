@@ -1,34 +1,43 @@
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface LoadingProps {
  message?: string;
 }
 
-export const Loading = ({ message }: LoadingProps) => (
- <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-muted/70 backdrop-blur-[2px]">
- <div className="relative flex items-center justify-center mb-6">
- {/* Spinning gradient ring (Maroon Theme) */}
- <motion.div
- animate={{ rotate: 360 }}
- transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
- className="absolute h-24 w-24 rounded-full border-[3px] border-transparent border-t-[#800000] border-r-[#800000]/70 border-b-[#800000]/30 border-l-transparent"
- />
- {/* Outer subtle ring */}
- <div className="absolute h-24 w-24 rounded-full border-[3px] border-[#800000]/10"/>
+export const Loading = ({ message = 'Syncing the latest placement data' }: LoadingProps) => {
+ const reduceMotion = useReducedMotion();
 
- {/* Center Logo */}
- <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-card shadow-sm overflow-hidden p-3 border border-border">
- <img src="/nmimslogo_transparent.png"alt="NMIMS Logo"className="dark:brightness-0 dark:invert w-full h-full object-contain"/>
- </div>
- </div>
- {message && (
+ return (
+ <div
+ className="fixed inset-0 z-50 grid place-items-center bg-background/80 px-6 backdrop-blur-md"
+ role="status"
+ aria-live="polite"
+ >
+ <div className="relative w-full max-w-[280px] overflow-hidden rounded-3xl border border-border/80 bg-card p-7 text-center shadow-[0_24px_70px_-28px_rgba(15,23,42,0.45)]">
+ <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent"/>
+ <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center">
  <motion.div
- initial={{ opacity: 0, y: 10 }}
+ animate={reduceMotion ? undefined : { rotate: 360 }}
+ transition={{ repeat: Infinity, duration: 1.35, ease: 'linear' }}
+ className="absolute inset-0 rounded-full border-2 border-primary/15 border-t-primary border-r-primary/55"
+ />
+ <div className="flex h-[66px] w-[66px] items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white p-2.5 shadow-sm">
+ <img
+ src="/nmimslogo_transparent.png"
+ alt="NMIMS Logo"
+ className="h-full w-full object-contain"
+ />
+ </div>
+ </div>
+ <p className="text-base font-bold tracking-tight text-foreground">Preparing your workspace</p>
+ <motion.p
+ initial={reduceMotion ? undefined : { opacity: 0, y: 6 }}
  animate={{ opacity: 1, y: 0 }}
- className="text-muted-foreground font-medium text-lg text-center"
+ className="mt-1.5 text-xs leading-5 text-muted-foreground"
  >
  {message}
- </motion.div>
- )}
+ </motion.p>
  </div>
-);
+ </div>
+ );
+};

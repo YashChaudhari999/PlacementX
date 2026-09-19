@@ -20,10 +20,14 @@ export default function AdminLogin() {
  const password = formData.get('password') as string;
 
  try {
- await authService.login({ email, password, role: 'SUPER_ADMIN' });
- navigate('/admin/dashboard');
+ const user = await authService.login({ email, password });
+ if (user.role !== 'SUPER_ADMIN' && user.role !== 'COORDINATOR') {
+ await authService.logout();
+ throw new Error('This account does not have placement-cell access.');
+ }
+ navigate(user.role === 'SUPER_ADMIN' ? '/admin/dashboard' : '/admin/students');
  } catch (err: any) {
- setError(err.response?.data?.error || 'Failed to login. Please check your credentials.');
+ setError(err.response?.data?.error || err.message || 'Failed to login. Please check your credentials.');
  } finally {
  setIsLoading(false);
  }

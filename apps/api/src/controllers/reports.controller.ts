@@ -2,8 +2,9 @@ import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
 import { getReportKPIs as fetchReportKPIs, getReportData } from '../services/reports/reports.service';
 import { queueReportGeneration } from '../services/reports/report-queue.service';
-import * as path from 'path';
-import * as fs from 'fs';
+import { supabaseAdmin } from '../config/supabase';
+
+const REPORTS_BUCKET = process.env.SUPABASE_REPORTS_BUCKET || 'generated-reports';
 
 
 export const getReportsKPIs = async (req: Request, res: Response) => {
@@ -71,7 +72,9 @@ export const generateReport = async (req: Request, res: Response) => {
 
 export const getExportHistory = async (req: Request, res: Response) => {
   try {
+    const user = req.user;
     const history = await prisma.reportExportHistory.findMany({
+      where: user?.role === 'SUPER_ADMIN' ? {} : { generatedBy: user?.id },
       orderBy: { createdAt: 'desc' },
       take: 100
     });
@@ -84,7 +87,13 @@ export const getExportHistory = async (req: Request, res: Response) => {
 export const downloadReport = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const history = await prisma.reportExportHistory.findUnique({ where: { id } });
+    const user = req.user;
+    const history = await prisma.reportExportHistory.findFirst({
+      where: {
+        id,
+        ...(user?.role === 'SUPER_ADMIN' ? {} : { generatedBy: user?.id }),
+      },
+    });
     
     if (
       !history ||
@@ -95,14 +104,18 @@ export const downloadReport = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Report not found or not ready' });
     }
 
-    const filename = `report_${id}.${history.format.toLowerCase()}`;
-    const filePath = path.join(process.cwd(), 'uploads', 'reports', filename);
-
-    if (!fs.existsSync(filePath)) {
+    const { data, error } = await supabaseAdmin.storage
+      .from(REPORTS_BUCKET)
+      .download(history.fileUrl);
+    if (error || !data) {
       return res.status(404).json({ success: false, message: 'File has expired or was removed' });
     }
 
-    res.download(filePath, `${history.reportName.replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}.${history.format.toLowerCase()}`);
+    const filename = `${history.reportName.replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}.${history.format.toLowerCase()}`;
+    const buffer = Buffer.from(await data.arrayBuffer());
+    res.setHeader('Content-Disposition', `attachment; filename="${filename.replace(/[^a-zA-Z0-9_.-]/g, '_')}"`);
+    res.setHeader('Content-Type', data.type || 'application/octet-stream');
+    return res.send(buffer);
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Failed to download report' });
   }

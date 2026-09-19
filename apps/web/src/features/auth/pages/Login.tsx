@@ -42,21 +42,13 @@ export default function Login() {
  const email = formData.get('email') as string;
  const password = formData.get('password') as string;
 
- // Detect role from email domain / pattern
- const isAdmin =
- email.toLowerCase().includes('admin') ||
- email.toLowerCase().endsWith('@placement.nmims.edu') ||
- (email.toLowerCase().endsWith('@nmims.edu') && !email.toLowerCase().includes('student'));
-
- const role = isAdmin ? 'SUPER_ADMIN' : 'STUDENT';
-
  try {
- const user = await authService.login({ email, password, role });
- const actualRole = user?.role ?? role;
+ const user = await authService.login({ email, password });
+ const actualRole = user.role;
  if (actualRole === 'STUDENT') {
  navigate('/student/dashboard');
  } else {
- navigate('/admin/dashboard');
+ navigate(actualRole === 'SUPER_ADMIN' ? '/admin/dashboard' : '/admin/students');
  }
  } catch (err: any) {
  setError(err.response?.data?.error || 'Invalid credentials. Please try again.');

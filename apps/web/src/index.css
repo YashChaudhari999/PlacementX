@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* Tailwind v4 defaults `dark:` to the operating-system media query. PlacementX
+ * owns theme selection, so variants must follow the class set by ThemeProvider. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
  * ============================================
  * PlacementX — Global Styles & Design Tokens

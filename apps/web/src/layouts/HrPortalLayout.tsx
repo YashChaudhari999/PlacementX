@@ -20,7 +20,7 @@ export const HrPortalLayout = () => {
  className="flex items-center gap-3"
  >
  <div className="w-10 h-10 rounded-xl bg-card flex items-center justify-center shadow-sm border border-border p-1.5">
- <img src="/nmimslogo_transparent.png"alt="NMIMS Logo"className="dark:brightness-0 dark:invert w-full h-full object-contain"/>
+ <img src="/nmimslogo_transparent.png" alt="NMIMS Logo" className="w-full h-full object-contain"/>
  </div>
  <span className="text-xl font-extrabold tracking-tight text-foreground">
  PlacementX <span className="font-medium text-muted-foreground mx-2">|</span>{' '}
@@ -59,7 +59,7 @@ export const HrPortalLayout = () => {
  <img
  src="/nmimslogo_transparent.png"
  alt="NMIMS Logo"
- className="dark:brightness-0 dark:invert w-5 h-5 object-contain grayscale"
+ className="w-5 h-5 object-contain grayscale"
  />
  <span className="text-sm font-bold tracking-tight text-foreground">PlacementX</span>
  </div>

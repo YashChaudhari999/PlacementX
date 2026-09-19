@@ -19,6 +19,11 @@ export const uploadAcademicDocument = async (
     throw new Error('Only PDF files are allowed');
   }
 
+  // MIME types are supplied by the client. Verify the file signature too.
+  if (fileBuffer.length < 5 || fileBuffer.subarray(0, 5).toString('ascii') !== '%PDF-') {
+    throw new Error('The uploaded file is not a valid PDF');
+  }
+
   if (fileSize > MAX_FILE_SIZE) {
     throw new Error('File size exceeds the 15MB limit');
   }

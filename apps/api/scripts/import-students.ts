@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -92,12 +92,23 @@ async function processFile(filePath: string, yearFolder: string) {
     reports.push(report);
   }
 
-  const workbook = xlsx.readFile(filePath);
-  const sheetName = workbook.SheetNames[0];
-  const worksheet = workbook.Sheets[sheetName];
-  
-  // raw records as json array of objects
-  const rawRecords = xlsx.utils.sheet_to_json(worksheet, { defval: null });
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.readFile(filePath);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) throw new Error(`No worksheet found in ${filename}`);
+  const headers = (worksheet.getRow(1).values as unknown[])
+    .slice(1)
+    .map((value) => String(value ?? '').trim());
+  const rawRecords: Record<string, unknown>[] = [];
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const values = row.values as unknown[];
+    const record: Record<string, unknown> = {};
+    headers.forEach((header, index) => {
+      if (header) record[header] = values[index + 1] ?? null;
+    });
+    rawRecords.push(record);
+  });
 
   report.read += rawRecords.length;
 

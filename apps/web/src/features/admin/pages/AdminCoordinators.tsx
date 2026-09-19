@@ -22,6 +22,7 @@ export default function AdminCoordinators() {
  lastName: '',
  email: '',
  password: '',
+ department: '',
  });
 
  const fetchCoordinators = async () => {
@@ -46,7 +47,7 @@ export default function AdminCoordinators() {
  await api.post('/admin/coordinators', formData);
  toast.success('Coordinator added successfully');
  setShowAdd(false);
- setFormData({ firstName: '', lastName: '', email: '', password: '' });
+ setFormData({ firstName: '', lastName: '', email: '', password: '', department: '' });
  fetchCoordinators();
  } catch (error: any) {
  console.error(error);
@@ -120,6 +121,15 @@ export default function AdminCoordinators() {
  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
  />
  </div>
+ <div className="md:col-span-2">
+ <label className="text-sm font-medium text-foreground">Department</label>
+ <Input
+ required
+ placeholder="e.g. Computer Science"
+ value={formData.department}
+ onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+ />
+ </div>
  <div className="md:col-span-2 flex justify-end gap-3 mt-4">
  <Button type="button"variant="outline"onClick={() => setShowAdd(false)}>
  Cancel
@@ -164,6 +174,7 @@ export default function AdminCoordinators() {
  <div className="flex items-center gap-2">
  <Mail01Icon className="w-4 h-4 text-muted-foreground"/> {coordinator.email}
  </div>
+ <div className="text-xs text-muted-foreground">Department: {coordinator.department || 'Not assigned'}</div>
  <div className="text-xs text-muted-foreground mt-2">
  Joined:{' '}
  {new Date(coordinator.createdAt).toLocaleDateString('en-GB', {

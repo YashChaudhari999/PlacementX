@@ -12,7 +12,7 @@ export const Navbar = ({ items }: { items: { name: string; href: string }[] }) =
  <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
  <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
  <div className="flex items-center gap-2">
- <img src="/nmimslogo_transparent.png"alt="NMIMS Logo"className="dark:brightness-0 dark:invert h-8 w-auto"/>
+ <img src="/nmimslogo_transparent.png" alt="NMIMS Logo" className="h-9 w-auto rounded-lg border border-slate-200 bg-white p-1"/>
  <Link to="/"className="font-extrabold text-xl text-foreground tracking-tight">
  PlacementX
  </Link>

@@ -58,7 +58,9 @@ cp .env.example .env.local
 
 Open `.env.local` and configure PostgreSQL, Firebase, Supabase Storage, Redis, JWT, and allowed browser origins. See `.env.example` for the complete list.
 
-Start PostgreSQL and Redis locally with `docker compose up -d`, then apply the Prisma schema with `npm run db:push --workspace=@placementx/api`.
+Start PostgreSQL and Redis locally with `docker compose up -d`. Use `db:push` only for local prototyping. Staging and production deployments must apply committed migrations with `npm run db:migrate:deploy --workspace=@placementx/api`.
+
+The committed baseline migration creates a new database. If an existing database was previously managed with `db:push`, first verify that its schema matches `schema.prisma`, back it up, and mark `20260919000000_baseline` as applied with Prisma's `migrate resolve` command. Do not run the baseline SQL against a populated database.
 
 ### 4. Start the development server
 

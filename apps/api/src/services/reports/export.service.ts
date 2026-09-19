@@ -1,4 +1,4 @@
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { Writable } from 'stream';
 
@@ -6,25 +6,31 @@ import { Writable } from 'stream';
  * Generate an Excel buffer from JSON data.
  */
 export const generateExcel = async (data: any[], reportName: string): Promise<Buffer> => {
-  return new Promise((resolve) => {
-    const worksheet = xlsx.utils.json_to_sheet(data);
-    const workbook = xlsx.utils.book_new();
-    xlsx.utils.book_append_sheet(workbook, worksheet, reportName || 'Report');
-
-    const buffer = xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
-    resolve(buffer);
-  });
+  const workbook = new ExcelJS.Workbook();
+  const safeSheetName = (reportName || 'Report').replace(/[\\/*?:[\]]/g, '_').slice(0, 31);
+  const worksheet = workbook.addWorksheet(safeSheetName || 'Report');
+  const headers = data.length > 0 ? Object.keys(data[0]) : [];
+  worksheet.columns = headers.map((header) => ({ header, key: header, width: 20 }));
+  worksheet.addRows(data);
+  const buffer = await workbook.xlsx.writeBuffer();
+  return Buffer.from(buffer);
 };
 
 /**
  * Generate a CSV buffer from JSON data.
  */
 export const generateCSV = async (data: any[]): Promise<Buffer> => {
-  return new Promise((resolve) => {
-    const worksheet = xlsx.utils.json_to_sheet(data);
-    const csvString = xlsx.utils.sheet_to_csv(worksheet);
-    resolve(Buffer.from(csvString, 'utf8'));
-  });
+  if (data.length === 0) return Buffer.from('', 'utf8');
+  const headers = Object.keys(data[0]);
+  const escape = (value: unknown) => {
+    const text = value === null || value === undefined
+      ? ''
+      : typeof value === 'object' ? JSON.stringify(value) : String(value);
+    return `"${text.replace(/"/g, '""')}"`;
+  };
+  const rows = [headers.map(escape).join(',')];
+  for (const row of data) rows.push(headers.map((header) => escape(row[header])).join(','));
+  return Buffer.from(rows.join('\r\n'), 'utf8');
 };
 
 /**

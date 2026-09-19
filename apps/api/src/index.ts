@@ -11,11 +11,12 @@ import hrRoutes from './routes/hr.routes';
 import publicRoutes from './routes/public.routes';
 import settingsRoutes from './routes/settings.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
-import { initRedis, closeRedis } from './config/redis';
+import { initRedis, closeRedis, getRedisClient, isRedisConnected } from './config/redis';
 import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
-import { initReportQueue, initReportWorker } from './services/reports/report-queue.service';
+import { initReportQueue, initReportWorker, closeReportQueue } from './services/reports/report-queue.service';
 import { errorHandler } from './middlewares/error.middleware';
 import { apiRateLimit, securityHeaders } from './middlewares/security.middleware';
+import prisma from './utils/prisma';
 
 dotenv.config();
 
@@ -79,8 +80,28 @@ app.use('/api/hr', hrRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok', message: 'PlacementX API is running' });
+app.get('/health/live', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+app.get('/health', async (_req, res) => {
+  let database = false;
+  let redis = false;
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    database = true;
+  } catch {}
+  try {
+    const client = getRedisClient();
+    redis = Boolean(client && isRedisConnected() && await client.ping() === 'PONG');
+  } catch {}
+
+  const redisRequired = process.env.REDIS_REQUIRED === 'true';
+  const ready = database && (!redisRequired || redis);
+  res.status(ready ? 200 : 503).json({
+    status: ready ? 'ready' : 'not_ready',
+    checks: { database, redis, redisRequired },
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use(errorHandler);
@@ -90,11 +111,16 @@ httpServer.listen(PORT, () => {
 });
 
 // ─── Graceful Shutdown ──────────────────────────────────
+let shuttingDown = false;
 const gracefulShutdown = async () => {
+  if (shuttingDown) return;
+  shuttingDown = true;
   console.log('Shutting down gracefully...');
+  await new Promise<void>((resolve) => httpServer.close(() => resolve()));
   await closeQueues();
+  await closeReportQueue();
   await closeRedis();
-  httpServer.close();
+  await prisma.$disconnect();
   process.exit(0);
 };
 

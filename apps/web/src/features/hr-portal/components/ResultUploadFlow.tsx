@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import Papa from 'papaparse';
 import { Button, Card, Badge } from '@/components/ui';
 import {
  CloudUploadIcon,
@@ -44,23 +45,37 @@ export default function ResultUploadFlow({
  const reader = new FileReader();
  reader.onload = async (evt) => {
  try {
- const bstr = evt.target?.result;
- const workbook = XLSX.read(bstr, { type: 'binary' });
- const firstSheetName = workbook.SheetNames[0];
- if (!firstSheetName) {
+ const contents = evt.target?.result;
+ if (!(contents instanceof ArrayBuffer)) throw new Error('Could not read the uploaded file.');
+ let jsonData: Record<string, unknown>[] = [];
+ if (file.name.toLowerCase().endsWith('.csv')) {
+ const parsed = Papa.parse<Record<string, unknown>>(new TextDecoder().decode(contents), {
+ header: true,
+ skipEmptyLines: true,
+ });
+ if (parsed.errors.length > 0) throw new Error(parsed.errors[0]?.message || 'Invalid CSV file.');
+ jsonData = parsed.data;
+ } else {
+ const workbook = new ExcelJS.Workbook();
+ await workbook.xlsx.load(contents);
+ const worksheet = workbook.worksheets[0];
+ if (!worksheet) {
  setError('No sheets found in the uploaded file.');
  setLoading(false);
  return;
  }
- const worksheet = workbook.Sheets[firstSheetName];
- if (!worksheet) {
- setError('Could not read the worksheet.');
- setLoading(false);
- return;
+ const headerValues = worksheet.getRow(1).values as unknown[];
+ const headers = headerValues.slice(1).map((value) => String(value ?? '').trim());
+ worksheet.eachRow((row, rowNumber) => {
+ if (rowNumber === 1) return;
+ const values = row.values as unknown[];
+ const record: Record<string, unknown> = {};
+ headers.forEach((header, index) => {
+ if (header) record[header] = values[index + 1] ?? '';
+ });
+ jsonData.push(record);
+ });
  }
-
- // Convert to JSON
- const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
  // Send to backend for preview
  const response = await api.post(`/hr/workspace/${token}/results/process`, {
@@ -85,7 +100,7 @@ export default function ResultUploadFlow({
  setLoading(false);
  };
 
- reader.readAsBinaryString(file);
+ reader.readAsArrayBuffer(file);
  };
 
  const handleConfirm = async () => {

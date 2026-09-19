@@ -21,8 +21,9 @@ import { protect, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Secure all analytics routes (Super Admin and Coordinator only)
-router.use(protect, authorize('SUPER_ADMIN', 'COORDINATOR'));
+// Current analytics aggregate the full institution. Keep them restricted until
+// every query supports a trusted department scope.
+router.use(protect, authorize('SUPER_ADMIN'));
 
 // ── Core Analytics ────────────────────────────────────────
 router.get('/placement/overview', getPlacementOverview);

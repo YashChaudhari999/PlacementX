@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useAuthStore } from '@/stores/authStore';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -11,28 +12,34 @@ interface ThemeProviderState {
 
 const ThemeProviderContext = createContext<ThemeProviderState | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
- const [theme, setTheme] = useState<Theme>(
- () => (localStorage.getItem('theme') as Theme) || 'system'
- );
+const isTheme = (value: string | null): value is Theme =>
+ value === 'light' || value === 'dark' || value === 'system';
 
- const [compactMode, setCompactMode] = useState<boolean>(
- () => localStorage.getItem('compactMode') === 'true'
- );
+const preferenceKey = (userId: string | undefined, preference: 'theme' | 'compactMode') =>
+ `placementx:${userId ?? 'guest'}:${preference}`;
+
+const readTheme = (userId?: string): Theme => {
+ const storedTheme = localStorage.getItem(preferenceKey(userId, 'theme'));
+ return isTheme(storedTheme) ? storedTheme : userId ? 'system' : 'light';
+};
+
+const readCompactMode = (userId?: string) =>
+ localStorage.getItem(preferenceKey(userId, 'compactMode')) === 'true';
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+ const userId = useAuthStore((state) => state.user?.id);
+ const [theme, setThemeState] = useState<Theme>(() => readTheme(userId));
+ const [compactMode, setCompactModeState] = useState<boolean>(() => readCompactMode(userId));
+
+ // Every account owns its appearance. Signing out returns public/login pages to
+ // their neutral light theme instead of exposing the previous user's preference.
+ useEffect(() => {
+ setThemeState(readTheme(userId));
+ setCompactModeState(readCompactMode(userId));
+ }, [userId]);
 
  useEffect(() => {
  const root = window.document.documentElement;
-
- // Handle theme
- root.classList.remove('light', 'dark');
- if (theme === 'system') {
- const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
- ? 'dark'
- : 'light';
- root.classList.add(systemTheme);
- } else {
- root.classList.add(theme);
- }
 
  // Handle compact mode
  if (compactMode) {
@@ -40,18 +47,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
  } else {
  root.classList.remove('compact-mode');
  }
+ const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+ const applyTheme = () => {
+ root.classList.remove('light', 'dark');
+ root.classList.add(
+ theme === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : theme
+ );
+ };
+
+ applyTheme();
+ mediaQuery.addEventListener('change', applyTheme);
+
+ return () => mediaQuery.removeEventListener('change', applyTheme);
  }, [theme, compactMode]);
 
  const value = {
  theme,
  setTheme: (theme: Theme) => {
- localStorage.setItem('theme', theme);
- setTheme(theme);
+ localStorage.setItem(preferenceKey(userId, 'theme'), theme);
+ setThemeState(theme);
  },
  compactMode,
  setCompactMode: (compact: boolean) => {
- localStorage.setItem('compactMode', compact ? 'true' : 'false');
- setCompactMode(compact);
+ localStorage.setItem(preferenceKey(userId, 'compactMode'), compact ? 'true' : 'false');
+ setCompactModeState(compact);
  },
  };
 

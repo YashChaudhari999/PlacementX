@@ -1,5 +1,5 @@
 import prisma from '../utils/prisma';
-import { PrismaClient, PlacementDrive } from '@prisma/client';
+import { PlacementDrive } from '@prisma/client';
 import * as settingsService from './settings.service';
 
 
@@ -26,6 +26,19 @@ export const filterEligibleStudents = async (drive: PlacementDrive) => {
   if (drive.passingYear) {
     whereClause.passingYear = drive.passingYear;
   }
+
+  const allowedGapYears = drive.maximumGapYears ?? drive.yearGapAllowed;
+  if (allowedGapYears !== null && allowedGapYears !== undefined) {
+    whereClause.yearGap = { lte: allowedGapYears };
+  }
+  if (drive.historyOfBacklogsAllowed !== null && drive.historyOfBacklogsAllowed !== undefined) {
+    whereClause.totalBacklogs = { lte: drive.historyOfBacklogsAllowed };
+  }
+  if (drive.semester) whereClause.currentSemester = drive.semester;
+  if (drive.resumeMandatory) whereClause.resumeUrl = { not: null };
+  if (drive.portfolioRequired) whereClause.portfolioUrl = { not: null };
+  if (drive.githubRequired) whereClause.githubUrl = { not: null };
+  if (drive.linkedinRequired) whereClause.linkedinUrl = { not: null };
   
   if (drive.genderRestriction && drive.genderRestriction.toUpperCase() !== 'ANY') {
       whereClause.gender = drive.genderRestriction;
@@ -72,6 +85,35 @@ export const checkEligibility = async (student: any, drive: any) => {
 
   if (drive.passingYear && student.passingYear !== drive.passingYear) {
     reasons.push(`Passing year must be ${drive.passingYear}`);
+  }
+
+  if (
+    drive.historyOfBacklogsAllowed !== null &&
+    drive.historyOfBacklogsAllowed !== undefined &&
+    (student.totalBacklogs || 0) > drive.historyOfBacklogsAllowed
+  ) {
+    reasons.push(`Backlog history exceeds the allowed ${drive.historyOfBacklogsAllowed}`);
+  }
+  if (drive.semester && student.currentSemester !== drive.semester) {
+    reasons.push(`Current semester must be ${drive.semester}`);
+  }
+
+  const allowedGapYears = drive.maximumGapYears ?? drive.yearGapAllowed;
+  if (allowedGapYears !== null && allowedGapYears !== undefined && (student.yearGap || 0) > allowedGapYears) {
+    reasons.push(`Education gap exceeds the allowed ${allowedGapYears} year(s)`);
+  }
+
+  if (drive.resumeMandatory && !student.resumeUrl) {
+    reasons.push('A resume is required');
+  }
+  if (drive.portfolioRequired && !student.portfolioUrl) {
+    reasons.push('A portfolio is required');
+  }
+  if (drive.githubRequired && !student.githubUrl) {
+    reasons.push('A GitHub profile is required');
+  }
+  if (drive.linkedinRequired && !student.linkedinUrl) {
+    reasons.push('A LinkedIn profile is required');
   }
 
   if (drive.genderRestriction && drive.genderRestriction.toUpperCase() !== 'ANY' && student.gender !== drive.genderRestriction) {

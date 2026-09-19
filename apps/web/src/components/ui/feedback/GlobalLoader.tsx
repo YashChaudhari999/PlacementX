@@ -1,81 +1,86 @@
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useIsFetching, useIsMutating } from '@tanstack/react-query';
 
 export const GlobalLoader = () => {
- // Check if any queries or mutations are currently running in the background
- const isFetching = useIsFetching();
- const isMutating = useIsMutating();
- const isLoading = isFetching > 0 || isMutating > 0;
+ // Hooks must run in the same order on every render. Keep these calls separate;
+ // combining them with `||` can short-circuit the second hook and crash React.
+ const activeQueries = useIsFetching();
+ const activeMutations = useIsMutating();
+ const isLoading = activeQueries > 0 || activeMutations > 0;
+ const [isVisible, setIsVisible] = useState(false);
+ const reduceMotion = useReducedMotion();
 
- const containerRef = useRef<HTMLDivElement>(null);
- const [spinnerStyle, setSpinnerStyle] = useState<React.CSSProperties>({});
-
- // Lock scrolling and calculate exact visible bounds for perfect centering
+ // Do not flash a full loading state for requests that resolve immediately.
  useEffect(() => {
- if (isLoading && containerRef.current) {
- document.body.style.overflow = 'hidden';
- const rect = containerRef.current.getBoundingClientRect();
-
- // Calculate perfectly centered position within the visible viewport.
- // The sticky navbar is roughly 80px tall. The available visible height is from 80 to window.innerHeight.
- const visibleCenterViewportY = 80 + (window.innerHeight - 80) / 2;
-
- // Because 'backdrop-blur' creates a containing block, 'fixed' positioning acts like 'absolute'.
- // Therefore, we calculate the exact absolute 'top' offset relative to the container itself.
- const topOffset = visibleCenterViewportY - rect.top;
-
- setSpinnerStyle({
- position: 'absolute',
- left: '0',
- width: '100%',
- top: `${topOffset}px`,
- transform: 'translateY(-50%)',
- display: 'flex',
- alignItems: 'center',
- justifyContent: 'center',
- });
- } else {
- document.body.style.overflow = '';
+ if (!isLoading) {
+ setIsVisible(false);
+ return;
  }
+
+ const timer = window.setTimeout(() => setIsVisible(true), 180);
+ return () => window.clearTimeout(timer);
+ }, [isLoading]);
+
+ useEffect(() => {
+ document.body.style.overflow = isVisible ? 'hidden' : '';
  return () => {
  document.body.style.overflow = '';
  };
- }, [isLoading]);
+ }, [isVisible]);
 
  return (
  <AnimatePresence>
- {isLoading && (
+ {isVisible && (
  <motion.div
- ref={containerRef}
  initial={{ opacity: 0 }}
  animate={{ opacity: 1 }}
  exit={{ opacity: 0 }}
- transition={{ duration: 0.3 }}
- className="absolute inset-0 z-20 bg-muted/70 backdrop-blur-[2px] rounded-xl"
+ transition={{ duration: reduceMotion ? 0 : 0.2 }}
+ className="fixed inset-0 z-[100] grid place-items-center bg-background/80 px-6 backdrop-blur-md"
+ role="status"
+ aria-live="polite"
+ aria-label="Loading PlacementX"
  >
- {/* Dynamically positioned fixed container to guarantee perfect viewport centering */}
- <div style={spinnerStyle}>
- <div className="relative flex items-center justify-center">
- {/* Spinning gradient ring (Maroon Theme) */}
  <motion.div
- animate={{ rotate: 360 }}
- transition={{ repeat: Infinity, duration: 1.5, ease: 'linear' }}
- className="absolute h-24 w-24 rounded-full border-[3px] border-transparent border-t-[#800000] border-r-[#800000]/70 border-b-[#800000]/30 border-l-transparent"
- />
- {/* Outer subtle ring */}
- <div className="absolute h-24 w-24 rounded-full border-[3px] border-[#800000]/10"/>
+ initial={reduceMotion ? undefined : { opacity: 0, y: 10, scale: 0.98 }}
+ animate={{ opacity: 1, y: 0, scale: 1 }}
+ exit={reduceMotion ? undefined : { opacity: 0, y: 6, scale: 0.98 }}
+ transition={{ duration: reduceMotion ? 0 : 0.24, ease: 'easeOut' }}
+ className="relative w-full max-w-[280px] overflow-hidden rounded-3xl border border-border/80 bg-card p-7 text-center shadow-[0_24px_70px_-28px_rgba(15,23,42,0.45)]"
+ >
+ <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent"/>
 
- {/* Center Logo */}
- <div className="flex h-[88px] w-[88px] items-center justify-center rounded-full bg-card shadow-sm overflow-hidden p-3 border border-border">
+ <div className="relative mx-auto mb-5 flex h-20 w-20 items-center justify-center">
+ <motion.div
+ animate={reduceMotion ? undefined : { rotate: 360 }}
+ transition={{ repeat: Infinity, duration: 1.35, ease: 'linear' }}
+ className="absolute inset-0 rounded-full border-2 border-primary/15 border-t-primary border-r-primary/55"
+ />
+ <div className="flex h-[66px] w-[66px] items-center justify-center overflow-hidden rounded-full border border-slate-200 bg-white p-2.5 shadow-sm">
  <img
  src="/nmimslogo_transparent.png"
  alt="NMIMS Logo"
- className="dark:brightness-0 dark:invert w-full h-full object-contain"
+ className="h-full w-full object-contain"
  />
  </div>
  </div>
+
+ <p className="text-base font-bold tracking-tight text-foreground">Preparing your workspace</p>
+ <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
+ Syncing the latest placement data
+ </p>
+ <div className="mx-auto mt-5 flex w-fit items-center gap-1.5" aria-hidden="true">
+ {[0, 1, 2].map((index) => (
+ <motion.span
+ key={index}
+ className="h-1.5 w-1.5 rounded-full bg-primary"
+ animate={reduceMotion ? undefined : { opacity: [0.25, 1, 0.25], y: [0, -2, 0] }}
+ transition={{ duration: 1, repeat: Infinity, delay: index * 0.14 }}
+ />
+ ))}
  </div>
+ </motion.div>
  </motion.div>
  )}
  </AnimatePresence>

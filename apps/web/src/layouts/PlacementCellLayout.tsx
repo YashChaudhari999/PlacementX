@@ -36,20 +36,21 @@ export const PlacementCellLayout = () => {
  navigate('/admin/login');
  };
 
+ const isSuperAdmin = user?.role === 'SUPER_ADMIN';
  const navGroups = [
  {
  title: 'Overview',
- items: [
+ items: isSuperAdmin ? [
  { name: 'Dashboard', href: '/admin/dashboard', icon: DashboardSquare01Icon },
  { name: 'Analytics', href: '/admin/analytics', icon: ChartLineData01Icon },
- ],
+ ] : [],
  },
  {
  title: 'Placements',
- items: [
+ items: isSuperAdmin ? [
  { name: 'Placement Drives', href: '/admin/placement-events', icon: Briefcase01Icon },
  { name: 'Reports', href: '/admin/reports', icon: Note01Icon },
- ],
+ ] : [],
  },
  {
  title: 'Student Management',
@@ -61,11 +62,11 @@ export const PlacementCellLayout = () => {
  },
  {
  title: 'System',
- items: [
+ items: isSuperAdmin ? [
  { name: 'Notifications', href: '/admin/notifications', icon: Notification01Icon },
  { name: 'Calendar', href: '/admin/calendar', icon: Calendar01Icon },
  { name: 'Settings', href: '/admin/settings', icon: Settings01Icon },
- ],
+ ] : [],
  },
  ];
 
@@ -75,14 +76,14 @@ export const PlacementCellLayout = () => {
 
  const sidebarLogo = (
  <button
- onClick={() => navigate('/admin/dashboard')}
+ onClick={() => navigate(isSuperAdmin ? '/admin/dashboard' : '/admin/students')}
  className="flex items-center gap-2 transition-opacity hover:opacity-80 w-full"
  >
- <div className="bg-primary/10 p-1.5 rounded-lg flex items-center justify-center border border-primary/20 shrink-0">
+ <div className="bg-white p-1.5 rounded-lg flex items-center justify-center border border-slate-200 shadow-sm shrink-0">
  <img
  src="/nmimslogo_transparent.png"
  alt="NMIMS Logo"
- className="dark:brightness-0 dark:invert h-7 w-7 object-contain"
+ className="h-7 w-7 object-contain"
  />
  </div>
  <div className="flex flex-col text-left hidden lg:block">
@@ -103,9 +104,9 @@ export const PlacementCellLayout = () => {
  A
  </div>
  <div className="flex-1 min-w-0">
- <p className="text-sm font-semibold text-foreground truncate">Admin User</p>
+ <p className="text-sm font-semibold text-foreground truncate">{user?.firstName || 'Placement User'}</p>
  <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
- <Tick02Icon className="w-3 h-3 text-success"/> Super Admin
+ <Tick02Icon className="w-3 h-3 text-success"/> {isSuperAdmin ? 'Super Admin' : 'Coordinator'}
  </p>
  </div>
  </div>

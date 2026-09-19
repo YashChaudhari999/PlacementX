@@ -11,7 +11,8 @@ import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.use(authenticate, authorize('SUPER_ADMIN', 'COORDINATOR'));
+// Reports currently aggregate institution-wide data.
+router.use(authenticate, authorize('SUPER_ADMIN'));
 
 router.get('/download/:id', downloadReport);
 router.get('/kpis', getReportsKPIs);

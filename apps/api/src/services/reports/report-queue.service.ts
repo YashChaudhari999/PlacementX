@@ -3,12 +3,13 @@ import { Queue, Worker, Job } from 'bullmq';
 import { getRedisClient, isRedisConnected } from '../../config/redis';
 import { getReportData } from './reports.service';
 import { generateExcel, generateCSV, generatePDF } from './export.service';
-import * as fs from 'fs';
-import * as path from 'path';
+import { supabaseAdmin } from '../../config/supabase';
 
 
 const REPORT_QUEUE_NAME = 'report-generation';
 let reportQueue: Queue | null = null;
+let reportWorker: Worker | null = null;
+const REPORTS_BUCKET = process.env.SUPABASE_REPORTS_BUCKET || 'generated-reports';
 
 export const initReportQueue = () => {
   const redis = getRedisClient();
@@ -28,7 +29,7 @@ export const initReportWorker = () => {
   const redis = getRedisClient();
   if (!redis) return;
 
-  new Worker(REPORT_QUEUE_NAME, async (job: Job) => {
+  reportWorker = new Worker(REPORT_QUEUE_NAME, async (job: Job) => {
     await processReportJob(job.data);
   }, { connection: redis, concurrency: 2 });
   
@@ -66,21 +67,25 @@ const processReportJob = async (data: { historyId: string, reportType: string, f
       buffer = await generateExcel(reportData.data, reportName);
     }
 
-    const uploadsDir = path.join(process.cwd(), 'uploads', 'reports');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-
     const filename = `report_${historyId}.${format.toLowerCase()}`;
-    const filePath = path.join(uploadsDir, filename);
-    
-    fs.writeFileSync(filePath, buffer);
+    const objectPath = `reports/${historyId}/${filename}`;
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(REPORTS_BUCKET)
+      .upload(objectPath, buffer, {
+        contentType: format === 'PDF'
+          ? 'application/pdf'
+          : format === 'CSV'
+            ? 'text/csv'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        upsert: true,
+      });
+    if (uploadError) throw new Error(`Report storage upload failed: ${uploadError.message}`);
 
     await prisma.reportExportHistory.update({
       where: { id: historyId },
       data: {
         status: 'COMPLETED',
-        fileUrl: `/api/admin/reports/download/${historyId}`,
+        fileUrl: objectPath,
         recordCount: reportData.count,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days expiry
       }
@@ -92,5 +97,12 @@ const processReportJob = async (data: { historyId: string, reportType: string, f
       where: { id: historyId },
       data: { status: 'FAILED', errorDetails: error.message || 'Unknown error' }
     });
+    throw error;
   }
+};
+
+export const closeReportQueue = async () => {
+  await Promise.all([reportWorker?.close(), reportQueue?.close()]);
+  reportWorker = null;
+  reportQueue = null;
 };

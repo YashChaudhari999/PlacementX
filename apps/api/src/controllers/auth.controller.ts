@@ -21,7 +21,7 @@ const registerSchema = z.object({
 
 const firebaseLoginSchema = z.object({
   idToken: z.string(),
-  role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']),
+  role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']).optional(),
 });
 
 export const register = async (req: Request, res: Response) => {
@@ -38,7 +38,7 @@ export const changePassword = async (req: any, res: any) => {
 
 export const firebaseLogin = async (req: Request, res: Response) => {
   try {
-    const { idToken, role } = firebaseLoginSchema.parse(req.body);
+    const { idToken } = firebaseLoginSchema.parse(req.body);
 
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
     const email = decodedToken.email;
@@ -61,12 +61,6 @@ export const firebaseLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'User not registered in the system' });
     }
 
-    // Check if the requested role matches the database role
-    // For admins, allow them to login as SUPER_ADMIN or COORDINATOR if they have that role
-    if (role === 'STUDENT' && userRecord.role !== 'STUDENT') {
-       return res.status(401).json({ error: 'Role mismatch: user is not a student' });
-    }
-    
     let user: any = {
       id: userRecord.id,
       email: userRecord.email,
@@ -94,10 +88,11 @@ export const firebaseLogin = async (req: Request, res: Response) => {
       throw new Error('JWT_SECRET is required');
     }
 
+    const accessTokenTtl = (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as jwt.SignOptions['expiresIn'];
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: accessTokenTtl }
     );
 
     res.status(200).json({

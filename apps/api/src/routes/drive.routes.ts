@@ -20,7 +20,9 @@ const router = Router();
 // Require authentication for all drive routes
 router.use(authenticate);
 
-const adminOnly = authorize('SUPER_ADMIN', 'COORDINATOR');
+// Drive administration exposes applicants across departments. Keep mutations
+// and applicant lists institution-admin only until drives have explicit owners.
+const adminOnly = authorize('SUPER_ADMIN');
 
 router.post('/', adminOnly, createDrive);
 router.get('/', getDrives);

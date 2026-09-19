@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 
 export type ImportResult = {
  success: boolean;
@@ -74,10 +74,21 @@ export class StudentImportService {
  }
  }
 
- static downloadReport(data: any[], filename = 'Import_Report.xlsx') {
- const ws = XLSX.utils.json_to_sheet(data);
- const wb = XLSX.utils.book_new();
- XLSX.utils.book_append_sheet(wb, ws, 'Report');
- XLSX.writeFile(wb, filename);
+ static async downloadReport(data: any[], filename = 'Import_Report.xlsx') {
+ const workbook = new ExcelJS.Workbook();
+ const worksheet = workbook.addWorksheet('Report');
+ const headers = data.length > 0 ? Object.keys(data[0]) : [];
+ worksheet.columns = headers.map((header) => ({ header, key: header, width: 20 }));
+ worksheet.addRows(data);
+ const buffer = await workbook.xlsx.writeBuffer();
+ const blob = new Blob([buffer as BlobPart], {
+ type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+ });
+ const url = URL.createObjectURL(blob);
+ const link = document.createElement('a');
+ link.href = url;
+ link.download = filename;
+ link.click();
+ URL.revokeObjectURL(url);
  }
 }

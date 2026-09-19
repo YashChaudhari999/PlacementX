@@ -344,7 +344,7 @@ export const applyForDrive = async (req: any, res: any) => {
 
     if (!allowMultipleOffers) {
       const existingOffers = await prisma.driveApplication.count({
-        where: { studentId: student.id, status: 'ACCEPTED' }
+        where: { studentId: student.id, status: { in: ['FINAL_SELECTED', 'ACCEPTED'] } }
       });
       if (existingOffers > 0) {
         return res.status(400).json({ message: 'You have already accepted an offer. Multiple offers are disabled.' });
@@ -381,16 +381,57 @@ export const applyForDrive = async (req: any, res: any) => {
       return res.status(400).json({ message: 'You are not eligible for this drive', reasons: eligibility.reasons });
     }
 
-    const application = await prisma.driveApplication.create({
-      data: {
-        driveId,
-        studentId: student.id,
-        status: 'APPLIED'
+    const application = await prisma.$transaction(async (tx) => {
+      // Repeat all count-based checks in a serializable transaction so two
+      // simultaneous requests cannot exceed a configured limit.
+      const [duplicate, driveApplicantCount, activeApplicationCount, liveOfferCount] = await Promise.all([
+        tx.driveApplication.findUnique({
+          where: { driveId_studentId: { driveId, studentId: student.id } },
+        }),
+        tx.driveApplication.count({ where: { driveId } }),
+        tx.driveApplication.count({
+          where: { studentId: student.id, status: { not: 'REJECTED' } },
+        }),
+        tx.driveApplication.count({
+          where: {
+            studentId: student.id,
+            status: { in: ['FINAL_SELECTED', 'ACCEPTED'] },
+          },
+        }),
+      ]);
+
+      if (duplicate) throw new Error('ALREADY_APPLIED');
+      if (drive.maximumApplicants !== null && driveApplicantCount >= drive.maximumApplicants) {
+        throw new Error('DRIVE_FULL');
       }
-    });
+
+      const parsedMaxApplications = Number(maxApplications);
+      if (Number.isFinite(parsedMaxApplications) && activeApplicationCount >= parsedMaxApplications) {
+        throw new Error('APPLICATION_LIMIT');
+      }
+      if (drive.maximumLiveOffers > 0 && liveOfferCount >= drive.maximumLiveOffers) {
+        throw new Error('LIVE_OFFER_LIMIT');
+      }
+
+      return tx.driveApplication.create({
+        data: { driveId, studentId: student.id, status: 'APPLIED' },
+      });
+    }, { isolationLevel: 'Serializable' });
 
     return res.status(201).json(application);
   } catch (error: any) {
+    const applicationErrors: Record<string, string> = {
+      ALREADY_APPLIED: 'You have already applied to this drive',
+      DRIVE_FULL: 'This drive has reached its applicant capacity',
+      APPLICATION_LIMIT: 'You have reached the maximum allowed applications',
+      LIVE_OFFER_LIMIT: 'You have reached the maximum allowed live offers',
+    };
+    if (applicationErrors[error.message]) {
+      return res.status(409).json({ message: applicationErrors[error.message] });
+    }
+    if (error.code === 'P2002' || error.code === 'P2034') {
+      return res.status(409).json({ message: 'The application state changed. Please try again.' });
+    }
     console.error('Apply for drive error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
   }

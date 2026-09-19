@@ -2,9 +2,9 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-16 09:29 IST
-**Last Verified Against Codebase:** 2026-09-16 09:29 IST
-**Context Version:** 1.5
+**Last Updated:** 2026-09-19 IST
+**Last Verified Against Codebase:** 2026-09-19 IST
+**Context Version:** 1.6
 
 ---
 
@@ -39,9 +39,9 @@ Manual, spreadsheet-driven campus placement processes at NMIMS University. The p
 
 ## Current Status
 
-**Production Ready (V1)**
+**Single-college production candidate / pilot ready**
 
-The core web application, backend API, and mobile app are all fully implemented and achieve functional parity. Key features (auth, student profiles, placement drives, HR collaboration portal, real-time notifications, analytics) are production-ready. This university capstone project is now positioned for final deployment.
+The web application and API have completed a production-hardening pass covering authentication, authorization, department scoping, application concurrency, health checks, graceful shutdown, private report storage, database migrations, dependency security, CI builds, and regression tests. The repository builds successfully, but a live production deployment and end-to-end validation against managed infrastructure are still pending. The current data model is suitable for one college; it is not yet a multi-tenant SaaS because tenant isolation has not been added across database records, queries, storage, queues, and real-time channels. The Expo mobile workspace also requires a breaking SDK/dependency upgrade before release.
 
 ---
 
@@ -69,9 +69,9 @@ The core web application, backend API, and mobile app are all fully implemented 
 | **Push Notifications (FCM)** | Firebase Cloud Messaging for mobile push | All | ✅ Completed |
 | **Socket.io Real-time Updates** | Live notification delivery via WebSocket | All | ✅ Completed |
 | **Calendar View** | Admin calendar for drive scheduling (FullCalendar) | Admin | ✅ Completed |
-| **Reports Generation** | Exportable placement reports | Admin | ✅ Completed |
+| **Reports Generation** | Exportable placement reports stored in a private Supabase bucket with authenticated downloads | Admin | ✅ Completed |
 | **Admin Settings** | Coordinator management, system configuration | Admin | ✅ Completed |
-| **Mobile App (React Native)** | Student-facing mobile app with Expo | Student | ✅ Completed |
+| **Mobile App (React Native)** | Student-facing mobile app with Expo; release blocked on Expo dependency upgrade | Student | ⚠️ Implemented, hardening pending |
 | **AI Success Prediction** | ML model predicts student placement success probability | Admin, ML Service | ❌ Removed |
 | **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ❌ Removed |
 | **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ❌ Removed |
@@ -90,22 +90,22 @@ The core web application, backend API, and mobile app are all fully implemented 
 
 | Role | Auth | Accessible Routes | Key Actions | Restrictions |
 |------|------|-------------------|-------------|-------------|
-| **STUDENT** | JWT + bcrypt login | `/student/*` | View drives, apply, manage profile, view applications/interviews/documents | Cannot access admin routes; profile locked after verification (must request update) |
-| **SUPER_ADMIN** | JWT + bcrypt login | `/admin/*` | Full access: manage drives, students, coordinators, analytics, reports, notifications, calendar, settings, import data, verify profiles, review update requests | Full system access |
-| **COORDINATOR** | JWT + bcrypt login | `/admin/*` | Same as SUPER_ADMIN (delegated by admin) | Created by SUPER_ADMIN; same route access |
+| **STUDENT** | Firebase credential exchanged for API JWT | `/student/*` | View drives, apply, manage profile, view applications/interviews/documents | Cannot access admin routes; profile locked after verification (must request update) |
+| **SUPER_ADMIN** | Firebase credential exchanged for API JWT | `/admin/*` | Institution-wide access: drives, students, coordinators, analytics, reports, notifications, calendar, settings, imports and verification | Full system access |
+| **COORDINATOR** | Firebase credential exchanged for API JWT | Limited `/admin/*` | Manage students, verifications, update requests, documents, and notes within the assigned department | Department is mandatory; institution-wide dashboards, calendar, broadcasts, imports, provisioning, coordinator management, analytics, reports, drive administration, and settings are SUPER_ADMIN-only |
 | **HR/Recruiter** | Token-based (no login) | `/hr-drive/:token` | Submit drive details via wizard | Access only through unique invitation link with expiry; no account required |
 | **Guest** | None | `/login`, `/about`, `/features`, `/modules`, `/how-it-works`, `/faq`, `/contact` | View public pages, login | Cannot access protected routes |
 
 ### Authentication Flow
 
-1. User submits email + password to `POST /api/auth/login`
-2. Backend verifies credentials via bcrypt, generates JWT
-3. JWT stored in Zustand (persisted to localStorage as `placementx-auth`)
-4. All subsequent API calls include `Authorization: Bearer <token>`
-5. Backend middleware (`auth.middleware.ts`) verifies JWT and attaches `req.user`
-6. Role-based authorization via `authorize(...roles)` middleware
-7. Firebase Auth is also initialized for legacy/FCM support (`POST /api/auth/firebase-login`)
-8. First login triggers forced password change (`mustChangePassword` flag)
+1. The client authenticates the email and password with Firebase Auth.
+2. The client sends the Firebase ID token to `POST /api/auth/firebase-login`.
+3. The API verifies the Firebase token, loads the user from PostgreSQL, and derives the role from the database; browser-supplied roles are ignored.
+4. The API issues a short-lived JWT (15 minutes by default via `JWT_ACCESS_EXPIRES_IN`). The frontend stores it in the persisted Zustand auth store.
+5. Subsequent API calls include `Authorization: Bearer <token>`.
+6. `auth.middleware.ts` verifies the JWT and re-reads the user, current role, and coordinator department from PostgreSQL on every protected request.
+7. Route authorization uses `authorize(...roles)` plus department ownership checks for coordinator-accessible student workflows.
+8. Firebase login fails closed; the frontend does not fall back to an offline or client-selected role.
 
 ### Route Guards (Frontend)
 
@@ -142,7 +142,7 @@ The core web application, backend API, and mobile app are all fully implemented 
   - **Task**: Add minimal `package.json` files to directories under `packages/` to support standard monorepo workspace imports.
 - `[x]` **P2.3 Implement Report Export**
   - **Problem**: Admin dashboard has a report export button, but the backend endpoint is missing.
-  - **Task**: Create `/export/excel` endpoint using the `xlsx` library to export student and placement data.
+  - **Outcome**: Added `/export/excel` using ExcelJS and private Supabase report storage with authenticated downloads.
 - `[x]` **P2.4 Complete Recruiter Event Portal**
   - **Problem**: Recruiter routes are incomplete and placeholder-only.
   - **Task**: Complete `recruiter.controller.ts` for candidate shortlisting and interview scheduling.
@@ -196,8 +196,8 @@ The core web application, backend API, and mobile app are all fully implemented 
 | Notifications (Toast) | Sonner + React Hot Toast | Latest |
 | Date Utilities | date-fns | ^4.4.0 |
 | PDF Generation | jsPDF + html2canvas | Latest |
-| CSV/Excel Parsing | PapaParse + xlsx | Latest |
-| Maps | react-simple-maps | ^3.0.0 |
+| CSV/Excel Parsing | PapaParse + ExcelJS | Latest |
+| Maps | react-simple-maps | ^5.0.5 |
 | Real-time | Socket.io Client | ^4.8.3 |
 | Firebase SDK | firebase | ^12.16.0 |
 
@@ -226,13 +226,13 @@ The core web application, backend API, and mobile app are all fully implemented 
 | Framework | Express.js | ^4.18.2 |
 | ORM | Prisma | ^5.0.0 |
 | Database | PostgreSQL (via Supabase / local pgvector) | Latest |
-| Authentication | bcrypt + JSON Web Tokens (jsonwebtoken) | ^5.1.0 / ^9.0.3 |
+| Authentication | Firebase Admin + JSON Web Tokens (jsonwebtoken); bcryptjs for legacy/provisioning password flows | Current workspace versions |
 | Firebase Admin | firebase-admin | ^13.10.0 |
 | Real-time | Socket.io | ^4.8.3 |
 | Job Queue | BullMQ | ^6.0.0 |
 | Cache/Queue Backend | Redis (ioredis) | ^5.11.1 |
 | Validation | Zod | ^3.21.4 |
-| Excel Parsing | xlsx | ^0.18.5 |
+| Excel Parsing/Export | ExcelJS | Current workspace version |
 | DB Driver | pg | ^8.22.0 |
 | Supabase Client | @supabase/supabase-js | ^2.112.3 |
 
@@ -473,20 +473,24 @@ sequenceDiagram
     participant W as Web/Mobile
     participant A as API Server
     participant DB as PostgreSQL
-    participant FB as Firebase
+    participant FB as Firebase Auth
 
     U->>W: Enter email + password
-    W->>A: POST /api/auth/login
-    A->>DB: Find user by email
-    A->>A: bcrypt.compare(password)
-    A->>A: Generate JWT (id, role, email)
+    W->>FB: Sign in
+    FB-->>W: Firebase ID token
+    W->>A: POST /api/auth/firebase-login
+    A->>FB: Verify ID token
+    A->>DB: Load user and database-owned role
+    A->>A: Generate short-lived JWT
     A-->>W: { token, user }
     W->>W: Zustand store.setAuth(user, token)
     W->>A: Subsequent requests (Bearer token)
-    A->>A: JWT verify + role check
+    A->>A: Verify JWT
+    A->>DB: Reload role and coordinator department
+    A->>A: Enforce role and department scope
     A-->>W: Protected resource
-    
-    Note over A,FB: Firebase Admin used for FCM push notifications
+
+    Note over A,FB: Firebase Admin also supports FCM push notifications
 ```
 
 ---
@@ -599,7 +603,7 @@ Routes → Middleware (Auth + Authorization) → Controllers → Services → Pr
 |-----------|-----------|---------------------|
 | `admin.controller.ts` | 33KB | Dashboard stats, student management, import, provisioning, coordinators, calendar, verifications, update request review |
 | `analytics.controller.ts` | 6KB | Delegates all analytics endpoints to the `analytics/` service layer |
-| `auth.controller.ts` | 6KB | Login (bcrypt+JWT), Firebase login, register, password change |
+| `auth.controller.ts` | 6KB | Firebase token exchange, API JWT issuance, registration, and legacy/provisioning password flows |
 | `drive.controller.ts` | 15KB | Drive CRUD, eligibility check, application status, HR drive review |
 | `hr.controller.ts` | 5KB | HR link generation, validation, draft auto-save, drive submission |
 | `notification.controller.ts` | 11KB | Notification CRUD, preferences, device registration, broadcast, scheduling |
@@ -832,11 +836,12 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 See section 3 (User Roles) for full details.
 
 **Summary:**
-- Backend auth: `bcrypt` password hashing + `jsonwebtoken` JWT generation/verification
-- Frontend auth state: Zustand persisted store
-- Firebase Auth: Used for FCM token management and legacy compatibility
-- HR portal: Token-based (no user account needed; secure link with expiry)
-- Password policy: First-time users must change password (`mustChangePassword` flag)
+- Primary sign-in: Firebase Auth; the API verifies the Firebase ID token and issues its own short-lived JWT.
+- Authorization source of truth: PostgreSQL user role and coordinator department, refreshed during every authenticated request.
+- Frontend auth state: Zustand persisted store.
+- HR portal: Token-based, no user account required; token expiry is enforced for every workspace access state.
+- Legacy/provisioning password utilities use `bcryptjs`; the frontend cannot choose or recover a role when authentication fails.
+- Coordinator access is restricted to assigned-department student operations. Institution-wide administration requires `SUPER_ADMIN`.
 
 ---
 
@@ -868,15 +873,16 @@ Selection rounds → Offer letters → Drive completed
 > ⚠️ These rules must NOT be accidentally broken during development.
 
 1. **Profile Lock After Verification** — Once a student profile is verified by admin, the student cannot directly edit it. They must submit a `ProfileUpdateRequest` which admin approves or rejects.
-2. **Eligibility Criteria** — Students can only apply to drives where they meet ALL criteria: minimum CGPA, allowed branches, active backlogs limit, year gap limit, passing year, gender restriction (if any).
+2. **Eligibility Criteria** — Students can only apply when they meet all configured criteria: minimum CGPA, allowed branches, current and total backlog limits, year-gap limit, current semester, passing year, gender restriction, and required resume/portfolio/GitHub/LinkedIn fields.
 3. **Unique Application** — A student can apply to a drive only once (`@@unique([driveId, studentId])` constraint).
 4. **Must Change Password** — New accounts (especially provisioned ones) have `mustChangePassword: true`. Users must change password on first login.
-5. **HR Links Expire** — HR invitation links have an `expiresAt` timestamp and become invalid after use (`isUsed: true`).
-6. **Role-Based Access** — Only `SUPER_ADMIN` and `COORDINATOR` can access admin routes. Only `STUDENT` can access student routes.
+5. **HR Links Expire** — HR invitation links have an `expiresAt` timestamp; expiry is enforced even after a drive becomes active or published.
+6. **Role-Based Access** — `SUPER_ADMIN` owns institution-wide administration. `COORDINATOR` is limited to assigned-department student operations. Only `STUDENT` can access student routes.
 7. **No Multiple Offers** — System setting: `allowMultipleOffers: false` (from Firebase config).
 8. **Max Applications** — System setting: `maxApplicationsPerStudent: 5` (from Firebase config).
 9. **Drive Status Flow** — Drives follow: `WAITING_FOR_HR` → `DRAFT` → `UNDER_REVIEW` → `ACTIVE` → `CLOSED` → `COMPLETED`.
 10. **Profile Status Flow** — Profiles follow: `NOT_COMPLETED` → `PENDING_VERIFICATION` → `VERIFIED` (or `REJECTED`).
+11. **Application Concurrency** — Application creation runs in a serializable transaction and rechecks duplicate applications, drive capacity, global application limits, and live offer limits before commit.
 
 ---
 
@@ -899,6 +905,10 @@ Selection rounds → Offer letters → Drive completed
 | `VITE_FIREBASE_APP_ID` | Firebase app ID | Yes |
 | `VITE_FIREBASE_MEASUREMENT_ID` | Firebase analytics measurement ID | No |
 | `JWT_SECRET` | Secret for JWT signing | Yes |
+| `JWT_ACCESS_EXPIRES_IN` | Access-token lifetime | No (default: `15m`) |
+| `REDIS_URL` | Redis connection for BullMQ queues and workers | Production queues only |
+| `SUPABASE_URL` | Server-side Supabase project URL | Report storage |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service credential | Report storage |
 | `VITE_APP_NAME` | Application display name | No (default: PlacementX) |
 | `VITE_APP_ENV` | Environment (development/production) | No |
 | `PORT` | API server port | No (default: 5000) |
@@ -994,7 +1004,9 @@ npm start                                    # Expo dev server
 | `npm run lint` | apps/web | ESLint on `src/` |
 | `npm run dev` | apps/api | `ts-node-dev` with auto-restart |
 | `npm run build` | apps/api | TypeScript compilation |
-| `npm run db:push` | apps/api | Push Prisma schema to DB |
+| `npm run db:push` | apps/api | Development-only schema synchronization |
+| `npm run db:migrate:deploy` | apps/api | Apply committed Prisma migrations in deployment environments |
+| `npm run db:migrate:status` | apps/api | Inspect migration state |
 | `npm run db:studio` | apps/api | Open Prisma Studio (DB GUI) |
 | `npm run db:seed` | apps/api | Seed database |
 
@@ -1004,7 +1016,7 @@ npm start                                    # Expo dev server
 
 ### Current State
 
-**Not deployed to production.** This is a capstone project in active development.
+**Not deployed to production.** The repository is a verified production candidate for a single-college pilot. Live infrastructure, secrets, storage, migrations, monitoring, backups, and end-to-end flows still require deployment validation.
 
 ### Docker Setup (Local)
 
@@ -1014,7 +1026,7 @@ services:
   db: PostgreSQL + pgvector (port 5432)
 ```
 
-### Future Deployment Architecture (Planned)
+### Deployment Architecture (Target)
 
 - **Frontend:** Could be deployed to Vercel, Netlify, or Firebase Hosting
 - **Backend API:** Could be deployed to Railway, Render, or GCP Cloud Run
@@ -1022,6 +1034,15 @@ services:
 - **Firebase:** Already configured for Auth, Storage, FCM
 
 > Production deployment details: **Not documented in repository.**
+
+### Required Deployment Steps
+
+1. Provision PostgreSQL/Supabase, Redis, Firebase Auth/FCM, and the API/web runtimes.
+2. Create a private Supabase Storage bucket named `generated-reports`; keep report downloads behind authenticated API endpoints.
+3. Configure production secrets, including a strong `JWT_SECRET`, Firebase Admin credentials, Redis, and Supabase service credentials.
+4. For a new database, run `npm run db:migrate:deploy`. For an existing database previously managed with `prisma db push`, back it up, verify that its schema matches the baseline, and mark `20260919000000_baseline` as applied with `prisma migrate resolve`; never execute the baseline SQL against a populated database.
+5. Validate `/health/live` for process liveness and `/health` for PostgreSQL/Redis readiness. The readiness endpoint returns HTTP 503 when a required dependency is unavailable.
+6. Run API and web production builds, automated tests, and live end-to-end checks before admitting users.
 
 ---
 
@@ -1042,16 +1063,13 @@ services:
 
 | Issue | Severity | Area | Status | Description |
 |-------|----------|------|--------|-------------|
-| BullMQ workers commented out | Medium | Notifications | Known | Queue initialization (`initQueues`/`initWorkers`) is commented out in `index.ts`. Falls back to synchronous processing. Likely because Redis is not always available in dev. |
-| Analytics routes lack auth middleware | Medium | Security | Open | `analytics.routes.ts` does not apply `authenticate` middleware directly. Routes are mounted under `/api/admin/analytics` but rely on the parent route or client-side auth. |
-| `@ts-nocheck` in routes/index.tsx | Low | Code Quality | Known | Web router file suppresses all TypeScript errors. May hide real type issues. |
-| `@ts-ignore` in auth middleware | Low | Code Quality | Known | `req.user` is attached without proper Express type extension. |
-| ML resume parser is mock | Medium | AI/ML | Resolved | `POST /api/ai/resume/parse` now utilizes a massive multi-domain taxonomy for highly accurate entity extraction. |
-| Dual Firebase admin configs | Low | Config | Known | Two files: `firebase-admin.ts` and `firebaseAdmin.ts` in API config. May cause confusion. |
-| Mobile app providers directory empty | Low | Mobile | Known | `apps/mobile/src/providers/` contains only `.gitkeep`. |
-| `react-simple-maps` in web deps | Low | Dependencies | Known | Listed as dependency but unclear if actively used. |
-| Firebase config labels in `.env.example` say "Legacy — will be migrated" | Low | Documentation | Known | Firebase is still actively used for Auth/FCM. Label may be misleading. |
-| Firebase .env JSON format fragile | Medium | Config | Resolved | `FIREBASE_SERVICE_ACCOUNT_KEY` in `apps/api/.env` was stored as multi-line JSON with raw control characters and a truncated `client_x509_cert_url`, causing `JSON.parse` to crash the API server on startup. Fixed by converting to single-line JSON and hardening the parser in `firebase-admin.ts`. |
+| Multi-tenant isolation absent | Critical for SaaS | Architecture | Open | The schema and services are scoped for one college. Add tenant IDs and enforce tenant boundaries in database queries, unique constraints, storage paths, queues, Socket.io rooms, and administration before offering the product to multiple colleges. |
+| Production deployment not validated | High | Operations | Open | Builds and tests pass locally, but managed database/Redis/storage, secrets, backups, monitoring, and end-to-end production flows have not been verified. |
+| Mobile Expo dependency advisories | High | Mobile | Open | The mobile dependency tree retains four high-severity advisories whose resolution requires a breaking Expo SDK/dependency upgrade. |
+| Large web Excel chunk | Medium | Performance | Open | The web build succeeds but ExcelJS contributes an approximately 949 KB chunk. Load spreadsheet features on demand or move parsing/export to the API. |
+| Limited automated coverage | Medium | Quality | Open | Eligibility and controller regression tests exist, but critical authentication, authorization, imports, reports, and end-to-end user journeys need broader coverage. |
+| Dual Firebase/PostgreSQL responsibilities | Medium | Architecture | Open | Firebase remains required for Auth/FCM while PostgreSQL holds authorization and application data. Keep ownership boundaries documented and reconciliation observable. |
+| ExcelJS/Firebase transitive UUID advisory | Moderate | Dependencies | Accepted/monitor | Current dependency trees may retain a moderate transitive `uuid` advisory; reassess when compatible upstream releases are available. |
 
 ---
 
@@ -1063,10 +1081,11 @@ services:
 | **Auth type safety** | Extended Express Request globally to properly type `req.user`, permanently removing `@ts-ignore` flags. | Resolved |
 | **Frontend type strictness** | `@ts-nocheck` overrides successfully stripped across all React files; monorepo now fully typed. | Resolved |
 | **Mobile Core Sync** | Corrected UI binding exceptions in `AdminDashboardScreen` and `DriveDetailsScreen` by properly managing nullable fields safely through Type enhancements. | Resolved |
-| **Test coverage** | Jest & Supertest initialized within the `apps/api` microservice. First Express controller integration test implemented mocking PrismaClient. | Low (Progressing) |
+| **Test coverage** | Jest/Supertest are configured and eligibility regressions are covered; expand coverage across auth, authorization, imports, reports, transactions, and end-to-end flows. | High |
 | **Shared packages** | `packages/` directory has type stubs but no proper package.json configs with exports. | Medium |
 | **Error handling** | Backend controllers use try/catch but error responses are inconsistent across controllers. | Medium |
 | **Code splitting** | React.lazy is used but route-level splitting could be more systematic. | Low |
+| **SaaS tenancy** | Add an institution/tenant model and mandatory scoping across every persistence and delivery boundary. | Critical before multi-college launch |
 
 ---
 
@@ -1096,8 +1115,8 @@ services:
 - Monorepo setup (npm workspaces)
 - Web app scaffolding with feature-based architecture
 - Backend API with Express + Prisma + PostgreSQL
-- Full authentication system (bcrypt + JWT)
-- Role-based authorization (STUDENT, SUPER_ADMIN, COORDINATOR)
+- Firebase-to-API JWT authentication with database-backed role revalidation and 15-minute default access tokens
+- Role-based authorization with SUPER_ADMIN institution access and department-scoped COORDINATOR access
 - Student profile management (comprehensive multi-step form)
 - Profile verification workflow (admin approves/rejects)
 - Profile update request system
@@ -1126,22 +1145,29 @@ services:
 - CI/CD pipeline
 - BullMQ notification queue infrastructure (Redis fallback)
 - Standardized error response format across controllers
+- Serializable application submission with capacity, duplicate, eligibility, application-limit, and offer-limit checks
+- Private generated-report storage with authenticated downloads and retrying BullMQ workers
+- Dependency-aware health/readiness endpoints and graceful shutdown of HTTP, queues, workers, Redis, and Prisma
+- Prisma migration baseline and deployment/status scripts
+- CI production builds and API regression tests (2 suites, 7 tests at last verification)
 
 ### 🚧 In Progress
 
-- API automated testing (Jest + Supertest)
+- Broader automated integration and end-to-end coverage
+- Production deployment runbook and live environment validation
 
 ### ⏳ Pending
 
 - Cloud Functions for server-side triggers
 - Full Firebase → PostgreSQL migration completion
+- Multi-tenant institution model and isolation for SaaS use
 - Production deployment
-- End-to-end testing
+- End-to-end testing in the deployed environment
 - Code splitting optimization
 
 ### ❌ Blocked
 
-- None
+- Mobile production release is blocked by four high-severity Expo dependency-chain advisories requiring a breaking SDK upgrade.
 
 ---
 
@@ -1150,12 +1176,16 @@ services:
 ### P0 — Critical
 - [x] Enable Redis + BullMQ notification workers (currently commented out)
 - [x] Add explicit authentication to analytics routes
+- [ ] Implement tenant isolation before onboarding multiple colleges
+- [ ] Deploy and validate production infrastructure, backups, monitoring, and rollback procedures
 
 ### P1 — High
 - [x] Complete mobile app core screens (dashboard, profile, drives)
 - [x] Implement real resume parser in ML service (replace mock)
 - [ ] Add automated tests (unit + integration) for API controllers
 - [x] Fix TypeScript issues suppressed by `@ts-nocheck` and `@ts-ignore`
+- [ ] Upgrade the Expo/mobile dependency chain and clear high-severity audit findings
+- [ ] Add authentication, authorization, concurrency, import, report, and end-to-end regression coverage
 
 ### P2 — Medium
 - [x] Consolidate dual Firebase admin config files
@@ -1201,13 +1231,60 @@ services:
 1. **Validate the implementation** — Run `npm run dev` and test manually.
 2. **Run type checking** — `npm run type-check` should pass.
 3. **Run linting** — `npm run lint` should pass.
-4. **If Prisma schema changed** — Run `npx prisma db push` and verify.
+4. **If Prisma schema changed** — Create and review a Prisma migration; use `db:migrate:deploy` for deployment. Reserve `db:push` for disposable development databases.
 5. **Update `project_context.md`** — Update affected sections + add changelog entry.
 6. **Record the change** in the Change Log section below.
 
 ---
 
 # 25. Change Log
+
+### 2026-09-19 — Account-Scoped Appearance and Loading Polish
+
+**Type:** UI / Accessibility / Preference Isolation
+
+**Summary:**
+- Bound Tailwind's `dark:` variant to the app-controlled `.dark` class so operating-system theme detection cannot override an explicit light theme.
+- Stored theme and compact-mode preferences under each authenticated user ID; sign-out restores a neutral light theme for public and login pages.
+- Removed destructive dark-mode filters from the NMIMS artwork and placed the official logo on a consistent white tile for reliable contrast in both themes.
+- Rebuilt global and full-screen loading states with stable viewport centering, a short anti-flicker delay, clearer progress messaging, and reduced-motion support.
+- Kept React Query loading hooks unconditional to preserve hook order across query and mutation state changes.
+
+**Validation:** Web type check and production build passed.
+
+**Status:** Completed
+
+---
+
+### 2026-09-19 — Single-College Production Hardening
+
+**Type:** Security / Reliability / Data Integrity / Operations
+
+**Summary:**
+- Reworked sign-in to fail closed through Firebase token verification and database-owned roles. Protected requests now reload the user, role, and coordinator department; access tokens default to 15 minutes.
+- Separated SUPER_ADMIN institution-wide administration from department-scoped COORDINATOR student operations.
+- Enforced HR workspace-link expiry in every drive state and expanded eligibility checks to cover gap years, total backlogs, semester, and required profile assets.
+- Made application submission serializable and concurrency-safe with duplicate, capacity, application-limit, and live-offer rechecks.
+- Stored generated reports in the private `generated-reports` Supabase bucket behind authenticated downloads; report workers now retry failed jobs.
+- Added PDF signature validation, liveness/readiness endpoints, dependency-aware 503 responses, and graceful process shutdown.
+- Added a Prisma migration baseline and deployment commands, production builds to CI, and eligibility regression tests.
+- Replaced `xlsx` with ExcelJS and native CSV handling, replaced native `bcrypt` with `bcryptjs`, and upgraded vulnerable Express/Multer/React Router/map dependencies.
+
+**Validation:**
+- API and web production builds passed.
+- API and web type checks passed.
+- API tests passed: 2 suites, 7 tests.
+- Prisma schema validation and `git diff --check` passed.
+
+**Remaining Release Work:**
+- Configure the private `generated-reports` bucket and production secrets.
+- Baseline any existing `db:push` database safely before migration deployment.
+- Upgrade Expo/mobile dependencies to resolve four remaining high-severity advisories.
+- Add multi-tenant isolation before offering the system as SaaS to multiple colleges.
+
+**Status:** Web/API production candidate for a single-college pilot; deployment and mobile release validation pending.
+
+---
 
 ### 2026-08-24 — Fix Admin Dashboard "Network Error" (API Server Crash)
 
@@ -1308,11 +1385,12 @@ Verified against actual repository structure, source code, and existing document
 | Check | Status |
 |-------|--------|
 | Codebase analyzed | ✅ Yes |
-| Build verified | ❌ No (documentation-only task) |
-| Tests verified | ❌ No (no visible test suite) |
+| Build verified | ✅ Yes (API and web production builds) |
+| Tests verified | ✅ Yes (API: 2 suites, 7 tests) |
 | Deployment verified | ❌ No (not deployed) |
-| Environment verified | ✅ Yes (`.env.example` inspected) |
-| Known stale information | ⚠️ Possible — Firebase "Legacy" label in `.env.example` may be misleading |
+| Environment verified | ✅ Yes (examples and production-required services reviewed) |
+| Prisma verified | ✅ Yes (`prisma validate`; baseline migration added) |
+| Known release gaps | ⚠️ Multi-tenancy, deployed E2E validation, mobile dependency upgrade, and private report bucket provisioning |
 
 ---
 

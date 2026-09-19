@@ -184,9 +184,7 @@ const getWorkspaceDrive = async (token: string) => {
   });
 
   if (!hrLink) throw new Error('Invalid token');
-  // Once active, token expiry shouldn't lock out HR during an active drive, or we just trust expiresAt.
-  // For safety, we'll respect expiresAt unless drive is PUBLISHED/ACTIVE/CLOSED.
-  if (new Date() > hrLink.expiresAt && !['ACTIVE', 'CLOSED', 'PUBLISHED'].includes(hrLink.drive.status)) {
+  if (new Date() > hrLink.expiresAt) {
     throw new Error('Token expired');
   }
   

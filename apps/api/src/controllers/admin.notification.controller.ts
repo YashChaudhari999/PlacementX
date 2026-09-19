@@ -271,17 +271,6 @@ export const getAdminRecommendations = async (req: Request, res: Response) => {
       }
     }
 
-    // Ensure we always have some data to show the feature if DB is empty
-    if (recommendations.length === 0) {
-      recommendations.push({
-        id: 'mock-1',
-        type: 'warning',
-        message: "127 eligible students haven't applied to Deloitte.",
-        actionText: 'Notify Students →',
-        actionLink: 'send'
-      });
-    }
-
     res.status(200).json({ data: recommendations });
   } catch (error: any) {
     res.status(500).json({ message: 'Error fetching recommendations', error: error.message });

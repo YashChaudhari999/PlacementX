@@ -7,8 +7,8 @@ export const GuestRoute = ({ children }: { children: ReactNode }) => {
 
  if (isAuthenticated) {
  if (user?.role === 'STUDENT') return <Navigate to="/student/dashboard"replace />;
- if (user?.role === 'SUPER_ADMIN' || user?.role === 'COORDINATOR')
- return <Navigate to="/admin/dashboard"replace />;
+ if (user?.role === 'SUPER_ADMIN') return <Navigate to="/admin/dashboard"replace />;
+ if (user?.role === 'COORDINATOR') return <Navigate to="/admin/students"replace />;
  }
 
  return <>{children}</>;

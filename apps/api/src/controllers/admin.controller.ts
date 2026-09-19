@@ -1,10 +1,17 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
 import { getAcademicDocumentForAdmin, signDocuments } from '../services/student-document.service';
+
+// Coordinators may only operate on students in their assigned department.
+// A missing assignment deliberately scopes them to an impossible value.
+const coordinatorDepartment = (req: any): string | undefined =>
+  req.user?.role === 'COORDINATOR'
+    ? (req.user.department || '__UNASSIGNED_COORDINATOR__')
+    : undefined;
 
 // 1. Students Module
 export const getStudents = async (req: any, res: any) => {
@@ -14,6 +21,8 @@ export const getStudents = async (req: any, res: any) => {
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    const departmentScope = coordinatorDepartment(req);
+    if (departmentScope) where.department = departmentScope;
 
     let targetAcademicYear = req.query.academic_year;
     if (!targetAcademicYear) {
@@ -24,7 +33,7 @@ export const getStudents = async (req: any, res: any) => {
     if (targetAcademicYear && targetAcademicYear !== 'All Years') {
       where.academicYear = targetAcademicYear;
     }
-    if (req.query.department && req.query.department !== 'All Departments') {
+    if (!departmentScope && req.query.department && req.query.department !== 'All Departments') {
       where.department = req.query.department;
     }
     if (req.query.student_status && req.query.student_status !== 'All') {
@@ -108,6 +117,8 @@ export const getStudents = async (req: any, res: any) => {
 export const getStudentStats = async (req: any, res: any) => {
   try {
     const where: any = {};
+    const departmentScope = coordinatorDepartment(req);
+    if (departmentScope) where.department = departmentScope;
     let targetAcademicYear = req.query.academic_year;
     if (!targetAcademicYear) {
       const { getSetting } = await import('../services/settings.service');
@@ -404,7 +415,12 @@ export const getCoordinators = async (req: any, res: any) => {
         coordinatorProfile: true,
       },
     });
-    return res.status(200).json(coordinators);
+    return res.status(200).json(coordinators.map(({ coordinatorProfile, ...user }) => ({
+      ...user,
+      firstName: coordinatorProfile?.firstName || '',
+      lastName: coordinatorProfile?.lastName || '',
+      department: coordinatorProfile?.department || null,
+    })));
   } catch (error: any) {
     return res.status(500).json({ message: 'Error fetching coordinators', error: error.message });
   }
@@ -416,11 +432,12 @@ export const addCoordinator = async (req: any, res: any) => {
     lastName: z.string().trim().min(2).max(100),
     email: z.string().trim().email().transform((value) => value.toLowerCase()),
     password: z.string().min(8).max(128),
+    department: z.string().trim().min(2).max(100),
   });
 
   let firebaseUid: string | null = null;
   try {
-    const { firstName, lastName, email, password } = coordinatorSchema.parse(req.body);
+    const { firstName, lastName, email, password, department } = coordinatorSchema.parse(req.body);
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -448,6 +465,7 @@ export const addCoordinator = async (req: any, res: any) => {
           create: {
             firstName,
             lastName,
+            department,
           },
         },
       },
@@ -893,8 +911,9 @@ export const getStudentAcademicDoc = async (req: Request, res: Response) => {
     const { studentId } = req.params;
 
     // Verify student exists
-    const student = await prisma.studentProfile.findUnique({
-      where: { id: studentId }
+    const departmentScope = coordinatorDepartment(req);
+    const student = await prisma.studentProfile.findFirst({
+      where: { id: studentId, ...(departmentScope ? { branch: departmentScope } : {}) }
     });
 
     if (!student) {
@@ -1072,8 +1091,10 @@ export const getAdminDashboard = async (req: any, res: any) => {
 
 export const getPendingProfiles = async (req: any, res: any) => {
   try {
+    const departmentScope = coordinatorDepartment(req);
     const profiles = await prisma.studentProfile.findMany({
       where: {
+        ...(departmentScope ? { branch: departmentScope } : {}),
         OR: [
           // Normal path: student submitted profile for verification
           { profileStatus: 'PENDING_VERIFICATION' },
@@ -1127,7 +1148,10 @@ export const verifyProfile = async (req: any, res: any) => {
       return res.status(400).json({ message: 'Invalid action. Use APPROVE or REJECT' });
     }
 
-    const profile = await prisma.studentProfile.findUnique({ where: { id } });
+    const departmentScope = coordinatorDepartment(req);
+    const profile = await prisma.studentProfile.findFirst({
+      where: { id, ...(departmentScope ? { branch: departmentScope } : {}) },
+    });
     if (!profile) return res.status(404).json({ message: 'Profile not found' });
     if (profile.profileStatus !== 'PENDING_VERIFICATION' && profile.profileStatus !== 'PENDING') {
       return res.status(400).json({ message: 'Profile is not pending verification' });
@@ -1181,8 +1205,12 @@ export const verifyProfile = async (req: any, res: any) => {
 
 export const getUpdateRequests = async (req: any, res: any) => {
   try {
+    const departmentScope = coordinatorDepartment(req);
     const requests = await prisma.profileUpdateRequest.findMany({
-      where: { status: 'PENDING' },
+      where: {
+        status: 'PENDING',
+        ...(departmentScope ? { student: { branch: departmentScope } } : {}),
+      },
       include: {
         student: {
           include: { user: { select: { email: true } } },
@@ -1210,8 +1238,12 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
       return res.status(400).json({ message: 'Invalid action' });
     }
 
-    const request = await prisma.profileUpdateRequest.findUnique({
-      where: { id },
+    const departmentScope = coordinatorDepartment(req);
+    const request = await prisma.profileUpdateRequest.findFirst({
+      where: {
+        id,
+        ...(departmentScope ? { student: { branch: departmentScope } } : {}),
+      },
       include: { student: true },
     });
 
@@ -1486,8 +1518,12 @@ export const getStudentById = async (req: any, res: any) => {
   try {
     const { studentId } = req.params;
     
+    const departmentScope = coordinatorDepartment(req);
     const importedStudent = await prisma.importedStudent.findFirst({
-      where: { studentId: studentId },
+      where: {
+        studentId,
+        ...(departmentScope ? { department: departmentScope } : {}),
+      },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -1543,8 +1579,12 @@ export const updateStudentAdminNotes = async (req: any, res: any) => {
     const { studentId } = req.params;
     const { adminNotes } = req.body;
 
+    const departmentScope = coordinatorDepartment(req);
     const importedStudent = await prisma.importedStudent.findFirst({
-      where: { studentId: studentId }
+      where: {
+        studentId,
+        ...(departmentScope ? { department: departmentScope } : {}),
+      }
     });
 
     if (!importedStudent || !importedStudent.email) {

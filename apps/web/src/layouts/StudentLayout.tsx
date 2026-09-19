@@ -92,11 +92,13 @@ export const StudentLayout = () => {
  onClick={() => navigate('/student/dashboard')}
  className="flex items-center gap-2 transition-opacity hover:opacity-80 mx-auto lg:mx-0"
  >
+ <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white p-1.5 shadow-sm">
  <img
  src="/nmimslogo_transparent.png"
  alt="NMIMS Logo"
- className="dark:brightness-0 dark:invert h-10 w-auto object-contain"
+ className="h-full w-full object-contain"
  />
+ </span>
  <span className="font-extrabold text-lg text-primary tracking-tight hidden lg:block">
  PlacementX
  </span>
