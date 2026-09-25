@@ -1239,6 +1239,23 @@ services:
 
 # 25. Change Log
 
+### 2026-09-25 — Security, Configuration, and Repository Cleanup
+
+**Type:** Security / Configuration / Operations
+
+**Summary:**
+- Added centralized environment validation, tightened Firebase/authentication and error/security middleware behavior, and updated the API startup and seed paths.
+- Added security middleware regression coverage plus an automated security-audit script and CI workflow updates.
+- Added Supabase storage-security SQL and Firebase Storage rules; refreshed Docker, Firebase database rules, and environment examples.
+- Updated the admin login experience and included project security and capstone delivery documentation.
+- Removed untracked artifacts unrelated to PlacementX: Cafe/AWS load-test files, Redis dumps/archives, generic example/archive data, and temporary SSM/target-tracking files.
+
+**Validation:** Changes were committed and pushed to `origin/main` as `0ced862`.
+
+**Status:** Completed
+
+---
+
 ### 2026-09-19 — Account-Scoped Appearance and Loading Polish
 
 **Type:** UI / Accessibility / Preference Isolation
