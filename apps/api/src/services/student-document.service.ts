@@ -1,11 +1,10 @@
 import { supabaseAdmin } from '../config/supabase';
-import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
+import prisma from '../utils/prisma';
 
 const BUCKET_NAME = process.env.SUPABASE_STORAGE_BUCKET || 'student-documents';
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
+const DOCUMENT_TYPES = new Set(['10TH_MARKSHEET', '12TH_DIPLOMA_MARKSHEET', 'DEGREE_MARKSHEETS', 'RESUME', 'ACADEMIC_DOCUMENTS']);
 
 export const uploadAcademicDocument = async (
   studentId: string,
@@ -15,6 +14,10 @@ export const uploadAcademicDocument = async (
   mimeType: string,
   fileSize: number
 ) => {
+  if (!DOCUMENT_TYPES.has(documentType)) {
+    throw new Error('Unsupported document type');
+  }
+
   if (mimeType !== 'application/pdf') {
     throw new Error('Only PDF files are allowed');
   }
@@ -24,9 +27,14 @@ export const uploadAcademicDocument = async (
     throw new Error('The uploaded file is not a valid PDF');
   }
 
-  if (fileSize > MAX_FILE_SIZE) {
+  if (fileSize !== fileBuffer.length || fileSize > MAX_FILE_SIZE) {
     throw new Error('File size exceeds the 15MB limit');
   }
+
+  const safeOriginalName = originalName
+    .normalize('NFKC')
+    .replace(/[^a-zA-Z0-9._ -]/g, '_')
+    .slice(0, 120);
 
   // Verify student exists
   const student = await prisma.studentProfile.findUnique({
@@ -60,7 +68,8 @@ export const uploadAcademicDocument = async (
     });
 
   if (uploadError) {
-    throw new Error(`Storage upload failed: ${uploadError.message}`);
+    console.error('Supabase document upload failed', { code: uploadError.name });
+    throw new Error('Document upload failed');
   }
 
   // Update DB
@@ -72,7 +81,7 @@ export const uploadAcademicDocument = async (
       },
     },
     update: {
-      fileName: originalName,
+      fileName: safeOriginalName,
       filePath: filePath,
       mimeType,
       fileSize,
@@ -80,7 +89,7 @@ export const uploadAcademicDocument = async (
     create: {
       studentId,
       documentType,
-      fileName: originalName,
+      fileName: safeOriginalName,
       filePath: filePath,
       mimeType,
       fileSize,

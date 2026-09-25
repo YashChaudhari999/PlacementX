@@ -4,6 +4,8 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
+import crypto from 'crypto';
+import { isProduction, jwtConfig } from '../config/environment';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -20,9 +22,18 @@ const registerSchema = z.object({
 });
 
 const firebaseLoginSchema = z.object({
-  idToken: z.string(),
+  idToken: z.string().min(100).max(10_000),
   role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']).optional(),
-});
+}).strict();
+
+const localDemoEmails = () => (process.env.DEMO_EMAIL_ALLOWLIST
+  || 'admin@nmims.edu,kunal.khaire177@nmims.in')
+  .split(',')
+  .map((value) => value.trim().toLowerCase())
+  .filter(Boolean);
+
+const isLocalDemoAccount = (email: string) =>
+  !isProduction() && localDemoEmails().includes(email);
 
 export const register = async (req: Request, res: Response) => {
   return res.status(400).json({ error: 'Legacy register endpoint is deprecated. Please use Firebase Authentication.' });
@@ -41,20 +52,35 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     const { idToken } = firebaseLoginSchema.parse(req.body);
 
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
-    const email = decodedToken.email;
+    const email = decodedToken.email?.trim().toLowerCase();
 
-    if (!email) {
-      return res.status(401).json({ error: 'Invalid Firebase token: no email found' });
+    // Local demo accounts deliberately have no inbox. Production users always
+    // require Firebase's verified-email claim; the exception still requires a
+    // valid Firebase password and a server-owned database role.
+    if (!email || (decodedToken.email_verified !== true && !isLocalDemoAccount(email))) {
+      return res.status(401).json({ error: 'A verified email address is required' });
     }
 
-    const userRecord = await prisma.user.findUnique({
-      where: { email },
+    let userRecord = await prisma.user.findUnique({
+      where: { firebaseUid: decodedToken.uid },
       include: {
         studentProfile: true,
         adminProfile: true,
         coordinatorProfile: true,
       }
     });
+
+    if (!userRecord) {
+      const emailAccount = await prisma.user.findUnique({ where: { email } });
+      if (!emailAccount || (emailAccount.firebaseUid && emailAccount.firebaseUid !== decodedToken.uid)) {
+        return res.status(401).json({ error: 'User not registered in the system' });
+      }
+      userRecord = await prisma.user.update({
+        where: { id: emailAccount.id },
+        data: { firebaseUid: decodedToken.uid },
+        include: { studentProfile: true, adminProfile: true, coordinatorProfile: true },
+      });
+    }
 
     if (!userRecord) {
       console.log(`Firebase login failed: user not found in Prisma DB for email ${email}`);
@@ -90,9 +116,15 @@ export const firebaseLogin = async (req: Request, res: Response) => {
 
     const accessTokenTtl = (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as jwt.SignOptions['expiresIn'];
     const token = jwt.sign(
-      { id: user.id, role: user.role },
+      { id: user.id },
       process.env.JWT_SECRET,
-      { expiresIn: accessTokenTtl }
+      {
+        algorithm: 'HS256',
+        expiresIn: accessTokenTtl,
+        issuer: jwtConfig.issuer,
+        audience: jwtConfig.audience,
+        jwtid: crypto.randomUUID(),
+      }
     );
 
     res.status(200).json({
@@ -105,7 +137,7 @@ export const firebaseLogin = async (req: Request, res: Response) => {
       return res.status(400).json({ error: error.errors });
     }
     console.error('Firebase login error:', error);
-    return res.status(500).json({ message: 'Internal server error', error: error.message });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

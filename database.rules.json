@@ -1,5 +1,7 @@
 {
   "rules": {
+    ".read": false,
+    ".write": false,
     "students": {
       ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
       "$uid": {
@@ -19,8 +21,13 @@
       ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
     },
     "applications": {
-      ".read": "auth != null",
-      ".write": "auth != null"
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || root.child('admins').child(auth.uid).exists())",
+        ".write": "auth != null && $uid === auth.uid",
+        "$applicationId": {
+          ".validate": "newData.hasChildren(['driveId', 'studentUid']) && newData.child('studentUid').val() === auth.uid"
+        }
+      }
     }
   }
 }

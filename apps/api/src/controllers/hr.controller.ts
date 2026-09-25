@@ -6,10 +6,58 @@ import { z } from 'zod';
 import { isApplicationStatus } from '../domain/placement.rules';
 
 const HR_LINK_EXPIRY_DAYS = 7;
+const hashHrToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
+
+const hrLinkSchema = z.object({
+  companyName: z.string().trim().min(1).max(200),
+  hrEmail: z.string().trim().toLowerCase().email().max(320),
+  hrName: z.string().trim().min(1).max(200),
+  companyEmail: z.string().trim().toLowerCase().email().max(320).optional(),
+  driveTitle: z.string().trim().min(1).max(200),
+}).strict();
+
+const driveFields = new Set([
+  'jobRole', 'jobDescription', 'fixedSalary', 'variableSalary', 'internshipStipend',
+  'employmentType', 'ppoAvailable', 'bondDetails', 'vacancies', 'location', 'workMode',
+  'eligibleBranches', 'passingYear', 'minimumCgpa', 'activeBacklogsAllowed', 'yearGapAllowed',
+  'maximumLiveOffers', 'genderRestriction', 'registrationStart', 'registrationEnd',
+  'nominationLink', 'maximumApplicants', 'resumeMandatory', 'portfolioRequired',
+  'githubRequired', 'attachments', 'academicYear', 'applicationDeadline', 'benefits',
+  'campus', 'consentGiven', 'department', 'driveTitle', 'driveType', 'expectedDriveDate',
+  'historyOfBacklogsAllowed', 'joiningBonus', 'linkedinRequired', 'maximumGapYears',
+  'minimumAttendance', 'placementSeason', 'preferredSkills', 'remarks', 'requiredSkills',
+  'semester', 'specialInstructions', 'technologyStack', 'trainingPeriod',
+]);
+const companyFields = new Set(['name', 'industry', 'profile', 'hrName', 'hrEmail']);
+const roundFields = new Set([
+  'roundNumber', 'title', 'date', 'time', 'duration', 'venue', 'evaluationCriteria',
+  'instructions', 'interviewer', 'order', 'platform', 'roundType', 'weightage',
+]);
+
+const pickUntrustedFields = (value: unknown, allowed: Set<string>) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Invalid object payload');
+  }
+  const output: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (!allowed.has(key)) continue;
+    if (typeof child === 'string' && child.length > 10_000) throw new Error('Input field is too long');
+    if (child !== null && !['string', 'number', 'boolean'].includes(typeof child)) {
+      throw new Error('Invalid field value');
+    }
+    output[key] = child;
+  }
+  return output;
+};
+
+const storedToken = (token: unknown) => {
+  if (typeof token !== 'string' || !/^[a-f0-9]{64}$/i.test(token)) throw new Error('Invalid token');
+  return hashHrToken(token);
+};
 
 export const generateHrLink = async (req: Request, res: Response) => {
   try {
-    const { companyName, hrEmail, hrName, companyEmail, driveTitle } = req.body;
+    const { companyName, hrEmail, hrName, companyEmail, driveTitle } = hrLinkSchema.parse(req.body);
 
     let company = await prisma.company.findFirst({
       where: { OR: [{ name: companyName }, { hrEmail: hrEmail }] }
@@ -34,15 +82,14 @@ export const generateHrLink = async (req: Request, res: Response) => {
       }
     });
 
-    // Generate a shorter, secure token (32 hex characters)
-    const token = crypto.randomBytes(16).toString('hex');
+    const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + HR_LINK_EXPIRY_DAYS);
 
     const invitation = await prisma.hrInvitationLink.create({
       data: {
         driveId: drive.id,
-        token,
+        token: hashHrToken(token),
         hrEmail,
         expiresAt,
       }
@@ -63,6 +110,9 @@ export const generateHrLink = async (req: Request, res: Response) => {
       data: { driveId: drive.id, secureToken: token, expiresAt }
     });
   } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ success: false, message: 'Invalid invitation details', errors: error.errors });
+    }
     console.error(error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
@@ -73,7 +123,7 @@ export const validateHrLink = async (req: Request, res: Response) => {
     const { token } = req.body;
     
     const invite = await prisma.hrInvitationLink.findUnique({
-      where: { token }
+      where: { token: storedToken(token) }
     });
 
     if (!invite) {
@@ -106,7 +156,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
   try {
     const { token, driveData, companyData, selectionRounds } = req.body;
 
-    const invite = await prisma.hrInvitationLink.findUnique({ where: { token } });
+    const invite = await prisma.hrInvitationLink.findUnique({ where: { token: storedToken(token) } });
     if (!invite || invite.isUsed || invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
     }
@@ -114,7 +164,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
     const drive = await prisma.placementDrive.update({
       where: { id: invite.driveId },
       data: {
-        ...driveData,
+        ...pickUntrustedFields(driveData, driveFields),
         status: 'DRAFT',
       }
     });
@@ -122,17 +172,21 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
     if (companyData) {
       await prisma.company.update({
         where: { id: drive.companyId },
-        data: companyData
+        data: pickUntrustedFields(companyData, companyFields)
       });
     }
 
     if (selectionRounds && Array.isArray(selectionRounds)) {
+      if (selectionRounds.length > 20) {
+        return res.status(400).json({ success: false, message: 'Too many selection rounds' });
+      }
+      const safeRounds = selectionRounds.map((round: unknown) => ({
+        ...pickUntrustedFields(round, roundFields),
+        driveId: drive.id,
+      }));
       await prisma.selectionRound.deleteMany({ where: { driveId: drive.id } });
       await prisma.selectionRound.createMany({
-        data: selectionRounds.map((round: any) => ({
-          ...round,
-          driveId: drive.id,
-        }))
+        data: safeRounds as any,
       });
     }
 
@@ -146,7 +200,8 @@ export const submitHrDrive = async (req: Request, res: Response) => {
   try {
     const { token } = req.body;
     
-    const invite = await prisma.hrInvitationLink.findUnique({ where: { token } });
+    const tokenHash = storedToken(token);
+    const invite = await prisma.hrInvitationLink.findUnique({ where: { token: tokenHash } });
     if (!invite || invite.isUsed || invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
     }
@@ -157,7 +212,7 @@ export const submitHrDrive = async (req: Request, res: Response) => {
     });
 
     await prisma.hrInvitationLink.update({
-      where: { token },
+      where: { token: tokenHash },
       data: { isUsed: true }
     });
 
@@ -179,7 +234,7 @@ export const submitHrDrive = async (req: Request, res: Response) => {
 
 const getWorkspaceDrive = async (token: string) => {
   const hrLink = await prisma.hrInvitationLink.findUnique({
-    where: { token },
+    where: { token: storedToken(token) },
     include: { drive: { include: { company: true, selectionRounds: true } } },
   });
 
@@ -208,8 +263,8 @@ export const getWorkspaceDetails = async (req: Request, res: Response) => {
     };
 
     res.status(200).json({ drive, stats });
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (_error: any) {
+    res.status(400).json({ success: false, message: 'Invalid or unavailable recruiter workspace' });
   }
 };
 
@@ -239,8 +294,8 @@ export const getWorkspaceCandidates = async (req: Request, res: Response) => {
     });
 
     res.status(200).json(applications);
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (_error: any) {
+    res.status(400).json({ success: false, message: 'Invalid or unavailable recruiter workspace' });
   }
 };
 
@@ -306,8 +361,8 @@ export const getCandidateDetails = async (req: Request, res: Response) => {
     }
 
     res.status(200).json({ success: true, application });
-  } catch (error: any) {
-    res.status(400).json({ success: false, message: error.message });
+  } catch (_error: any) {
+    res.status(400).json({ success: false, message: 'Invalid or unavailable recruiter workspace' });
   }
 };
 

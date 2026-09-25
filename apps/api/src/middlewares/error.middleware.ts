@@ -11,7 +11,13 @@ export const errorHandler = (
   let error = { ...err };
   error.message = err.message;
 
-  console.error('Error:', err);
+  console.error('Request failed', {
+    method: req.method,
+    path: req.originalUrl,
+    name: err?.name,
+    code: err?.code,
+    ...(process.env.NODE_ENV !== 'production' && { message: err?.message, stack: err?.stack }),
+  });
 
   // Mongoose/Prisma duplicate key error
   if (err.code === 'P2002') {
@@ -39,7 +45,9 @@ export const errorHandler = (
 
   const statusCode = error.statusCode || 500;
   const success = false;
-  const message = error.message || 'Server Error';
+  const message = statusCode >= 500 && process.env.NODE_ENV === 'production'
+    ? 'Internal server error'
+    : (error.message || 'Server Error');
 
   return res.status(statusCode).json({
     success,

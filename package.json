@@ -14,7 +14,8 @@
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,css,json,md}\"",
     "type-check": "npm run type-check --workspaces --if-present",
-    "seed": "npm run db:seed --workspace=@placementx/api"
+    "seed": "npm run db:seed --workspace=@placementx/api",
+    "security:scan": "node scripts/security-audit.mjs --history"
   },
   "devDependencies": {
     "concurrently": "^10.0.3",

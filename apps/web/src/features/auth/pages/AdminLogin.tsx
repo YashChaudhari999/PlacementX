@@ -128,7 +128,7 @@ export default function AdminLogin() {
  name="email"
  type="email"
  autoComplete="email"
- defaultValue="admin@nmims.edu"
+ placeholder="admin@nmims.edu"
  required
  className="h-12 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary bg-muted/50"
  />
@@ -140,7 +140,7 @@ export default function AdminLogin() {
  name="password"
  type="password"
  autoComplete="current-password"
- defaultValue="admin123"
+ placeholder="Enter your password"
  required
  className="h-12 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary bg-muted/50"
  />

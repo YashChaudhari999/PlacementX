@@ -15,11 +15,20 @@ dist
 dist-ssr
 build
 
-# Environment variables
-.env
-.env.local
-.env.*.local
+# Environment variables (deny by default; keep only redacted templates)
+.env*
+!.env.example
+!**/.env.example
+!**/.env.test.example
 *.local
+
+# Private keys and cloud service credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*service-account*.json
+*serviceAccount*.json
 
 # Editor directories and files
 .vscode/*

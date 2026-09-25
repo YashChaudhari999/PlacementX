@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
+import { jwtConfig } from '../config/environment';
 
 type AccessToken = { id: string; role?: string };
 
@@ -19,7 +20,11 @@ export const protect = async (req: Request, res: Response, next: NextFunction) =
     if (!process.env.JWT_SECRET) {
       throw new Error('JWT_SECRET is required');
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as AccessToken;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ['HS256'],
+      issuer: jwtConfig.issuer,
+      audience: jwtConfig.audience,
+    }) as AccessToken;
     if (!decoded.id) {
       return res.status(401).json({ error: 'Invalid access token' });
     }
