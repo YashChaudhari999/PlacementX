@@ -1,6 +1,6 @@
 import apiClient from '../lib/apiClient';
 import { API_ENDPOINTS } from '../config/api';
-import type { StudentProfile, Application, Interview, StudentDocuments } from '../types';
+import type { StudentProfile, Application, Interview, StudentDocuments, ProfileStatusResponse } from '../types';
 
 export const studentService = {
   getProfile: async () => {
@@ -26,6 +26,16 @@ export const studentService = {
   getDocuments: async () => {
     const response = await apiClient.get<StudentDocuments>(API_ENDPOINTS.STUDENT_DOCUMENTS);
     return response.data;
-  }
+  },
+
+  getProfileStatus: async () => {
+    const response = await apiClient.get<ProfileStatusResponse>(API_ENDPOINTS.STUDENT_PROFILE_STATUS);
+    return response.data;
+  },
+
+  requestProfileUpdate: async (data: Partial<StudentProfile> & { reason?: string }) => {
+    const response = await apiClient.put(API_ENDPOINTS.STUDENT_PROFILE_UPDATE_REQUEST, data);
+    return response.data;
+  },
 };
 

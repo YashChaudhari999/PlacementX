@@ -15,7 +15,8 @@ import {
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import {
   useNotificationPreferences,
   useUpdateNotificationPreferences,
@@ -37,6 +38,8 @@ const CATEGORIES = [
 // ─── Component ──────────────────────────────────────────
 
 export default function NotificationPreferencesScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation();
   const { data: prefs, isLoading } = useNotificationPreferences();
   const updatePrefs = useUpdateNotificationPreferences();
@@ -207,7 +210,7 @@ export default function NotificationPreferencesScreen() {
 
 // ─── Styles ─────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

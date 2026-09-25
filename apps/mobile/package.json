@@ -19,6 +19,7 @@
     "expo-notifications": "~0.32.17",
     "expo-secure-store": "~15.0.8",
     "expo-status-bar": "~3.0.9",
+    "expo-system-ui": "~6.0.9",
     "firebase": "^12.17.0",
     "lucide-react-native": "^1.27.0",
     "react": "19.1.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.10",
+    "caniuse-lite": "^1.0.30001812",
     "cross-env": "^10.1.0",
     "typescript": "~5.9.2"
   },
@@ -44,7 +46,12 @@
     "start": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first expo start",
     "android": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first expo start --android",
     "ios": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first expo start --ios",
-    "web": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first expo start --web"
+    "web": "cross-env NODE_OPTIONS=--dns-result-order=ipv4first expo start --web",
+    "type-check": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "node --test --test-isolation=none tests/contracts.test.mjs",
+    "export:android": "expo export --platform android",
+    "build:apk": "eas build --platform android --profile preview"
   },
   "private": true
 }

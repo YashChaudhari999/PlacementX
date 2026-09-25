@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home, Briefcase, Bell, User, Calendar as CalendarIcon } from 'lucide-react-native';
 
-import { theme } from '../theme/theme';
+import { useAppTheme } from '../theme/ThemeProvider';
 import type { StudentTabParamList, HomeStackParamList, ProfileStackParamList } from './types';
 
 // Screens
@@ -15,6 +15,7 @@ import ProfileScreen from '../screens/student/ProfileScreen';
 import DocumentsScreen from '../screens/student/DocumentsScreen';
 import InterviewsScreen from '../screens/student/InterviewsScreen';
 import SettingsScreen from '../screens/student/SettingsScreen';
+import NotificationPreferencesScreen from '../screens/shared/NotificationPreferencesScreen';
 import CalendarScreen from '../screens/student/CalendarScreen';
 
 
@@ -35,6 +36,7 @@ const ProfileStackNavigator = () => (
     <ProfileStack.Screen name="Documents" component={DocumentsScreen} />
     <ProfileStack.Screen name="Interviews" component={InterviewsScreen} />
     <ProfileStack.Screen name="Settings" component={SettingsScreen} />
+    <ProfileStack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
 
   </ProfileStack.Navigator>
 );
@@ -42,6 +44,7 @@ const ProfileStackNavigator = () => (
 import { useNotificationStore } from '../stores/notificationStore';
 
 export const StudentTabNavigator = () => {
+  const { theme } = useAppTheme();
   const unreadCount = useNotificationStore(state => state.unreadCount);
 
   return (

@@ -1,7 +1,8 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { AlertTriangle, RefreshCcw } from 'lucide-react-native';
-import { theme } from '../theme/theme';
+import { useAppTheme } from '../theme/ThemeProvider';
+import type { AppTheme } from '../theme/theme';
 
 interface Props {
   children: ReactNode;
@@ -12,10 +13,52 @@ interface State {
   error: Error | null;
 }
 
+interface ErrorFallbackProps {
+  error: Error | null;
+  onReset: () => void;
+}
+
+const ErrorFallback = ({ error, onReset }: ErrorFallbackProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <AlertTriangle size={48} color={theme.colors.destructive} />
+        </View>
+        <Text style={styles.title}>Something went wrong</Text>
+        <Text style={styles.message}>
+          We're sorry, an unexpected error occurred. Please try restarting the app.
+        </Text>
+
+        {__DEV__ && error && (
+          <View style={styles.devErrorBox}>
+            <Text style={styles.devErrorTitle}>Developer Error Info:</Text>
+            <Text style={styles.devErrorText}>{error.toString()}</Text>
+          </View>
+        )}
+
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel="Try again"
+          style={styles.button}
+          onPress={onReset}
+          activeOpacity={0.8}
+        >
+          <RefreshCcw size={20} color={theme.colors.primaryForeground} />
+          <Text style={styles.buttonText}>Try Again</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+};
+
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
-    error: null
+    error: null,
   };
 
   public static getDerivedStateFromError(error: Error): State {
@@ -32,42 +75,14 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      return (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.content}>
-            <View style={styles.iconContainer}>
-              <AlertTriangle size={48} color={theme.colors.destructive} />
-            </View>
-            <Text style={styles.title}>Something went wrong</Text>
-            <Text style={styles.message}>
-              We're sorry, an unexpected error occurred. Please try restarting the app.
-            </Text>
-            
-            {__DEV__ && this.state.error && (
-              <View style={styles.devErrorBox}>
-                <Text style={styles.devErrorTitle}>Developer Error Info:</Text>
-                <Text style={styles.devErrorText}>{this.state.error.toString()}</Text>
-              </View>
-            )}
-
-            <TouchableOpacity 
-              style={styles.button}
-              onPress={this.handleReset}
-              activeOpacity={0.8}
-            >
-              <RefreshCcw size={20} color="#fff" />
-              <Text style={styles.buttonText}>Try Again</Text>
-            </TouchableOpacity>
-          </View>
-        </SafeAreaView>
-      );
+      return <ErrorFallback error={this.state.error} onReset={this.handleReset} />;
     }
 
     return this.props.children;
   }
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -82,7 +97,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: theme.colors.destructive + '15',
+    backgroundColor: theme.colors.destructive + '18',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: theme.spacing[6],
@@ -96,7 +111,7 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 16,
-    color: theme.colors.mutedForeground,
+    color: theme.colors.foregroundMuted,
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: theme.spacing[8],
@@ -135,6 +150,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#fff',
+    color: theme.colors.primaryForeground,
   },
 });

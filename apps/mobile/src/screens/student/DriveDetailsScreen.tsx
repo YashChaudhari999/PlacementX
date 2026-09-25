@@ -4,18 +4,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Building, MapPin, Calendar, Clock, DollarSign, Briefcase, CheckCircle2, XCircle } from 'lucide-react-native';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, StatusBadge, Button, Toast } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, StatusBadge, Button, Toast, ErrorState } from '../../components/ui';
 import { useDriveDetails, useCheckEligibility, useApplyForDrive } from '../../hooks/queries';
 
 const { width } = Dimensions.get('window');
 
 export default function DriveDetailsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const route = useRoute<any>();
   const navigation = useNavigation();
   const driveId = route.params?.id;
 
-  const { data: drive, isLoading: loadingDrive } = useDriveDetails(driveId);
+  const { data: drive, isLoading: loadingDrive, isError: driveError, refetch: refetchDrive } = useDriveDetails(driveId);
   const { data: eligibility, isLoading: loadingEligibility } = useCheckEligibility(driveId);
   const applyMutation = useApplyForDrive();
 
@@ -47,13 +50,13 @@ export default function DriveDetailsScreen() {
     );
   }
 
-  if (!drive) {
+  if (driveError || !drive) {
     return (
       <View style={styles.container}>
         <SafeAreaView style={styles.safeArea}>
           <ScreenHeader title="Drive Details" showBack />
           <View style={styles.centerContent}>
-            <Text style={styles.errorText}>Drive not found</Text>
+            <ErrorState message="Drive details could not be loaded." onRetry={refetchDrive} />
           </View>
         </SafeAreaView>
       </View>
@@ -214,7 +217,7 @@ export default function DriveDetailsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

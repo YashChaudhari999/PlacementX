@@ -1,24 +1,44 @@
 # Mobile Test Plan
 
-## Overview
-This document outlines the testing strategy used to validate the PlacementX mobile application before declaring it production-ready.
+## Automated checks
 
-## 1. Type Safety & Linting
-- **TypeScript:** Strict compilation via `tsc --noEmit` validates all prop types, API payload structures, and navigation parameters.
-- **ESLint:** Enforces code quality, preventing unused variables and missing React hook dependencies.
+Run from the repository root:
 
-## 2. Critical End-to-End (E2E) Flows Tested
-The following flows were verified via manual QA walkthroughs:
-1. **Auth Flow:** Login -> JWT assigned -> Redirected to Dashboard -> Logout -> JWT cleared -> Redirected to Login.
-2. **Drive Application Flow:** View Drive List -> Open Drive Details -> Tap Apply -> Confirm -> Success Toast -> Application Status updates to "APPLIED".
-3. **Profile Edit Flow:** Navigate to Profile -> Modify fields (e.g., skills, GitHub URL) -> Save -> Validate changes persist across app restart.
-4. **Notification Flow:** Background App -> Receive Push Notification -> Tap -> Deep links directly into the respective Drive/Application screen.
+```powershell
+npm --workspace mobile run type-check
+npm --workspace mobile test
+npm --workspace mobile run export:android
+```
 
-## 3. UI/UX States Validated
-For all screens connected to the API, the following states were verified:
-- **Loading State:** Skeleton loaders or activity indicators render while React Query `isLoading` is true.
-- **Empty State:** Friendly fallback text renders if an array returns `0` length (e.g., no applications).
-- **Error State:** Fallback text/toasts render if the API returns a 500 or network timeout.
+The contract suite contains 17 checks across these critical areas:
 
-## 4. Future Automation
-- Consider integrating Detox or Maestro for automated UI testing of the critical E2E flows on real device farms during the final CI/CD pipeline integration.
+1. Firebase login token exchange and student routing
+2. drive browse → details → eligibility-gated apply
+3. verified profile → approval-request mutation
+4. settings → notification preferences navigation
+5. coordinator versus super-admin route registration
+6. distinct demo identity and APK build profile
+7. invalid-auth, session restoration/expiration, password change, and confirmed logout
+8. complete route/deep-link contract
+9. dashboard loading/error/empty/retry states
+10. drive search/filter/sort and recovery states
+11. application, interview, profile, document, notification, and settings state contracts
+12. responsive breakpoint/safe-area/touch-target foundations
+
+These are fast source/contract regressions, not device E2E tests.
+
+## Required manual release matrix
+
+- login, forced password change, reset email, logout/session restore
+- dashboard refresh and backend outage retry
+- browse/search drive, details, eligible/ineligible apply, duplicate apply response
+- incomplete profile edit, pending verification lock, verified update request
+- academic documents and offer links
+- interviews/calendar time-zone presentation
+- notification list/preferences and foreground/background/deep-link behavior
+- super-admin and coordinator drawer permissions
+- light/dark/system theme after restart
+- offline, slow network, expired token, and server 4xx/5xx
+- rotation, tablet, keyboard, text scale, VoiceOver/TalkBack
+
+Record device model, OS version, API environment, build hash, result, and evidence. A signed cloud/store build additionally requires EAS authentication and release credentials.

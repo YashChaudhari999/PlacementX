@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, FlatList, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar as CalendarIcon, Clock, MapPin, Building, Briefcase } from 'lucide-react-native';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, ListSkeleton, StatusBadge, EmptyState } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, ListSkeleton, StatusBadge, EmptyState, ErrorState } from '../../components/ui';
 import { useStudentInterviews } from '../../hooks/queries';
 
 export default function InterviewsScreen() {
-  const { data: interviews, isLoading, refetch } = useStudentInterviews();
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  const { data: interviews, isLoading, isError, refetch, isRefetching } = useStudentInterviews();
 
   const renderInterviewCard = ({ item }: { item: any }) => {
     return (
@@ -74,13 +77,15 @@ export default function InterviewsScreen() {
       
       {isLoading ? (
         <ListSkeleton />
+      ) : isError ? (
+        <ErrorState message="Your interview schedule could not be loaded." onRetry={refetch} />
       ) : (
         <FlatList
           data={interviews}
           keyExtractor={(item) => item.applicationId}
           renderItem={renderInterviewCard}
           contentContainerStyle={styles.listContent}
-          refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} />}
+          refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
           ListEmptyComponent={
             <EmptyState
               icon={<CalendarIcon size={48} color={theme.colors.mutedForeground} />}
@@ -94,7 +99,7 @@ export default function InterviewsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

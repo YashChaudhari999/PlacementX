@@ -1,17 +1,20 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Menu, FileSpreadsheet, Download, TrendingUp, Users, Building } from 'lucide-react-native';
+import { Menu, TrendingUp, Users, Building } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, DashboardSkeleton, Button, StatCard } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, DashboardSkeleton, StatCard, ErrorState } from '../../components/ui';
 import { useAdminReportsData } from '../../hooks/queries';
 
 export default function AdminReportsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
-  const { data: reportsData, isLoading, refetch } = useAdminReportsData();
+  const { data: reportsData, isLoading, isError, refetch } = useAdminReportsData();
 
   if (isLoading) {
     return (
@@ -20,6 +23,10 @@ export default function AdminReportsScreen() {
         <DashboardSkeleton />
       </SafeAreaView>
     );
+  }
+
+  if (isError) {
+    return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Reports" /><ErrorState message="Report metrics could not be loaded." onRetry={refetch} /></SafeAreaView>;
   }
 
   return (
@@ -37,24 +44,7 @@ export default function AdminReportsScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} />}
       >
-        <Card style={styles.exportCard}>
-          <View style={styles.exportContent}>
-            <View style={styles.exportIcon}>
-              <FileSpreadsheet size={24} color={theme.colors.primary} />
-            </View>
-            <View style={styles.exportTextContainer}>
-              <Text style={styles.exportTitle}>Export Placement Data</Text>
-              <Text style={styles.exportDesc}>Download comprehensive placement reports in CSV format.</Text>
-            </View>
-          </View>
-          <Button 
-            title="Download CSV" 
-            icon={<Download size={18} color="#fff" />}
-            onPress={() => {}} 
-          />
-        </Card>
-
-        <Text style={styles.sectionTitle}>Key Metrics</Text>
+<Text style={styles.sectionTitle}>Key Metrics</Text>
         
         <View style={styles.statsGrid}>
           <View style={styles.statsRow}>
@@ -111,7 +101,7 @@ export default function AdminReportsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

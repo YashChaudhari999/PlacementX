@@ -17,7 +17,9 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { ErrorState } from '../../components/ui';
 import { NotificationItem, getTimeGroup } from '../../components/ui/NotificationItem';
 import {
   useInfiniteNotifications,
@@ -45,6 +47,8 @@ const FILTER_TABS = [
 // ─── Component ──────────────────────────────────────────
 
 export default function AdminNotificationsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -72,7 +76,7 @@ export default function AdminNotificationsScreen() {
 
   // Queries
   const {
-    data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch,
+    data, isLoading, isError, isFetchingNextPage, hasNextPage, fetchNextPage, refetch,
   } = useInfiniteNotifications(filters);
   const { data: unreadCount = 0 } = useUnreadCount();
   const markAsRead = useMarkAsRead();
@@ -245,6 +249,8 @@ export default function AdminNotificationsScreen() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={theme.colors.primary} />
         </View>
+      ) : isError ? (
+        <ErrorState message="Notifications could not be loaded." onRetry={refetch} />
       ) : (
         <FlatList
           data={flatData}
@@ -370,7 +376,7 @@ export default function AdminNotificationsScreen() {
 
 // ─── Styles ─────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.card },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },

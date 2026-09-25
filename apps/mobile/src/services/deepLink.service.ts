@@ -95,7 +95,8 @@ export const handleDeepLink = async (
 
     case 'StudentSettings':
       navigation.navigate('StudentApp', {
-        screen: 'Settings',
+        screen: 'ProfileStack',
+        params: { screen: 'Settings' },
       });
       break;
 

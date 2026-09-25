@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 interface EmptyStateProps {
   icon: React.ReactNode;
@@ -10,6 +11,8 @@ interface EmptyStateProps {
 }
 
 export const EmptyState = ({ icon, title, description, action }: EmptyStateProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>{icon}</View>
@@ -20,7 +23,7 @@ export const EmptyState = ({ icon, title, description, action }: EmptyStateProps
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     padding: theme.spacing[8],
     alignItems: 'center',

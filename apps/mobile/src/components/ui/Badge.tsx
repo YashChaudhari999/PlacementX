@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 export type BadgeVariant = 'default' | 'success' | 'warning' | 'destructive' | 'info';
 
@@ -11,6 +12,8 @@ interface BadgeProps {
 }
 
 export const Badge = ({ children, variant = 'default', style }: BadgeProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const getColors = () => {
     switch (variant) {
       case 'success':
@@ -54,7 +57,7 @@ export const StatusBadge = ({ status }: { status: string }) => {
   return <Badge variant={variant}>{label}</Badge>;
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   badge: {
     paddingHorizontal: 8,
     paddingVertical: 4,

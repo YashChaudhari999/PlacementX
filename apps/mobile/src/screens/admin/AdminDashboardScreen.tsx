@@ -9,14 +9,18 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, DashboardSkeleton } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, DashboardSkeleton, ErrorState } from '../../components/ui';
 import { useAdminDashboard } from '../../hooks/queries';
 
 const { width } = Dimensions.get('window');
 
 // Helper component for Stat Cards
-const AdminStatCard = ({ label, value, icon, iconColor, iconBg, description }: any) => (
+const AdminStatCard = ({ label, value, icon, iconColor, iconBg, description }: any) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
+  return (
   <TouchableOpacity style={styles.statCardContainer} activeOpacity={0.9}>
     <Card style={styles.statCard}>
       <View style={styles.statHeader}>
@@ -37,11 +41,14 @@ const AdminStatCard = ({ label, value, icon, iconColor, iconBg, description }: a
       )}
     </Card>
   </TouchableOpacity>
-);
+  );
+};
 
 export default function AdminDashboardScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
-  const { data: dashboard, isLoading, refetch } = useAdminDashboard();
+  const { data: dashboard, isLoading, isError, refetch } = useAdminDashboard();
 
   if (isLoading) {
     return (
@@ -57,6 +64,10 @@ export default function AdminDashboardScreen() {
         <DashboardSkeleton />
       </SafeAreaView>
     );
+  }
+
+  if (isError) {
+    return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Overview" /><ErrorState message="The administrative overview could not be loaded." onRetry={refetch} /></SafeAreaView>;
   }
 
   const formatNum = (num: number) => num?.toLocaleString('en-IN') || '0';
@@ -94,7 +105,7 @@ export default function AdminDashboardScreen() {
               </View>
               <Text style={styles.sectionTitle}>Drives</Text>
             </View>
-            <TouchableOpacity style={styles.viewAllBtn}>
+            <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('DrivesStack')}>
               <Text style={styles.viewAllText}>View All</Text>
               <ChevronRight size={14} color="#4f46e5" />
             </TouchableOpacity>
@@ -306,7 +317,7 @@ export default function AdminDashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.card, // Clean white background like web

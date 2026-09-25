@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Menu, Search, Mail, Phone, Plus, Building, User } from 'lucide-react-native';
+import { Menu, Search, Mail, Phone, Building, User } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState, ErrorState } from '../../components/ui';
 import { useAdminCoordinators } from '../../hooks/queries';
 
 export default function AdminCoordinatorsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
-  
-  const { data: coordinators, isLoading, refetch } = useAdminCoordinators();
+
+  const { data: coordinators, isLoading, isError, refetch } = useAdminCoordinators();
 
   const getFilteredCoordinators = () => {
     if (!coordinators) return [];
     if (!searchQuery) return coordinators;
-    
+
     const lowerQuery = searchQuery.toLowerCase();
-    return coordinators.filter((coordinator: any) => 
+    return coordinators.filter((coordinator: any) =>
       coordinator.name.toLowerCase().includes(lowerQuery) ||
       coordinator.email.toLowerCase().includes(lowerQuery) ||
       (coordinator.profile?.department && coordinator.profile.department.toLowerCase().includes(lowerQuery))
@@ -45,7 +48,7 @@ export default function AdminCoordinatorsScreen() {
           {item.role === 'SUPER_ADMIN' ? 'Admin' : 'Coord'}
         </Badge>
       </View>
-      
+
       <View style={styles.detailsContainer}>
         <View style={styles.detailRow}>
           <Mail size={14} color={theme.colors.mutedForeground} />
@@ -67,16 +70,14 @@ export default function AdminCoordinatorsScreen() {
     </Card>
   );
 
+  if (isError) return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Coordinators" /><ErrorState message="Coordinator accounts could not be loaded." onRetry={refetch} /></SafeAreaView>;
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader 
-        title="Coordinators" 
+      <ScreenHeader
+        title="Coordinators"
         rightElement={
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.actionBtn}>
-              <Plus color={theme.colors.primary} size={24} />
-            </TouchableOpacity>
-            <TouchableOpacity 
+          <View style={styles.headerActions}><TouchableOpacity
               onPress={() => navigation.toggleDrawer()}
               style={styles.actionBtn}
             >
@@ -85,9 +86,9 @@ export default function AdminCoordinatorsScreen() {
           </View>
         }
       />
-      
+
       <View style={styles.searchContainer}>
-        <SearchBar 
+        <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search coordinators..."
@@ -116,7 +117,7 @@ export default function AdminCoordinatorsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

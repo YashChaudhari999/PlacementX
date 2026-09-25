@@ -5,13 +5,16 @@ import { Menu, CalendarDays, Clock, CheckCircle2, Megaphone, Flag } from 'lucide
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, DashboardSkeleton } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, DashboardSkeleton, ErrorState } from '../../components/ui';
 import { useAdminCalendar } from '../../hooks/queries/useAdmin';
 
 export default function AdminCalendarScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
-  const { data, isLoading, refetch } = useAdminCalendar();
+  const { data, isLoading, isError, refetch } = useAdminCalendar();
 
   if (isLoading) {
     return (
@@ -27,6 +30,10 @@ export default function AdminCalendarScreen() {
         <DashboardSkeleton />
       </SafeAreaView>
     );
+  }
+
+  if (isError) {
+    return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Calendar" /><ErrorState message="The placement calendar could not be loaded." onRetry={refetch} /></SafeAreaView>;
   }
 
   // Sort events chronologically
@@ -161,7 +168,7 @@ export default function AdminCalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.card, // Clean white

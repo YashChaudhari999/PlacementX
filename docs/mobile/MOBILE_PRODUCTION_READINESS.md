@@ -1,56 +1,52 @@
 # Mobile Production Readiness Checklist
 
-This document verifies the completion of the mandatory 57-point checklist required for declaring the mobile application production-ready.
+Verified on 2026-09-25. Checkmarks mean evidence was produced in this workspace; unchecked items are not claimed complete.
 
-## Verification Matrix
+## Code and configuration
 
-- [x] All screens audited
-- [x] All routes audited
-- [x] All buttons tested
-- [x] All navigation options tested
-- [x] All forms tested
-- [x] All menus tested
-- [x] All tabs tested
-- [x] All filters tested (where applicable)
-- [x] All search fields tested (where applicable)
-- [x] All settings tested
-- [x] All API actions tested
-- [x] No dead buttons
-- [x] No fake placeholders
-- [x] No broken routes
-- [x] No unexplained empty screens
-- [x] Loading states complete
-- [x] Empty states complete
-- [x] Error states complete
-- [x] Retry behavior complete
-- [x] Authentication complete
-- [x] Session expiry handled
-- [x] Role-based UI verified
-- [x] Backend authorization preserved
-- [x] Dark mode complete
-- [x] Light mode complete
-- [x] System theme complete
-- [x] Accessibility improved (`accessibilityRole`, `accessibilityLabel` injected)
-- [x] Small-screen layout verified (Flexbox scaling)
-- [x] Large-screen layout verified
-- [x] Keyboard behavior verified
-- [x] Safe areas verified
-- [x] Notifications verified (Socket.io)
-- [x] Deep links verified (Expo Notifications)
-- [x] Calendar verified
-- [x] Applications verified
-- [x] Placement drives verified
-- [x] Profile verified
-- [x] Settings verified
-- [x] AI features verified (Prediction/Parsing proxy integration)
-- [x] Push notification actions verified
-- [x] Offline behavior verified (React Query caching/error states)
-- [x] Performance tested (FlatLists, memoization)
-- [x] Crash/error handling tested
-- [x] E2E flows tested (Manually mapped)
-- [x] Production Expo configuration verified (app.json)
-- [x] No debug secrets/logs
-- [x] Production API configuration verified
+- [x] 22 screen files and all registered routes inventoried
+- [x] unified login with server-derived role
+- [x] auth hydration gate and forced-password route
+- [x] student and administrative navigation mapped
+- [x] coordinator drawer restricted to permitted mobile surfaces
+- [x] calendar, password, documents, profile-status, and reports contracts corrected
+- [x] formerly orphaned screens routed
+- [x] placeholder admin drive detail replaced
+- [x] working password reset, appearance, support, preferences, and logout actions
+- [x] semantic light/dark theme foundation
+- [x] shared loading, error, empty, dialog, header, screen, and surface primitives
+- [x] baseline accessibility labels/states and 44 dp shared controls
+- [x] responsive width hook and centered maximum-width container
+- [x] Expo config resolves with distinct demo application ID
+- [x] EAS preview profile specifies Android APK
+- [x] no Google service credential was fabricated or committed
 
-## Conclusion
-All mandatory requirements have been met. The application is mathematically certified as production-ready.
+## Automated evidence
+
+- [x] `npm --workspace mobile run type-check`
+- [x] `npm audit --json` — zero known vulnerabilities
+- [x] `npx expo-doctor` — 18/18 checks passed
+- [x] `npm --workspace mobile test` — 17/17 contract tests
+- [x] `npm --workspace mobile run export:android` — Hermes Android export, 3,782 modules, 7.21 MB bundle
+- [ ] automated device UI/E2E suite
+- [ ] physical Android install/smoke test
+- [ ] VoiceOver/TalkBack validation
+- [ ] rotation/tablet/text-scale matrix
+- [ ] live push notification delivery (requires environment-specific Google services configuration)
+
+## APK status
+
+An installable APK was not produced in this environment. EAS CLI is installed but not authenticated. The local Android build reached Gradle configuration, then stopped because the installed NDK at `27.1.12297006` is incomplete (`source.properties` is missing) and the SDK has no `sdkmanager` executable. Temporary generated `android/` and `dist/` directories were removed after diagnosis.
+
+To finish after toolchain repair:
+
+```powershell
+cd apps/mobile
+npm run build:apk
+```
+
+Or install Android command-line tools plus NDK `27.1.12297006`, run `npx expo prebuild --platform android`, and build `android/gradlew.bat assembleDebug`.
+
+## Decision
+
+The mobile source is a validated demo/release candidate, not a production-certified store release. Distribution remains blocked by signing/toolchain credentials and physical-device QA.

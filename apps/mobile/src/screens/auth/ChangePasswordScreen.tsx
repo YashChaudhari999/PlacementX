@@ -4,7 +4,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Lock, AlertCircle, CheckCircle } from 'lucide-react-native';
 
 import { Input, Button, Card, Toast } from '../../components/ui';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/authStore';
 import apiClient from '../../lib/apiClient';
 import { API_ENDPOINTS } from '../../config/api';
@@ -12,6 +13,8 @@ import { API_ENDPOINTS } from '../../config/api';
 const { width, height } = Dimensions.get('window');
 
 export default function ChangePasswordScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,7 +40,7 @@ export default function ChangePasswordScreen() {
 
     try {
       setIsLoading(true);
-      const response = await apiClient.post(API_ENDPOINTS.CHANGE_PASSWORD, {
+      await apiClient.put(API_ENDPOINTS.CHANGE_PASSWORD, {
         currentPassword,
         newPassword,
       });
@@ -161,7 +164,7 @@ export default function ChangePasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

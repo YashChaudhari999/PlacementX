@@ -15,6 +15,7 @@ export type ProfileStackParamList = {
   ProfileHome: undefined;
   Documents: undefined;
   Interviews: undefined;
+  NotificationPreferences: undefined;
   Settings: undefined;
 };
 
@@ -38,6 +39,7 @@ export type AdminDrawerParamList = {
   Dashboard: undefined;
   DrivesStack: NavigatorScreenParams<AdminDrivesStackParamList>;
   Students: undefined;
+  Coordinators: undefined;
   Calendar: undefined;
   Reports: undefined;
   Notifications: undefined;

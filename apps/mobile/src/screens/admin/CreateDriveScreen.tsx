@@ -5,13 +5,16 @@ import { useNavigation } from '@react-navigation/native';
 import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react-native';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import { Card, ScreenHeader, Input, Button, Toast, TabBar } from '../../components/ui';
 import { drivesService } from '../../services/drives.service';
 
 const STEPS = ['Basic Info', 'Details', 'Eligibility'];
 
 export default function CreateDriveScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(0);
@@ -260,7 +263,7 @@ export default function CreateDriveScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
   keyboardAvoid: { flex: 1 },
   stepperHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing[4], backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: theme.colors.border },

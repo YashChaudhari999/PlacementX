@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card } from './Card';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import { TrendingUp, TrendingDown } from 'lucide-react-native';
 
 interface StatCardProps {
@@ -15,6 +16,8 @@ interface StatCardProps {
 }
 
 export const StatCard = ({ title, value, icon, trend }: StatCardProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   return (
     <Card style={styles.card}>
       <View style={styles.header}>
@@ -45,7 +48,7 @@ export const StatCard = ({ title, value, icon, trend }: StatCardProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   card: {
     padding: theme.spacing[4],
     flex: 1,

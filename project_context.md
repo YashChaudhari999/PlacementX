@@ -2,9 +2,24 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-19 IST
-**Last Verified Against Codebase:** 2026-09-19 IST
-**Context Version:** 1.6
+**Last Updated:** 2026-09-25 IST
+**Last Verified Against Codebase:** 2026-09-25 IST
+**Context Version:** 1.8
+
+---
+
+## 2026-09-25 Mobile Redesign and Hardening
+
+- Added semantic NMIMS-aligned light/dark tokens, persisted system theme, responsive layout and reduced-motion hooks; all mobile screens and shared visual components now consume the active theme.
+- Added shared screen, header, surface, state, icon-button, and confirmation-dialog foundations.
+- Unified login and made role routing server-derived; added working password reset and session-hydration gating.
+- Corrected mobile API contracts for password change, calendar, documents, profile verification/update requests, and admin reports.
+- Routed notification preferences and coordinator management; added profile links to documents, interviews, and settings.
+- Restricted coordinators to student management and coordinator-safe settings; super-admin surfaces are not registered for coordinators.
+- Replaced the admin drive-details placeholder with live data and state handling.
+- Added deep-link configuration, distinct demo IDs (`com.placementx.app.demo`), EAS preview APK profile, and valid notification assets. Standalone builds now require an explicit `EXPO_PUBLIC_API_URL`; no fictitious production fallback is embedded.
+- Added 17 Node contract tests; TypeScript, tests, Expo configuration, Expo Doctor (18/18), Android Hermes export (3,782 modules, 7.21 MB bundle), and the current root npm audit pass with zero known vulnerabilities.
+- APK build remains externally blocked: EAS is not authenticated and local NDK `27.1.12297006` is incomplete. No APK/device-install claim is made.
 
 ---
 
@@ -34,14 +49,14 @@ Manual, spreadsheet-driven campus placement processes at NMIMS University. The p
 1. End-to-end placement lifecycle automation
 2. ~~AI/ML-powered decision support (Removed)~~
 3. Real-time notifications (web + push via Firebase Cloud Messaging)
-4. Multi-platform access (web now, React Native mobile in progress)
+4. Multi-platform access (web and React Native mobile source complete; standalone release validation pending)
 5. Analytics and reporting dashboard for the placement cell
 
 ## Current Status
 
 **Single-college production candidate / pilot ready**
 
-The web application and API have completed a production-hardening pass covering authentication, authorization, department scoping, application concurrency, health checks, graceful shutdown, private report storage, database migrations, dependency security, CI builds, and regression tests. The repository builds successfully, but a live production deployment and end-to-end validation against managed infrastructure are still pending. The current data model is suitable for one college; it is not yet a multi-tenant SaaS because tenant isolation has not been added across database records, queries, storage, queues, and real-time channels. The Expo mobile workspace also requires a breaking SDK/dependency upgrade before release.
+The web application and API have completed a production-hardening pass covering authentication, authorization, department scoping, application concurrency, health checks, graceful shutdown, private report storage, database migrations, dependency security, CI builds, and regression tests. The repository builds successfully, but a live production deployment and end-to-end validation against managed infrastructure are still pending. The current data model is suitable for one college; it is not yet a multi-tenant SaaS because tenant isolation has not been added across database records, queries, storage, queues, and real-time channels. The Expo 54 mobile workspace completed a design, contract, navigation, and bundle-hardening pass on 2026-09-25. TypeScript, 17 contract tests, Expo configuration, and Android release export pass. APK distribution remains blocked by unavailable EAS authentication and an incomplete local Android NDK; device QA and real standalone push credentials are still required.
 
 ---
 
@@ -71,7 +86,7 @@ The web application and API have completed a production-hardening pass covering 
 | **Calendar View** | Admin calendar for drive scheduling (FullCalendar) | Admin | ✅ Completed |
 | **Reports Generation** | Exportable placement reports stored in a private Supabase bucket with authenticated downloads | Admin | ✅ Completed |
 | **Admin Settings** | Coordinator management, system configuration | Admin | ✅ Completed |
-| **Mobile App (React Native)** | Student-facing mobile app with Expo; release blocked on Expo dependency upgrade | Student | ⚠️ Implemented, hardening pending |
+| **Mobile App (React Native)** | Expo app for students plus role-limited administrative workflows; demo APK profile configured | Student, Coordinator, Super Admin | ⚠️ Source/bundle verified; APK/device QA blocked by environment |
 | **AI Success Prediction** | ML model predicts student placement success probability | Admin, ML Service | ❌ Removed |
 | **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ❌ Removed |
 | **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ❌ Removed |
@@ -1065,11 +1080,9 @@ services:
 |-------|----------|------|--------|-------------|
 | Multi-tenant isolation absent | Critical for SaaS | Architecture | Open | The schema and services are scoped for one college. Add tenant IDs and enforce tenant boundaries in database queries, unique constraints, storage paths, queues, Socket.io rooms, and administration before offering the product to multiple colleges. |
 | Production deployment not validated | High | Operations | Open | Builds and tests pass locally, but managed database/Redis/storage, secrets, backups, monitoring, and end-to-end production flows have not been verified. |
-| Mobile Expo dependency advisories | High | Mobile | Open | The mobile dependency tree retains four high-severity advisories whose resolution requires a breaking Expo SDK/dependency upgrade. |
 | Large web Excel chunk | Medium | Performance | Open | The web build succeeds but ExcelJS contributes an approximately 949 KB chunk. Load spreadsheet features on demand or move parsing/export to the API. |
 | Limited automated coverage | Medium | Quality | Open | Eligibility and controller regression tests exist, but critical authentication, authorization, imports, reports, and end-to-end user journeys need broader coverage. |
 | Dual Firebase/PostgreSQL responsibilities | Medium | Architecture | Open | Firebase remains required for Auth/FCM while PostgreSQL holds authorization and application data. Keep ownership boundaries documented and reconciliation observable. |
-| ExcelJS/Firebase transitive UUID advisory | Moderate | Dependencies | Accepted/monitor | Current dependency trees may retain a moderate transitive `uuid` advisory; reassess when compatible upstream releases are available. |
 
 ---
 
@@ -1167,7 +1180,7 @@ services:
 
 ### ❌ Blocked
 
-- Mobile production release is blocked by four high-severity Expo dependency-chain advisories requiring a breaking SDK upgrade.
+- Mobile production release is blocked by APK signing/toolchain availability, physical-device QA, and standalone push credentials.
 
 ---
 
@@ -1296,7 +1309,6 @@ services:
 **Remaining Release Work:**
 - Configure the private `generated-reports` bucket and production secrets.
 - Baseline any existing `db:push` database safely before migration deployment.
-- Upgrade Expo/mobile dependencies to resolve four remaining high-severity advisories.
 - Add multi-tenant isolation before offering the system as SaaS to multiple colleges.
 
 **Status:** Web/API production candidate for a single-college pilot; deployment and mobile release validation pending.
@@ -1407,7 +1419,7 @@ Verified against actual repository structure, source code, and existing document
 | Deployment verified | ❌ No (not deployed) |
 | Environment verified | ✅ Yes (examples and production-required services reviewed) |
 | Prisma verified | ✅ Yes (`prisma validate`; baseline migration added) |
-| Known release gaps | ⚠️ Multi-tenancy, deployed E2E validation, mobile dependency upgrade, and private report bucket provisioning |
+| Known release gaps | ⚠️ Multi-tenancy, deployed E2E validation, mobile APK/device validation, dependency remediation, and private report bucket provisioning |
 
 ---
 
@@ -1537,4 +1549,3 @@ Verified against actual repository structure, source code, and existing document
 - Removed AI-specific fields (`aiKeywords`, `matchScore`, `readinessScore`, `semanticTags`) from the Prisma database schema and API controllers.
 - Fixed residual `PrismaClientValidationError` in the `getDrives` API by ensuring stripped ML fields were removed from controller projection selections.
 - Added Appearance Settings (Theme and Compact Mode toggle) to the Admin Control Center, giving admins the same UI customization capabilities as students.
-

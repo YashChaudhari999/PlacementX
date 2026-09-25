@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 interface TabBarProps {
   tabs: string[];
@@ -9,6 +10,8 @@ interface TabBarProps {
 }
 
 export const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   return (
     <View style={styles.container}>
       <ScrollView 
@@ -23,6 +26,9 @@ export const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps) => {
               key={tab}
               onPress={() => onTabChange(tab)}
               style={[styles.tab, isActive && styles.activeTab]}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+              accessibilityLabel={tab}
             >
               <Text style={[styles.tabText, isActive && styles.activeTabText]}>
                 {tab}
@@ -35,7 +41,7 @@ export const TabBar = ({ tabs, activeTab, onTabChange }: TabBarProps) => {
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
@@ -45,6 +51,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing[4],
   },
   tab: {
+    minHeight: 44,
     paddingVertical: theme.spacing[3],
     paddingHorizontal: theme.spacing[4],
     marginRight: theme.spacing[2],

@@ -6,19 +6,22 @@ import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, StatusBadge, ListSkeleton, SearchBar, EmptyState } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, StatusBadge, ListSkeleton, SearchBar, EmptyState, ErrorState } from '../../components/ui';
 import { useAdminDrives } from '../../hooks/queries';
 import { useAuthStore } from '../../stores/authStore';
 
 export default function DriveListScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const drawerNav = useNavigation<DrawerNavigationProp<any>>();
   const stackNav = useNavigation<NativeStackNavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
   const user = useAuthStore(state => state.user);
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
   
-  const { data: drives, isLoading, refetch } = useAdminDrives();
+  const { data: drives, isLoading, isError, refetch } = useAdminDrives();
 
   const handleDrivePress = (id: string) => {
     stackNav.navigate('EventDetails', { id });
@@ -71,6 +74,8 @@ export default function DriveListScreen() {
       </Card>
     </TouchableOpacity>
   );
+
+  if (isError) return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Placement Drives" /><ErrorState message="Placement drives could not be loaded." onRetry={refetch} /></SafeAreaView>;
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -126,7 +131,7 @@ export default function DriveListScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

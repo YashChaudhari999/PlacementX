@@ -49,6 +49,8 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   mustChangePassword?: boolean;
+  hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
   setAuth: (user: User, token: string, mustChangePassword?: boolean) => void;
   logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
@@ -61,6 +63,8 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       mustChangePassword: false,
+      hasHydrated: false,
+      setHasHydrated: (value) => set({ hasHydrated: value }),
       
       setAuth: (user, token, mustChangePassword = false) => 
         set({ user, token, isAuthenticated: true, mustChangePassword }),
@@ -94,6 +98,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'placementx-secure-auth', // new key to avoid conflicts with old AsyncStorage data
+      onRehydrateStorage: () => state => state?.setHasHydrated(true),
       storage: createJSONStorage(() => secureStorage),
     }
   )

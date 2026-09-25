@@ -2,7 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 interface ScreenHeaderProps {
   title: string;
@@ -12,6 +13,8 @@ interface ScreenHeaderProps {
 }
 
 export const ScreenHeader = ({ title, subtitle, showBack = false, rightElement }: ScreenHeaderProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation();
 
   return (
@@ -43,7 +46,7 @@ export const ScreenHeader = ({ title, subtitle, showBack = false, rightElement }
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',

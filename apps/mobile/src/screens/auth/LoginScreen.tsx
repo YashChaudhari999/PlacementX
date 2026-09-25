@@ -3,17 +3,19 @@ import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Dim
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mail, Lock, GraduationCap, ChevronRight } from 'lucide-react-native';
 
-import { Input, Button, Card, Toast, TabBar } from '../../components/ui';
-import { theme } from '../../theme/theme';
+import { Input, Button, Card, Toast } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/authStore';
 import { authService } from '../../lib/authService';
 
 const { width, height } = Dimensions.get('window');
 
 export default function LoginScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState('Student');
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const insets = useSafeAreaInsets();
@@ -26,8 +28,7 @@ export default function LoginScreen() {
 
     try {
       setIsLoading(true);
-      const roleToUse = activeTab === 'Student' ? 'STUDENT' : 'SUPER_ADMIN';
-      const data = await authService.login({ email: email.trim(), password, role: roleToUse });
+      const data = await authService.login({ email: email.trim(), password });
       // login method from authStore will save token and user state
       setAuth(data.user, data.token, data.user.mustChangePassword === true);
     } catch (error: any) {
@@ -55,8 +56,20 @@ export default function LoginScreen() {
     }
   };
 
-  return (
-    <View style={styles.container}>
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      Toast.error('Enter your email address first');
+      return;
+    }
+    try {
+      await authService.requestPasswordReset(email.trim());
+      Toast.success('Password reset email sent');
+    } catch (error: any) {
+      Toast.error(error.message || 'Unable to send reset email');
+    }
+  };
+
+  return (    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={theme.colors.card} />
       
       {/* Dynamic Background Elements */}
@@ -87,18 +100,10 @@ export default function LoginScreen() {
           {/* Login Card */}
           <View style={styles.cardWrapper}>
             <Card style={styles.card}>
-              <View style={styles.tabContainer}>
-                <TabBar 
-                  tabs={['Student', 'Admin']}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
-                />
-              </View>
-              
               <View style={styles.form}>
                 <Input
                   label="Email Address"
-                  placeholder={activeTab === 'Student' ? "name@student.edu" : "admin@placementx.com"}
+                  placeholder="name@nmims.edu"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -117,7 +122,7 @@ export default function LoginScreen() {
                 />
                 
                 <View style={styles.forgotPasswordContainer}>
-                  <TouchableOpacity activeOpacity={0.7}>
+                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={handleForgotPassword}>
                     <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                   </TouchableOpacity>
                 </View>
@@ -134,8 +139,7 @@ export default function LoginScreen() {
           
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              By signing in, you agree to our{' '}
-              <Text style={styles.footerLink}>Terms</Text> & <Text style={styles.footerLink}>Privacy</Text>
+              Use of this app is governed by your institution's placement policies.
             </Text>
           </View>
         </ScrollView>
@@ -144,7 +148,7 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

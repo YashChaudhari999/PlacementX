@@ -1,29 +1,43 @@
-# PlacementX Mobile: Executive Production Readiness Report
+# PlacementX Mobile — Production Readiness Report
 
-## 1. Executive Summary
-The PlacementX mobile application has undergone a massive engineering and QA overhaul to transform it from a prototype into a production-grade enterprise application. The mobile client now acts as a fully-featured, 1:1 functional peer to the web platform, capable of handling authentication, student profiling, placement drive applications, real-time push notifications, and dynamic calendar events.
+**Assessment date:** 2026-09-25
+**Decision:** Demo/release candidate; APK distribution blocked by environment
 
-## 2. Before vs After
-- **Before:** The codebase contained unresolved TypeScript typings (`any`), broken nested navigation parameters (specifically surrounding Drive Details and Badge UI crashes), no accessibility tags, and disconnected Push Notification listeners.
-- **After:** The app compiles perfectly (`tsc --noEmit`), deep links correctly from FCM notifications into the exact screen context, utilizes a centralized design system, handles safe-areas perfectly, and properly traps network errors via TanStack React Query.
+## Delivered
 
-## 3. UI/UX Improvements
-The design system (`theme.ts`) was expanded to map perfectly to the web SaaS dashboard. Forms were padded, inputs masked, and buttons equipped with `ActivityIndicator` loading states to prevent double-submissions.
+The mobile application now has a semantic institutional design foundation, persisted system/light/dark theming, responsive layout utilities, shared state and dialog components, a unified auth experience, working profile/document/settings paths, deep-link configuration, live admin drive details, and role-safe administrative navigation.
 
-## 4. Functional & Navigation Fixes
-- Fixed the `Badge` prop mismatch in `CalendarScreen.tsx` that previously caused a fatal React Native render crash.
-- Fixed the TypeScript mismatches in `ProfileScreen.tsx` related to string vs number inputs coming from the backend API.
-- Fixed the `usePushNotifications` hook to correctly utilize `subscription.remove()` for memory-leak prevention.
+Backend behavior was preserved. The changes correct client contract mismatches rather than changing authorization or placement rules. Verified student profiles submit update requests; other editable states update directly. Coordinators do not receive super-admin mobile routes.
 
-## 5. Security & Authentication
-JWT tokens are securely stored in the native device keychain via `expo-secure-store`. The application never relies on local state for authorization, always deferring to the backend `auth.middleware.ts` for role validation.
+## Evidence
 
-## 6. Real-Time & Offline Behavior
-Socket.io has been integrated alongside Firebase Cloud Messaging to ensure students never miss an interview schedule or drive announcement. React Query handles network timeout states gracefully, rendering friendly fallback text instead of white-screening.
+| Check | Result |
+|---|---|
+| TypeScript | Pass |
+| Contract tests | 17/17 pass |
+| Expo public configuration | Pass |
+| Expo Doctor | Pass: 18/18 checks |
+| Android Hermes export | Pass: 3,782 modules, 7.21 MB JS bundle |
+| EAS preview APK configuration | Pass |
+| Signed APK | Blocked: no EAS session; incomplete local NDK |
+| Device install/smoke test | Not run because no APK was produced |
+| Accessibility device audit | Not run |
 
-## 7. Known Limitations & Remaining Risks
-- **App Store Review:** The application must still pass Apple App Store and Google Play Store reviews, which occasionally scrutinize permissions (like Push Notifications).
-- **Automated Testing:** While manual QA passes 100% of the checklist, an automated UI testing suite (like Detox) is recommended for CI/CD before the final store deployment.
+## Security and configuration
 
-## 8. Production Readiness Decision
-**APPROVED.** The mobile application satisfies all 57 critical criteria outlined in the audit request and is certified ready for student distribution.
+Tokens remain in secure storage, role authority remains server-side, and no secrets or Google service files were invented. The demo identity is `com.placementx.app.demo`, allowing it to coexist with another PlacementX installation. Remote Android push in a standalone build still requires the environment’s legitimate `google-services.json`/FCM setup.
+
+## Dependency note
+
+The installed `caniuse-lite@1.0.30001806` publication lacked required files and prevented Metro from starting. The mobile workspace now pins the fixed `1.0.30001812`. The repository-level `npm audit --json` check on 2026-09-25 reports zero known vulnerabilities.
+
+## Required release gate
+
+1. authenticate EAS and provision signing credentials, or repair Android SDK command-line tools/NDK;
+2. build the APK from the existing `preview` profile;
+3. install on at least one phone and one tablet;
+4. execute the manual matrix in `MOBILE_TEST_PLAN.md`;
+5. configure and test real push credentials;
+6. rerun the dependency audit before release.
+
+No “production-ready” certification is claimed until those gates pass.

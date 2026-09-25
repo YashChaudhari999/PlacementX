@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, TouchableOpacity } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 export interface InputProps extends TextInputProps {
   label?: string;
@@ -10,6 +11,8 @@ export interface InputProps extends TextInputProps {
 }
 
 export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: InputProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const isPassword = secureTextEntry !== undefined ? secureTextEntry : false;
 
@@ -33,6 +36,8 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
           ]}
           placeholderTextColor={theme.colors.mutedForeground}
           secureTextEntry={isPassword && !isPasswordVisible}
+          accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
+          accessibilityState={{ disabled: props.editable === false }}
           {...props}
         />
         
@@ -40,6 +45,9 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
           <TouchableOpacity 
             style={styles.passwordIconContainer}
             onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+            accessibilityRole="button"
+            accessibilityLabel={isPasswordVisible ? 'Hide password' : 'Show password'}
+            accessibilityState={{ expanded: isPasswordVisible }}
           >
             {isPasswordVisible ? (
               <EyeOff color={theme.colors.mutedForeground} size={20} />
@@ -50,12 +58,12 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
         )}
       </View>
       
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && <Text accessibilityRole="alert" style={styles.errorText}>{error}</Text>}
     </View>
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     marginBottom: theme.spacing[4],
   },

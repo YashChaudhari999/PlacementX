@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator, View } from 'react-native';
-import { theme } from '../../theme/theme';
+import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, ActivityIndicator, View, TextStyle, StyleProp } from 'react-native';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 interface ButtonProps extends TouchableOpacityProps {
   children?: React.ReactNode;
@@ -10,7 +11,7 @@ interface ButtonProps extends TouchableOpacityProps {
   variant?: 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   isLoading?: boolean;
-  textStyle?: any;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export const Button = ({
@@ -21,10 +22,13 @@ export const Button = ({
   variant = 'default',
   size = 'default',
   isLoading,
+  textStyle,
   style,
   disabled,
   ...props
 }: ButtonProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const getBackgroundColor = () => {
     switch (variant) {
       case 'secondary': return theme.colors.secondary;
@@ -97,7 +101,7 @@ export const Button = ({
         <>
           {icon && <View style={[styles.iconContainer, (title || children) ? { marginRight: theme.spacing[2] } : null]}>{icon}</View>}
           {(title || children) && (
-            <Text style={[styles.text, { color: getTextColor(), fontSize: size === 'sm' ? 14 : 16 }, (props as any).textStyle]}>
+            <Text style={[styles.text, { color: getTextColor(), fontSize: size === 'sm' ? 14 : 16 }, textStyle]}>
               {title || children}
             </Text>
           )}
@@ -108,8 +112,9 @@ export const Button = ({
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   base: {
+    minHeight: 44,
     borderRadius: theme.radius.md,
     flexDirection: 'row',
     alignItems: 'center',

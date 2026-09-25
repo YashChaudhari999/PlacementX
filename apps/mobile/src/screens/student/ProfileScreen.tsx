@@ -1,23 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { User, Phone, MapPin, GraduationCap, FileText, Briefcase, ChevronRight, CheckCircle, AlertCircle, Upload, Save, X } from 'lucide-react-native';
+import { User, Phone, MapPin, GraduationCap, FileText, Briefcase, ChevronRight, Settings, CheckCircle, AlertCircle, Upload, Save, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, DashboardSkeleton, Button, Input, Toast, TabBar } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, DashboardSkeleton, Button, Input, Toast, TabBar, ErrorState } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
-import { useStudentProfile, useUpdateStudentProfile } from '../../hooks/queries';
+import { useStudentProfile, useUpdateStudentProfile, useStudentProfileStatus, useRequestProfileUpdate } from '../../hooks/queries';
 import apiClient from '../../lib/apiClient';
 import { API_ENDPOINTS } from '../../config/api';
 
 export default function ProfileScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { user } = useAuthStore();
-  const { data: profile, isLoading, refetch } = useStudentProfile();
+  const { data: profile, isLoading, isError, refetch } = useStudentProfile();
   const updateMutation = useUpdateStudentProfile();
+  const { data: statusData } = useStudentProfileStatus();
+  const requestUpdateMutation = useRequestProfileUpdate();
+  const profileStatus = statusData?.status || user?.profileStatus || (user?.isProfileComplete ? 'PENDING_VERIFICATION' : 'NOT_COMPLETED');
+  const canEdit = ['NOT_COMPLETED', 'UPDATE_REJECTED', 'REJECTED', 'VERIFIED'].includes(profileStatus);
 
   const [activeTab, setActiveTab] = useState('Personal');
   const [isEditing, setIsEditing] = useState(false);
@@ -73,7 +80,7 @@ export default function ProfileScreen() {
 
   const handleSave = async () => {
     try {
-      await updateMutation.mutateAsync({
+      const changes = {
           phone: formData.phone,
           alternatePhone: formData.alternatePhone,
           address: formData.address,
@@ -91,7 +98,12 @@ export default function ProfileScreen() {
           linkedinUrl: formData.linkedinUrl,
           githubUrl: formData.githubUrl,
           portfolioUrl: formData.portfolioUrl,
-      });
+      };
+      if (profileStatus === 'VERIFIED') {
+        await requestUpdateMutation.mutateAsync({ ...changes, reason: 'Student requested profile changes from the mobile app' });
+      } else {
+        await updateMutation.mutateAsync(changes);
+      }
       setIsEditing(false);
     } catch (error) {
       // Error handled in hook
@@ -139,6 +151,10 @@ export default function ProfileScreen() {
         </SafeAreaView>
       </View>
     );
+  }
+
+  if (isError) {
+    return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Profile" /><ErrorState message="Your profile could not be loaded." onRetry={refetch} /></SafeAreaView>;
   }
 
   const renderPersonalFields = () => (
@@ -217,26 +233,17 @@ export default function ProfileScreen() {
                 </View>
               </View>
               <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
-              <Text style={styles.email}>{user?.email}</Text>
-              
-              {!user?.isProfileComplete ? (
-                <View style={styles.incompleteWarning}>
-                  <AlertCircle size={16} color={theme.colors.destructive} />
-                  <Text style={styles.incompleteText}>Profile Incomplete</Text>
-                </View>
-              ) : (
-                <View style={[styles.incompleteWarning, { backgroundColor: (theme.colors.success + "15") }]}>
-                  <CheckCircle size={16} color={theme.colors.success} />
-                  <Text style={[styles.incompleteText, { color: theme.colors.success }]}>Profile Verified</Text>
-                </View>
-              )}
+              <Text style={styles.email}>{user?.email}</Text>              <View style={[styles.incompleteWarning, profileStatus === 'VERIFIED' && { backgroundColor: theme.colors.success + '15' }]}>
+                {profileStatus === 'VERIFIED' ? <CheckCircle size={16} color={theme.colors.success} /> : <AlertCircle size={16} color={theme.colors.warning} />}
+                <Text style={[styles.incompleteText, profileStatus === 'VERIFIED' && { color: theme.colors.success }]}>{profileStatus.replaceAll('_', ' ')}</Text>
+              </View>
             </View>
 
             {/* Editable Form Card */}
             <Card style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>{activeTab} Details</Text>
-                {!user?.isProfileComplete && (
+                {canEdit && (
                   !isEditing ? (
                     <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.editBtn}>
                       <Text style={styles.editBtnText}>Edit</Text>
@@ -251,11 +258,7 @@ export default function ProfileScreen() {
 
               {!isEditing ? (
                 <View style={styles.readOnlyContainer}>
-                  {!user?.isProfileComplete ? (
-                    <Text style={styles.readOnlyHint}>Tap "Edit" to update these details.</Text>
-                  ) : (
-                    <Text style={styles.readOnlyHint}>Your profile is verified and locked. Contact the placement cell to request changes.</Text>
-                  )}
+                  <Text style={styles.readOnlyHint}>{profileStatus === 'VERIFIED' ? 'Editing creates an approval request for the placement cell.' : canEdit ? 'Tap Edit to update these details.' : 'This profile is awaiting placement-cell review.'}</Text>
                   {activeTab === 'Personal' && (
                      <>
                        <Text style={styles.label}>Phone Number</Text><Text style={styles.value}>{profile?.phone || 'N/A'}</Text>
@@ -293,12 +296,18 @@ export default function ProfileScreen() {
                   <Button 
                     title="Save Changes" 
                     onPress={handleSave} 
-                    isLoading={updateMutation.isPending}
+                    isLoading={updateMutation.isPending || requestUpdateMutation.isPending}
                     style={styles.submitButton}
                     icon={<Save size={20} color="#fff" />}
                   />
                 </>
               )}
+            </Card>
+
+            <Card style={styles.linkCard}>
+              <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Documents')} style={styles.linkRow}><FileText size={20} color={theme.colors.primary} /><Text style={styles.linkText}>Document vault</Text><ChevronRight size={20} color={theme.colors.mutedForeground} /></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Interviews')} style={styles.linkRow}><Briefcase size={20} color={theme.colors.primary} /><Text style={styles.linkText}>Interviews</Text><ChevronRight size={20} color={theme.colors.mutedForeground} /></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('Settings')} style={styles.linkRow}><Settings size={20} color={theme.colors.primary} /><Text style={styles.linkText}>Settings</Text><ChevronRight size={20} color={theme.colors.mutedForeground} /></TouchableOpacity>
             </Card>
 
             <View style={{ height: theme.spacing[8] }} />
@@ -309,7 +318,7 @@ export default function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   safeArea: { flex: 1 },
   scrollContent: { padding: theme.spacing[4] },
@@ -334,4 +343,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 12, color: theme.colors.mutedForeground, marginTop: 4 },
   value: { fontSize: 15, color: theme.colors.foreground, fontWeight: '500' },
   uploadSection: { marginTop: theme.spacing[6], paddingTop: theme.spacing[4], borderTopWidth: 1, borderTopColor: theme.colors.border },
+  linkCard: { marginTop: theme.spacing[4], padding: 0, overflow: 'hidden' },
+  linkRow: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: theme.colors.border },
+  linkText: { flex: 1, color: theme.colors.foreground, fontSize: 15, fontWeight: '600' },
 });

@@ -1,27 +1,28 @@
 {
   "expo": {
-    "name": "PlacementX",
+    "name": "PlacementX (Demo)",
     "slug": "placementx",
+    "scheme": "placementx",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.placementx.app.demo",
       "infoPlist": {
         "UIBackgroundModes": ["remote-notification"]
       }
     },
     "android": {
-      "package": "com.placementx.app",
+      "package": "com.placementx.app.demo",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#F4EFE8",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false,
-      "googleServicesFile": "./google-services.json",
+      "predictiveBackGestureEnabled": true,
       "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"]
     },
     "web": {
@@ -30,15 +31,15 @@
     "splash": {
       "image": "./assets/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#F4EFE8"
     },
     "plugins": [
       "expo-secure-store",
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
-          "color": "#8B0000",
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#7A1027",
           "defaultChannel": "default",
           "sounds": []
         }

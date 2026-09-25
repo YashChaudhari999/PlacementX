@@ -1,19 +1,34 @@
-# Mobile UI/UX Audit Report
+# Mobile UI/UX Audit
 
-## Executive Summary
-A comprehensive audit of the PlacementX mobile application was conducted to evaluate its readiness against production-grade UI/UX standards. The application was assessed across aesthetics, interactivity, consistency, empty/error states, and platform-specific guidelines (iOS/Android).
+## Result
 
-## Methodology
-- Manual walk-throughs on simulated iOS (iPhone 15 Pro) and Android (Pixel 7) devices.
-- Code-level inspection of UI components inside `apps/mobile/src/components` and `apps/mobile/src/screens`.
-- Strict evaluation against the central PlacementX web design system to ensure brand parity (Maroon, Navy, Gold).
+The 2026-09-25 pass established an institutional editorial visual direction: NMIMS maroon and navy, warm neutral surfaces, restrained gold accents, semantic status colors, and typography/spacing/elevation tokens. The app no longer depends on role-selection tabs or generic decorative gradients for its information hierarchy.
 
-## Findings
-1. **Visual Consistency:** The mobile app heavily utilizes the shared `theme.ts` file, ensuring perfect color and typographic alignment with the web platform.
-2. **Micro-interactions:** Buttons and touchable areas utilize `activeOpacity` and visual feedback. `ActivityIndicator` is appropriately injected for asynchronous actions to prevent frozen UI states.
-3. **Empty States:** Screens that rely on backend lists (e.g., `DriveList`, `ApplicationList`) implement basic conditional rendering for empty arrays, providing users with actionable empty state instructions (e.g., "No active drives available").
-4. **Error Boundaries:** Errors returned by TanStack React Query are caught and rendered using fallback error texts. The use of Toast notifications guarantees that transient errors (e.g., network failure on profile update) are visible to the user without breaking the current view.
-5. **Safe Areas:** `SafeAreaView` from `react-native-safe-area-context` is implemented across screen layouts to avoid notch/status-bar overlap.
+## Implemented
 
-## Conclusion
-The UI/UX passes production requirements, offering a seamless and intuitive experience for students that mirrors the web dashboard.
+- persisted light, dark, and system appearance modes
+- semantic token factory and React theme provider
+- responsive content-width/column hook based on `useWindowDimensions`
+- shared screen, surface, header, icon-button, loading, error, empty, and confirmation primitives
+- 44-point minimum interaction targets in shared controls
+- accessible labels/states on inputs, password visibility, search clearing, tabs, document actions, and new navigation controls
+- explicit loading/error/empty handling on critical student contracts and live admin drive detail
+- destructive logout confirmation
+- working password reset, theme controls, profile-stack links, notification preferences route, and coordinator route
+- server-driven profile verification/update-request behavior
+
+## Verified defects corrected
+
+- password change used POST while the API requires PUT
+- calendar treated `{ events }` as a raw array
+- documents treated one response object as a document row
+- profile completion was displayed as verification
+- reports referenced a nonexistent endpoint
+- admin drive detail was placeholder copy
+- settings contained fake theme toggles and dead actions
+- coordinators received the entire super-admin drawer
+- auth restoration could flash the wrong flow
+
+## Remaining UX validation
+
+No claim is made that VoiceOver/TalkBack, physical-device keyboard behavior, all tablet postures, or every backend mutation has been manually exercised. Those checks remain release-candidate device QA items; see `MOBILE_TEST_PLAN.md`.

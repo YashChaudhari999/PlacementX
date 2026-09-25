@@ -48,4 +48,21 @@ export const useStudentDocuments = () => {
     staleTime: 5 * 60 * 1000,
   });
 };
+export const useStudentProfileStatus = () => useQuery({
+  queryKey: ['student-profile-status'],
+  queryFn: () => studentService.getProfileStatus(),
+  staleTime: 60 * 1000,
+});
+
+export const useRequestProfileUpdate = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Partial<StudentProfile> & { reason?: string }) => studentService.requestProfileUpdate(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-profile-status'] });
+      Toast.success('Profile update request submitted');
+    },
+    onError: (error: any) => Toast.error(error?.response?.data?.message || error.message || 'Unable to submit request'),
+  });
+};
 

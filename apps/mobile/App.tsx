@@ -1,10 +1,11 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, LinkingOptions } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar, AppState, AppStateStatus, LogBox } from 'react-native';
 import Toast from 'react-native-toast-message';
+import * as Linking from 'expo-linking';
 
 LogBox.ignoreLogs([
   'Reanimated',
@@ -13,10 +14,11 @@ LogBox.ignoreLogs([
 ]);
 
 import { AppNavigator } from './src/navigation/AppNavigator';
-import { theme } from './src/theme/theme';
+import { ThemeProvider, useAppTheme } from './src/theme/ThemeProvider';
 import { NotificationProvider } from './src/providers/NotificationProvider';
 import { useAuthStore } from './src/stores/authStore';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
+import type { RootStackParamList } from './src/navigation/types';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +32,28 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function App() {
+const linking: LinkingOptions<RootStackParamList> = {
+  prefixes: [Linking.createURL('/'), 'placementx://'],
+  config: {
+    screens: {
+      Auth: { screens: { Login: 'login' } },
+      FirstLoginPassword: 'change-password',
+      StudentApp: {
+        screens: {
+          HomeStack: { screens: { Dashboard: 'student', DriveDetails: 'student/drives/:id' } },
+          Drives: 'student/drives',
+          Calendar: 'student/calendar',
+          Notifications: 'student/notifications',
+          ProfileStack: { screens: { ProfileHome: 'student/profile', Documents: 'student/documents', Interviews: 'student/interviews', Settings: 'student/settings', NotificationPreferences: 'student/settings/notifications' } },
+        },
+      },
+      AdminApp: { screens: { Dashboard: 'admin', Students: 'admin/students', Calendar: 'admin/calendar', Reports: 'admin/reports', Notifications: 'admin/notifications', Settings: 'admin/settings', Coordinators: 'admin/coordinators' } },
+    },
+  },
+};
+
+const AppContent = () => {
+  const { theme, resolvedMode } = useAppTheme();
   const logout = useAuthStore(state => state.logout);
 
   React.useEffect(() => {
@@ -53,10 +76,17 @@ export default function App() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <StatusBar
-            barStyle="dark-content"
+            barStyle={resolvedMode === 'dark' ? 'light-content' : 'dark-content'}
             backgroundColor={theme.colors.background}
           />
-          <NavigationContainer>
+          <NavigationContainer
+            linking={linking}
+            theme={{
+              dark: resolvedMode === 'dark',
+              colors: { primary: theme.colors.primary, background: theme.colors.background, card: theme.colors.surface, text: theme.colors.foreground, border: theme.colors.border, notification: theme.colors.destructive },
+              fonts: { regular: { fontFamily: 'System', fontWeight: '400' }, medium: { fontFamily: 'System', fontWeight: '500' }, bold: { fontFamily: 'System', fontWeight: '700' }, heavy: { fontFamily: 'System', fontWeight: '800' } },
+            }}
+          >
             <NotificationProvider>
               <AppNavigator />
             </NotificationProvider>
@@ -65,5 +95,13 @@ export default function App() {
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>
+  );
+};
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }

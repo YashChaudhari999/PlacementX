@@ -10,6 +10,9 @@ import Constants from 'expo-constants';
  * For physical devices on Expo Go, we extract the LAN IP dynamically.
  */
 const getBaseUrl = (): string => {
+  const configuredUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
+  if (configuredUrl) return configuredUrl.replace(/\/$/, '');
+
   if (__DEV__) {
     // Extract IP dynamically from Expo's hostUri to support physical devices seamlessly
     const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest2?.extra?.expoGo?.debuggerHost;
@@ -23,9 +26,7 @@ const getBaseUrl = (): string => {
     }
     return 'http://localhost:5000/api';
   }
-  // In production, use environment variable if provided, otherwise fallback to placeholder
-  // TODO(Production): Ensure EXPO_PUBLIC_API_URL is set in the production environment or CI/CD pipeline
-  return process.env.EXPO_PUBLIC_API_URL || 'https://api.placementx.com/api';
+  throw new Error('EXPO_PUBLIC_API_URL is required for non-development mobile builds');
 };
 
 export const API_BASE_URL = getBaseUrl();
@@ -42,6 +43,8 @@ export const API_ENDPOINTS = {
 
   // Student
   STUDENT_PROFILE: '/student/profile',
+  STUDENT_PROFILE_STATUS: '/student/profile/status',
+  STUDENT_PROFILE_UPDATE_REQUEST: '/student/profile/update-request',
   STUDENT_APPLICATIONS: '/student/applications',
   STUDENT_INTERVIEWS: '/student/interviews',
   STUDENT_DOCUMENTS: '/student/documents',
@@ -62,7 +65,7 @@ export const API_ENDPOINTS = {
   ADMIN_STUDENTS_IMPORT: '/admin/students/import',
   ADMIN_COORDINATORS: '/admin/coordinators',
   ADMIN_CALENDAR: '/admin/calendar',
-  ADMIN_REPORTS_DATA: '/admin/reports/data',
+  ADMIN_REPORTS_DATA: '/admin/reports/kpis',
   ADMIN_ANALYTICS_SUMMARY: '/admin/analytics/summary',
   ADMIN_ANALYTICS_CHARTS: '/admin/analytics/charts',
   ADMIN_PENDING_PROFILES: '/admin/profile-verifications',

@@ -1,27 +1,38 @@
 # Mobile Navigation Architecture
 
-The mobile application utilizes React Navigation v7 (`@react-navigation/native`) for robust screen management.
+Verified against `apps/mobile/src/navigation` on 2026-09-25.
 
-## Navigation Structure
-The routing hierarchy is cleanly separated by authentication state using a Root Navigator.
+## Root flow
 
-### 1. Root Navigator
-- **Auth Stack:** Accessible only if no valid token exists.
-  - `LoginScreen`
-- **App Stack:** Accessible only when the user is fully authenticated.
-  - `StudentDrawer` (or `BottomTabs`)
+`AppNavigator` waits for persisted auth hydration before selecting exactly one flow:
 
-### 2. Main App Flow (Tabs/Drawer)
-- **Dashboard:** `student/dashboard`
-- **Drives:** `student/drives` -> `student/drives/:id` (Details)
-- **Applications:** `student/applications`
-- **Calendar:** `student/calendar`
-- **Profile:** `student/profile`
-- **Settings:** `student/settings`
+- unauthenticated → `Auth/Login`
+- authenticated with mandatory password change → `FirstLoginPassword`
+- `STUDENT` → `StudentApp`
+- `COORDINATOR` or `SUPER_ADMIN` → `AdminApp`
 
-## Deep Linking
-Deep linking is enabled through Expo's linking configuration. Push notifications (via FCM and Expo Notifications) pass routing payloads that the `usePushNotifications` hook intercepts.
-- E.g., Tap notification -> Parsed Payload -> `navigation.navigate('DriveDetails', { id: 123 })`
+The server-derived role is authoritative; login no longer accepts a client-selected role.
 
-## Route Guards & State
-Zustand (`authStore.ts`) serves as the source of truth for the authentication state. If the token expires (handled via Axios interceptor), Zustand clears the token, and the Root Navigator instantly switches back to the Auth Stack, ensuring unauthorized access is impossible without forcing a manual refresh.
+## Student flow
+
+Bottom tabs:
+
+- Home stack: dashboard, drive details
+- Drives: browse drives and applications
+- Calendar
+- Notifications
+- Profile stack: profile, documents, interviews, settings, notification preferences
+
+The profile screen provides explicit links to all profile-stack destinations.
+
+## Administrative flow
+
+Super administrators receive dashboard, drives, students, calendar, reports, coordinators, notifications, and settings. Coordinators receive only students and their own settings/security screen. Super-admin routes are not registered in a coordinator drawer.
+
+## Deep links
+
+Supported prefixes are the Expo development URL and `placementx://`. Paths include login, password change, student dashboard/drives/calendar/notifications/profile/documents/interviews/settings, and the matching administrative destinations. Notification payload routing is normalized in `deepLink.service.ts`.
+
+## Session failure
+
+The API interceptor clears invalid sessions. The persisted auth store exposes `hasHydrated`, preventing a login-screen flash while secure state is restored.

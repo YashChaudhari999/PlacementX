@@ -3,7 +3,8 @@ import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, ChevronRight } from 'lucide-react-native';
 
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import { ScreenHeader, Card, EmptyState, Badge, Button } from '../../components/ui';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../lib/apiClient';
@@ -23,6 +24,8 @@ interface CalendarEvent {
 }
 
 export default function CalendarScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Fetch calendar events
@@ -30,8 +33,8 @@ export default function CalendarScreen() {
     queryKey: ['student-calendar'],
     queryFn: async () => {
       // In the API, the route is GET /student/calendar
-      const response = await apiClient.get<CalendarEvent[]>('/student/calendar');
-      return response.data;
+      const response = await apiClient.get<{ events: CalendarEvent[] }>('/student/calendar');
+      return response.data.events;
     },
   });
 
@@ -127,7 +130,7 @@ export default function CalendarScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   safeArea: { flex: 1 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },

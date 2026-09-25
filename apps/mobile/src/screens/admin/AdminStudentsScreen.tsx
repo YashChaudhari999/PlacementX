@@ -5,17 +5,20 @@ import { Menu, Search, Mail, Phone, GraduationCap, Filter } from 'lucide-react-n
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { theme } from '../../theme/theme';
-import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState, TabBar, Button, Toast } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, ScreenHeader, ListSkeleton, SearchBar, Badge, EmptyState, TabBar, Button, Toast, ErrorState } from '../../components/ui';
 import { useAdminStudents, usePendingProfiles, useVerifyProfile } from '../../hooks/queries';
 
 export default function AdminStudentsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All Students');
   
-  const { data: students, isLoading: loadingStudents, refetch: refetchStudents } = useAdminStudents();
-  const { data: pendingProfiles, isLoading: loadingPending, refetch: refetchPending } = usePendingProfiles();
+  const { data: students, isLoading: loadingStudents, isError: studentsError, refetch: refetchStudents } = useAdminStudents();
+  const { data: pendingProfiles, isLoading: loadingPending, isError: pendingError, refetch: refetchPending } = usePendingProfiles();
   const verifyMutation = useVerifyProfile();
 
   const handleVerify = async (id: string, action: 'APPROVE' | 'REJECT') => {
@@ -98,6 +101,8 @@ export default function AdminStudentsScreen() {
     </Card>
   );
 
+  if (studentsError || pendingError) return <SafeAreaView style={styles.safeArea}><ScreenHeader title="Students" /><ErrorState message="Student records could not be loaded." onRetry={() => { refetchStudents(); refetchPending(); }} /></SafeAreaView>;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScreenHeader 
@@ -157,7 +162,7 @@ export default function AdminStudentsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,

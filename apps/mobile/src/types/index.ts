@@ -15,13 +15,22 @@ export interface User {
   lastName?: string;
   name?: string;
   isProfileComplete?: boolean;
+  profileStatus?: ProfileStatus;
   mustChangePassword?: boolean;
+}
+
+export type ProfileStatus = 'NOT_COMPLETED' | 'PENDING' | 'PENDING_VERIFICATION' | 'VERIFIED' | 'REJECTED' | 'UPDATE_REQUESTED' | 'UPDATE_REJECTED';
+
+export interface ProfileStatusResponse {
+  status: ProfileStatus;
+  isProfileComplete: boolean;
+  pendingUpdateRequest: { id: string; status: string; requestedAt: string; changedFields?: string[] } | null;
 }
 
 export interface LoginCredentials {
   email: string;
   password: string;
-  role: Role;
+  role?: Role;
 }
 
 // ─── Student Profile ────────────────────────────────────
@@ -270,13 +279,20 @@ export interface Coordinator {
 // ─── Documents ──────────────────────────────────────────
 
 export interface StudentDocuments {
-  resumeUrl: string;
+  resumeUrl: string | null;
   offers: Array<{
     id: string;
     company: string;
     role: string;
     uploadedAt: string;
     offerLetterUrl?: string;
+  }>;
+  academicDocuments: Array<{
+    id: string;
+    documentType: string;
+    fileName: string;
+    signedUrl: string;
+    uploadedAt?: string;
   }>;
 }
 

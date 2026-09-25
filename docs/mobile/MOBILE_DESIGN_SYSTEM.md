@@ -1,28 +1,51 @@
-# Mobile Design System
+# PlacementX Mobile Design System
 
-The mobile application implements a centralized design system located at `apps/mobile/src/theme/theme.ts`.
+PlacementX uses an institutional editorial direction: NMIMS maroon and navy establish identity, restrained gold marks high-value actions, and warm neutral surfaces keep dense placement information calm and readable. The system avoids decorative gradients and heavy shadows.
 
-## Core Philosophy
-The mobile app mirrors the web application's modern SaaS aesthetics by heavily restricting ad-hoc styling. Developers must import the central `theme` object rather than hard-coding hex values or spacing units.
+## Source of truth
 
-## Color Palette
-- **Primary:** `#800000` (NMIMS Maroon) - used for primary CTAs and active states.
-- **Secondary:** `#002D62` (Navy Blue) - used for headers and secondary actions.
-- **Background:** `#FFFFFF` (Light) / `#121212` (Dark)
-- **Text:** `#1A1A1A` (Light) / `#F5F5F5` (Dark)
-- **Muted/Border:** `#E5E5E5`
+- Tokens: `apps/mobile/src/theme/theme.ts`
+- Runtime theme and persistence: `apps/mobile/src/theme/ThemeProvider.tsx`
+- Responsive classification: `apps/mobile/src/hooks/useResponsiveLayout.ts`
+- Components: `apps/mobile/src/components/ui/`
+
+## Color tokens
+
+Both light and dark palettes expose `background`, `surface`, `surfaceSecondary`, `foreground`, `foregroundMuted`, `primary`, `primaryForeground`, `secondary`, `secondaryForeground`, `success`, `warning`, `destructive`, `info`, `border`, `divider`, `focus`, and `overlay`. Status must always pair color with text or an icon.
+
+Brand anchors are maroon `#7A1027`, navy `#17324D`, gold `#C9972B`, and teal `#147D74`. Screens must use semantic tokens instead of embedding hex values.
 
 ## Typography
-- **Headings:** Bold weight, strong hierarchy (`h1`, `h2`, `h3`).
-- **Body:** Standard readable sizing (`base` = 16px).
-- **Muted/Small:** Smaller sizes (`sm` = 14px) for tertiary info (e.g., timestamps).
 
-## Components (UI Primitives)
-Reusable components reside in `apps/mobile/src/components/ui/` and must be used for all interfaces:
-- `Button`: Supports `default`, `secondary`, `outline`, `ghost`, and `destructive` variants. Incorporates loading and disabled states automatically.
-- `Card`: Provides consistent border radius and shadow/elevation.
-- `Input`: Standardized form fields with consistent padding, borders, and error state rendering.
-- `Badge`: Used for status indicators (e.g., 'Applied', 'Verified').
+The scale contains Display, H1-H3, Body Large, Body, Body Small, Label, Caption, and Button. Display/H1 use the platform serif face for an academic editorial character; functional copy uses the native sans-serif face for clarity. Dynamic font scaling remains enabled.
 
-## Responsive Architecture
-The layout uses Flexbox rigorously, avoiding absolute positioning. Component dimensions scale predictably. `SafeAreaView` wrapping ensures the design is not occluded by hardware notches or navigation bars on iPhone and Android devices.
+## Spacing, radius, and elevation
+
+- Spacing follows a 4px base: 0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64.
+- Radius: none, 6, 10, 14, 18, 24, full.
+- Elevation: none, subtle, raised, overlay. Shadows are support cues, not decoration.
+- Minimum interactive target: 44x44px.
+
+## Motion
+
+Motion durations are instant, fast (140ms), standard (220ms), and deliberate (320ms). Motion communicates navigation, loading, or state change. Repeating and decorative animation must stop or simplify when reduced motion is enabled.
+
+## Responsive rules
+
+- Compact: below 360px. Reduce peripheral spacing, never text size below the token scale.
+- Phone: 360-767px. One-column content.
+- Tablet: 768-1023px. Two-column content or split views where the workflow benefits.
+- Wide tablet/desktop web: 1024px+. Up to three columns with a centered 1120px maximum width.
+- Use `useWindowDimensions`; never branch on device model names.
+
+## Component rules
+
+- Use shared Button, IconButton, Input, SearchBar, Card, StatusBadge, ScreenContainer, PageHeader, EmptyState, ErrorState, LoadingState, ConfirmationDialog, and domain cards.
+- Every async surface needs initial/loading/loaded/empty/error handling and a real recovery action.
+- Inputs require visible labels, accessibility labels, inline validation, and keyboard intent.
+- Destructive actions require confirmation.
+- Icon-only controls require an accessibility label and hint.
+
+## Theme modes
+
+Light, dark, and system modes are persisted through AsyncStorage. `ThemeProvider` resolves system changes at runtime. The Expo app configuration must keep `userInterfaceStyle` set to `automatic` so the native shell matches the React theme.

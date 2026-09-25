@@ -12,7 +12,8 @@ import {
   CheckCircle, XCircle, Shield, Bell,
 } from 'lucide-react-native';
 import { formatDistanceToNow, isToday, isYesterday, differenceInDays } from 'date-fns';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 import type { Notification, NotificationCategory, NotificationPriority } from '../../types';
 
 // ─── Category Configuration ─────────────────────────────
@@ -69,6 +70,8 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   onDelete,
   onArchive,
 }) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const categoryConfig = CATEGORY_CONFIG[notification.category] || CATEGORY_CONFIG.system;
   const Icon = categoryConfig.icon;
   const isUnread = !notification.isRead;
@@ -147,17 +150,17 @@ export const getTimeGroup = (dateString: string): string => {
 
 // ─── Styles ─────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    backgroundColor: '#ffffff',
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: theme.colors.divider,
   },
   unreadContainer: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: theme.colors.surfaceSecondary,
   },
   unreadDot: {
     width: 8,
@@ -189,26 +192,26 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     fontWeight: '600',
-    color: '#1e293b',
+    color: theme.colors.foreground,
     marginRight: 8,
   },
   titleUnread: {
     fontWeight: '800',
-    color: '#0f172a',
+    color: theme.colors.foreground,
   },
   time: {
     fontSize: 12,
     fontWeight: '500',
-    color: '#94a3b8',
+    color: theme.colors.foregroundMuted,
   },
   message: {
     fontSize: 14,
-    color: '#64748b',
+    color: theme.colors.foregroundMuted,
     lineHeight: 20,
     marginBottom: 6,
   },
   messageUnread: {
-    color: '#475569',
+    color: theme.colors.foreground,
     fontWeight: '500',
   },
   priorityBadge: {

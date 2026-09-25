@@ -9,3 +9,5 @@ export * from './SearchBar';
 export * from './TabBar';
 export * from './StatCard';
 export * from './Toast';
+export * from './Foundation';
+export * from './FilterChip';

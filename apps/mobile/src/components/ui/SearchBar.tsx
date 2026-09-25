@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
 import { Search, X } from 'lucide-react-native';
-import { theme } from '../../theme/theme';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
 
 interface SearchBarProps {
   value: string;
@@ -11,6 +12,8 @@ interface SearchBarProps {
 }
 
 export const SearchBar = ({ value, onChangeText, placeholder = 'Search...', debounceMs = 300 }: SearchBarProps) => {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [localValue, setLocalValue] = useState(value);
 
   // Update local value when prop changes externally
@@ -44,9 +47,10 @@ export const SearchBar = ({ value, onChangeText, placeholder = 'Search...', debo
         value={localValue}
         onChangeText={setLocalValue}
         returnKeyType="search"
+        accessibilityLabel={placeholder}
       />
       {localValue.length > 0 && (
-        <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
+        <TouchableOpacity onPress={handleClear} style={styles.clearButton} accessibilityRole="button" accessibilityLabel="Clear search">
           <X color={theme.colors.mutedForeground} size={16} />
         </TouchableOpacity>
       )}
@@ -54,7 +58,7 @@ export const SearchBar = ({ value, onChangeText, placeholder = 'Search...', debo
   );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    height: 40,
+    minHeight: 44,
     paddingHorizontal: theme.spacing[3],
   },
   icon: {

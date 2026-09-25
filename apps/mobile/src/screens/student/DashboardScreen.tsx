@@ -5,18 +5,21 @@ import { Bell, User, Calendar, MapPin, Search, ChevronRight } from 'lucide-react
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { theme } from '../../theme/theme';
-import { Card, StatusBadge, DashboardSkeleton } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, StatusBadge, DashboardSkeleton, ErrorState } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
 import { usePublishedDrives, useStudentProfile } from '../../hooks/queries';
 
 const { height } = Dimensions.get('window');
 
 export default function DashboardScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { user } = useAuthStore();
-  const { data: drives, isLoading: isLoadingDrives, refetch: refetchDrives, isRefetching: isRefetchingDrives } = usePublishedDrives();
-  const { data: profile, isLoading: isLoadingProfile, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useStudentProfile();
+  const { data: drives, isLoading: isLoadingDrives, isError: drivesError, refetch: refetchDrives, isRefetching: isRefetchingDrives } = usePublishedDrives();
+  const { data: profile, isLoading: isLoadingProfile, isError: profileError, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useStudentProfile();
   const insets = useSafeAreaInsets();
 
   const isRefreshing = isRefetchingDrives || isRefetchingProfile;
@@ -38,6 +41,10 @@ export default function DashboardScreen() {
         </SafeAreaView>
       </View>
     );
+  }
+
+  if (drivesError || profileError) {
+    return <SafeAreaView style={styles.safeArea}><ErrorState message="Your placement overview could not be loaded." onRetry={handleRefresh} /></SafeAreaView>;
   }
 
   const renderDriveCard = React.useCallback((drive: any) => (
@@ -166,7 +173,7 @@ export default function DashboardScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background, // slightly cooler off-white background

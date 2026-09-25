@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Calendar, ChevronRight } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { theme } from '../../theme/theme';
-import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar, EmptyState } from '../../components/ui';
+import type { AppTheme } from '../../theme/theme';
+import { useAppTheme } from '../../theme/ThemeProvider';
+import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar, EmptyState, ErrorState, FilterChip } from '../../components/ui';
 import { usePublishedDrives, useStudentApplications } from '../../hooks/queries';
 
 export default function ApplicationsScreen() {
+  const { theme } = useAppTheme();
+  const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const [activeTab, setActiveTab] = useState('All Drives');
   const [searchQuery, setSearchQuery] = useState('');
+  const [workMode, setWorkMode] = useState<'ALL' | 'REMOTE' | 'ONSITE'>('ALL');
+  const [sortBy, setSortBy] = useState<'DEADLINE' | 'PACKAGE'>('DEADLINE');
 
   const { 
     data: allDrives, 
-    isLoading: loadingDrives, 
+    isLoading: loadingDrives,
+    isError: drivesError,
     refetch: refetchDrives 
   } = usePublishedDrives();
   
   const { 
     data: applications, 
-    isLoading: loadingApps, 
+    isLoading: loadingApps,
+    isError: applicationsError,
     refetch: refetchApps 
   } = useStudentApplications();
 
@@ -106,9 +113,19 @@ export default function ApplicationsScreen() {
           drive.jobRole?.toLowerCase().includes(lowerQuery)
         );
       });
+    }    if (workMode !== 'ALL') {
+      data = data.filter((item: any) => {
+        const drive = activeTab === 'All Drives' ? item : item.drive;
+        return String(drive.workMode || '').toUpperCase().includes(workMode);
+      });
     }
-    
-    return data;
+
+    return [...data].sort((a: any, b: any) => {
+      const driveA = activeTab === 'All Drives' ? a : a.drive;
+      const driveB = activeTab === 'All Drives' ? b : b.drive;
+      if (sortBy === 'PACKAGE') return Number(driveB.fixedSalary || 0) - Number(driveA.fixedSalary || 0);
+      return new Date(driveA.registrationEnd || 8640000000000000).getTime() - new Date(driveB.registrationEnd || 8640000000000000).getTime();
+    });
   };
 
   return (
@@ -134,9 +151,17 @@ export default function ApplicationsScreen() {
             onTabChange={setActiveTab}
           />
         </View>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+          <FilterChip label="All modes" selected={workMode === 'ALL'} onPress={() => setWorkMode('ALL')} />
+          <FilterChip label="Remote" selected={workMode === 'REMOTE'} onPress={() => setWorkMode('REMOTE')} />
+          <FilterChip label="On-site" selected={workMode === 'ONSITE'} onPress={() => setWorkMode('ONSITE')} />
+          <FilterChip label={sortBy === 'DEADLINE' ? 'Sort: deadline' : 'Sort: package'} selected onPress={() => setSortBy(current => current === 'DEADLINE' ? 'PACKAGE' : 'DEADLINE')} accessibilityHint="Toggles drive sorting" />
+        </ScrollView>
 
         {(loadingDrives || loadingApps) ? (
           <ListSkeleton />
+        ) : (drivesError || applicationsError) ? (
+          <ErrorState message="Placement drives could not be loaded." onRetry={handleRefresh} />
         ) : (
           <FlatList
             data={getFilteredData()}
@@ -162,7 +187,7 @@ export default function ApplicationsScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background,
@@ -171,6 +196,7 @@ const styles = StyleSheet.create({
     padding: theme.spacing[4],
     paddingBottom: theme.spacing[2],
   },
+  filterRow: { paddingHorizontal: theme.spacing[4], paddingBottom: theme.spacing[3], gap: theme.spacing[2] },
   tabContainer: {
     paddingHorizontal: theme.spacing[4],
     marginBottom: theme.spacing[2],
