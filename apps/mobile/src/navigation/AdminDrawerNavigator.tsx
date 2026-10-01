@@ -14,7 +14,6 @@ import AdminStudentsScreen from '../screens/admin/AdminStudentsScreen';
 import AdminCalendarScreen from '../screens/admin/AdminCalendarScreen';
 import AdminReportsScreen from '../screens/admin/AdminReportsScreen';
 import AdminNotificationsScreen from '../screens/admin/AdminNotificationsScreen';
-import AdminCoordinatorsScreen from '../screens/admin/AdminCoordinatorsScreen';
 import AdminSettingsScreen from '../screens/admin/AdminSettingsScreen';
 import { useNotificationStore } from '../stores/notificationStore';
 import { useAuthStore } from '../stores/authStore';
@@ -58,7 +57,6 @@ export const AdminDrawerNavigator = () => {
         <>
           <Drawer.Screen name="Calendar" component={AdminCalendarScreen} options={{ drawerIcon: icon(CalendarIcon) }} />
           <Drawer.Screen name="Reports" component={AdminReportsScreen} options={{ drawerIcon: icon(FileSpreadsheet) }} />
-          <Drawer.Screen name="Coordinators" component={AdminCoordinatorsScreen} options={{ drawerIcon: icon(Users) }} />
           <Drawer.Screen
             name="Notifications"
             component={AdminNotificationsScreen}

@@ -16,6 +16,7 @@ import {
   setBadgeCount,
 } from '../services/pushNotification.service';
 import { handleDeepLink } from '../services/deepLink.service';
+import { getSocketStatus } from '../services/socket.service';
 
 /**
  * Hook that manages the full push notification lifecycle.
@@ -23,7 +24,7 @@ import { handleDeepLink } from '../services/deepLink.service';
  */
 export const usePushNotifications = () => {
   const { isAuthenticated, token } = useAuthStore();
-  const { incrementUnreadCount } = useNotificationStore();
+  const { incrementUnreadCount, setPushToken } = useNotificationStore();
   const navigation = useNavigation();
 
   const notificationListener = useRef<any>(null);
@@ -43,16 +44,15 @@ export const usePushNotifications = () => {
       const pushToken = await registerForPushNotifications();
       if (pushToken) {
         await savePushTokenToBackend(pushToken);
+        setPushToken(pushToken);
       }
     };
     registerPush();
 
     // ─── Foreground Notification Listener ──────────────
     // Fires when a notification is received while app is in foreground.
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      // For foreground notifications, socket.io already handles updating the cache,
-      // but if socket fails, this is a fallback.
-      incrementUnreadCount();
+    notificationListener.current = Notifications.addNotificationReceivedListener(() => {
+      if (!getSocketStatus()) incrementUnreadCount();
     });
     
     // ─── Notification Response Listener ───────────────
@@ -77,7 +77,7 @@ export const usePushNotifications = () => {
         responseListener.current.remove();
       }
     };
-  }, [isAuthenticated, token]);
+  }, [incrementUnreadCount, isAuthenticated, navigation, setPushToken, token]);
 
   // ─── Handle Last Notification (App Killed State) ────
   // Check if app was opened from a notification tap.
@@ -98,5 +98,5 @@ export const usePushNotifications = () => {
       }
     };
     checkLastNotification();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigation]);
 };

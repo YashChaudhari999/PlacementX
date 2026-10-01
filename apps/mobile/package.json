@@ -51,7 +51,8 @@
     "lint": "tsc --noEmit",
     "test": "node --test --test-isolation=none tests/contracts.test.mjs",
     "export:android": "expo export --platform android",
-    "build:apk": "eas build --platform android --profile preview"
+    "validate:apk": "node scripts/validate-apk-build.mjs",
+    "build:apk": "npm run validate:apk && eas build --platform android --profile preview"
   },
   "private": true
 }

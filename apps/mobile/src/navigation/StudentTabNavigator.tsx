@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home, Briefcase, Bell, User, Calendar as CalendarIcon } from 'lucide-react-native';
+import { Home, Briefcase, Bell, User, Calendar as CalendarIcon, FileCheck2 } from 'lucide-react-native';
 
 import { useAppTheme } from '../theme/ThemeProvider';
 import type { StudentTabParamList, HomeStackParamList, ProfileStackParamList } from './types';
@@ -41,11 +41,8 @@ const ProfileStackNavigator = () => (
   </ProfileStack.Navigator>
 );
 
-import { useNotificationStore } from '../stores/notificationStore';
-
 export const StudentTabNavigator = () => {
   const { theme } = useAppTheme();
-  const unreadCount = useNotificationStore(state => state.unreadCount);
 
   return (
     <Tab.Navigator
@@ -79,6 +76,13 @@ export const StudentTabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="Applications"
+        component={ApplicationsScreen}
+        options={{
+          tabBarLabel: 'Applications',
+          tabBarIcon: ({ color, size }) => <FileCheck2 color={color} size={size} />,
+        }}
+      />      <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
         options={{
@@ -89,12 +93,7 @@ export const StudentTabNavigator = () => {
       <Tab.Screen
         name="Notifications"
         component={NotificationsScreen}
-        options={{
-          tabBarLabel: 'Alerts',
-          tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />,
-          tabBarBadge: unreadCount > 0 ? (unreadCount > 99 ? '99+' : unreadCount) : undefined,
-          tabBarBadgeStyle: { backgroundColor: theme.colors.error, color: 'white' },
-        }}
+        options={{ tabBarButton: () => null, tabBarItemStyle: { display: 'none' } }}
       />
       <Tab.Screen
         name="ProfileStack"

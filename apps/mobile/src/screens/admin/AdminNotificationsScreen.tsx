@@ -178,9 +178,6 @@ export default function AdminNotificationsScreen() {
       {/* ─── Header ──────────────────────────────────── */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.menuBtn}>
-            <Menu color={theme.colors.foreground} size={24} />
-          </TouchableOpacity>
           <Text style={styles.headerTitle}>Notifications</Text>
           {unreadCount > 0 && (
             <View style={styles.unreadBadge}>
@@ -198,6 +195,9 @@ export default function AdminNotificationsScreen() {
               <CheckCircle2 size={16} color="#4f46e5" />
             </TouchableOpacity>
           )}
+          <TouchableOpacity onPress={() => navigation.toggleDrawer()} style={styles.menuBtn}>
+            <Menu color={theme.colors.foreground} size={24} />
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -380,7 +380,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.card },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' },
   headerLeft: { flexDirection: 'row', alignItems: 'center' },
-  menuBtn: { marginRight: 12 },
+  menuBtn: { padding: 8 },
   headerTitle: { fontSize: 20, fontWeight: '800', color: theme.colors.foreground },
   unreadBadge: { marginLeft: 8, backgroundColor: '#ef4444', borderRadius: 12, paddingHorizontal: 8, paddingVertical: 2, minWidth: 24, alignItems: 'center' },
   unreadBadgeText: { color: theme.colors.card, fontSize: 12, fontWeight: '800' },

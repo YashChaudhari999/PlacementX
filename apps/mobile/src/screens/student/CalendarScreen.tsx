@@ -88,13 +88,13 @@ export default function CalendarScreen() {
         
         {/* Month Selector */}
         <View style={styles.monthSelector}>
-          <TouchableOpacity onPress={handlePrevMonth} style={styles.monthBtn}>
+          <TouchableOpacity onPress={handlePrevMonth} style={styles.monthBtn} accessibilityRole="button" accessibilityLabel="Previous month">
             <ChevronLeft size={24} color={theme.colors.primary} />
           </TouchableOpacity>
           <Text style={styles.monthText}>
             {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
           </Text>
-          <TouchableOpacity onPress={handleNextMonth} style={styles.monthBtn}>
+          <TouchableOpacity onPress={handleNextMonth} style={styles.monthBtn} accessibilityRole="button" accessibilityLabel="Next month">
             <ChevronRight size={24} color={theme.colors.primary} />
           </TouchableOpacity>
         </View>
@@ -139,7 +139,7 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: theme.spacing[4],
-    backgroundColor: '#FFF',
+    backgroundColor: theme.colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },

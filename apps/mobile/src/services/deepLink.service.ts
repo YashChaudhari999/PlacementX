@@ -3,6 +3,7 @@
 // actions. Each notification type navigates to its correct screen.
 
 import { notificationsService } from './notifications.service';
+import { useAuthStore } from '../stores/authStore';
 
 // ─── Types ──────────────────────────────────────────────
 
@@ -87,10 +88,13 @@ export const handleDeepLink = async (
       break;
 
     case 'Drives':
-    case 'ApplicationStatus':
       navigation.navigate('StudentApp', {
         screen: 'Drives',
       });
+      break;
+
+    case 'ApplicationStatus':
+      navigation.navigate('StudentApp', { screen: 'Applications' });
       break;
 
     case 'StudentSettings':
@@ -163,15 +167,6 @@ export const handleDeepLink = async (
  * The navigation structure differs between student (tab) and admin (drawer).
  */
 const navigateToNotifications = (navigation: any): void => {
-  // Try student navigation first, fall back to admin
-  try {
-    navigation.navigate('StudentApp', { screen: 'Notifications' });
-  } catch {
-    try {
-      navigation.navigate('AdminApp', { screen: 'Notifications' });
-    } catch {
-      // Last resort — navigate to root
-      console.warn('Could not navigate to notifications screen.');
-    }
-  }
+  const role = useAuthStore.getState().user?.role;
+  navigation.navigate(role === 'STUDENT' ? 'StudentApp' : 'AdminApp', { screen: 'Notifications' });
 };

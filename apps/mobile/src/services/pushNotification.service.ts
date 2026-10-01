@@ -86,8 +86,8 @@ export const registerForPushNotifications = async (): Promise<string | null> => 
 
   try {
     if (Constants.appOwnership === 'expo') {
-      console.log('Push notifications (remote) are not supported in Expo Go SDK 53+. Using mock token.');
-      return 'ExponentPushToken[mock-token-for-expo-go]';
+      console.warn('Remote push notifications require a development or production build.');
+      return null;
     }
 
     const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;

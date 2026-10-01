@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapPin, Calendar, ChevronRight } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { AppTheme } from '../../theme/theme';
@@ -14,7 +14,8 @@ export default function ApplicationsScreen() {
   const { theme } = useAppTheme();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
-  const [activeTab, setActiveTab] = useState('All Drives');
+  const route = useRoute();
+  const [activeTab, setActiveTab] = useState(route.name === 'Applications' ? 'My Applications' : 'All Drives');
   const [searchQuery, setSearchQuery] = useState('');
   const [workMode, setWorkMode] = useState<'ALL' | 'REMOTE' | 'ONSITE'>('ALL');
   const [sortBy, setSortBy] = useState<'DEADLINE' | 'PACKAGE'>('DEADLINE');

@@ -22,6 +22,7 @@ export type ProfileStackParamList = {
 export type StudentTabParamList = {
   HomeStack: NavigatorScreenParams<HomeStackParamList>;
   Drives: undefined;
+  Applications: undefined;
   Calendar: undefined;
   Notifications: undefined;
   ProfileStack: NavigatorScreenParams<ProfileStackParamList>;
@@ -39,7 +40,6 @@ export type AdminDrawerParamList = {
   Dashboard: undefined;
   DrivesStack: NavigatorScreenParams<AdminDrivesStackParamList>;
   Students: undefined;
-  Coordinators: undefined;
   Calendar: undefined;
   Reports: undefined;
   Notifications: undefined;
