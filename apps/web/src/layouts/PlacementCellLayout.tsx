@@ -236,7 +236,7 @@ export const PlacementCellLayout = () => {
 
  {/* Page Content */}
  <main className="flex-1 p-6 sm:p-8 overflow-x-hidden relative">
- <GlobalLoader />
+ <GlobalLoader hasSidebar />
  <AnimatePresence mode="wait">
  <motion.div
  key={location.pathname}
