@@ -82,8 +82,8 @@ export async function getCompanies(filters: AnalyticsFilterInput): Promise<Compa
     });
     previousCompanies = prevCompanyGroups.length;
 
-    const currentNames = new Set(allCompanies.map(c => c.companyName as string));
-    const prevNames = new Set(prevCompanyGroups.map(c => c.companyName as string));
+    const currentNames = new Set<string>(allCompanies.map(c => c.companyName as string));
+    const prevNames = new Set<string>(prevCompanyGroups.map(c => c.companyName as string));
 
     const returning = [...currentNames].filter(n => prevNames.has(n));
     const newCompanies = [...currentNames].filter(n => !prevNames.has(n));

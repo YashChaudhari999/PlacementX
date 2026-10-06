@@ -1049,7 +1049,9 @@ export const getAdminDashboard = async (req: any, res: any) => {
       where: { id: { in: applicationsCount.map(a => a.driveId) }, ...academicYearFilter },
       include: { company: true },
     });
-    const driveCompanyMap = new Map(drivesForApps.map(d => [d.id, d.company.name]));
+    const driveCompanyMap = new Map<string, string>(
+      drivesForApps.map((d) => [d.id, d.company.name] as [string, string]),
+    );
     
     const appsMap = new Map<string, { count: number; driveId: string }>();
     applicationsCount.forEach(app => {
@@ -1393,7 +1395,7 @@ export const provisionCurrentYearStudents = async (req: Request, res: Response) 
         });
         if (fetchError) throw new Error(fetchError.message);
         
-        data.users.forEach((u) => {
+        data.users.forEach((u: any) => {
           if (u.email) allSupabaseUsers.set(u.email.toLowerCase(), u);
         });
         

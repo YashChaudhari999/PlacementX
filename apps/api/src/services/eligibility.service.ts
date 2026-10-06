@@ -1,9 +1,8 @@
 import prisma from '../utils/prisma';
-import { PlacementDrive } from '@prisma/client';
 import * as settingsService from './settings.service';
 
 
-export const filterEligibleStudents = async (drive: PlacementDrive) => {
+export const filterEligibleStudents = async (drive: any) => {
   const whereClause: any = {
     isProfileComplete: true,
   };
