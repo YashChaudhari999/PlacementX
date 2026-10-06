@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import crypto from 'crypto';
 import { isProduction, jwtConfig } from '../config/environment';
+import { emailService } from '../services/email/email.service';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -26,6 +27,10 @@ const firebaseLoginSchema = z.object({
   role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']).optional(),
 }).strict();
 
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email(),
+});
+
 const localDemoEmails = () => (process.env.DEMO_EMAIL_ALLOWLIST
   || 'admin@nmims.edu,kunal.khaire177@nmims.in')
   .split(',')
@@ -45,6 +50,79 @@ export const login = async (req: Request, res: Response) => {
 
 export const changePassword = async (req: any, res: any) => {
   return res.status(400).json({ message: 'Legacy change password endpoint is deprecated. Please use Firebase Authentication.' });
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  try {
+    const parseResult = forgotPasswordSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ error: 'Please provide a valid email address' });
+    }
+
+    const email = parseResult.data.email;
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+    const actionCodeSettings = {
+      url: `${frontendUrl}/reset-password`,
+      handleCodeInApp: true,
+    };
+
+    try {
+      // 1. Generate secure password reset action link using Firebase Admin SDK
+      const resetLink = await firebaseAdmin.auth().generatePasswordResetLink(email, actionCodeSettings);
+
+      // 2. Fetch user's profile display name if available in database
+      const userRecord = await prisma.user.findUnique({
+        where: { email },
+        include: {
+          studentProfile: { select: { firstName: true } },
+          adminProfile: { select: { firstName: true } },
+          coordinatorProfile: { select: { firstName: true } },
+        },
+      });
+
+      let displayName: string | undefined;
+      if (userRecord) {
+        const name =
+          userRecord.studentProfile?.firstName ||
+          userRecord.adminProfile?.firstName ||
+          userRecord.coordinatorProfile?.firstName;
+        if (name) displayName = name;
+      }
+
+      // 3. Dispatch custom PlacementX HTML email
+      await emailService.sendPasswordResetEmail({
+        to: email,
+        resetLink,
+        displayName,
+      });
+    } catch (firebaseErr: any) {
+      // Prevent account enumeration: log error server-side, do NOT reveal to client
+      const isUserNotFound =
+        firebaseErr.code === 'auth/user-not-found' ||
+        // Firebase Admin sometimes throws an internal assert instead of a clean error code
+        // when the user does not exist in Firebase Auth
+        (typeof firebaseErr.message === 'string' &&
+          firebaseErr.message.includes('INTERNAL ASSERT FAILED'));
+
+      if (isUserNotFound) {
+        console.log(`[ForgotPassword] Password reset requested for non-existent Firebase account: ${email}`);
+      } else {
+        console.error('[ForgotPassword] Firebase Admin generatePasswordResetLink error:', firebaseErr.message || firebaseErr);
+      }
+    }
+
+    // Always return HTTP 200 with generic success message for security (prevents account enumeration)
+    return res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.',
+    });
+  } catch (error) {
+    console.error('[ForgotPassword] Unexpected error:', error);
+    return res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.',
+    });
+  }
 };
 
 export const firebaseLogin = async (req: Request, res: Response) => {
