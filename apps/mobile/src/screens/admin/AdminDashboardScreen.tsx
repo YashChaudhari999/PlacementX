@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   Menu, Building2, GraduationCap, Briefcase, TrendingUp,
@@ -13,8 +13,6 @@ import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Card, ScreenHeader, DashboardSkeleton, ErrorState } from '../../components/ui';
 import { useAdminDashboard } from '../../hooks/queries';
-
-const { width } = Dimensions.get('window');
 
 // Helper component for Stat Cards
 const AdminStatCard = ({ label, value, icon, iconColor, iconBg, description }: any) => {
@@ -111,8 +109,8 @@ export default function AdminDashboardScreen() {
             </TouchableOpacity>
           </View>
           
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScrollContent}>
-            <View style={styles.horizontalCardWrapper}>
+          <View style={styles.cardsGrid}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Today's Drives" 
                 value={formatNum(dashboard?.drives?.today || 0)} 
@@ -121,7 +119,7 @@ export default function AdminDashboardScreen() {
                 description="Active Today"
               />
             </View>
-            <View style={styles.horizontalCardWrapper}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Upcoming" 
                 value={formatNum(dashboard?.drives?.upcomingClosed || 0)} 
@@ -130,7 +128,7 @@ export default function AdminDashboardScreen() {
                 description="Reg. Closed"
               />
             </View>
-            <View style={styles.horizontalCardWrapper}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Open Drives" 
                 value={formatNum(dashboard?.drives?.open || 0)} 
@@ -139,7 +137,7 @@ export default function AdminDashboardScreen() {
                 description="Accepting Apps"
               />
             </View>
-          </ScrollView>
+          </View>
         </View>
 
         {/* SECTION 2: STUDENTS */}
@@ -247,8 +245,8 @@ export default function AdminDashboardScreen() {
             </View>
           </View>
           
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScrollContent}>
-            <View style={styles.horizontalCardWrapper}>
+          <View style={styles.cardsGrid}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Placement %" 
                 value={`${dashboard?.packages?.placementPercentage || 0}%`} 
@@ -257,7 +255,7 @@ export default function AdminDashboardScreen() {
                 description="Target: 95%"
               />
             </View>
-            <View style={styles.horizontalCardWrapper}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Highest" 
                 value={`${dashboard?.packages?.highest || 0} LPA`} 
@@ -266,7 +264,7 @@ export default function AdminDashboardScreen() {
                 description="Max Offer"
               />
             </View>
-            <View style={styles.horizontalCardWrapper}>
+            <View style={styles.cardGridItem}>
               <AdminStatCard 
                 label="Average" 
                 value={`${dashboard?.packages?.average || 0} LPA`} 
@@ -275,7 +273,7 @@ export default function AdminDashboardScreen() {
                 description="All offers"
               />
             </View>
-          </ScrollView>
+          </View>
         </View>
 
         {/* SECTION 4: OVERALL */}
@@ -397,12 +395,14 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   gridCol: {
     flex: 1,
   },
-  horizontalScrollContent: {
-    paddingRight: theme.spacing[4],
+  cardsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    rowGap: theme.spacing[3],
   },
-  horizontalCardWrapper: {
-    width: width * 0.42,
-    marginRight: theme.spacing[4],
+  cardGridItem: {
+    width: '48%',
   },
   
   // Custom Stat Card

@@ -42,12 +42,13 @@ const linking: LinkingOptions<RootStackParamList> = {
         screens: {
           HomeStack: { screens: { Dashboard: 'student', DriveDetails: 'student/drives/:id' } },
           Drives: 'student/drives',
+          Applications: 'student/applications',
           Calendar: 'student/calendar',
           Notifications: 'student/notifications',
           ProfileStack: { screens: { ProfileHome: 'student/profile', Documents: 'student/documents', Interviews: 'student/interviews', Settings: 'student/settings', NotificationPreferences: 'student/settings/notifications' } },
         },
       },
-      AdminApp: { screens: { Dashboard: 'admin', Students: 'admin/students', Calendar: 'admin/calendar', Reports: 'admin/reports', Notifications: 'admin/notifications', Settings: 'admin/settings', Coordinators: 'admin/coordinators' } },
+      AdminApp: { screens: { Dashboard: 'admin', Students: 'admin/students', Calendar: 'admin/calendar', Reports: 'admin/reports', Notifications: 'admin/notifications', Settings: 'admin/settings' } },
     },
   },
 };

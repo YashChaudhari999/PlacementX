@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, StatusBar } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, User, Calendar, MapPin, Search, ChevronRight } from 'lucide-react-native';
+import { Bell, User, Calendar, MapPin, Search, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -9,6 +9,7 @@ import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Card, StatusBadge, DashboardSkeleton, ErrorState } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
+import { useNotificationStore } from '../../stores/notificationStore';
 import { usePublishedDrives, useStudentProfile } from '../../hooks/queries';
 
 const { height } = Dimensions.get('window');
@@ -18,11 +19,14 @@ export default function DashboardScreen() {
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const { user } = useAuthStore();
+  const unreadCount = useNotificationStore(state => state.unreadCount);
   const { data: drives, isLoading: isLoadingDrives, isError: drivesError, refetch: refetchDrives, isRefetching: isRefetchingDrives } = usePublishedDrives();
   const { data: profile, isLoading: isLoadingProfile, isError: profileError, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useStudentProfile();
   const insets = useSafeAreaInsets();
 
   const isRefreshing = isRefetchingDrives || isRefetchingProfile;
+  const profileStatus = user?.profileStatus || (user?.isProfileComplete ? 'PENDING_VERIFICATION' : 'NOT_COMPLETED');
+  const profileVerified = profileStatus === 'VERIFIED';
   
   const handleRefresh = React.useCallback(() => {
     refetchDrives();
@@ -32,20 +36,6 @@ export default function DashboardScreen() {
   const handleDrivePress = React.useCallback((id: string) => {
     navigation.navigate('DriveDetails', { id });
   }, [navigation]);
-
-  if (isLoadingDrives || isLoadingProfile) {
-    return (
-      <View style={styles.container}>
-        <SafeAreaView style={styles.safeArea}>
-          <DashboardSkeleton />
-        </SafeAreaView>
-      </View>
-    );
-  }
-
-  if (drivesError || profileError) {
-    return <SafeAreaView style={styles.safeArea}><ErrorState message="Your placement overview could not be loaded." onRetry={handleRefresh} /></SafeAreaView>;
-  }
 
   const renderDriveCard = React.useCallback((drive: any) => (
     <TouchableOpacity 
@@ -99,7 +89,21 @@ export default function DashboardScreen() {
         </View>
       </Card>
     </TouchableOpacity>
-  ), [handleDrivePress]);
+  ), [handleDrivePress, theme, styles]);
+
+  if (isLoadingDrives || isLoadingProfile) {
+    return (
+      <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+          <DashboardSkeleton />
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  if (drivesError || profileError) {
+    return <SafeAreaView style={styles.safeArea}><ErrorState message="Your placement overview could not be loaded." onRetry={handleRefresh} /></SafeAreaView>;
+  }
 
   return (
     <View style={styles.container}>
@@ -124,14 +128,17 @@ export default function DashboardScreen() {
               <TouchableOpacity 
                 style={styles.headerIconButton}
                 onPress={() => navigation.navigate('Notifications')}
+                accessibilityRole="button"
+                accessibilityLabel={unreadCount ? "Open notifications,  unread" : 'Open notifications'}
               >
                 <Bell color={theme.colors.card} size={22} />
-                {/* Notification dot */}
-                <View style={styles.notificationDot} />
+                {unreadCount > 0 ? <View style={styles.notificationDot} /> : null}
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.headerIconButton}
                 onPress={() => navigation.navigate('ProfileStack')}
+                accessibilityRole="button"
+                accessibilityLabel="Open profile"
               >
                 <User color={theme.colors.card} size={22} />
               </TouchableOpacity>
@@ -144,11 +151,30 @@ export default function DashboardScreen() {
             style={styles.searchFakeInput}
             onPress={() => navigation.navigate('Drives')}
             activeOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="Search placement drives"
           >
             <Search color={theme.colors.mutedForeground} size={20} />
             <Text style={styles.searchPlaceholder}>Search companies, roles...</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={[styles.profileStatusCard, { borderColor: profileVerified ? theme.colors.success : theme.colors.warning }]}
+          onPress={() => navigation.navigate('ProfileStack')}
+          accessibilityRole="button"
+          accessibilityLabel={`Profile status: ${profileStatus.replaceAll('_', ' ')}`}
+          accessibilityHint="Opens your profile"
+        >
+          <View style={[styles.profileStatusIcon, { backgroundColor: (profileVerified ? theme.colors.success : theme.colors.warning) + '18' }]}>
+            {profileVerified ? <CheckCircle2 size={22} color={theme.colors.success} /> : <AlertCircle size={22} color={theme.colors.warning} />}
+          </View>
+          <View style={styles.profileStatusCopy}>
+            <Text style={styles.profileStatusTitle}>{profileVerified ? 'Profile verified' : profileStatus === 'NOT_COMPLETED' ? 'Complete your profile' : 'Profile under review'}</Text>
+            <Text style={styles.profileStatusText}>{profileVerified ? 'Your details are approved for placement applications.' : profileStatus === 'NOT_COMPLETED' ? 'Add the required details to unlock eligible opportunities.' : 'The placement cell is reviewing your submitted details.'}</Text>
+          </View>
+          <ChevronRight size={20} color={theme.colors.mutedForeground} />
+        </TouchableOpacity>
 
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -259,6 +285,22 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     color: theme.colors.mutedForeground,
     fontSize: 15,
   },
+  profileStatusCard: {
+    minHeight: 88,
+    marginHorizontal: theme.spacing[4],
+    marginBottom: theme.spacing[6],
+    padding: theme.spacing[4],
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing[3],
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderRadius: theme.radius.xl,
+  },
+  profileStatusIcon: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  profileStatusCopy: { flex: 1 },
+  profileStatusTitle: { ...theme.typography.label, color: theme.colors.foreground },
+  profileStatusText: { ...theme.typography.bodySmall, color: theme.colors.foregroundMuted, marginTop: 2 },
   section: {
     marginBottom: theme.spacing[6],
     paddingHorizontal: theme.spacing[4],

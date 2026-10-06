@@ -29,12 +29,12 @@ test('notification preferences are reachable from student settings', () => {
   assert.match(source('src/screens/student/SettingsScreen.tsx'), /navigate\('NotificationPreferences'\)/);
 });
 
-test('coordinator navigation excludes super-admin screens', () => {
+test('admin navigation excludes the removed coordinator page', () => {
   const navigator = source('src/navigation/AdminDrawerNavigator.tsx');
   assert.match(navigator, /isSuperAdmin/);
   assert.match(navigator, /initialRouteName=\{isSuperAdmin \? 'Dashboard' : 'Students'\}/);
   assert.match(navigator, /name="Reports"/);
-  assert.match(navigator, /name="Coordinators"/);
+  assert.doesNotMatch(navigator, /name="Coordinators"/);
 });
 
 test('demo APK configuration uses a distinct identity and existing notification asset', () => {
@@ -129,4 +129,28 @@ test('responsive foundation uses dimensions, breakpoints, safe area, and bounded
   assert.match(foundation, /SafeAreaView/);
   assert.match(foundation, /contentMaxWidth/);
   assert.match(foundation, /width: 44/);
+});
+test('student primary navigation separates drives and applications while retaining notification routing', () => {
+  const navigator = source('src/navigation/StudentTabNavigator.tsx');
+  assert.match(navigator, /name="Applications"/);
+  assert.match(navigator, /name="Notifications"/);
+  assert.match(navigator, /tabBarButton: \(\) => null/);
+  assert.match(source('App.tsx'), /Applications: 'student\/applications'/);
+});
+
+test('notification lifecycle uses real tokens and role-aware destinations', () => {
+  const push = source('src/services/pushNotification.service.ts');
+  const hook = source('src/hooks/usePushNotifications.ts');
+  const deepLinks = source('src/services/deepLink.service.ts');
+  assert.doesNotMatch(push, /mock-token-for-expo-go/);
+  assert.match(hook, /setPushToken\(pushToken\)/);
+  assert.match(hook, /getSocketStatus\(\)/);
+  assert.match(deepLinks, /useAuthStore\.getState\(\)\.user\?\.role/);
+});
+
+test('dashboard surfaces real unread and profile status', () => {
+  const dashboard = source('src/screens/student/DashboardScreen.tsx');
+  assert.match(dashboard, /unreadCount > 0/);
+  assert.match(dashboard, /Complete your profile/);
+  assert.match(dashboard, /Profile verified/);
 });

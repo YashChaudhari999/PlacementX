@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Menu, ShieldCheck, Users, LogOut, Moon, Sun } from 'lucide-react-native';
+import { Menu, ShieldCheck, LogOut, Moon, Sun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
@@ -50,9 +50,6 @@ export default function AdminSettingsScreen() {
           <Pressable accessibilityRole="radio" accessibilityState={{ checked: resolvedMode === 'light' }} onPress={() => setMode('light')} style={[styles.themeChoice, { borderColor: resolvedMode === 'light' ? theme.colors.primary : theme.colors.border }]}><Sun size={20} color={theme.colors.primary} /><Text style={{ color: theme.colors.foreground }}>Light</Text></Pressable>
           <Pressable accessibilityRole="radio" accessibilityState={{ checked: resolvedMode === 'dark' }} onPress={() => setMode('dark')} style={[styles.themeChoice, { borderColor: resolvedMode === 'dark' ? theme.colors.primary : theme.colors.border }]}><Moon size={20} color={theme.colors.primary} /><Text style={{ color: theme.colors.foreground }}>Dark</Text></Pressable>
         </SurfaceCard>
-
-        {isSuperAdmin ? <Pressable accessibilityRole="button" onPress={() => navigation.navigate('Coordinators')} style={[styles.accessRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}><Users size={21} color={theme.colors.primary} /><View style={styles.grow}><Text style={[styles.name, { color: theme.colors.foreground }]}>Coordinator access</Text><Text style={[styles.meta, { color: theme.colors.foregroundMuted }]}>Invite and manage coordinator accounts</Text></View></Pressable> : null}
-
         <Text style={[styles.eyebrow, { color: theme.colors.foregroundMuted }]}>SECURITY</Text>
         <SurfaceCard style={styles.form}>
           <View style={styles.formTitle}><ShieldCheck size={21} color={theme.colors.primary} /><Text style={[styles.name, { color: theme.colors.foreground }]}>Change password</Text></View>
@@ -81,7 +78,6 @@ const styles = StyleSheet.create({
   eyebrow: { fontSize: 12, fontWeight: '700', letterSpacing: 0.8, marginTop: 22, marginBottom: 8 },
   themeRow: { flexDirection: 'row', gap: 10 },
   themeChoice: { minHeight: 54, flex: 1, borderWidth: 1, borderRadius: 12, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },
-  accessRow: { minHeight: 72, borderWidth: 1, borderRadius: 16, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, marginTop: 18 },
   form: { gap: 14 },
   formTitle: { flexDirection: 'row', gap: 9, alignItems: 'center', marginBottom: 2 },
   logout: { minHeight: 52, borderWidth: 1, borderRadius: 14, marginTop: 26, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },

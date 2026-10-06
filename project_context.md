@@ -2,12 +2,20 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-09-25 IST
-**Last Verified Against Codebase:** 2026-09-25 IST
-**Context Version:** 1.8
+**Last Updated:** 2026-10-01 IST
+**Last Verified Against Codebase:** 2026-10-01 IST
+**Context Version:** 1.9
 
 ---
 
+## 2026-10-01 Mobile UX and Notification Lifecycle Refinement
+
+- Unified mobile headers through the accessible shared foundation and corrected student information architecture to expose separate Drives and Applications primary tabs.
+- Added real unread/profile status context to the dashboard and removed fake always-on notification affordances.
+- Removed Expo Go mock push-token registration, persisted real device tokens for logout cleanup, prevented socket/push unread duplication, and made notification routing role-aware.
+- Added mobile behavior contracts and an implementation-backed audit at `docs/mobile/UI_UX_AUDIT.md`.
+
+---
 ## 2026-09-25 Mobile Redesign and Hardening
 
 - Added semantic NMIMS-aligned light/dark tokens, persisted system theme, responsive layout and reduced-motion hooks; all mobile screens and shared visual components now consume the active theme.
