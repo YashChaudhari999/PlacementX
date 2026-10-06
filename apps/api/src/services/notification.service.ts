@@ -281,7 +281,7 @@ export const getUserNotifications = async (
   const limit = Math.min(pagination.limit || 20, 50);
   
   // Build where clause
-  const where: Prisma.NotificationWhereInput = {
+  const where: any = {
     receiverId: userId,
     isDeleted: false,
     isArchived: false,
@@ -313,7 +313,7 @@ export const getUserNotifications = async (
   }
 
   // Cursor-based pagination
-  const findOptions: Prisma.NotificationFindManyArgs = {
+  const findOptions: any = {
     where,
     orderBy: { createdAt: 'desc' },
     take: limit + 1, // Fetch one extra to determine hasMore
