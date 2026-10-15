@@ -1,0 +1,42 @@
+# Placement Workflow Audit
+
+Audit date: 2026-10-13  
+Scope: web and API applications, Prisma schema/migrations, authentication, notifications, tests, and maintained project documentation.  
+Policy source: the requested `Final Placement Policy - Batch 2027.pdf` was not present in the repository. Policy findings use only the extracted requirements supplied with the task.
+
+Status meanings: `PASS` is verified end-to-end at the relevant layer; `PARTIAL` has working components but does not satisfy the complete requirement; `MISSING` has no production implementation; `BROKEN` exists but fails its intended contract; `BLOCKED` requires unavailable policy, credentials, or environment.
+
+| ID | Expected behaviour | Evidence and locations | Data/security/tests | Status | Corrective action |
+|---|---|---|---|---|---|
+| 2.1 | Secure admin authentication, RBAC, audit access | Firebase login in `apps/api/src/controllers/auth.controller.ts`; route authorization in `apps/api/src/routes/*.routes.ts`; token role is re-read from DB | Short-lived JWT, issuer/audience, auth rate limit; no complete privileged-action audit viewer test | PARTIAL | Add session revocation/refresh strategy and full authorization integration matrix |
+| 2.2 | CSV preview, validation, confirmation, provisioning, activation, safe retry | UI parser/import page and `importStudents`; server now enforces 1,000-row cap, IDs/emails, duplicate/domain checks, privileged-role protection, random bootstrap secret | Unique email and student ID; authenticated admin API; email delivery/activation dispatch is not configured | PARTIAL | Add persisted import batches, server file parsing, confirm endpoint, activation-mail provider, and idempotency key |
+| 2.3 | Student activation, profile lifecycle, documents | Firebase login, student profile/documents pages and controllers | Profile states use legacy equivalents; activation UX/email is incomplete | PARTIAL | Complete activation-token consumption and explicit draft/submit controls |
+| 2.4 | Review, corrections, protected changes, history | Verification/update-request controllers; profile audit tables | Coordinator department scope; rejection reason now mandatory; update approval is not fully transactional | PARTIAL | Make update approval atomic and add protected email-change workflow |
+| 2.5 | Central structured eligibility | `apps/api/src/services/eligibility.service.ts`; evaluation snapshot schema | Structured codes, explanations, policy version, timestamp, review state; recorded at apply time; 5 focused tests | PARTIAL | Add skills/category/exception rules and event-driven recalculation |
+| 2.6 | HR submission and correction path | HR invite, draft, submit, admin review controllers and HR web wizard | SHA-256 token hashes, expiry, revocation, drive scope; correction resubmission enabled | PARTIAL | Add mail delivery, explicit permission scopes, admin approval without implicit publication |
+| 2.7 | Direct admin drive creation | Create wizard and drive controller | Admin-only mutations; publish validation remains minimal | PARTIAL | Add shared Zod contract, preview confirmation, material-change notifications |
+| 2.8 | Explicit lifecycle and guarded transitions | `apps/api/src/domain/placement.rules.ts` | Expanded lifecycle, terminal-state protection, deadlines, audited closure and token revocation; compatibility aliases remain | PARTIAL | Migrate legacy state names and add scheduled closure worker |
+| 2.9 | Discovery and applications | Student drive pages; application endpoint | Server rechecks window/eligibility; unique DB constraint; serializable limit checks; profile/eligibility snapshot stored | PARTIAL | Add withdrawal-review workflow and complete student-facing reason rendering |
+| 2.10 | Application and auto nomination modes | Application status/list primitives exist | No distinct nomination entity, mode configuration, preview/finalization contract | MISSING | Implement nomination model/service/endpoints/UI and audit trail |
+| 2.11 | Candidate pool, filtering, final shortlist | HR candidate workspace and status update | Drive-scoped hashed token; pool and shortlist are represented by application statuses only | PARTIAL | Add shortlist revision/publication entity and policy-controlled notifications |
+| 2.12 | Ordered rounds and progression | SelectionRound model, wizard, interview scheduling | Round status/timezone/result state added; previous-round publication gate absent | PARTIAL | Centralize ordered progression and audited exception API |
+| 2.13 | Result template, preview, approval, publish, versioning | HR result process/confirm flow | Drive/round matching and uniqueness exist; schema now supports draft/version/approval/publication but controller does not yet use all fields | PARTIAL | Separate confirm, approve, publish, and correction-version operations |
+| 2.14 | Selection and offer lifecycle | OfferLetter and application statuses | Offer lifecycle fields added; chronological event ledger and management endpoints absent | PARTIAL | Add offer service/event table and authorized state-transition endpoints |
+| 2.15 | Closure preserves history and revokes access | Status/delete controller | Delete now performs audited cancellation; completion/cancellation revokes HR links | PASS | Add final report generation and controlled correction endpoint |
+| 3.1 | Configurable Batch 2027 rules | `apps/api/src/domain/batch2027.policy.ts` and policy schema | Timezone-aware phase boundaries, blackout dates, attendance threshold and skip-limit metadata | PARTIAL | Seed an approved policy version and implement attendance/skip/category enforcement |
+| 3.2 | Offer-policy ambiguity is not silently resolved | Policy domain service and `POLICY_DECISIONS_REQUIRED.md` | Confirmed offers return `OFFER_POLICY_AMBIGUOUS` and require review; covered by tests | PASS | Placement Cell must approve a versioned interpretation before enforcement |
+| 3.3 | Attendance exception review | New attendance-review schema and missing-data review outcome | Missing attendance requires review instead of automatic penalty | PARTIAL | Add submission/review APIs, UI, attachments, and decision audit |
+| 4 | Backend RBAC and data security | Auth middleware, role routes, scoped HR token, input middleware, CORS/headers/limits | Security tests cover unauthenticated boundary and malicious input; document authorization is signed/scoped | PARTIAL | Expand object-level authorization tests and persistent distributed rate limiting |
+| 5 | Complete relational workflow and safe concurrency | Prisma models and migration `20261013000000_placement_workflow_policy` | Application uniqueness and serializable apply transaction; several logical entities remain status fields | PARTIAL | Add nomination/shortlist/offer-event/import-batch entities and concurrency tests |
+| 6 | In-app/email notifications with retries/idempotency | Notification service, BullMQ/Redis integration, preferences | In-app/push paths exist; production email delivery and delivery-attempt ledger absent | PARTIAL | Configure official mail provider and add idempotency/delivery records |
+| 7 | Complete admin/student/HR UX | Existing pages cover major profiles, drives, students, HR results, notifications | Many workflows exist; nomination, offer, policy and attendance review screens are absent | PARTIAL | Build missing screens after backend contracts are complete |
+| 8 | Automated and full E2E verification | Jest unit/security tests; TypeScript/build scripts | 17 tests pass; production builds pass; full DB/browser E2E not run | PARTIAL | Add disposable test DB fixtures and Playwright/API scenario |
+| 9 | Maintained implementation/audit/test/policy reports | Files in `docs/` created on 2026-10-13 | Reports distinguish pass/partial/not run | PASS | Update reports with every later workflow slice |
+
+## Highest remaining risks
+
+1. The import flow creates Firebase accounts but cannot deliver official activation email without a configured mail provider.
+2. Nomination and published-shortlist history are not first-class data, so audited revisions cannot be represented correctly.
+3. Result upload persistence still conflates confirmation with approved publication.
+4. Offer chronology and institutional policy interpretation remain insufficient for irreversible future-drive restrictions.
+5. No disposable PostgreSQL/Firebase test environment was available for the required 28-step end-to-end scenario.

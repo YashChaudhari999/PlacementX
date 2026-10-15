@@ -14,6 +14,11 @@ describe('placement drive rules', () => {
     expect(canTransitionDriveStatus('COMPLETED', 'ACTIVE')).toBe(false);
   });
 
+  it('supports closing applications before recruitment starts', () => {
+    expect(canTransitionDriveStatus('PUBLISHED', 'APPLICATIONS_CLOSED')).toBe(true);
+    expect(canTransitionDriveStatus('APPLICATIONS_CLOSED', 'IN_PROGRESS')).toBe(true);
+  });
+
   it('accepts published and active drives during their registration window', () => {
     const now = new Date('2026-09-18T12:00:00.000Z');
     const window = {

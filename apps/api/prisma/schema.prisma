@@ -4,26 +4,39 @@ generator client {
 }
 
 datasource db {
-  provider   = "postgresql"
-  url        = env("DATABASE_URL")
-  directUrl  = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id                      String                  @id @default(uuid())
-  firebaseUid             String?                 @unique
-  email                   String                  @unique
+  id                      String                   @id @default(uuid())
+  firebaseUid             String?                  @unique
+  email                   String                   @unique
   password                String
-  role                    String                  @default("STUDENT")
-  mustChangePassword      Boolean                 @default(true)
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
+  role                    String                   @default("STUDENT")
+  mustChangePassword      Boolean                  @default(true)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
   adminProfile            AdminProfile?
   coordinatorProfile      CoordinatorProfile?
   deviceTokens            DeviceToken[]
   notifications           Notification[]
   notificationPreferences NotificationPreference?
   studentProfile          StudentProfile?
+  activationTokens        AccountActivationToken[]
+}
+
+model AccountActivationToken {
+  id        String    @id @default(uuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
 }
 
 model DeviceToken {
@@ -38,37 +51,43 @@ model DeviceToken {
 }
 
 model StudentProfile {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  firstName         String?
-  lastName          String?
-  phone             String?
-  branch            String?
-  cgpa              Float?
-  passingYear       Int?
-  activeBacklogs    Int      @default(0)
-  yearGap           Int      @default(0)
-  nationality       String?
-  gender            String?
-  resumeUrl         String?
-  photoUrl          String?
-  portfolioUrl      String?
-  githubUrl         String?
-  linkedinUrl       String?
-  skills               Json?
-  programmingLanguages Json?
-  projects             Json?
-  codingProfiles       Json?
-  educationDetails     String?
-  isProfileComplete Boolean  @default(false)
-  profileStatus     String   @default("NOT_COMPLETED")
-  verifiedAt        DateTime?
-  verifiedBy        String?
+  id                      String    @id @default(uuid())
+  userId                  String    @unique
+  studentId               String?   @unique
+  firstName               String?
+  lastName                String?
+  phone                   String?
+  branch                  String?
+  cgpa                    Float?
+  passingYear             Int?
+  activeBacklogs          Int       @default(0)
+  yearGap                 Int       @default(0)
+  nationality             String?
+  gender                  String?
+  resumeUrl               String?
+  photoUrl                String?
+  portfolioUrl            String?
+  githubUrl               String?
+  linkedinUrl             String?
+  skills                  Json?
+  programmingLanguages    Json?
+  projects                Json?
+  codingProfiles          Json?
+  educationDetails        String?
+  isProfileComplete       Boolean   @default(false)
+  profileStatus           String    @default("NOT_COMPLETED")
+  verifiedAt              DateTime?
+  verifiedBy              String?
+  enrollmentStatus        String    @default("ACTIVE")
+  trainingAttendance      Float?
+  policyAcknowledgedAt    DateTime?
+  academicRestriction     Boolean   @default(false)
+  disciplinaryRestriction Boolean   @default(false)
   // Personal Details
-  dateOfBirth       DateTime?
-  address           String?
-  alternatePhone    String?
-  category          String?
+  dateOfBirth             DateTime?
+  address                 String?
+  alternatePhone          String?
+  category                String?
 
   // Academic Details (Past)
   tenthBoard        String?
@@ -80,30 +99,30 @@ model StudentProfile {
   diplomaBoard      String?
   diplomaYear       Int?
   diplomaPercentage Float?
-  
+
   // Current Academics
-  currentSemester   Int?
-  totalBacklogs     Int      @default(0)
-  semesterMarks     Json?
+  currentSemester Int?
+  totalBacklogs   Int   @default(0)
+  semesterMarks   Json?
 
   // Professional Details
-  certifications    Json?
-  experience        Json?
-  languages         Json?
+  certifications Json?
+  experience     Json?
+  languages      Json?
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  adminNotes Json?
 
-  adminNotes           Json?
-
-
-  applications   DriveApplication[]
-  updateRequests ProfileUpdateRequest[]
-  auditLogs      ProfileAuditLog[]
-  documents      StudentDocument[]
-  preferences    StudentPreference?
-  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications           DriveApplication[]
+  updateRequests         ProfileUpdateRequest[]
+  auditLogs              ProfileAuditLog[]
+  documents              StudentDocument[]
+  preferences            StudentPreference?
+  eligibilityEvaluations EligibilityEvaluation[]
+  attendanceReviews      AttendanceExceptionReview[]
+  user                   User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CoordinatorProfile {
@@ -201,16 +220,16 @@ model PlacementDrive {
   technologyStack          String?
   trainingPeriod           String?
 
-
-  applications    DriveApplication[]
-  auditLogs       DriveAuditLog[]
-  hrInvitations   HrInvitationLink[]
-  company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  selectionRounds SelectionRound[]
+  applications           DriveApplication[]
+  auditLogs              DriveAuditLog[]
+  hrInvitations          HrInvitationLink[]
+  company                Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  selectionRounds        SelectionRound[]
+  eligibilityEvaluations EligibilityEvaluation[]
 }
 
 model SelectionRound {
-  id                 String         @id @default(uuid())
+  id                 String                   @id @default(uuid())
   driveId            String
   roundNumber        Int
   title              String
@@ -218,30 +237,37 @@ model SelectionRound {
   time               String?
   duration           String?
   venue              String?
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
   evaluationCriteria String?
   instructions       String?
   interviewer        String?
-  order              Int            @default(0)
+  order              Int                      @default(0)
   platform           String?
   roundType          String?
   weightage          Float?
-  drive              PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  status             String                   @default("DRAFT")
+  timezone           String                   @default("Asia/Kolkata")
+  mode               String?
+  resultStatus       String                   @default("DRAFT")
+  publishedAt        DateTime?
+  drive              PlacementDrive           @relation(fields: [driveId], references: [id], onDelete: Cascade)
   results            ApplicationRoundResult[]
 }
 
 model DriveApplication {
-  id               String         @id @default(uuid())
-  driveId          String
-  studentId        String
-  status           String         @default("APPLIED")
-  appliedAt        DateTime       @default(now())
-  interviewSchedule Json?
-  drive            PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
-  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  offerLetter      OfferLetter?
-  roundResults     ApplicationRoundResult[]
+  id                  String                   @id @default(uuid())
+  driveId             String
+  studentId           String
+  status              String                   @default("APPLIED")
+  appliedAt           DateTime                 @default(now())
+  interviewSchedule   Json?
+  verifiedProfileAt   DateTime?
+  eligibilitySnapshot Json?
+  drive               PlacementDrive           @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  student             StudentProfile           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  offerLetter         OfferLetter?
+  roundResults        ApplicationRoundResult[]
 
   @@unique([driveId, studentId])
 }
@@ -253,52 +279,64 @@ model OfferLetter {
   joiningLetterUrl    String?
   internshipLetterUrl String?
   uploadedAt          DateTime         @default(now())
+  selectionStatus     String           @default("AWAITING_CONFIRMATION")
+  offerStatus         String           @default("PENDING")
+  acceptedAt          DateTime?
+  declinedAt          DateTime?
+  joiningDate         DateTime?
+  confirmedAt         DateTime?
+  packageDetails      Json?
   application         DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
 }
 
 model ApplicationRoundResult {
-  id              String           @id @default(uuid())
-  applicationId   String
-  roundId         String
-  score           Float?
-  percentage      Float?
-  rank            Int?
-  result          String?          // e.g., Passed, Failed
-  remarks         String?
-  uploadedAt      DateTime         @default(now())
-  uploadedBy      String?          // HR Name or Admin Name
-  
-  application     DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  round           SelectionRound   @relation(fields: [roundId], references: [id], onDelete: Cascade)
-  
+  id            String    @id @default(uuid())
+  applicationId String
+  roundId       String
+  score         Float?
+  percentage    Float?
+  rank          Int?
+  result        String? // e.g., Passed, Failed
+  remarks       String?
+  uploadedAt    DateTime  @default(now())
+  uploadedBy    String? // HR Name or Admin Name
+  status        String    @default("DRAFT")
+  version       Int       @default(1)
+  approvedBy    String?
+  approvedAt    DateTime?
+  publishedAt   DateTime?
+
+  application DriveApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  round       SelectionRound   @relation(fields: [roundId], references: [id], onDelete: Cascade)
+
   @@unique([applicationId, roundId])
 }
 
 model Notification {
-  id             String    @id @default(uuid())
+  id             String                @id @default(uuid())
   title          String
   message        String
-  type           String    @default("system")
-  isRead         Boolean   @default(false)
-  createdAt      DateTime  @default(now())
+  type           String                @default("system")
+  isRead         Boolean               @default(false)
+  createdAt      DateTime              @default(now())
   actionUrl      String?
   expiresAt      DateTime?
   metadata       Json?
-  priority       String    @default("MEDIUM")
+  priority       String                @default("MEDIUM")
   readAt         DateTime?
   receiverId     String
-  receiverRole   String    @default("STUDENT")
+  receiverRole   String                @default("STUDENT")
   senderId       String?
   senderRole     String?
-  updatedAt      DateTime  @updatedAt
-  category       String    @default("system")
+  updatedAt      DateTime              @updatedAt
+  category       String                @default("system")
   deepLinkParams Json?
   deepLinkRoute  String?
   image          String?
-  isArchived     Boolean   @default(false)
-  isDeleted      Boolean   @default(false)
+  isArchived     Boolean               @default(false)
+  isDeleted      Boolean               @default(false)
   campaignId     String?
-  user           User      @relation(fields: [receiverId], references: [id], onDelete: Cascade)
+  user           User                  @relation(fields: [receiverId], references: [id], onDelete: Cascade)
   campaign       NotificationCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
 
   @@index([receiverId, isDeleted, createdAt])
@@ -309,66 +347,124 @@ model Notification {
 }
 
 model NotificationCampaign {
-  id             String    @id @default(uuid())
-  title          String
-  message        String
-  type           String    @default("system")
-  audienceType   String
-  audienceDesc   String
-  channels       Json
-  status         String    @default("SENT") // SENT, SCHEDULED, FAILED
-  scheduledFor   DateTime?
-  sentBy         String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  
-  notifications  Notification[]
+  id           String    @id @default(uuid())
+  title        String
+  message      String
+  type         String    @default("system")
+  audienceType String
+  audienceDesc String
+  channels     Json
+  status       String    @default("SENT") // SENT, SCHEDULED, FAILED
+  scheduledFor DateTime?
+  sentBy       String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  notifications Notification[]
 }
 
 model NotificationTemplate {
-  id           String    @id @default(uuid())
-  name         String
-  category     String
-  title        String
-  message      String
-  isFavorite   Boolean   @default(false)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id         String   @id @default(uuid())
+  name       String
+  category   String
+  title      String
+  message    String
+  isFavorite Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
-
 model NotificationPreference {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  placement    Boolean  @default(true)
-  interviews   Boolean  @default(true)
-  meetings     Boolean  @default(true)
-  messages     Boolean  @default(true)
-  assignments  Boolean  @default(true)
-  marketing    Boolean  @default(true)
-  promotions   Boolean  @default(true)
-  system       Boolean  @default(true)
-  pushEnabled  Boolean  @default(true)
-  emailEnabled Boolean  @default(true)
-  
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  placement    Boolean @default(true)
+  interviews   Boolean @default(true)
+  meetings     Boolean @default(true)
+  messages     Boolean @default(true)
+  assignments  Boolean @default(true)
+  marketing    Boolean @default(true)
+  promotions   Boolean @default(true)
+  system       Boolean @default(true)
+  pushEnabled  Boolean @default(true)
+  emailEnabled Boolean @default(true)
+
   quietHoursEnabled Boolean @default(false)
   quietHoursStart   String? // e.g. "22:00"
   quietHoursEnd     String? // e.g. "07:00"
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model HrInvitationLink {
-  id        String         @id @default(uuid())
-  driveId   String
-  token     String         @unique
-  hrEmail   String
-  isUsed    Boolean        @default(false)
-  expiresAt DateTime
-  createdAt DateTime       @default(now())
-  drive     PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  id          String         @id @default(uuid())
+  driveId     String
+  token       String         @unique
+  hrEmail     String
+  isUsed      Boolean        @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime       @default(now())
+  revokedAt   DateTime?
+  submittedAt DateTime?
+  lastUsedAt  DateTime?
+  permissions Json?
+  drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
+}
+
+model PlacementPolicyVersion {
+  id              String                  @id @default(uuid())
+  version         String                  @unique
+  name            String
+  status          String                  @default("DRAFT")
+  timezone        String                  @default("Asia/Kolkata")
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+  rules           Json
+  sourceReference String?
+  approvedBy      String?
+  approvedAt      DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  evaluations     EligibilityEvaluation[]
+
+  @@index([status, effectiveFrom])
+}
+
+model EligibilityEvaluation {
+  id              String                  @id @default(uuid())
+  studentId       String
+  driveId         String
+  policyVersionId String?
+  eligible        Boolean
+  reasonCodes     Json
+  explanations    Json
+  requiresReview  Boolean                 @default(false)
+  inputSnapshot   Json?
+  evaluatedAt     DateTime                @default(now())
+  student         StudentProfile          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  drive           PlacementDrive          @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  policyVersion   PlacementPolicyVersion? @relation(fields: [policyVersionId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, driveId, evaluatedAt])
+  @@index([driveId, eligible])
+}
+
+model AttendanceExceptionReview {
+  id                    String         @id @default(uuid())
+  studentId             String
+  attendanceEvent       String
+  absenceReason         String?
+  supportingDocumentRef String?
+  phase                 String
+  status                String         @default("PENDING")
+  eligibilityEffect     String         @default("PENDING_REVIEW")
+  reviewedBy            String?
+  reviewedAt            DateTime?
+  submittedAt           DateTime       @default(now())
+  student               StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, status])
 }
 
 model DriveAuditLog {
@@ -380,7 +476,6 @@ model DriveAuditLog {
   createdAt   DateTime       @default(now())
   drive       PlacementDrive @relation(fields: [driveId], references: [id], onDelete: Cascade)
 }
-
 
 model ProfileUpdateRequest {
   id               String    @id @default(uuid())
@@ -394,52 +489,51 @@ model ProfileUpdateRequest {
   reviewedAt       DateTime?
   reviewedBy       String?
   adminComment     String?
-  
-  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model ProfileAuditLog {
-  id            String         @id @default(uuid())
+  id            String   @id @default(uuid())
   studentId     String
   action        String
   performedBy   String
   previousValue Json?
   newValue      Json?
   comments      String?
-  createdAt     DateTime       @default(now())
-  
-  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }
 
 model ImportedStudent {
-  id                 String    @id @default(uuid())
-  studentId          String    @map("student_id") // Fallback ID generated if missing
-  fullName           String?   @map("full_name")
-  email              String?
-  department         String
-  academicYear       String    @map("academic_year")
-  studentStatus      String    @map("student_status") // "Regular" or "Alumni"
-  gender             String?
-  cgpa               Float?
-  activeBacklogs     Int?      @map("active_backlogs")
-  profileComplete    String?   @map("profile_complete")
-  skills             String?
-  driveId            String?   @map("drive_id")
-  placementSeason    String?   @map("placement_season")
-  applicationStatus  String?   @map("application_status")
-  companyId          String?   @map("company_id")
-  companyName        String?   @map("company_name")
-  industry           String?
-  fixedSalaryLpa     Float?    @map("fixed_salary_lpa")
-  placementStatus    String?   @map("placement_status")
+  id                String  @id @default(uuid())
+  studentId         String  @map("student_id") // Fallback ID generated if missing
+  fullName          String? @map("full_name")
+  email             String?
+  department        String
+  academicYear      String  @map("academic_year")
+  studentStatus     String  @map("student_status") // "Regular" or "Alumni"
+  gender            String?
+  cgpa              Float?
+  activeBacklogs    Int?    @map("active_backlogs")
+  profileComplete   String? @map("profile_complete")
+  skills            String?
+  driveId           String? @map("drive_id")
+  placementSeason   String? @map("placement_season")
+  applicationStatus String? @map("application_status")
+  companyId         String? @map("company_id")
+  companyName       String? @map("company_name")
+  industry          String?
+  fixedSalaryLpa    Float?  @map("fixed_salary_lpa")
+  placementStatus   String? @map("placement_status")
 
-  sourceFile         String    @map("source_file")
-  sourceFolder       String    @map("source_folder")
-  createdAt          DateTime  @default(now()) @map("created_at")
-  updatedAt          DateTime  @updatedAt @map("updated_at")
+  sourceFile   String   @map("source_file")
+  sourceFolder String   @map("source_folder")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   @@unique([studentId, academicYear])
-  
   @@index([academicYear])
   @@index([department])
   @@index([studentStatus])
@@ -447,7 +541,6 @@ model ImportedStudent {
   @@index([academicYear, studentStatus])
   @@index([placementStatus])
   @@index([academicYear, placementStatus])
-
   @@map("students")
 }
 
@@ -472,142 +565,142 @@ model AcademicYear {
   isActive  Boolean    @default(false)
   semesters Semester[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Semester {
   id             String       @id @default(uuid())
-  name           String       // e.g., "Semester 7"
+  name           String // e.g., "Semester 7"
   startDate      DateTime
   endDate        DateTime
   isActive       Boolean      @default(false)
   academicYearId String
   academicYear   AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: Cascade)
 
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([academicYearId, name])
 }
 
 model ReportTemplate {
-  id           String   @id @default(uuid())
-  name         String
-  category     String
-  description  String?
-  filters      Json?
-  columns      Json?
-  isFavorite   Boolean  @default(false)
-  createdBy    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  category    String
+  description String?
+  filters     Json?
+  columns     Json?
+  isFavorite  Boolean  @default(false)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ReportExportHistory {
-  id           String   @id @default(uuid())
+  id           String    @id @default(uuid())
   reportName   String
   category     String
-  status       String   @default("PROCESSING") // PENDING, PROCESSING, COMPLETED, FAILED
+  status       String    @default("PROCESSING") // PENDING, PROCESSING, COMPLETED, FAILED
   fileUrl      String?
-  format       String   @default("EXCEL") // EXCEL, CSV, PDF
-  recordCount  Int      @default(0)
+  format       String    @default("EXCEL") // EXCEL, CSV, PDF
+  recordCount  Int       @default(0)
   generatedBy  String?
   filters      Json?
   errorDetails String?
   expiresAt    DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 }
 
 model ScheduledReport {
-  id           String   @id @default(uuid())
-  reportName   String
-  frequency    String   // DAILY, WEEKLY, MONTHLY
-  filters      Json?
-  format       String   @default("EXCEL")
-  recipients   Json     // Array of emails or user IDs
-  nextRunAt    DateTime?
-  status       String   @default("ACTIVE") // ACTIVE, PAUSED
-  createdBy    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String    @id @default(uuid())
+  reportName String
+  frequency  String // DAILY, WEEKLY, MONTHLY
+  filters    Json?
+  format     String    @default("EXCEL")
+  recipients Json // Array of emails or user IDs
+  nextRunAt  DateTime?
+  status     String    @default("ACTIVE") // ACTIVE, PAUSED
+  createdBy  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model SystemSetting {
   id          String   @id @default(uuid())
   key         String   @unique
   value       Json
-  category    String   // e.g., GENERAL, PLACEMENT, SECURITY, REPORTS
+  category    String // e.g., GENERAL, PLACEMENT, SECURITY, REPORTS
   description String?
   isPublic    Boolean  @default(false)
   updatedBy   String?
   updatedAt   DateTime @updatedAt
   createdAt   DateTime @default(now())
 
-  auditLogs   SettingAuditLog[]
+  auditLogs SettingAuditLog[]
 }
 
 model SettingAuditLog {
-  id          String   @id @default(uuid())
-  settingKey  String
-  oldValue    Json?
-  newValue    Json?
-  changedBy   String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  settingKey String
+  oldValue   Json?
+  newValue   Json?
+  changedBy  String
+  createdAt  DateTime @default(now())
 
-  setting     SystemSetting @relation(fields: [settingKey], references: [key], onDelete: Cascade)
+  setting SystemSetting @relation(fields: [settingKey], references: [key], onDelete: Cascade)
 }
 
 model StudentDocument {
-  id           String         @id @default(uuid())
+  id           String   @id @default(uuid())
   studentId    String
-  documentType String         @default("ACADEMIC_DOCUMENTS")
+  documentType String   @default("ACADEMIC_DOCUMENTS")
   fileName     String
   filePath     String
   fileUrl      String?
-  mimeType     String         @default("application/pdf")
+  mimeType     String   @default("application/pdf")
   fileSize     Int
-  uploadedAt   DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  
-  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  uploadedAt   DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, documentType])
 }
 
 model StudentPreference {
-  id                  String   @id @default(uuid())
-  studentId           String   @unique
-  
+  id        String @id @default(uuid())
+  studentId String @unique
+
   // Placement Preferences
-  jobCategories       Json?
-  industries          Json?
-  locations           Json?
-  workMode            Json?
-  salaryRange         String?
-  
+  jobCategories Json?
+  industries    Json?
+  locations     Json?
+  workMode      Json?
+  salaryRange   String?
+
   // Privacy
-  profileVisibility   String @default("PUBLIC")
-  resumeVisibility    String @default("RECRUITER_ONLY")
-  
+  profileVisibility String @default("PUBLIC")
+  resumeVisibility  String @default("RECRUITER_ONLY")
+
   // Calendar & Reminders
   defaultCalendarView String @default("month")
-  interviewReminders  Json?  
+  interviewReminders  Json?
   deadlineReminders   Json?
-  
+
   // Application Preferences
-  confirmBeforeApply  Boolean @default(true)
-  
+  confirmBeforeApply Boolean @default(true)
+
   // Appearance & Regional
-  theme               String @default("system")
-  compactMode         Boolean @default(false)
-  language            String @default("en")
-  timezone            String @default("Asia/Kolkata")
-  timeFormat          String @default("12-hour")
-  
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
-  student             StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  theme       String  @default("system")
+  compactMode Boolean @default(false)
+  language    String  @default("en")
+  timezone    String  @default("Asia/Kolkata")
+  timeFormat  String  @default("12-hour")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
 }

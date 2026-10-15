@@ -73,7 +73,7 @@ export const generateHrLink = async (req: Request, res: Response) => {
       data: {
         companyId: company.id,
         driveTitle,
-        status: 'WAITING_FOR_HR',
+        status: 'HR_SUBMISSION_PENDING',
         jobRole: 'TBD',
         jobDescription: 'TBD',
         employmentType: 'Full Time',
@@ -130,6 +130,10 @@ export const validateHrLink = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Link not found.' });
     }
 
+    if (invite.revokedAt) {
+      return res.status(403).json({ success: false, message: 'Link has been revoked.' });
+    }
+
     if (invite.isUsed) {
       return res.status(403).json({ success: false, message: 'Link has already been used.' });
     }
@@ -157,7 +161,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
     const { token, driveData, companyData, selectionRounds } = req.body;
 
     const invite = await prisma.hrInvitationLink.findUnique({ where: { token: storedToken(token) } });
-    if (!invite || invite.isUsed || invite.expiresAt < new Date()) {
+    if (!invite || invite.revokedAt || invite.isUsed || invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
     }
 
@@ -202,18 +206,18 @@ export const submitHrDrive = async (req: Request, res: Response) => {
     
     const tokenHash = storedToken(token);
     const invite = await prisma.hrInvitationLink.findUnique({ where: { token: tokenHash } });
-    if (!invite || invite.isUsed || invite.expiresAt < new Date()) {
+    if (!invite || invite.revokedAt || invite.isUsed || invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
     }
 
     await prisma.placementDrive.update({
       where: { id: invite.driveId },
-      data: { status: 'SUBMITTED' }
+      data: { status: 'ADMIN_REVIEW' }
     });
 
     await prisma.hrInvitationLink.update({
       where: { token: tokenHash },
-      data: { isUsed: true }
+      data: { isUsed: true, submittedAt: new Date(), lastUsedAt: new Date() }
     });
 
     await prisma.driveAuditLog.create({
@@ -238,7 +242,7 @@ const getWorkspaceDrive = async (token: string) => {
     include: { drive: { include: { company: true, selectionRounds: true } } },
   });
 
-  if (!hrLink) throw new Error('Invalid token');
+  if (!hrLink || hrLink.revokedAt) throw new Error('Invalid or revoked token');
   if (new Date() > hrLink.expiresAt) {
     throw new Error('Token expired');
   }

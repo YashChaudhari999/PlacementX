@@ -51,6 +51,7 @@ export const validateEnvironment = () => {
     requireValue('SUPABASE_SERVICE_ROLE_KEY');
     requireValue('SUPABASE_STORAGE_BUCKET');
     requireValue('CORS_ORIGINS');
+    requireValue('OFFICIAL_STUDENT_EMAIL_DOMAINS');
 
     if (origins.some((origin) => /localhost|127\.0\.0\.1/i.test(origin))) {
       throw new Error('Production CORS_ORIGINS must not contain localhost');

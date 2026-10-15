@@ -171,6 +171,55 @@ export const importStudents = async (req: any, res: any) => {
     if (!Array.isArray(students) || students.length === 0) {
       return res.status(400).json({ message: 'Invalid or empty students array' });
     }
+    if (students.length > 1000) {
+      return res.status(413).json({ message: 'A single import is limited to 1000 students' });
+    }
+
+    const officialDomains = (process.env.OFFICIAL_STUDENT_EMAIL_DOMAINS || '')
+      .split(',').map((domain) => domain.trim().toLowerCase()).filter(Boolean);
+    const seenEmails = new Set<string>();
+    const seenStudentIds = new Set<string>();
+    for (let index = 0; index < students.length; index += 1) {
+      const row = students[index] || {};
+      const email = String(row['Email'] || '').trim().toLowerCase();
+      const studentId = String(row['Roll Number'] || '').trim();
+      if (!email || !/^\S+@\S+\.\S+$/.test(email) || !studentId) {
+        return res.status(400).json({ message: `Row ${index + 2} has an invalid email or missing Roll Number` });
+      }
+      if (officialDomains.length && !officialDomains.includes(email.split('@')[1])) {
+        return res.status(400).json({ message: `Row ${index + 2} must use an approved college email domain` });
+      }
+      if (seenEmails.has(email) || seenStudentIds.has(studentId)) {
+        return res.status(409).json({ message: `Row ${index + 2} duplicates an email or Roll Number in this import` });
+      }
+      seenEmails.add(email);
+      seenStudentIds.add(studentId);
+      delete row.Password;
+    }
+
+    // Resolve database conflicts before creating any external-auth accounts so
+    // a rejected batch cannot leave orphaned Firebase users behind.
+    const [existingAccounts, existingProfiles] = await Promise.all([
+      prisma.user.findMany({
+        where: { email: { in: [...seenEmails] } },
+        select: { id: true, email: true, role: true },
+      }),
+      prisma.studentProfile.findMany({
+        where: { studentId: { in: [...seenStudentIds] } },
+        select: { studentId: true, user: { select: { email: true } } },
+      }),
+    ]);
+    const privilegedConflict = existingAccounts.find(({ role }) => role !== 'STUDENT');
+    if (privilegedConflict) {
+      return res.status(409).json({ message: 'An imported email belongs to a privileged account' });
+    }
+    const studentIdConflict = existingProfiles.find((profile) => {
+      const row = students.find((student: any) => String(student['Roll Number']).trim() === profile.studentId);
+      return row && String(row.Email).trim().toLowerCase() !== profile.user.email.toLowerCase();
+    });
+    if (studentIdConflict) {
+      return res.status(409).json({ message: `Student ID ${studentIdConflict.studentId} belongs to another account` });
+    }
 
     const results = [];
     let summary = {
@@ -187,16 +236,15 @@ export const importStudents = async (req: any, res: any) => {
 
     // Process each student sequentially
     for (const student of students) {
-      const email = student['Email'];
+      const email = String(student['Email']).trim().toLowerCase();
       const firstName = student['First Name'] || '';
       const lastName = student['Last Name'] || '';
       const branch = student['Branch'] || '';
       const phone = student['Phone'] || '';
-      const providedPassword = student['Password'];
       const rollNumber = student['Roll Number'] || '';
       const gender = student['Gender'] || '';
 
-      const plainPassword = providedPassword || phone || 'student123';
+      const plainPassword = crypto.randomBytes(32).toString('base64url');
 
       let firebaseUid = null;
       let firebaseStatus = '';
@@ -317,6 +365,11 @@ export const importStudents = async (req: any, res: any) => {
             isExistingSupabase = true;
           }
 
+          const existingAccount = existingUserByUid || existingUserByEmail;
+          if (existingAccount && existingAccount.role !== 'STUDENT') {
+            throw new Error('Email belongs to a privileged account and cannot be imported as a student');
+          }
+
           const dummyHashedPassword = await bcrypt.hash('dummy_pass_not_used', 10);
 
           if (userIdToUpdate) {
@@ -327,6 +380,7 @@ export const importStudents = async (req: any, res: any) => {
                 studentProfile: {
                   upsert: {
                     create: {
+                      studentId: rollNumber,
                       firstName,
                       lastName: lastName,
                       branch: branch,
@@ -334,6 +388,7 @@ export const importStudents = async (req: any, res: any) => {
                       gender: gender,
                     },
                     update: {
+                      studentId: rollNumber,
                       firstName,
                       lastName: lastName,
                       branch: branch,
@@ -355,6 +410,7 @@ export const importStudents = async (req: any, res: any) => {
                 role: 'STUDENT',
                 studentProfile: {
                   create: {
+                    studentId: rollNumber,
                     firstName,
                     lastName: lastName,
                     branch: branch,
@@ -1148,6 +1204,9 @@ export const verifyProfile = async (req: any, res: any) => {
     if (!adminId) return res.status(401).json({ message: 'Unauthorized' });
     if (action !== 'APPROVE' && action !== 'REJECT') {
       return res.status(400).json({ message: 'Invalid action. Use APPROVE or REJECT' });
+    }
+    if (action === 'REJECT' && (!reason || String(reason).trim().length < 3)) {
+      return res.status(400).json({ message: 'A specific correction reason is required' });
     }
 
     const departmentScope = coordinatorDepartment(req);

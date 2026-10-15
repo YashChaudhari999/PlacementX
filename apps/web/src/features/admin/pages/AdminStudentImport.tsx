@@ -131,7 +131,6 @@ export default function AdminStudentImport() {
  'Phone',
  'Gender',
  'Branch',
- 'Password',
  ];
  const csvContent = headers.join(',') + '\n';
  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -207,15 +206,9 @@ export default function AdminStudentImport() {
  <span className="px-2 py-1 bg-card rounded border border-border">
  Branch*
  </span>
- <span
- className="px-2 py-1 bg-card rounded border border-border text-muted-foreground border-dashed"
- title="Default is Phone if empty"
- >
- Password
- </span>
  </div>
  <p className="mt-3 text-xs text-muted-foreground">
- * Required fields. Password will default to Phone if left empty.
+ * Required fields. Students set their own password through the activation flow.
  </p>
  </div>
  </div>
@@ -435,7 +428,7 @@ export default function AdminStudentImport() {
  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
  >
  <Download01Icon className="h-4 w-4"/>
- Download01Icon Report (Passwords Included)
+ Download Import Report
  </button>
  </div>
  </div>

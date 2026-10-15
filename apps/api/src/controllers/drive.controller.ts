@@ -63,6 +63,19 @@ const driveSelectFields = {
   trainingPeriod: true,
 };
 
+const validateDriveForPublication = (drive: any): string[] => {
+  const errors: string[] = [];
+  if (!drive.companyId) errors.push('Company is required');
+  if (!drive.jobRole || drive.jobRole === 'TBD') errors.push('Job role is required');
+  if (!drive.jobDescription || drive.jobDescription === 'TBD') errors.push('Job description is required');
+  if (!drive.employmentType) errors.push('Employment type is required');
+  if (!drive.eligibleBranches) errors.push('Eligible branches are required');
+  const deadline = drive.applicationDeadline ?? drive.registrationEnd;
+  if (!deadline) errors.push('Application deadline is required');
+  else if (new Date(deadline).getTime() <= Date.now()) errors.push('Application deadline must be in the future');
+  return errors;
+};
+
 
 export const createDrive = async (req: any, res: any) => {
   try {
@@ -418,6 +431,15 @@ export const updateApplicationStatus = async (req: any, res: any) => {
 export const approveHrDrive = async (req: any, res: any) => {
   try {
     const { id } = req.params;
+    const pendingDrive = await prisma.placementDrive.findUnique({ where: { id } });
+    if (!pendingDrive) return res.status(404).json({ message: 'Drive not found' });
+    if (!['ADMIN_REVIEW', 'SUBMITTED', 'APPROVED'].includes(pendingDrive.status)) {
+      return res.status(409).json({ message: `Drive cannot be approved from ${pendingDrive.status}` });
+    }
+    const validationErrors = validateDriveForPublication(pendingDrive);
+    if (validationErrors.length) {
+      return res.status(422).json({ message: 'Drive is incomplete', errors: validationErrors });
+    }
     const drive = await prisma.placementDrive.update({
       where: { id },
       data: { status: 'PUBLISHED' },
@@ -539,6 +561,10 @@ export const requestChangesHrDrive = async (req: any, res: any) => {
     await prisma.driveAuditLog.create({
       data: { driveId: id, action: 'CHANGES_REQUESTED', performedBy: 'Admin', comments }
     });
+    await prisma.hrInvitationLink.updateMany({
+      where: { driveId: id, revokedAt: null },
+      data: { isUsed: false },
+    });
 
     return res.status(200).json({ message: 'Changes requested', drive });
   } catch (error: any) {
@@ -636,10 +662,17 @@ export const updateDrive = async (req: any, res: any) => {
 export const deleteDrive = async (req: any, res: any) => {
   try {
     const { id } = req.params;
-    await prisma.placementDrive.delete({
-      where: { id }
-    });
-    return res.status(200).json({ message: 'Drive deleted successfully' });
+    const current = await prisma.placementDrive.findUnique({ where: { id } });
+    if (!current) return res.status(404).json({ message: 'Drive not found' });
+    if (['COMPLETED', 'CANCELLED'].includes(current.status)) {
+      return res.status(409).json({ message: 'Finalized drives cannot be deleted or reopened' });
+    }
+    await prisma.$transaction([
+      prisma.placementDrive.update({ where: { id }, data: { status: 'CANCELLED' } }),
+      prisma.hrInvitationLink.updateMany({ where: { driveId: id, revokedAt: null }, data: { revokedAt: new Date() } }),
+      prisma.driveAuditLog.create({ data: { driveId: id, action: 'DRIVE_CANCELLED', performedBy: req.user.id } }),
+    ]);
+    return res.status(200).json({ message: 'Drive cancelled; recruitment history was preserved' });
   } catch (error: any) {
     console.error('Delete drive error:', error);
     return res.status(500).json({ message: 'Internal server error', error: error.message });
@@ -669,11 +702,27 @@ export const updateDriveStatus = async (req: any, res: any) => {
         message: `Drive cannot transition from ${currentDrive.status} to ${status}`,
       });
     }
+    if (status === 'PUBLISHED') {
+      const fullDrive = await prisma.placementDrive.findUnique({ where: { id } });
+      const validationErrors = validateDriveForPublication(fullDrive);
+      if (validationErrors.length) {
+        return res.status(422).json({ message: 'Drive is incomplete', errors: validationErrors });
+      }
+    }
 
-    const drive = await prisma.placementDrive.update({
-      where: { id },
-      data: { status },
-      select: { ...driveSelectFields }
+    const drive = await prisma.$transaction(async (tx) => {
+      const updated = await tx.placementDrive.update({
+        where: { id }, data: { status }, select: { ...driveSelectFields },
+      });
+      if (['COMPLETED', 'CANCELLED'].includes(status)) {
+        await tx.hrInvitationLink.updateMany({
+          where: { driveId: id, revokedAt: null }, data: { revokedAt: new Date() },
+        });
+      }
+      await tx.driveAuditLog.create({
+        data: { driveId: id, action: `STATUS_${status}`, performedBy: req.user.id, comments: `${currentDrive.status} -> ${status}` },
+      });
+      return updated;
     });
 
     return res.status(200).json({ message: 'Drive status updated', drive });

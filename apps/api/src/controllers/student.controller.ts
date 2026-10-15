@@ -374,8 +374,8 @@ export const applyForDrive = async (req: any, res: any) => {
       return res.status(400).json({ message: applicationWindowError });
     }
 
-    const { checkEligibility } = await import('../services/eligibility.service');
-    const eligibility = await checkEligibility(student, drive);
+    const { evaluateAndRecordEligibility } = await import('../services/eligibility.service');
+    const eligibility = await evaluateAndRecordEligibility(student, drive);
 
     if (!eligibility.isEligible) {
       return res.status(400).json({ message: 'You are not eligible for this drive', reasons: eligibility.reasons });
@@ -414,7 +414,13 @@ export const applyForDrive = async (req: any, res: any) => {
       }
 
       return tx.driveApplication.create({
-        data: { driveId, studentId: student.id, status: 'APPLIED' },
+        data: {
+          driveId,
+          studentId: student.id,
+          status: 'APPLIED',
+          verifiedProfileAt: student.verifiedAt,
+          eligibilitySnapshot: eligibility as any,
+        },
       });
     }, { isolationLevel: 'Serializable' });
 

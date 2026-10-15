@@ -13,6 +13,13 @@ import { checkEligibility } from '../src/services/eligibility.service';
 
 const baseStudent = {
   isProfileComplete: true,
+  profileStatus: 'VERIFIED',
+  enrollmentStatus: 'ACTIVE',
+  academicRestriction: false,
+  disciplinaryRestriction: false,
+  policyAcknowledgedAt: new Date('2026-07-01T00:00:00.000Z'),
+  trainingAttendance: 80,
+  confirmedOfferCount: 0,
   cgpa: 8,
   activeBacklogs: 0,
   passingYear: 2027,
@@ -45,10 +52,12 @@ const baseDrive = {
 
 describe('placement eligibility', () => {
   it('accepts a student who satisfies every configured requirement', async () => {
-    await expect(checkEligibility(baseStudent, baseDrive)).resolves.toEqual({
+    await expect(checkEligibility(baseStudent, baseDrive)).resolves.toEqual(expect.objectContaining({
       isEligible: true,
       reasons: [],
-    });
+      reasonCodes: [],
+      requiresReview: false,
+    }));
   });
 
   it('enforces gap and required profile links', async () => {
@@ -65,5 +74,18 @@ describe('placement eligibility', () => {
       'Backlog history exceeds the allowed 0',
       'Current semester must be 8',
     ]));
+  });
+
+  it('does not silently penalize missing attendance data', async () => {
+    const result = await checkEligibility({ ...baseStudent, trainingAttendance: null }, baseDrive);
+    expect(result.isEligible).toBe(false);
+    expect(result.requiresReview).toBe(true);
+    expect(result.reasonCodes).toContain('TRAINING_ATTENDANCE_MISSING');
+  });
+
+  it('requires review when Batch 2027 offer restrictions are ambiguous', async () => {
+    const result = await checkEligibility({ ...baseStudent, confirmedOfferCount: 1 }, baseDrive);
+    expect(result.requiresReview).toBe(true);
+    expect(result.reasonCodes).toContain('OFFER_POLICY_AMBIGUOUS');
   });
 });

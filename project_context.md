@@ -1260,6 +1260,22 @@ services:
 
 # 25. Change Log
 
+### 2026-10-13 — Placement Workflow Policy and Security Hardening
+
+**Type:** Workflow / Security / Policy / Data Integrity
+
+**Summary:**
+- Added versioned Batch 2027 policy storage, structured eligibility evaluations, attendance-review records, and expanded round/result/offer lifecycle fields through migration `20261013000000_placement_workflow_policy`.
+- Centralized eligibility reason codes and administrative-review outcomes; application records now preserve the verified-profile timestamp and evaluation snapshot.
+- Hardened student import, HR invitation revocation, drive lifecycle transitions, publication validation, and history-preserving cancellation.
+- Added the maintained audit, implementation, policy-decision, and test reports under `docs/`.
+
+**Validation:** API/web type-checks and production builds passed; API Jest passed 17/17 tests. Full database/browser E2E was not run because an isolated PostgreSQL/Firebase/mail environment was not available.
+
+**Status:** Partial workflow implementation; remaining items are tracked in `docs/PLACEMENT_WORKFLOW_AUDIT.md`.
+
+---
+
 ### 2026-09-25 — Security, Configuration, and Repository Cleanup
 
 **Type:** Security / Configuration / Operations

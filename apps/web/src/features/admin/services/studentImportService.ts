@@ -1,4 +1,5 @@
 import ExcelJS from 'exceljs';
+import api from '@/lib/api';
 
 export type ImportResult = {
  success: boolean;
@@ -36,21 +37,11 @@ export class StudentImportService {
  onProgress(10, 'Validating and sending to backend...');
 
  // Send to backend API
- const response = await fetch('http://localhost:5000/api/admin/students/import', {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- },
- body: JSON.stringify(students),
- });
+ const response = await api.post('/admin/students/import', students);
 
  onProgress(50, 'Processing students on backend...');
 
- if (!response.ok) {
- throw new Error(`API error: ${response.statusText}`);
- }
-
- const data = await response.json();
+ const data = response.data;
 
  onProgress(90, 'Finalizing report...');
 
@@ -79,7 +70,13 @@ export class StudentImportService {
  const worksheet = workbook.addWorksheet('Report');
  const headers = data.length > 0 ? Object.keys(data[0]) : [];
  worksheet.columns = headers.map((header) => ({ header, key: header, width: 20 }));
- worksheet.addRows(data);
+ const safeRows = data.map((row) => Object.fromEntries(
+ Object.entries(row).map(([key, value]) => [
+ key,
+ typeof value === 'string' && /^[=+\-@]/.test(value) ? `'${value}` : value,
+ ])
+ ));
+ worksheet.addRows(safeRows);
  const buffer = await workbook.xlsx.writeBuffer();
  const blob = new Blob([buffer as BlobPart], {
  type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

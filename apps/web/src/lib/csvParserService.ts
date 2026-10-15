@@ -10,8 +10,7 @@ export const csvStudentSchema = z.object({
  Phone: z.string().min(10, 'Phone number is invalid'),
  Gender: z.string().min(1, 'Gender is required'),
  Branch: z.string().min(1, 'Branch is required'),
- Password: z.string().optional().or(z.literal('')),
-});
+}).strict();
 
 export type CSVValidationError = {
  row: number;
