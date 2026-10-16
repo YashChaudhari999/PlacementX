@@ -54,7 +54,12 @@ export default function Login() {
         navigate(actualRole === 'SUPER_ADMIN' ? '/admin/dashboard' : '/admin/students');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Invalid credentials. Please try again.');
+      setError(
+        err.response?.data?.error?.message ||
+          err.response?.data?.error ||
+          err.message ||
+          'Invalid credentials. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }

@@ -69,6 +69,7 @@ const initializeFirebaseAdmin = () => {
     // Fallback if no specific config is provided (assumes default GCP credentials)
     console.warn('No Firebase Service Account config found. Falling back to application default credentials.');
     return admin.initializeApp({
+      ...(process.env.FIREBASE_PROJECT_ID && { projectId: process.env.FIREBASE_PROJECT_ID }),
       ...(process.env.FIREBASE_DATABASE_URL && { databaseURL: process.env.FIREBASE_DATABASE_URL }),
     });
   } catch (error) {
