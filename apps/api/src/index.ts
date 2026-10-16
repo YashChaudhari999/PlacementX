@@ -11,7 +11,7 @@ import hrRoutes from './routes/hr.routes';
 import publicRoutes from './routes/public.routes';
 import settingsRoutes from './routes/settings.routes';
 import { initFirebaseAdmin } from './config/firebase-admin';
-import { initRedis, closeRedis, getRedisClient, isRedisConnected } from './config/redis';
+import { initRedis, closeRedis } from './config/redis';
 import { initQueues, initWorkers, closeQueues } from './services/notification-queue.service';
 import { initReportQueue, initReportWorker, closeReportQueue } from './services/reports/report-queue.service';
 import { errorHandler } from './middlewares/error.middleware';
@@ -19,6 +19,7 @@ import { apiRateLimit, securityHeaders } from './middlewares/security.middleware
 import { hideDetailedErrors, validateUntrustedInput } from './middlewares/security.middleware';
 import { validateEnvironment } from './config/environment';
 import prisma from './utils/prisma';
+import healthRoutes from './routes/health.routes';
 
 dotenv.config();
 validateEnvironment();
@@ -40,21 +41,13 @@ initSocket(httpServer);
 // Redis + BullMQ for reliable notification delivery.
 // Falls back to synchronous processing if Redis is unavailable.
 // Runs in background so server startup isn't blocked.
-(async () => {
-  const redis = initRedis();
-  if (redis) {
-    // Give Redis a moment to connect (lazyConnect)
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    // Only init queues if Redis actually connected
-    const { isRedisConnected } = await import('./config/redis');
-    if (isRedisConnected()) {
-      initQueues();
-      initWorkers();
-      initReportQueue();
-      initReportWorker();
-    }
-  }
-})();
+const redis = initRedis();
+redis?.once('ready', () => {
+  initQueues();
+  initWorkers();
+  initReportQueue();
+  initReportWorker();
+});
 
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:8081')
   .split(',')
@@ -86,29 +79,7 @@ app.use('/api/hr', hrRoutes);
 app.use('/api/student', studentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/public', publicRoutes);
-app.get('/health/live', (_req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-app.get('/health', async (_req, res) => {
-  let database = false;
-  let redis = false;
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    database = true;
-  } catch {}
-  try {
-    const client = getRedisClient();
-    redis = Boolean(client && isRedisConnected() && await client.ping() === 'PONG');
-  } catch {}
-
-  const redisRequired = process.env.REDIS_REQUIRED === 'true';
-  const ready = database && (!redisRequired || redis);
-  res.status(ready ? 200 : 503).json({
-    status: ready ? 'ready' : 'not_ready',
-    checks: { database, redis, redisRequired },
-    timestamp: new Date().toISOString(),
-  });
-});
+app.use('/health', healthRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ error: 'Route not found' });

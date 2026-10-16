@@ -7,6 +7,7 @@ import { Redis } from 'ioredis';
 
 let redisClient: Redis | null = null;
 let isRedisAvailable = false;
+let reconnectAttempts = 0;
 
 /**
  * Initialize Redis connection for BullMQ queues.
@@ -15,6 +16,7 @@ let isRedisAvailable = false;
  * immediately with a single clean warning line (no stack traces).
  */
 export const initRedis = (): Redis | null => {
+  if (redisClient) return redisClient;
   try {
     let redisUrl = process.env.REDIS_URL;
     
@@ -30,46 +32,44 @@ export const initRedis = (): Redis | null => {
       redisUrl = `redis://${password}${host}:${port}`;
     }
     
-    // Create client with lazyConnect so we control when it connects
+    // BullMQ requires unlimited request retries; commandTimeout keeps health
+    // probes and direct commands bounded while reconnects continue safely.
     const client = new Redis(redisUrl, {
-      maxRetriesPerRequest: null, // Required by BullMQ
-      enableReadyCheck: false,
+      maxRetriesPerRequest: null,
+      connectTimeout: 5_000,
+      commandTimeout: 2_000,
+      enableReadyCheck: true,
       lazyConnect: true,
       retryStrategy: (times: number) => {
-        if (times > 2) {
-          return null; // Give up after 2 retries
+        reconnectAttempts = times;
+        if (times === 1 || times % 10 === 0) {
+          console.warn(`Redis reconnect attempt ${times}.`);
         }
-        return Math.min(times * 300, 1000);
+        return Math.min(250 * 2 ** Math.min(times - 1, 5), 5_000);
       },
     });
 
-    // Suppress all error event output — we handle failures via the connect() promise
     client.on('error', () => {
-      // Silently swallow — prevents AggregateError stack traces in console
+      isRedisAvailable = false;
     });
 
-    client.on('connect', () => {
+    client.on('ready', () => {
+      const recovered = reconnectAttempts > 0;
+      reconnectAttempts = 0;
       isRedisAvailable = true;
-      console.log('✅ Redis connected successfully.');
+      console.log(recovered ? '✅ Redis connection recovered.' : '✅ Redis connected successfully.');
     });
 
     client.on('close', () => {
+      if (isRedisAvailable) console.warn('Redis connection lost; reconnecting.');
       isRedisAvailable = false;
     });
 
     // Try to connect — the promise will reject if Redis is unreachable
-    client.connect()
-      .then(() => {
-        redisClient = client;
-        isRedisAvailable = true;
-      })
-      .catch(() => {
-        isRedisAvailable = false;
-        redisClient = null;
-        console.warn('⚠️ Redis unavailable — notifications will process synchronously.');
-        // Fully disconnect to prevent any further reconnect attempts
-        try { client.disconnect(false); } catch {}
-      });
+    void client.connect().catch(() => {
+      isRedisAvailable = false;
+      console.warn('Redis connection attempt failed; retrying in the background.');
+    });
 
     // Return the client immediately — callers should check isRedisConnected()
     // before using it. The async init in index.ts waits before checking.

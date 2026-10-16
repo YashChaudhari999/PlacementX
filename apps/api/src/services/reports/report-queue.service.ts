@@ -12,6 +12,7 @@ let reportWorker: Worker | null = null;
 const REPORTS_BUCKET = process.env.SUPABASE_REPORTS_BUCKET || 'generated-reports';
 
 export const initReportQueue = () => {
+  if (reportQueue) return;
   const redis = getRedisClient();
   if (!redis) {
     console.warn('⚠️ Redis not available. Report generation will be synchronous.');
@@ -26,6 +27,7 @@ export const initReportQueue = () => {
 };
 
 export const initReportWorker = () => {
+  if (reportWorker) return;
   const redis = getRedisClient();
   if (!redis) return;
 

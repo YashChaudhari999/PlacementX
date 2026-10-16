@@ -86,10 +86,12 @@ type NotificationJob = ImmediateNotificationJob | ScheduledNotificationJob | Bul
 let immediateQueue: Queue | null = null;
 let scheduledQueue: Queue | null = null;
 let bulkQueue: Queue | null = null;
+let notificationWorkers: Worker[] = [];
 
 // ─── Initialize Queues ──────────────────────────────────
 
 export const initQueues = (): void => {
+  if (immediateQueue) return;
   const redis = getRedisClient();
   if (!redis) {
     console.warn('⚠️ Redis not available. Notification queues disabled — processing synchronously.');
@@ -128,16 +130,17 @@ export const initQueues = (): void => {
 // ─── Queue Workers ──────────────────────────────────────
 
 export const initWorkers = (): void => {
+  if (notificationWorkers.length) return;
   const redis = getRedisClient();
   if (!redis) return;
 
   // Immediate notification worker
-  new Worker(QUEUE_NAMES.IMMEDIATE, async (job: Job<ImmediateNotificationJob>) => {
+  const immediateWorker = new Worker(QUEUE_NAMES.IMMEDIATE, async (job: Job<ImmediateNotificationJob>) => {
     await processImmediateNotification(job.data);
   }, { connection: redis, concurrency: 10 });
 
   // Scheduled notification worker
-  new Worker(QUEUE_NAMES.SCHEDULED, async (job: Job<ScheduledNotificationJob | ScheduledBulkJob>) => {
+  const scheduledWorker = new Worker(QUEUE_NAMES.SCHEDULED, async (job: Job<ScheduledNotificationJob | ScheduledBulkJob>) => {
     if (job.data.type === 'scheduled') {
       await processScheduledNotification(job.data as ScheduledNotificationJob);
     } else if (job.data.type === 'scheduled-bulk') {
@@ -146,9 +149,11 @@ export const initWorkers = (): void => {
   }, { connection: redis, concurrency: 5 });
 
   // Bulk notification worker
-  new Worker(QUEUE_NAMES.BULK, async (job: Job<BulkNotificationJob>) => {
+  const bulkWorker = new Worker(QUEUE_NAMES.BULK, async (job: Job<BulkNotificationJob>) => {
     await processBulkNotification(job.data);
   }, { connection: redis, concurrency: 3 });
+
+  notificationWorkers = [immediateWorker, scheduledWorker, bulkWorker];
 
   console.log('✅ Notification workers started.');
 };
@@ -431,10 +436,15 @@ const getCategoryPrefKey = (category: string): string | null => {
  * Gracefully close all queues.
  */
 export const closeQueues = async (): Promise<void> => {
+  await Promise.all(notificationWorkers.map((worker) => worker.close()));
   await Promise.all([
     immediateQueue?.close(),
     scheduledQueue?.close(),
     bulkQueue?.close(),
   ]);
+  notificationWorkers = [];
+  immediateQueue = null;
+  scheduledQueue = null;
+  bulkQueue = null;
   console.log('Notification queues closed.');
 };
