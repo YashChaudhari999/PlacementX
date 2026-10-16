@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import crypto from 'crypto';
-import { isProduction, jwtConfig } from '../config/environment';
+import { jwtConfig } from '../config/environment';
 import { emailService } from '../services/email/email.service';
 
 const loginSchema = z.object({
@@ -30,15 +30,6 @@ const firebaseLoginSchema = z.object({
 const forgotPasswordSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
 });
-
-const localDemoEmails = () => (process.env.DEMO_EMAIL_ALLOWLIST
-  || 'admin@nmims.edu,kunal.khaire177@nmims.in')
-  .split(',')
-  .map((value) => value.trim().toLowerCase())
-  .filter(Boolean);
-
-const isLocalDemoAccount = (email: string) =>
-  !isProduction() && localDemoEmails().includes(email);
 
 export const register = async (req: Request, res: Response) => {
   return res.status(400).json({ error: 'Legacy register endpoint is deprecated. Please use Firebase Authentication.' });
@@ -132,11 +123,8 @@ export const firebaseLogin = async (req: Request, res: Response) => {
     const decodedToken = await firebaseAdmin.auth().verifyIdToken(idToken);
     const email = decodedToken.email?.trim().toLowerCase();
 
-    // Local demo accounts deliberately have no inbox. Production users always
-    // require Firebase's verified-email claim; the exception still requires a
-    // valid Firebase password and a server-owned database role.
-    if (!email || (decodedToken.email_verified !== true && !isLocalDemoAccount(email))) {
-      return res.status(401).json({ error: 'A verified email address is required' });
+    if (!email) {
+      return res.status(401).json({ error: 'A valid email address is required' });
     }
 
     let userRecord = await prisma.user.findUnique({
