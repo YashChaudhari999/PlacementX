@@ -1,13 +1,10 @@
 import express from 'express';
 import request from 'supertest';
 
-const ping = jest.fn();
-const getRedisClient = jest.fn(() => ({ ping }));
-const isRedisConnected = jest.fn(() => true);
+const checkRedisReady = jest.fn(() => Promise.resolve(true));
 
 jest.mock('../src/config/redis', () => ({
-  getRedisClient: () => getRedisClient(),
-  isRedisConnected: () => isRedisConnected(),
+  checkRedisReady: () => checkRedisReady(),
 }));
 
 import healthRoutes from '../src/routes/health.routes';
@@ -17,19 +14,15 @@ app.use('/health', healthRoutes);
 
 describe('public health endpoints', () => {
   beforeEach(() => {
-    ping.mockReset().mockResolvedValue('PONG');
-    getRedisClient.mockClear();
-    isRedisConnected.mockReset().mockReturnValue(true);
+    checkRedisReady.mockReset().mockResolvedValue(true);
   });
 
   it('returns liveness without checking Redis or authentication', async () => {
-    isRedisConnected.mockReturnValue(false);
     const response = await request(app).get('/health');
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ok' });
-    expect(getRedisClient).not.toHaveBeenCalled();
-    expect(ping).not.toHaveBeenCalled();
+    expect(checkRedisReady).not.toHaveBeenCalled();
   });
 
   it('returns ready when the existing Redis client responds', async () => {
@@ -37,14 +30,13 @@ describe('public health endpoints', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ready' });
-    expect(getRedisClient).toHaveBeenCalledTimes(1);
-    expect(ping).toHaveBeenCalledTimes(1);
+    expect(checkRedisReady).toHaveBeenCalledTimes(1);
   });
 
   it.each([
-    ['is disconnected', () => isRedisConnected.mockReturnValue(false)],
-    ['is unavailable', () => getRedisClient.mockReturnValueOnce(null as never)],
-    ['times out', () => ping.mockRejectedValueOnce(new Error('Command timed out'))],
+    ['is disconnected', () => checkRedisReady.mockResolvedValueOnce(false)],
+    ['is unavailable', () => checkRedisReady.mockResolvedValueOnce(false)],
+    ['times out', () => checkRedisReady.mockResolvedValueOnce(false)],
   ])('returns a minimal 503 when Redis %s', async (_case, arrange) => {
     arrange();
     const response = await request(app).get('/health/ready');

@@ -8,6 +8,7 @@ import { Redis } from 'ioredis';
 let redisClient: Redis | null = null;
 let isRedisAvailable = false;
 let reconnectAttempts = 0;
+let redisPingInFlight: Promise<boolean> | null = null;
 
 /**
  * Initialize Redis connection for BullMQ queues.
@@ -32,12 +33,10 @@ export const initRedis = (): Redis | null => {
       redisUrl = `redis://${password}${host}:${port}`;
     }
     
-    // BullMQ requires unlimited request retries; commandTimeout keeps health
-    // probes and direct commands bounded while reconnects continue safely.
+    // BullMQ requires unlimited request retries and uses blocking commands.
     const client = new Redis(redisUrl, {
       maxRetriesPerRequest: null,
       connectTimeout: 5_000,
-      commandTimeout: 2_000,
       enableReadyCheck: true,
       lazyConnect: true,
       retryStrategy: (times: number) => {
@@ -91,6 +90,32 @@ export const getRedisClient = (): Redis | null => redisClient;
  */
 export const isRedisConnected = (): boolean => isRedisAvailable;
 
+export const checkRedisReady = async (timeoutMs = 2_000): Promise<boolean> => {
+  if (!redisClient || !isRedisAvailable) return false;
+
+  if (!redisPingInFlight) {
+    const ping = redisClient.ping()
+      .then((response) => response === 'PONG')
+      .catch(() => false);
+    redisPingInFlight = ping;
+    void ping.finally(() => {
+      if (redisPingInFlight === ping) redisPingInFlight = null;
+    });
+  }
+
+  let timeout: NodeJS.Timeout | undefined;
+  try {
+    return await Promise.race([
+      redisPingInFlight,
+      new Promise<boolean>((resolve) => {
+        timeout = setTimeout(() => resolve(false), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+};
+
 /**
  * Gracefully close Redis connection.
  */
@@ -103,6 +128,7 @@ export const closeRedis = async (): Promise<void> => {
     }
     redisClient = null;
     isRedisAvailable = false;
+    redisPingInFlight = null;
     console.log('Redis connection closed.');
   }
 };

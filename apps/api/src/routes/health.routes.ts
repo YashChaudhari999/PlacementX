@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getRedisClient, isRedisConnected } from '../config/redis';
+import { checkRedisReady } from '../config/redis';
 
 const router = Router();
 
@@ -9,8 +9,7 @@ router.get('/', (_req, res) => {
 
 router.get('/ready', async (_req, res) => {
   try {
-    const redis = getRedisClient();
-    if (!redis || !isRedisConnected() || await redis.ping() !== 'PONG') {
+    if (!await checkRedisReady()) {
       return res.status(503).json({ status: 'not_ready' });
     }
     return res.status(200).json({ status: 'ready' });

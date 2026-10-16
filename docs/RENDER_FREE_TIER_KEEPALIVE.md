@@ -32,7 +32,7 @@ GET https://placementx-api.onrender.com/health/ready
 503 {"status":"not_ready"}
 ```
 
-Readiness reuses the application's existing Redis client and sends `PING`. Redis commands have a two-second timeout, so repeated probes do not wait indefinitely. This endpoint does not create Redis clients, queues, or workers.
+Readiness reuses the application's existing Redis client and sends `PING`. The probe has a two-second timeout and concurrent probes share one in-flight command, so requests neither wait indefinitely nor accumulate Redis commands. This endpoint does not create Redis clients, queues, or workers.
 
 ## Deployment
 
@@ -90,7 +90,7 @@ Do not add an in-process keep-alive timer. A timer stops when Render spins the A
 
 ## Redis recovery and BullMQ behavior
 
-The shared `ioredis` client uses a five-second connection timeout, a two-second command timeout, and capped exponential reconnect delays up to five seconds. Connection loss, reconnect attempts, and recovery are logged without exposing the Redis URL. BullMQ keeps its normal retry behavior; failed jobs are not silently acknowledged.
+The shared `ioredis` client uses a five-second connection timeout and capped exponential reconnect delays up to five seconds. Readiness applies its two-second bound only to the deduplicated health probe so BullMQ's blocking commands remain unaffected. Connection loss, reconnect attempts, and recovery are logged without exposing the Redis URL. BullMQ keeps its normal retry behavior; failed jobs are not silently acknowledged.
 
 The API shuts down in this order: HTTP server, notification workers and queues, report worker and queue, Redis, then PostgreSQL. Initialization is idempotent so health requests and Redis events cannot create duplicate clients or workers.
 
