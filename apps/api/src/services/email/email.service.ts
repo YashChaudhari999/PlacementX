@@ -14,7 +14,7 @@ export interface SendPasswordResetOtpOptions {
   displayName?: string;
 }
 
-class EmailService {
+export class EmailService {
   private transporter: Transporter | null = null;
   private isConfigured = false;
 
@@ -34,6 +34,9 @@ class EmailService {
         port,
         secure: port === 465,
         auth: { user, pass },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 10_000,
       });
       this.isConfigured = true;
     } else {
@@ -89,14 +92,46 @@ class EmailService {
   }
 
   public async sendPasswordResetOtp({ to, otp, displayName }: SendPasswordResetOtpOptions): Promise<boolean> {
+    const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+    const fromName = process.env.EMAIL_FROM_NAME || 'PlacementX';
+    const fromAddress = process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim();
+    const html = renderPasswordResetOtpTemplate({ otp, displayName });
+
+    if (brevoApiKey) {
+      if (!fromAddress) {
+        console.error('[EmailService] EMAIL_FROM is required for Brevo OTP delivery');
+        return false;
+      }
+
+      try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: { 'api-key': brevoApiKey, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            sender: { name: fromName, email: fromAddress },
+            to: [{ email: to }],
+            subject: 'Your PlacementX password reset code',
+            htmlContent: html,
+          }),
+          signal: AbortSignal.timeout(10_000),
+        });
+        if (!response.ok) {
+          console.error(`[EmailService] Brevo OTP delivery failed with status ${response.status}`);
+          return false;
+        }
+        return true;
+      } catch (error: any) {
+        console.error('[EmailService] Brevo OTP delivery failed:', error.message || error);
+        return false;
+      }
+    }
+
     if (!this.isConfigured || !this.transporter) this.initTransporter();
     if (!this.isConfigured || !this.transporter) {
       console.error('[EmailService] SMTP credentials are not configured for password reset OTP delivery');
       return false;
     }
 
-    const fromName = process.env.EMAIL_FROM_NAME || 'PlacementX';
-    const fromAddress = process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim();
     if (!fromAddress) return false;
 
     try {
@@ -104,7 +139,7 @@ class EmailService {
         from: `"${fromName}" <${fromAddress}>`,
         to,
         subject: 'Your PlacementX password reset code',
-        html: renderPasswordResetOtpTemplate({ otp, displayName }),
+        html,
       });
       return true;
     } catch (error: any) {
