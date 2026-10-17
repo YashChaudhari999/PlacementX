@@ -1,264 +1,95 @@
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '@/lib/authService';
-import {
-  Mail01Icon,
-  CheckmarkCircle02Icon,
-  ArrowLeft01Icon,
-  AlertCircleIcon,
-  SentIcon,
-} from 'hugeicons-react';
+
+type Step = 'email' | 'otp' | 'password' | 'success';
+const messageFor = (error: any) => error?.response?.data?.error?.message || error?.message || 'Unable to process the request. Try again.';
 
 export default function ForgotPassword() {
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState('');
-  const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
+  const [step, setStep] = useState<Step>('email');
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [resetGrant, setResetGrant] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (cooldown > 0) {
-      timer = setInterval(() => {
-        setCooldown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
+    if (!cooldown) return;
+    const timer = window.setInterval(() => setCooldown(value => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
   }, [cooldown]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) {
-      setError('Please enter your email address.');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
+  const requestCode = async (resend = false) => {
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError('Enter a valid registered email address.');
+    setBusy(true); setError('');
     try {
-      await authService.sendPasswordReset(email.trim());
-      setIsSuccess(true);
-      setCooldown(60);
-    } catch (err: any) {
-      setError(err.message || 'Failed to send password reset email.');
-    } finally {
-      setIsLoading(false);
-    }
+      if (resend) await authService.resendPasswordReset(email);
+      else await authService.sendPasswordReset(email);
+      setStep('otp'); setCooldown(60); setOtp('');
+    } catch (err) { setError(messageFor(err)); }
+    finally { setBusy(false); }
   };
 
-  const handleResend = async () => {
-    if (cooldown > 0 || isLoading) return;
-    setIsLoading(true);
-    setError('');
-
+  const verifyOtp = async () => {
+    if (!/^\d{6}$/.test(otp)) return setError('Enter the six-digit verification code.');
+    setBusy(true); setError('');
     try {
-      await authService.sendPasswordReset(email.trim());
-      setCooldown(60);
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend password reset email.');
-    } finally {
-      setIsLoading(false);
-    }
+      const result = await authService.verifyPasswordResetOtp(email, otp);
+      setResetGrant(result.resetGrant); setOtp(''); setStep('password');
+    } catch (err) { setError(messageFor(err)); }
+    finally { setBusy(false); }
   };
 
-  return (
-    <div className="min-h-screen flex">
-      {/* ── LEFT BRAND PANEL ── */}
-      <div className="hidden md:flex md:w-1/2 bg-[#7B1C2E] flex-col items-center justify-center px-12 relative overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-white/5" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-white/5" />
-        <div className="absolute top-1/3 -right-10 w-40 h-40 rounded-full bg-white/5" />
+  const savePassword = async () => {
+    if (newPassword.length < 12) return setError('Password must be at least 12 characters.');
+    if (newPassword !== confirmPassword) return setError('Passwords do not match.');
+    setBusy(true); setError('');
+    try {
+      await authService.confirmResetPassword(resetGrant, newPassword);
+      setResetGrant(''); setNewPassword(''); setConfirmPassword(''); setStep('success');
+    } catch (err) { setError(messageFor(err)); }
+    finally { setBusy(false); }
+  };
 
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 text-center"
-        >
-          {/* Logo Card */}
-          <div className="bg-white rounded-3xl px-6 py-5 inline-flex items-center gap-6 shadow-2xl mb-10">
-            <img
-              src="/nmimslogo_transparent.png"
-              alt="NMIMS Logo"
-              className="w-32 object-contain"
-            />
-            <div className="border-l border-gray-200 pl-4">
-              <div className="text-[11px] font-bold text-gray-900 uppercase leading-tight">
-                PLACEMENT
-                <br />
-                CELL PORTAL
-              </div>
-            </div>
-          </div>
+  const title = step === 'email' ? 'Reset your password' : step === 'otp' ? 'Enter verification code' : step === 'password' ? 'Create a new password' : 'Password updated';
 
-          <h1 className="text-3xl font-black text-white mb-3 leading-tight drop-shadow">
-            Password Recovery
-          </h1>
-          <p className="text-white/80 text-sm font-medium mb-2">
-            PlacementX Account Security
-          </p>
-          <p className="text-white/60 text-sm max-w-xs mx-auto leading-relaxed">
-            Quickly recover access to your placement portal using your registered email address.
-          </p>
-        </motion.div>
-      </div>
+  return <main className="min-h-screen bg-[#f8f5f0] px-5 py-10 flex items-center justify-center">
+    <section className="w-full max-w-md rounded-3xl border border-[#eadfd4] bg-white p-7 shadow-xl" aria-labelledby="reset-title">
+      <div className="mb-7"><div className="text-2xl font-black text-[#7B1C2E]">PlacementX</div><div className="mt-2 h-1 w-12 rounded bg-[#FFC107]" /></div>
+      <h1 id="reset-title" className="text-2xl font-black text-slate-900">{title}</h1>
+      <p className="mt-2 mb-6 text-sm leading-6 text-slate-500">
+        {step === 'email' && 'Enter your registered email. We will send a six-digit code that expires in five minutes.'}
+        {step === 'otp' && `If an account exists for ${email}, a verification code has been sent.`}
+        {step === 'password' && 'Use at least 12 characters. Long passphrases are supported.'}
+        {step === 'success' && 'Your password has been changed. Sign in again with your new password.'}
+      </p>
+      {error && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
-      {/* ── RIGHT FORM PANEL ── */}
-      <div className="flex-1 flex items-center justify-center bg-white dark:bg-slate-900 px-6 py-12">
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
-          <div className="mb-6">
-            <Link
-              to="/login"
-              className="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-[#7B1C2E] transition-colors gap-1.5"
-            >
-              <ArrowLeft01Icon className="w-4 h-4" /> Back to Login
-            </Link>
-          </div>
+      {step === 'email' && <form onSubmit={event => { event.preventDefault(); requestCode(); }} className="space-y-4">
+        <label className="block text-sm font-semibold">Registered email<input aria-label="Registered email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-[#7B1C2E] focus:ring-2 focus:ring-[#7B1C2E]/20" /></label>
+        <button disabled={busy} className="h-12 w-full rounded-xl bg-[#7B1C2E] font-bold text-white disabled:opacity-50">{busy ? 'Sending…' : 'Send verification code'}</button>
+      </form>}
 
-          {!isSuccess ? (
-            <div>
-              <div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-950/40 text-[#7B1C2E] flex items-center justify-center mb-6 shadow-inner">
-                <Mail01Icon className="w-7 h-7" />
-              </div>
+      {step === 'otp' && <div className="space-y-4">
+        <label className="block text-sm font-semibold">Six-digit code<input aria-label="Six-digit verification code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={otp} onChange={event => setOtp(event.target.value.replace(/\D/g, '').slice(0, 6))} className="mt-2 h-14 w-full rounded-xl border border-slate-300 px-4 text-center text-2xl font-bold tracking-[0.5em] outline-none focus:border-[#7B1C2E]" /></label>
+        <button onClick={verifyOtp} disabled={busy || otp.length !== 6} className="h-12 w-full rounded-xl bg-[#7B1C2E] font-bold text-white disabled:opacity-50">{busy ? 'Verifying…' : 'Verify code'}</button>
+        <button onClick={() => requestCode(true)} disabled={busy || cooldown > 0} className="h-11 w-full rounded-xl border border-slate-300 text-sm font-semibold disabled:opacity-50">{cooldown ? `Resend code in ${cooldown}s` : 'Resend code'}</button>
+      </div>}
 
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
-                Forgot Your Password?
-              </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-8 leading-relaxed">
-                Enter your registered email address and we'll send you a secure password reset link.
-              </p>
+      {step === 'password' && <form onSubmit={event => { event.preventDefault(); savePassword(); }} className="space-y-4">
+        <label className="block text-sm font-semibold">New password<input aria-label="New password" type="password" autoComplete="new-password" value={newPassword} onChange={event => setNewPassword(event.target.value)} className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-[#7B1C2E]" /></label>
+        <div className="text-xs text-slate-500" aria-live="polite">Strength: {newPassword.length >= 16 ? 'Strong' : newPassword.length >= 12 ? 'Good' : 'Too short'}</div>
+        <label className="block text-sm font-semibold">Confirm password<input aria-label="Confirm password" type="password" autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} className="mt-2 h-12 w-full rounded-xl border border-slate-300 px-4 outline-none focus:border-[#7B1C2E]" /></label>
+        <div className="text-xs text-slate-500" aria-live="polite">{confirmPassword && (newPassword === confirmPassword ? 'Passwords match' : 'Passwords do not match')}</div>
+        <button disabled={busy || newPassword.length < 12 || newPassword !== confirmPassword} className="h-12 w-full rounded-xl bg-[#7B1C2E] font-bold text-white disabled:opacity-50">{busy ? 'Updating…' : 'Update password'}</button>
+      </form>}
 
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-5 p-4 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900/60 rounded-xl text-red-600 dark:text-red-400 text-xs font-medium flex items-start gap-3"
-                >
-                  <AlertCircleIcon className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>{error}</div>
-                </motion.div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label
-                    htmlFor="page-email"
-                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2"
-                  >
-                    Email
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="page-email"
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Email Address"
-                      className="w-full h-12 px-4 pl-11 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder:text-slate-400 bg-slate-50 dark:bg-slate-800/50 focus:outline-none focus:ring-2 focus:ring-[#7B1C2E]/40 focus:border-[#7B1C2E] transition-all"
-                    />
-                    <Mail01Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full h-12 bg-[#7B1C2E] hover:bg-[#5A1020] text-[#FFC107] font-bold text-sm rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 uppercase tracking-wider"
-                >
-                  {isLoading ? (
-                    <>
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8v8H4z"
-                        />
-                      </svg>
-                      SENDING...
-                    </>
-                  ) : (
-                    <>
-                      <SentIcon className="w-4 h-4" />
-                      SEND RESET LINK
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-4"
-            >
-              <div className="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-500 flex items-center justify-center mx-auto mb-5 shadow-lg shadow-emerald-500/10">
-                <CheckmarkCircle02Icon className="w-9 h-9" />
-              </div>
-
-              <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2">
-                Check Your Email
-              </h2>
-              <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
-                Check your email. If an account exists with this email, we've sent you a password reset link.
-              </p>
-              <div className="bg-slate-100 dark:bg-slate-800 py-3 px-5 rounded-xl text-slate-900 dark:text-white font-bold text-sm mb-5 break-all inline-block max-w-full">
-                {email}
-              </div>
-
-              {error && (
-                <div className="mb-4 p-3 bg-red-50 dark:bg-red-950/50 border border-red-200 text-red-600 text-xs rounded-xl">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={cooldown > 0 || isLoading}
-                  className="w-full h-12 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isLoading
-                    ? 'Sending...'
-                    : cooldown > 0
-                    ? `Resend link in ${cooldown}s`
-                    : 'Resend Reset Email'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => navigate('/login')}
-                  className="w-full h-12 bg-[#7B1C2E] hover:bg-[#5A1020] text-[#FFC107] font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
-                >
-                  <ArrowLeft01Icon className="w-4 h-4" />
-                  Proceed to Login
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          <p className="mt-8 text-center text-xs text-slate-400">
-            © {new Date().getFullYear()} PlacementX · Campus Placement Management System
-          </p>
-        </motion.div>
-      </div>
-    </div>
-  );
+      {step === 'success' && <button onClick={() => navigate('/login')} className="h-12 w-full rounded-xl bg-[#7B1C2E] font-bold text-white">Return to login</button>}
+      {step !== 'success' && <Link to="/login" className="mt-5 block text-center text-sm font-semibold text-[#7B1C2E]">Back to login</Link>}
+    </section>
+  </main>;
 }

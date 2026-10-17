@@ -1,9 +1,16 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import { renderPasswordResetTemplate } from './templates/passwordReset.template';
+import { renderPasswordResetOtpTemplate } from './templates/passwordResetOtp.template';
 
 export interface SendPasswordResetOptions {
   to: string;
   resetLink: string;
+  displayName?: string;
+}
+
+export interface SendPasswordResetOtpOptions {
+  to: string;
+  otp: string;
   displayName?: string;
 }
 
@@ -78,6 +85,31 @@ class EmailService {
         `Password reset link for ${to}:\n${resetLink}`
       );
       return true;
+    }
+  }
+
+  public async sendPasswordResetOtp({ to, otp, displayName }: SendPasswordResetOtpOptions): Promise<boolean> {
+    if (!this.isConfigured || !this.transporter) this.initTransporter();
+    if (!this.isConfigured || !this.transporter) {
+      console.error('[EmailService] SMTP credentials are not configured for password reset OTP delivery');
+      return false;
+    }
+
+    const fromName = process.env.EMAIL_FROM_NAME || 'PlacementX';
+    const fromAddress = process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim();
+    if (!fromAddress) return false;
+
+    try {
+      await this.transporter.sendMail({
+        from: `"${fromName}" <${fromAddress}>`,
+        to,
+        subject: 'Your PlacementX password reset code',
+        html: renderPasswordResetOtpTemplate({ otp, displayName }),
+      });
+      return true;
+    } catch (error: any) {
+      console.error('[EmailService] Password reset OTP delivery failed:', error.message || error);
+      return false;
     }
   }
 }

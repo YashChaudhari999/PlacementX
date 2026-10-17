@@ -21,6 +21,7 @@ const assertSecret = (name: string, minimumLength = 32) => {
 export const validateEnvironment = () => {
   if (production) {
     assertSecret('JWT_SECRET');
+    assertSecret('PASSWORD_RESET_SECRET');
   } else {
     const currentSecret = process.env.JWT_SECRET?.trim();
     const isUnsafeDevSecret = !currentSecret
@@ -52,6 +53,7 @@ export const validateEnvironment = () => {
     requireValue('SUPABASE_STORAGE_BUCKET');
     requireValue('CORS_ORIGINS');
     requireValue('OFFICIAL_STUDENT_EMAIL_DOMAINS');
+    requireValue('FIREBASE_WEB_API_KEY');
 
     if (origins.some((origin) => /localhost|127\.0\.0\.1/i.test(origin))) {
       throw new Error('Production CORS_ORIGINS must not contain localhost');

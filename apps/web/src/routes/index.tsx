@@ -38,7 +38,6 @@ const HrPortalGateway = lazy(() => import('@/features/hr-portal/pages/HrPortalGa
 
 const Login = lazy(() => import('@/features/auth/pages/Login'));
 const ForgotPassword = lazy(() => import('@/features/auth/pages/ForgotPassword'));
-const ResetPassword = lazy(() => import('@/features/auth/pages/ResetPassword'));
 const AdminDashboard = lazy(() => import('@/features/admin/pages/AdminDashboard'));
 const AnalyticsDashboard = lazy(() => import('@/features/admin/pages/AnalyticsDashboard'));
 const DriveList = lazy(() => import('@/features/admin/pages/DriveList'));
@@ -157,11 +156,7 @@ export const router = createBrowserRouter([
   },
   {
     path: '/reset-password',
-    element: (
-      <Suspense fallback={<Loading />}>
-        <ResetPassword />
-      </Suspense>
-    ),
+    element: <Navigate to="/forgot-password" replace />,
   },
   // Legacy paths redirect to /login
   { path: '/student/login', element: <Navigate to="/login" replace /> },

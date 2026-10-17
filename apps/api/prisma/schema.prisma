@@ -25,6 +25,30 @@ model User {
   notificationPreferences NotificationPreference?
   studentProfile          StudentProfile?
   activationTokens        AccountActivationToken[]
+  passwordResetChallenges PasswordResetChallenge[]
+}
+
+model PasswordResetChallenge {
+  id                  String    @id @default(uuid())
+  userId              String
+  email               String
+  otpHash             String
+  otpExpiresAt        DateTime
+  failedAttempts      Int       @default(0)
+  status              String    @default("ACTIVE")
+  resendEligibleAt    DateTime
+  resetGrantHash      String?   @unique
+  resetGrantExpiresAt DateTime?
+  verifiedAt          DateTime?
+  consumedAt          DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, status, createdAt])
+  @@index([userId, status])
+  @@index([otpExpiresAt])
+  @@index([resetGrantExpiresAt])
 }
 
 model AccountActivationToken {

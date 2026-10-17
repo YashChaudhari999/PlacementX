@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import crypto from 'crypto';
 import { jwtConfig } from '../config/environment';
-import { emailService } from '../services/email/email.service';
+import { passwordResetService, PasswordResetError } from '../services/passwordReset.service';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -27,9 +27,10 @@ const firebaseLoginSchema = z.object({
   role: z.enum(['STUDENT', 'COORDINATOR', 'SUPER_ADMIN']).optional(),
 }).strict();
 
-const forgotPasswordSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-});
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1).max(128),
+  newPassword: z.string().min(12).max(128),
+}).strict();
 
 export const register = async (req: Request, res: Response) => {
   return res.status(400).json({ error: 'Legacy register endpoint is deprecated. Please use Firebase Authentication.' });
@@ -40,79 +41,36 @@ export const login = async (req: Request, res: Response) => {
 };
 
 export const changePassword = async (req: any, res: any) => {
-  return res.status(400).json({ message: 'Legacy change password endpoint is deprecated. Please use Firebase Authentication.' });
-};
-
-export const forgotPassword = async (req: Request, res: Response) => {
   try {
-    const parseResult = forgotPasswordSchema.safeParse(req.body);
-    if (!parseResult.success) {
-      return res.status(400).json({ error: 'Please provide a valid email address' });
-    }
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+    passwordResetService.validatePassword(newPassword);
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) return res.status(404).json({ error: { code: 'USER_NOT_FOUND', message: 'User not found' } });
 
-    const email = parseResult.data.email;
-    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
-    const actionCodeSettings = {
-      url: `${frontendUrl}/reset-password`,
-      handleCodeInApp: true,
-    };
-
-    try {
-      // 1. Generate secure password reset action link using Firebase Admin SDK
-      const resetLink = await firebaseAdmin.auth().generatePasswordResetLink(email, actionCodeSettings);
-
-      // 2. Fetch user's profile display name if available in database
-      const userRecord = await prisma.user.findUnique({
-        where: { email },
-        include: {
-          studentProfile: { select: { firstName: true } },
-          adminProfile: { select: { firstName: true } },
-          coordinatorProfile: { select: { firstName: true } },
-        },
-      });
-
-      let displayName: string | undefined;
-      if (userRecord) {
-        const name =
-          userRecord.studentProfile?.firstName ||
-          userRecord.adminProfile?.firstName ||
-          userRecord.coordinatorProfile?.firstName;
-        if (name) displayName = name;
-      }
-
-      // 3. Dispatch custom PlacementX HTML email
-      await emailService.sendPasswordResetEmail({
-        to: email,
-        resetLink,
-        displayName,
-      });
-    } catch (firebaseErr: any) {
-      // Prevent account enumeration: log error server-side, do NOT reveal to client
-      const isUserNotFound =
-        firebaseErr.code === 'auth/user-not-found' ||
-        // Firebase Admin sometimes throws an internal assert instead of a clean error code
-        // when the user does not exist in Firebase Auth
-        (typeof firebaseErr.message === 'string' &&
-          firebaseErr.message.includes('INTERNAL ASSERT FAILED'));
-
-      if (isUserNotFound) {
-        console.log(`[ForgotPassword] Password reset requested for non-existent Firebase account: ${email}`);
-      } else {
-        console.error('[ForgotPassword] Firebase Admin generatePasswordResetLink error:', firebaseErr.message || firebaseErr);
-      }
-    }
-
-    // Always return HTTP 200 with generic success message for security (prevents account enumeration)
-    return res.status(200).json({
-      success: true,
-      message: 'If an account exists with this email, a password reset link has been sent.',
+    const apiKey = process.env.FIREBASE_WEB_API_KEY?.trim() || process.env.FIREBASE_API_KEY?.trim();
+    if (!apiKey) throw new Error('FIREBASE_WEB_API_KEY is required for current-password verification');
+    const verification = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${encodeURIComponent(apiKey)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, password: currentPassword, returnSecureToken: false }),
     });
+    if (!verification.ok) {
+      return res.status(400).json({ error: { code: 'INVALID_CURRENT_PASSWORD', message: 'Current password is incorrect' } });
+    }
+
+    const firebaseUser = user.firebaseUid
+      ? await firebaseAdmin.auth().getUser(user.firebaseUid)
+      : await firebaseAdmin.auth().getUserByEmail(user.email);
+    await firebaseAdmin.auth().updateUser(firebaseUser.uid, { password: newPassword });
+    await firebaseAdmin.auth().revokeRefreshTokens(firebaseUser.uid);
+    await prisma.user.update({ where: { id: user.id }, data: { mustChangePassword: false } });
+    return res.status(200).json({ success: true, message: 'Password updated. Sign in again with your new password.' });
   } catch (error) {
-    console.error('[ForgotPassword] Unexpected error:', error);
-    return res.status(200).json({
-      success: true,
-      message: 'If an account exists with this email, a password reset link has been sent.',
-    });
+    if (error instanceof z.ZodError || error instanceof PasswordResetError) {
+      return res.status(400).json({ error: { code: 'INVALID_PASSWORD', message: 'Password must be between 12 and 128 characters' } });
+    }
+    console.error('[ChangePassword] Password update failed');
+    return res.status(500).json({ error: { code: 'PASSWORD_CHANGE_FAILED', message: 'Unable to update password' } });
   }
 };
 
