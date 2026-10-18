@@ -45,7 +45,7 @@ export const passwordResetService = {
         coordinatorProfile: { select: { firstName: true } },
       },
     });
-    if (!user) return;
+    if (!user) return false;
 
     const now = new Date();
     const active = await prisma.passwordResetChallenge.findFirst({
@@ -54,7 +54,7 @@ export const passwordResetService = {
     });
     if (active && active.resendEligibleAt > now) {
       if (resend) throw new PasswordResetError('RESEND_COOLDOWN', 'Please wait before requesting another code', 429);
-      return;
+      return true;
     }
 
     const otp = crypto.randomInt(100000, 1000000).toString();
@@ -84,6 +84,10 @@ export const passwordResetService = {
         data: { status: 'REPLACED' },
       });
     });
+    if (!delivered) {
+      throw new PasswordResetError('EMAIL_DELIVERY_FAILED', 'Unable to send verification code. Try again.', 502);
+    }
+    return true;
   },
 
   async verify(emailInput: string, otp: string) {

@@ -28,18 +28,23 @@ const handleError = (error: unknown, res: Response) => {
 export const requestPasswordReset = async (req: Request, res: Response) => {
   try {
     const { email } = emailSchema.parse(req.body);
-    await passwordResetService.request(email);
+    const accountExists = await passwordResetService.request(email);
+    if (!accountExists) {
+      return res.status(404).json({ error: { code: 'ACCOUNT_NOT_FOUND', message: 'No registered account found for this email.' } });
+    }
+    return res.status(200).json({ success: true, message: publicMessage, resendAfterSeconds: 60 });
   } catch (error) {
-    if (error instanceof z.ZodError) return handleError(error, res);
-    console.error('[PasswordReset] OTP request could not be completed');
+    return handleError(error, res);
   }
-  return res.status(200).json({ success: true, message: publicMessage, resendAfterSeconds: 60 });
 };
 
 export const resendPasswordReset = async (req: Request, res: Response) => {
   try {
     const { email } = emailSchema.parse(req.body);
-    await passwordResetService.request(email, true);
+    const accountExists = await passwordResetService.request(email, true);
+    if (!accountExists) {
+      return res.status(404).json({ error: { code: 'ACCOUNT_NOT_FOUND', message: 'No registered account found for this email.' } });
+    }
     return res.status(200).json({ success: true, message: publicMessage, resendAfterSeconds: 60 });
   } catch (error) {
     return handleError(error, res);

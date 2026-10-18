@@ -27,14 +27,17 @@ app.post('/confirm', confirmPasswordReset);
 describe('password reset public contract', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  it('returns the same generic request response without exposing account existence', async () => {
-    requestReset.mockResolvedValueOnce(undefined);
+  it('continues only for an account registered in the application database', async () => {
+    requestReset.mockResolvedValueOnce(true);
     const existing = await request(app).post('/request').send({ email: 'known@example.com' });
-    requestReset.mockResolvedValueOnce(undefined);
+    requestReset.mockResolvedValueOnce(false);
     const unknown = await request(app).post('/request').send({ email: 'unknown@example.com' });
     expect(existing.status).toBe(200);
-    expect(unknown.status).toBe(200);
-    expect(existing.body).toEqual(unknown.body);
+    expect(unknown.status).toBe(404);
+    expect(unknown.body.error).toEqual({
+      code: 'ACCOUNT_NOT_FOUND',
+      message: 'No registered account found for this email.',
+    });
   });
 
   it('rejects malformed OTPs before service verification', async () => {

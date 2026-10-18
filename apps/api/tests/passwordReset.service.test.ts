@@ -36,7 +36,7 @@ describe('password reset security state machine', () => {
 
   it('does not create or email a challenge for an unknown account', async () => {
     prismaMock.user.findUnique.mockResolvedValue(null);
-    await passwordResetService.request('UNKNOWN@EXAMPLE.COM');
+    await expect(passwordResetService.request('UNKNOWN@EXAMPLE.COM')).resolves.toBe(false);
     expect(prismaMock.passwordResetChallenge.create).not.toHaveBeenCalled();
     expect(sendOtp).not.toHaveBeenCalled();
   });
@@ -46,13 +46,23 @@ describe('password reset security state machine', () => {
     prismaMock.passwordResetChallenge.findFirst.mockResolvedValue(null);
     prismaMock.passwordResetChallenge.create.mockImplementation(async ({ data }: any) => ({ id: 'c1', ...data }));
     sendOtp.mockResolvedValue(true);
-    await passwordResetService.request('User@Example.com');
+    await expect(passwordResetService.request('User@Example.com')).resolves.toBe(true);
     const otp = sendOtp.mock.calls[0][0].otp;
     const stored = prismaMock.passwordResetChallenge.create.mock.calls[0][0].data;
     expect(otp).toMatch(/^\d{6}$/);
     expect(stored.otpHash).toBe(hmac('otp', otp));
     expect(stored.otpHash).not.toContain(otp);
     expect(stored.email).toBe('user@example.com');
+  });
+
+  it('does not report success when OTP delivery fails', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ id: 'u1', email: 'user@example.com' });
+    prismaMock.passwordResetChallenge.findFirst.mockResolvedValue(null);
+    prismaMock.passwordResetChallenge.create.mockResolvedValue({ id: 'c1' });
+    sendOtp.mockResolvedValue(false);
+    await expect(passwordResetService.request('user@example.com')).rejects.toMatchObject({
+      code: 'EMAIL_DELIVERY_FAILED',
+    });
   });
 
   it('rejects expired OTPs and marks the challenge expired', async () => {
