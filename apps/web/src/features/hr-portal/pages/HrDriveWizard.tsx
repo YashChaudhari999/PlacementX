@@ -6,7 +6,6 @@ import {
  TickDouble02Icon,
  Alert02Icon,
  Loading02Icon,
- CloudUploadIcon,
  Delete01Icon,
  Building02Icon,
  UserCircle02Icon,
@@ -25,7 +24,7 @@ const STEPS = [
  { title: 'Eligibility', icon: BookOpen01Icon },
  { title: 'Registration', icon: Clock04Icon },
  { title: 'Selection Process', icon: Tick01Icon },
- { title: 'Attachments', icon: Attachment01Icon },
+ { title: 'Additional Information', icon: Attachment01Icon },
  { title: 'Review & Submit', icon: TickDouble02Icon },
 ];
 
@@ -718,29 +717,55 @@ export default function HrDriveWizard() {
  </div>
  )}
 
- {/* 6. Attachments */}
+ {/* 6. Additional Information */}
  {currentStep === 5 && (
  <div className="space-y-8">
  <div>
  <h2 className="text-3xl font-extrabold text-foreground tracking-tight">
- Attachments
+ Additional Information
  </h2>
  <p className="text-muted-foreground mt-2 text-lg">
- Upload Job Descriptions (JD) or company presentation decks.
+ Share the skills, technology, benefits, and instructions students should know.
  </p>
  </div>
 
- <div className="border-2 border-dashed border-border rounded-3xl p-16 flex flex-col items-center justify-center text-center bg-muted hover:bg-muted/80 hover:border-primary/50 transition-colors cursor-pointer group">
- <div className="w-20 h-20 bg-card rounded-full flex items-center justify-center shadow-sm border border-border mb-6 group-hover:scale-110 transition-transform">
- <CloudUploadIcon className="w-10 h-10 text-muted-foreground group-hover:text-primary transition-colors"/>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+ {([
+ ['requiredSkills', 'Required Skills', 'e.g. Java, SQL, problem solving'],
+ ['preferredSkills', 'Preferred Skills', 'e.g. React, AWS, prior internship experience'],
+ ['technologyStack', 'Technology Stack', 'e.g. TypeScript, Node.js, PostgreSQL'],
+ ['benefits', 'Benefits', 'e.g. Health insurance, learning budget, transport'],
+ ['specialInstructions', 'Special Instructions', 'Add preparation or application instructions'],
+ ['remarks', 'Remarks', 'Add any other information for the placement cell'],
+ ] as const).map(([field, label, placeholder]) => (
+ <div key={field} className="space-y-2">
+ <label className="block text-sm font-bold text-foreground uppercase tracking-wider">
+ {label}
+ </label>
+ <textarea
+ className="w-full min-h-28 rounded-xl border border-border bg-muted p-4 focus:ring-2 focus:ring-ring focus:border-ring focus:bg-card transition-all outline-none text-base resize-y text-foreground"
+ value={driveData[field] || ''}
+ onChange={(e) => setDriveData({ ...driveData, [field]: e.target.value })}
+ placeholder={placeholder}
+ />
  </div>
- <h3 className="text-xl font-bold text-foreground">Drag & Drop files here</h3>
- <p className="text-base text-muted-foreground mt-2">
- or click to browse from your computer
+ ))}
+
+ <div className="md:col-span-2 space-y-2">
+ <label className="block text-sm font-bold text-foreground uppercase tracking-wider">
+ Attachment Link
+ </label>
+ <Input
+ type="url"
+ value={driveData.attachments || ''}
+ onChange={(e) => setDriveData({ ...driveData, attachments: e.target.value })}
+ className="h-14 bg-muted border-border focus:bg-card text-lg rounded-xl"
+ placeholder="https://drive.google.com/... or another publicly accessible document link"
+ />
+ <p className="text-sm text-muted-foreground">
+ Add a public link to the job description, presentation, or supporting document.
  </p>
- <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-6">
- Supported formats: PDF, PPTX, DOCX (Max 10MB)
- </p>
+ </div>
  </div>
  </div>
  )}
