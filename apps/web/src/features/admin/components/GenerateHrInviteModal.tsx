@@ -15,7 +15,6 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
  companyName: '',
  hrName: '',
  hrEmail: '',
- companyEmail: '',
  driveTitle: '',
  });
  const [generatedLink, setGeneratedLink] = useState('');
@@ -29,8 +28,9 @@ export function GenerateHrInviteModal({ isOpen, onClose }: Props) {
  // The API returns a signed JWT or token, let's assume it returns a secureToken
  const link = `${window.location.origin}/hr-drive/${res.data.data.secureToken}`;
  setGeneratedLink(link);
- } catch (error) {
- alert('Failed to generate HR link.');
+ } catch (error: any) {
+ const msg = error?.response?.data?.message || 'Failed to generate HR link.';
+ alert(msg);
  } finally {
  setLoading(false);
  }

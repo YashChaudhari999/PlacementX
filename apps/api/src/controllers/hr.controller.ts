@@ -12,7 +12,7 @@ const hrLinkSchema = z.object({
   companyName: z.string().trim().min(1).max(200),
   hrEmail: z.string().trim().toLowerCase().email().max(320),
   hrName: z.string().trim().min(1).max(200),
-  companyEmail: z.string().trim().toLowerCase().email().max(320).optional(),
+  companyEmail: z.string().trim().transform(val => val === '' ? undefined : val).pipe(z.string().toLowerCase().email().max(320).optional()),
   driveTitle: z.string().trim().min(1).max(200),
 }).strict();
 
