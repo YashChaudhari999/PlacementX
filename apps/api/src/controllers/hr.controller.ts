@@ -75,6 +75,14 @@ export const generateHrLink = async (req: Request, res: Response) => {
       company = await prisma.company.create({
         data: { name: companyName, hrEmail, hrName }
       });
+    } else {
+      // The invitation form is the source of truth for the HR contact assigned
+      // to this link. Reusing an existing company without updating these fields
+      // made the HR portal show stale contact information.
+      company = await prisma.company.update({
+        where: { id: company.id },
+        data: { name: companyName, hrEmail, hrName },
+      });
     }
 
     const drive = await prisma.placementDrive.create({

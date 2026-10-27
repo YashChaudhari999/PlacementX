@@ -2,6 +2,7 @@ const prismaMock = {
   company: {
     findFirst: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
   },
   placementDrive: {
     create: jest.fn(),
@@ -35,6 +36,7 @@ describe('generateHrLink', () => {
     jest.clearAllMocks();
     getSettingMock.mockResolvedValue('2026/2027');
     prismaMock.company.findFirst.mockResolvedValue({ id: 'company-1' });
+    prismaMock.company.update.mockResolvedValue({ id: 'company-1' });
     prismaMock.placementDrive.create.mockResolvedValue({ id: 'drive-1' });
     prismaMock.hrInvitationLink.create.mockResolvedValue({ id: 'invite-1' });
     prismaMock.driveAuditLog.create.mockResolvedValue({ id: 'audit-1' });
@@ -59,6 +61,36 @@ describe('generateHrLink', () => {
       })
     );
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('updates invitation details when the company already exists', async () => {
+    const res = response();
+
+    await generateHrLink({
+      body: {
+        companyName: 'Existing Company',
+        hrEmail: 'new.hr@example.com',
+        hrName: 'New HR Contact',
+        driveTitle: 'Campus Hiring 2027',
+      },
+    } as any, res);
+
+    expect(prismaMock.company.update).toHaveBeenCalledWith({
+      where: { id: 'company-1' },
+      data: {
+        name: 'Existing Company',
+        hrEmail: 'new.hr@example.com',
+        hrName: 'New HR Contact',
+      },
+    });
+    expect(prismaMock.placementDrive.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          companyId: 'company-1',
+          driveTitle: 'Campus Hiring 2027',
+        }),
+      })
+    );
   });
 
   it('atomically persists the final HR form snapshot before review', async () => {
