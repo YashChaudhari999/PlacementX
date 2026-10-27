@@ -53,9 +53,9 @@ export default function DriveList() {
  try {
  await api.delete(`/admin/drives/${id}`);
  toast.success('Drive deleted successfully');
- refetch();
+ await refetch();
  } catch (err: any) {
- toast.error('Failed to delete drive');
+ toast.error(err?.response?.data?.message || 'Failed to delete drive');
  console.error(err);
  }
  }

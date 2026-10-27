@@ -1,7 +1,14 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Home, Briefcase, Bell, User, Calendar as CalendarIcon, FileCheck2 } from 'lucide-react-native';
+import {
+  Home,
+  Briefcase,
+  Bell,
+  User,
+  Calendar as CalendarIcon,
+  FileCheck2,
+} from 'lucide-react-native';
 
 import { useAppTheme } from '../theme/ThemeProvider';
 import type { StudentTabParamList, HomeStackParamList, ProfileStackParamList } from './types';
@@ -17,18 +24,34 @@ import InterviewsScreen from '../screens/student/InterviewsScreen';
 import SettingsScreen from '../screens/student/SettingsScreen';
 import NotificationPreferencesScreen from '../screens/shared/NotificationPreferencesScreen';
 import CalendarScreen from '../screens/student/CalendarScreen';
-
+import { useAuthStore } from '../stores/authStore';
 
 const Tab = createBottomTabNavigator<StudentTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
 
-const HomeStackNavigator = () => (
-  <HomeStack.Navigator screenOptions={{ headerShown: false }}>
-    <HomeStack.Screen name="Dashboard" component={DashboardScreen} />
-    <HomeStack.Screen name="DriveDetails" component={DriveDetailsScreen} />
-  </HomeStack.Navigator>
-);
+const HomeStackNavigator = () => {
+  const pendingDriveId = useAuthStore((state) => state.pendingDriveId);
+  const setPendingDriveId = useAuthStore((state) => state.setPendingDriveId);
+
+  React.useEffect(() => {
+    if (pendingDriveId) setPendingDriveId(null);
+  }, [pendingDriveId, setPendingDriveId]);
+
+  return (
+    <HomeStack.Navigator
+      initialRouteName={pendingDriveId ? 'DriveDetails' : 'Dashboard'}
+      screenOptions={{ headerShown: false }}
+    >
+      <HomeStack.Screen name="Dashboard" component={DashboardScreen} />
+      <HomeStack.Screen
+        name="DriveDetails"
+        component={DriveDetailsScreen}
+        initialParams={pendingDriveId ? { id: pendingDriveId } : undefined}
+      />
+    </HomeStack.Navigator>
+  );
+};
 
 const ProfileStackNavigator = () => (
   <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
@@ -37,7 +60,6 @@ const ProfileStackNavigator = () => (
     <ProfileStack.Screen name="Interviews" component={InterviewsScreen} />
     <ProfileStack.Screen name="Settings" component={SettingsScreen} />
     <ProfileStack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
-
   </ProfileStack.Navigator>
 );
 
@@ -82,7 +104,8 @@ export const StudentTabNavigator = () => {
           tabBarLabel: 'Applications',
           tabBarIcon: ({ color, size }) => <FileCheck2 color={color} size={size} />,
         }}
-      />      <Tab.Screen
+      />
+      <Tab.Screen
         name="Calendar"
         component={CalendarScreen}
         options={{
@@ -106,4 +129,3 @@ export const StudentTabNavigator = () => {
     </Tab.Navigator>
   );
 };
-

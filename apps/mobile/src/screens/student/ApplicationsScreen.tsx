@@ -1,20 +1,36 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+﻿import React, { useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, KeyboardAvoidingView, Linking, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { MapPin, Calendar, ChevronRight } from 'lucide-react-native';
+import { MapPin, Calendar, ChevronRight, Lock } from 'lucide-react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
-import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar, EmptyState, ErrorState, FilterChip } from '../../components/ui';
+import { Card, StatusBadge, ListSkeleton, ScreenHeader, SearchBar, TabBar, EmptyState, ErrorState, FilterChip, Toast } from '../../components/ui';
+import { PLACEMENTX_PROFILE_URL } from '../../config/api';
 import { usePublishedDrives, useStudentApplications } from '../../hooks/queries';
+import { useAuthStore } from '../../stores/authStore';
+
+
 
 export default function ApplicationsScreen() {
   const { theme } = useAppTheme();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const navigation = useNavigation<NativeStackNavigationProp<any>>();
   const route = useRoute();
+  const { user } = useAuthStore();
+  const profileStatus = user?.profileStatus || (user?.isProfileComplete ? 'PENDING_VERIFICATION' : 'NOT_COMPLETED');
+  const profileVerified = profileStatus === 'VERIFIED';
+
+  const openProfileWebsite = async () => {
+    try {
+      await Linking.openURL(PLACEMENTX_PROFILE_URL);
+    } catch {
+      Toast.error('Unable to open the PlacementX website');
+    }
+  };
+
   const [activeTab, setActiveTab] = useState(route.name === 'Applications' ? 'My Applications' : 'All Drives');
   const [searchQuery, setSearchQuery] = useState('');
   const [workMode, setWorkMode] = useState<'ALL' | 'REMOTE' | 'ONSITE'>('ALL');
@@ -90,7 +106,7 @@ export default function ApplicationsScreen() {
           <View style={styles.salaryContainer}>
             <View>
               <Text style={styles.salaryLabel}>CTC Package</Text>
-              <Text style={styles.salaryAmount}>{drive.fixedSalary ? `₹${drive.fixedSalary.toLocaleString()}` : 'Not disclosed'}</Text>
+              <Text style={styles.salaryAmount}>{drive.fixedSalary ? `${drive.fixedSalary.toLocaleString()} LPA` : 'Not disclosed'}</Text>
             </View>
             <View style={styles.applyBtn}>
               <Text style={styles.applyBtnText}>Details</Text>
@@ -152,7 +168,7 @@ export default function ApplicationsScreen() {
             onTabChange={setActiveTab}
           />
         </View>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+        <ScrollView horizontal style={styles.filterScroll} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
           <FilterChip label="All modes" selected={workMode === 'ALL'} onPress={() => setWorkMode('ALL')} />
           <FilterChip label="Remote" selected={workMode === 'REMOTE'} onPress={() => setWorkMode('REMOTE')} />
           <FilterChip label="On-site" selected={workMode === 'ONSITE'} onPress={() => setWorkMode('ONSITE')} />
@@ -163,6 +179,32 @@ export default function ApplicationsScreen() {
           <ListSkeleton />
         ) : (drivesError || applicationsError) ? (
           <ErrorState message="Placement drives could not be loaded." onRetry={handleRefresh} />
+        ) : (!profileVerified && activeTab === 'All Drives') ? (
+          <ScrollView contentContainerStyle={styles.lockedContainer} showsVerticalScrollIndicator={false}>
+            <TouchableOpacity
+              style={styles.lockedState}
+              onPress={openProfileWebsite}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Open the PlacementX website to complete and submit your profile for verification."
+            >
+              <View style={styles.lockedIconWrap}>
+                <Lock size={32} color={theme.colors.warning} />
+              </View>
+              <Text style={styles.lockedTitle}>Profile Verification Required</Text>
+              <Text style={styles.lockedBody}>
+                {profileStatus === 'NOT_COMPLETED'
+                  ? 'Go to the PlacementX website, fill in your profile information, and submit it to the placement cell for verification. Drives will appear after approval.'
+                  : 'Your profile is under review by the placement cell. Open the PlacementX website to check your profile and complete any requested changes.'}
+              </Text>
+              <View style={styles.lockedCta}>
+                <Text style={styles.lockedCtaText}>
+                  Open PlacementX Website
+                </Text>
+                <ChevronRight size={16} color={theme.colors.primary} />
+              </View>
+            </TouchableOpacity>
+          </ScrollView>
         ) : (
           <FlatList
             data={getFilteredData()}
@@ -197,7 +239,8 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     padding: theme.spacing[4],
     paddingBottom: theme.spacing[2],
   },
-  filterRow: { paddingHorizontal: theme.spacing[4], paddingBottom: theme.spacing[3], gap: theme.spacing[2] },
+  filterScroll: { flexGrow: 0, flexShrink: 0 },
+  filterRow: { alignItems: 'center', paddingHorizontal: theme.spacing[4], paddingBottom: theme.spacing[3], gap: theme.spacing[2] },
   tabContainer: {
     paddingHorizontal: theme.spacing[4],
     marginBottom: theme.spacing[2],
@@ -325,5 +368,56 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   emptyText: {
     color: theme.colors.mutedForeground,
     fontSize: 15,
+  },
+  lockedContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: theme.spacing[4],
+  },
+  lockedState: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: theme.colors.warning + '55',
+    borderStyle: 'dashed',
+    padding: theme.spacing[6],
+    alignItems: 'center',
+  },
+  lockedIconWrap: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: theme.colors.warning + '18',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing[4],
+  },
+  lockedTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: theme.colors.foreground,
+    marginBottom: theme.spacing[2],
+    textAlign: 'center',
+  },
+  lockedBody: {
+    fontSize: 14,
+    color: theme.colors.mutedForeground,
+    textAlign: 'center',
+    lineHeight: 22,
+    marginBottom: theme.spacing[5],
+  },
+  lockedCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: theme.colors.primary + '10',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  lockedCtaText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: theme.colors.primary,
   },
 });

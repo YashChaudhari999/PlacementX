@@ -7,7 +7,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, RefreshControl,
   TouchableOpacity, TextInput, ActivityIndicator, Modal,
-  KeyboardAvoidingView, Platform, ScrollView,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -19,7 +19,7 @@ import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
-import { ErrorState } from '../../components/ui';
+import { ErrorState, KeyboardAwareScrollView } from '../../components/ui';
 import { NotificationItem, getTimeGroup } from '../../components/ui/NotificationItem';
 import {
   useInfiniteNotifications,
@@ -281,10 +281,7 @@ export default function AdminNotificationsScreen() {
 
       {/* ─── Broadcast Modal ─────────────────────────── */}
       <Modal visible={showBroadcastModal} animationType="slide" transparent>
-        <KeyboardAvoidingView 
-          style={styles.modalOverlay} 
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>New Broadcast</Text>
@@ -293,7 +290,7 @@ export default function AdminNotificationsScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
+            <KeyboardAwareScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalScroll}>
               <Text style={styles.inputLabel}>Title</Text>
               <TextInput
                 style={styles.input}
@@ -365,9 +362,9 @@ export default function AdminNotificationsScreen() {
                   </>
                 )}
               </TouchableOpacity>
-            </ScrollView>
+            </KeyboardAwareScrollView>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
 
     </SafeAreaView>

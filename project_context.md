@@ -2,9 +2,43 @@
 
 > Living documentation for AI-assisted development.
 
-**Last Updated:** 2026-10-01 IST
-**Last Verified Against Codebase:** 2026-10-01 IST
-**Context Version:** 1.9
+**Last Updated:** 2026-10-18 IST
+**Last Verified Against Codebase:** 2026-10-18 IST
+**Context Version:** 2.1
+
+---
+
+## 2026-10-18 Mobile Release, Drive Publication Notifications, and Operations Update
+
+- Produced installable Android APK artifacts under `artifacts/`; the demo application was installed on a physical Android device and login was confirmed. The latest uncommitted mobile changes still require a fresh APK build and device regression pass.
+- Replaced the launcher branding with the NMIMS PlacementX icon assets and changed the displayed application name from `PlacementX (Demo)` to `PlacementX` while retaining the demo package identifier `com.placementx.app.demo`.
+- Added production API fallback configuration for standalone Android builds, mobile OTP password reset, Firebase initialization hardening, authentication/session crash fixes, and safer post-login navigation.
+- Added a shared keyboard-aware scroll/input foundation and applied it to authentication, profile, drive creation, notification, and settings forms so focused inputs remain visible without abrupt keyboard resizing.
+- Refined student mobile UI: account-scoped theme persistence, uppercase student-name greeting, corrected drive/application filters, LPA package labels, profile-verification guidance that links to the web profile, and multiple dashboard/detail layout fixes.
+- Added web and mobile drive deep-link handling for `https://placementx-v1.vercel.app/drives/:id`, including preservation of a pending drive while the user signs in. Native Android/iOS association files and signing identifiers are still pending.
+- Implemented idempotent placement-drive publication events and per-recipient/channel delivery tracking. Eligible verified students receive in-app, push, and Brevo/SMTP email notifications through BullMQ, with retry recovery and an admin publication-status endpoint.
+- Added Prisma models and migration `20261018140000_add_drive_publication_delivery`, personalized HTML/text drive emails, publication regression tests, and `docs/DRIVE_PUBLICATION_NOTIFICATIONS.md`.
+- Confirmed the live Render API remains on the Free compute plan. `/health` and `/health/ready` are diagnostic endpoints only; no external uptime monitor is currently calling them. Render intentionally spins the API down after 15 idle minutes, so true always-on behavior requires paid compute.
+- Current repository state contains substantial uncommitted work across API, web, and mobile. These changes must not be described as deployed until committed, pushed, migrated, built, and verified in production.
+
+---
+
+## 2026-10-17 Authentication Overhaul, Production Deployment, and Health Monitoring
+
+- Implemented a complete OTP-based password reset flow (request → email OTP → verify → reset-grant → confirm) with HMAC-hashed OTPs, rate limiting, cooldown enforcement, and constant-time comparisons.
+- Added `PasswordResetChallenge` Prisma model with migration `20261017190000_add_password_reset_challenges`.
+- Introduced `passwordReset.controller.ts`, `passwordReset.service.ts`, and `email.service.ts` (Nodemailer/SMTP with Brevo support and OTP email templates).
+- Redesigned web login to a unified single `Login.tsx` page with role detection, `ForgotPasswordModal` inline component, and a standalone `/forgot-password` route.
+- Added dedicated `AdminLogin.tsx` and `StudentLogin.tsx` page variants for contextual branding.
+- Legacy `/student/login` and `/admin/login` paths now redirect to `/login`.
+- Configured Vercel SPA routing (`vercel.json`) for production web deployment.
+- Fixed production Firebase login by allowing sign-in before email verification for demo accounts (`DEMO_EMAIL_ALLOWLIST`).
+- Added `/health` (liveness) and `/health/ready` (Redis readiness probe) endpoints with bounded 2-second timeout; documented Render free-tier keepalive strategy in `docs/RENDER_FREE_TIER_KEEPALIVE.md`.
+- Bounded BullMQ readiness checks to prevent startup timeouts when Redis is slow.
+- Extended CI pipeline: generate Prisma client before API checks, unblock web lint by downgrading legacy error rules to warnings.
+- Added `PASSWORD_RESET_SECRET`, `SMTP_*`, `EMAIL_FROM*`, `DEMO_EMAIL_ALLOWLIST`, and `OFFICIAL_STUDENT_EMAIL_DOMAINS` to `.env.example`.
+- Added comprehensive Student Settings module (web): 13 settings components (Account, Profile Preferences, Notifications, Security, Application Preferences, Calendar, Regional, Connected Devices, Privacy, Appearance, Danger Zone, Help & Support) with backend `student.settings.routes.ts` and `student.settings.controller.ts`.
+- Expanded API test suite to 8 test files (password reset controller, password reset service, batch2027 policy, eligibility, health routes, placement rules, redis config, security middleware).
 
 ---
 
@@ -57,14 +91,14 @@ Manual, spreadsheet-driven campus placement processes at NMIMS University. The p
 1. End-to-end placement lifecycle automation
 2. ~~AI/ML-powered decision support (Removed)~~
 3. Real-time notifications (web + push via Firebase Cloud Messaging)
-4. Multi-platform access (web and React Native mobile source complete; standalone release validation pending)
+4. Multi-platform access (web deployed to Vercel; React Native mobile source complete; standalone release validation pending)
 5. Analytics and reporting dashboard for the placement cell
 
 ## Current Status
 
-**Single-college production candidate / pilot ready**
+**Single-college production deployment in progress**
 
-The web application and API have completed a production-hardening pass covering authentication, authorization, department scoping, application concurrency, health checks, graceful shutdown, private report storage, database migrations, dependency security, CI builds, and regression tests. The repository builds successfully, but a live production deployment and end-to-end validation against managed infrastructure are still pending. The current data model is suitable for one college; it is not yet a multi-tenant SaaS because tenant isolation has not been added across database records, queries, storage, queues, and real-time channels. The Expo 54 mobile workspace completed a design, contract, navigation, and bundle-hardening pass on 2026-09-25. TypeScript, 17 contract tests, Expo configuration, and Android release export pass. APK distribution remains blocked by unavailable EAS authentication and an incomplete local Android NDK; device QA and real standalone push credentials are still required.
+The web application is deployed to Vercel with SPA routing configured. The API is deployed to Render (Singapore region) alongside a Render Key Value (Valkey 8) Redis instance. OTP password reset uses Brevo/SMTP, Firebase-backed identity, database account validation, hashed challenges, and rate-limited API endpoints. The Render service is currently on the Free compute plan and intentionally spins down after 15 minutes without inbound traffic; the health routes do not themselves prevent sleep and no external uptime monitor is active. Installable Android APKs have been produced and a physical-device install/login was confirmed, replacing the earlier EAS/NDK build blocker. However, the newest mobile, drive-publication, deep-link, and notification changes are still uncommitted in the working tree and therefore are not yet part of the deployed web/API or latest installed APK. The current data model remains single-college; tenant isolation has not been added across database records, queries, storage, queues, or real-time channels.
 
 ---
 
@@ -94,7 +128,14 @@ The web application and API have completed a production-hardening pass covering 
 | **Calendar View** | Admin calendar for drive scheduling (FullCalendar) | Admin | ✅ Completed |
 | **Reports Generation** | Exportable placement reports stored in a private Supabase bucket with authenticated downloads | Admin | ✅ Completed |
 | **Admin Settings** | Coordinator management, system configuration | Admin | ✅ Completed |
-| **Mobile App (React Native)** | Expo app for students plus role-limited administrative workflows; demo APK profile configured | Student, Coordinator, Super Admin | ⚠️ Source/bundle verified; APK/device QA blocked by environment |
+| **Mobile App (React Native)** | Expo app for students plus role-limited administrative workflows; standalone APK generated and installed | Student, Coordinator, Super Admin | ⚠️ Physical install/login confirmed; latest working-tree changes need rebuild and regression testing |
+| **Password Reset (OTP)** | Secure OTP-based password reset with email delivery via SMTP/Brevo, rate limiting, and HMAC-hashed tokens | All | ✅ Completed |
+| **Email Service** | Nodemailer SMTP transporter with HTML templates for password reset and OTP delivery | System | ✅ Completed |
+| **Health Diagnostics** | Liveness (`/health`) and readiness (`/health/ready`) endpoints with Redis probe and 2s timeout | System | ✅ Completed; no active external monitor and no zero-downtime guarantee |
+| **Vercel Deployment** | Web app SPA routing configured for Vercel with `vercel.json` | System | ✅ Completed |
+| **Render Deployment** | API deployed to Render free tier (Singapore) with Redis Key Value (Valkey 8) | System | ⚠️ Live, but API sleeps after 15 idle minutes by platform design |
+| **Drive Publication Notifications** | Idempotent publication event delivers in-app, push, and email notifications to eligible verified students | Student, Admin, System | 🚧 Implemented in working tree; migration/deployment verification pending |
+| **Drive Deep Links** | Web fallback and mobile routing for shared placement-drive URLs, preserving destination through login | Student | 🚧 Implemented in working tree; native domain association and fresh APK pending |
 | **AI Success Prediction** | ML model predicts student placement success probability | Admin, ML Service | ❌ Removed |
 | **AI Placement Forecasting** | ML models forecast year-over-year placement metrics | Admin, ML Service | ❌ Removed |
 | **AI Resume Parsing** | Extract structured data from uploaded resumes | System | ❌ Removed |
@@ -104,7 +145,7 @@ The web application and API have completed a production-hardening pass covering 
 | **Global UI Loader** | Centralized React Query fetching loader across the application | All | ✅ Completed |
 | **Separated Academic Documents** | Secure individual PDF uploads of student academic documents (10th, 12th/Diploma, Degree) to Supabase Storage | Student, Admin | ✅ Completed |
 | **Student Calendar** | FullCalendar implementation for student interview and drive schedules | Student | ✅ Completed |
-| **Student Settings** | Robust settings module for managing preferences, privacy, security, and appearance | Student | ✅ Completed |
+| **Student Settings** | Comprehensive settings module: Account, Profile, Notifications, Security, Application, Calendar, Regional, Connected Devices, Privacy, Appearance, Danger Zone, Help & Support | Student | ✅ Completed |
 | **Theme Engine** | Global dark mode and compact mode support using Tailwind v4 css variables and ThemeProvider | All | ✅ Completed |
 
 ---
@@ -124,11 +165,23 @@ The web application and API have completed a production-hardening pass covering 
 1. The client authenticates the email and password with Firebase Auth.
 2. The client sends the Firebase ID token to `POST /api/auth/firebase-login`.
 3. The API verifies the Firebase token, loads the user from PostgreSQL, and derives the role from the database; browser-supplied roles are ignored.
-4. The API issues a short-lived JWT (15 minutes by default via `JWT_ACCESS_EXPIRES_IN`). The frontend stores it in the persisted Zustand auth store.
-5. Subsequent API calls include `Authorization: Bearer <token>`.
-6. `auth.middleware.ts` verifies the JWT and re-reads the user, current role, and coordinator department from PostgreSQL on every protected request.
-7. Route authorization uses `authorize(...roles)` plus department ownership checks for coordinator-accessible student workflows.
-8. Firebase login fails closed; the frontend does not fall back to an offline or client-selected role.
+4. Demo accounts listed in `DEMO_EMAIL_ALLOWLIST` are allowed to sign in without Firebase email verification.
+5. The API issues a short-lived JWT (15 minutes by default via `JWT_ACCESS_EXPIRES_IN`). The frontend stores it in the persisted Zustand auth store.
+6. Subsequent API calls include `Authorization: Bearer <token>`.
+7. `auth.middleware.ts` verifies the JWT and re-reads the user, current role, and coordinator department from PostgreSQL on every protected request.
+8. Route authorization uses `authorize(...roles)` plus department ownership checks for coordinator-accessible student workflows.
+9. Firebase login fails closed; the frontend does not fall back to an offline or client-selected role.
+
+### Password Reset Flow
+
+1. User navigates to `/forgot-password` or opens the `ForgotPasswordModal` from the login page.
+2. User submits their email → `POST /api/auth/password-reset/request` sends a 6-digit OTP via SMTP.
+3. OTP is HMAC-hashed (SHA-256 with `PASSWORD_RESET_SECRET`) before storage; expires in 5 minutes.
+4. User enters OTP → `POST /api/auth/password-reset/verify` validates with timing-safe comparison.
+5. On success, returns a single-use `resetGrant` token (valid 10 minutes).
+6. User sets new password → `POST /api/auth/password-reset/confirm` updates both PostgreSQL and Firebase Auth.
+7. All active challenges for the user are invalidated after successful reset.
+8. Rate limited: 60-second cooldown between resend requests; max 5 failed OTP attempts per challenge.
 
 ### Route Guards (Frontend)
 
@@ -538,7 +591,11 @@ sequenceDiagram
 | Path | Page | Guard |
 |------|------|-------|
 | `/` | Redirects to `/login` | None |
-| `/login` | Unified Login | GuestRoute |
+| `/login` | Unified Login (role-detection, forgot password modal) | GuestRoute |
+| `/forgot-password` | OTP-based password reset (multi-step: email → OTP → new password) | None |
+| `/reset-password` | Redirects to `/forgot-password` | None |
+| `/student/login` | Redirects to `/login` | None (legacy) |
+| `/admin/login` | Redirects to `/login` | None (legacy) |
 | `/student/dashboard` | Student Dashboard | ProtectedStudentRoute |
 | `/student/profile` | Student Profile (multi-step form) | ProtectedStudentRoute |
 | `/student/applications` | My Applications | ProtectedStudentRoute |
@@ -546,7 +603,7 @@ sequenceDiagram
 | `/student/interviews` | Interview Schedule | ProtectedStudentRoute |
 | `/student/documents` | Documents | ProtectedStudentRoute |
 | `/student/notifications` | Notifications | ProtectedStudentRoute |
-| `/student/settings` | Settings | ProtectedStudentRoute |
+| `/student/settings` | Settings (13-panel comprehensive module) | ProtectedStudentRoute |
 | `/admin/dashboard` | Admin Dashboard (stats, charts) | ProtectedAdminRoute |
 | `/admin/analytics` | Analytics Dashboard | ProtectedAdminRoute |
 | `/admin/students` | Student Management | ProtectedAdminRoute |
@@ -611,27 +668,37 @@ Routes → Middleware (Auth + Authorization) → Controllers → Services → Pr
 
 | Route Prefix | File | Description |
 |-------------|------|-------------|
-| `/api/auth` | `auth.routes.ts` | Login, register, firebase-login, change password, get me |
+| `/api/auth` | `auth.routes.ts` | Login, register, firebase-login, change password, get me, password reset (request/verify/confirm/resend) |
 | `/api/admin/drives` | `drive.routes.ts` | CRUD drives, applications, HR drive review |
 | `/api/admin/analytics` | `analytics.routes.ts` | Placement stats, department data, year comparison, packages, funnel |
-| `/api/admin` | `admin.routes.ts` | Dashboard, students, coordinators, reports, calendar, import, provisioning, verifications, update requests |
+| `/api/admin/reports` | `reports.routes.ts` | Report generation, download, export history |
+| `/api/admin/settings` | `settings.routes.ts` | System settings CRUD |
+| `/api/admin` | `admin.routes.ts` | Dashboard, students, coordinators, calendar, import, provisioning, verifications, update requests |
 | `/api/hr` | `hr.routes.ts` | Generate/validate HR links, auto-save draft, submit drive |
-| `/api/student` | `student.routes.ts` | Profile CRUD, applications, interviews, documents, ML predict |
+| `/api/student` | `student.routes.ts` | Profile CRUD, applications, interviews, documents |
+| `/api/student/settings` | `student.settings.routes.ts` | Student preferences, privacy, calendar, regional, notifications, devices, support, danger zone |
 | `/api/notifications` | `notification.routes.ts` | Full notification CRUD, preferences, device management, broadcast, schedule |
 | `/api/public` | `public.routes.ts` | Public placement statistics |
+| `/health` | `health.routes.ts` | Liveness (`/health`) and readiness (`/health/ready`) probes |
 
 ### Controllers
 
 | Controller | File Size | Key Responsibilities |
 |-----------|-----------|---------------------|
-| `admin.controller.ts` | 33KB | Dashboard stats, student management, import, provisioning, coordinators, calendar, verifications, update request review |
-| `analytics.controller.ts` | 6KB | Delegates all analytics endpoints to the `analytics/` service layer |
-| `auth.controller.ts` | 6KB | Firebase token exchange, API JWT issuance, registration, and legacy/provisioning password flows |
-| `drive.controller.ts` | 15KB | Drive CRUD, eligibility check, application status, HR drive review |
-| `hr.controller.ts` | 5KB | HR link generation, validation, draft auto-save, drive submission |
-| `notification.controller.ts` | 11KB | Notification CRUD, preferences, device registration, broadcast, scheduling |
-| `student.controller.ts` | 16KB | Profile management, applications, interviews, documents, ML prediction proxy |
+| `admin.controller.ts` | 58KB | Dashboard stats, student management, import, provisioning, coordinators, calendar, verifications, update request review |
+| `admin.notification.controller.ts` | 10KB | Admin notification management and broadcasting |
+| `analytics.controller.ts` | 14KB | Delegates all analytics endpoints to the `analytics/` service layer |
+| `auth.controller.ts` | 12KB | Firebase token exchange, API JWT issuance, registration, demo account email verification bypass, and legacy/provisioning password flows |
+| `drive.controller.ts` | 27KB | Drive CRUD, eligibility check, application status, HR drive review |
+| `hr.controller.ts` | 22KB | HR link generation, validation, draft auto-save, drive submission |
+| `notification.controller.ts` | 12KB | Notification CRUD, preferences, device registration, broadcast, scheduling |
+| `passwordReset.controller.ts` | 3KB | OTP request, verify, confirm, and resend endpoints with Zod validation |
 | `public.controller.ts` | 2KB | Public stats endpoint |
+| `reports.controller.ts` | 5KB | Report generation, download, export history |
+| `settings.controller.ts` | 2KB | Admin system settings CRUD |
+| `student.calendar.controller.ts` | 7KB | Student calendar events |
+| `student.controller.ts` | 21KB | Profile management, applications, interviews, documents |
+| `student.settings.controller.ts` | 8KB | Student preference groups: profile, privacy, calendar, regional, notifications, devices, support, deactivation, data export |
 
 ### Services
 
@@ -639,9 +706,17 @@ Routes → Middleware (Auth + Authorization) → Controllers → Services → Pr
 |---------|---------|
 | `analytics/*.service.ts` | 10 modular services (`overview`, `funnel`, `student-risk`, `insights`, etc.) handling all dashboard aggregations |
 | `eligibility.service.ts` | Checks student eligibility against drive criteria |
+| `email/email.service.ts` | Nodemailer SMTP transporter for password reset emails and OTP delivery (Brevo-compatible) |
+| `email/templates/*.template.ts` | HTML email templates for password reset link and OTP delivery |
 | `notification.service.ts` | Creates and manages notifications |
 | `notification-queue.service.ts` | BullMQ queue for async notification processing |
+| `offer-eligibility.service.ts` | Offer eligibility checking |
+| `passwordReset.service.ts` | OTP generation, HMAC hashing, verification (timing-safe), reset-grant lifecycle, and Firebase Auth password update |
 | `push-notification.service.ts` | Firebase Cloud Messaging push delivery |
+| `reports/export.service.ts` | Excel/CSV report generation |
+| `reports/report-queue.service.ts` | BullMQ queue for async report generation |
+| `settings.service.ts` | System settings with Redis caching |
+| `student-document.service.ts` | Student document management and signed URL generation |
 
 ### Middleware
 
@@ -667,23 +742,41 @@ Schema source of truth: `apps/api/prisma/schema.prisma`
 | Entity | Purpose | Key Fields |
 |--------|---------|------------|
 | `User` | Core account | id, email, password, role, firebaseUid, mustChangePassword |
-| `StudentProfile` | Student details | userId, firstName, lastName, cgpa, branch, skills, resumeUrl, isProfileComplete, profileStatus |
+| `PasswordResetChallenge` | OTP-based password reset | userId, email, otpHash, otpExpiresAt, failedAttempts, status, resetGrantHash, resetGrantExpiresAt |
+| `AccountActivationToken` | Account activation tokens | userId, tokenHash, expiresAt, usedAt |
+| `StudentProfile` | Student details | userId, firstName, lastName, cgpa, branch, skills, resumeUrl, isProfileComplete, profileStatus, enrollmentStatus, trainingAttendance, policyAcknowledgedAt |
 | `AdminProfile` | Admin details | userId, firstName, lastName |
 | `CoordinatorProfile` | Coordinator details | userId, firstName, lastName, department |
 | `Company` | Company registry | name, industry, hrName, hrEmail, logoUrl, website |
 | `PlacementDrive` | Placement event | companyId, status, jobRole, eligibility criteria, salary, schedule |
-| `SelectionRound` | Drive round details | driveId, roundNumber, title, roundType, date, venue |
-| `DriveApplication` | Student application | driveId, studentId, status |
-| `OfferLetter` | Offer/joining letters | applicationId, offerLetterUrl, joiningLetterUrl |
-| `Notification` | System notifications | title, message, type, receiverId, isRead, priority, category |
-| `NotificationPreference` | User preferences | userId, placement, interviews, pushEnabled, emailEnabled |
+| `DrivePublicationEvent` | Idempotent drive publication dispatch | driveId, status, triggeredBy, eligibleCount, processedCount, startedAt, completedAt |
+| `DrivePublicationDelivery` | Per-recipient/channel delivery ledger | eventId, recipientId, channel, status, attemptCount, providerMessageId, acceptedAt, deliveredAt |
+| `SelectionRound` | Drive round details | driveId, roundNumber, title, roundType, date, venue, status, resultStatus |
+| `DriveApplication` | Student application | driveId, studentId, status, verifiedProfileAt, eligibilitySnapshot |
+| `ApplicationRoundResult` | Per-round student results | applicationId, roundId, score, percentage, rank, result, status, version |
+| `OfferLetter` | Offer/joining letters | applicationId, offerLetterUrl, joiningLetterUrl, selectionStatus, offerStatus, packageDetails |
+| `Notification` | System notifications | title, message, type, receiverId, isRead, priority, category, campaignId |
+| `NotificationCampaign` | Broadcast campaign tracking | title, message, audienceType, channels, status, scheduledFor |
+| `NotificationTemplate` | Reusable notification templates | name, category, title, message, isFavorite |
+| `NotificationPreference` | User preferences | userId, placement, interviews, pushEnabled, emailEnabled, quietHours |
 | `DeviceToken` | FCM device tokens | userId, token, platform |
-| `HrInvitationLink` | HR portal tokens | driveId, token, hrEmail, isUsed, expiresAt |
+| `HrInvitationLink` | HR portal tokens | driveId, token, hrEmail, isUsed, expiresAt, revokedAt, permissions |
+| `PlacementPolicyVersion` | Versioned placement policies | version, name, status, effectiveFrom, rules |
+| `EligibilityEvaluation` | Structured eligibility assessments | studentId, driveId, policyVersionId, eligible, reasonCodes, explanations |
+| `AttendanceExceptionReview` | Attendance exception reviews | studentId, attendanceEvent, status, eligibilityEffect |
 | `DriveAuditLog` | Drive change history | driveId, action, performedBy |
 | `ProfileUpdateRequest` | Student profile change requests | studentId, requestedChanges, status, reviewedBy |
 | `ProfileAuditLog` | Profile change history | studentId, action, previousValue, newValue |
-| `PlacementAnalytics` | AI forecast storage | forecastYear, actualMetrics, predictedMetrics |
 | `ImportedStudent` | Bulk imported raw data | studentId, fullName, email, department, academicYear, cgpa, placementStatus |
+| `CustomCalendarEvent` | Admin custom calendar events | title, start, end, type, color, isAllDay |
+| `AcademicYear` / `Semester` | Academic period management | year, startDate, endDate, isActive |
+| `ReportTemplate` | Saved report configurations | name, category, filters, columns |
+| `ReportExportHistory` | Report export tracking | reportName, status, fileUrl, format, recordCount |
+| `ScheduledReport` | Recurring report schedules | reportName, frequency, recipients, nextRunAt |
+| `SystemSetting` | Dynamic system configuration | key, value, category, isPublic |
+| `SettingAuditLog` | Settings change history | settingKey, oldValue, newValue, changedBy |
+| `StudentDocument` | Academic document uploads | studentId, documentType, filePath, fileUrl, mimeType |
+| `StudentPreference` | Student settings/preferences | studentId, theme, compactMode, language, timezone, profileVisibility, calendarView |
 
 ### Key Relationships
 
@@ -734,6 +827,11 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 | POST | `/auth/register` | None | Register new user |
 | POST | `/auth/login` | None | Login (email + password → JWT) |
 | POST | `/auth/firebase-login` | None | Login via Firebase token |
+| POST | `/auth/forgot-password` | None | Legacy forgot password (Firebase) |
+| POST | `/auth/password-reset/request` | None | Request OTP for password reset |
+| POST | `/auth/password-reset/verify` | None | Verify 6-digit OTP, receive reset grant |
+| POST | `/auth/password-reset/confirm` | None | Confirm password reset with grant + new password |
+| POST | `/auth/password-reset/resend` | None | Resend OTP (60s cooldown) |
 | GET | `/auth/me` | JWT | Get current user profile |
 | PUT | `/auth/password` | JWT | Change password |
 
@@ -770,6 +868,7 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 | POST | `/admin/drives/:id/approve` | Admin | Approve HR drive |
 | POST | `/admin/drives/:id/reject` | Admin | Reject HR drive |
 | POST | `/admin/drives/:id/request-changes` | Admin | Request changes on HR drive |
+| GET | `/admin/drives/:id/publication-status` | Admin | Aggregate publication and per-channel delivery status |
 
 ### Student Endpoints
 
@@ -824,33 +923,42 @@ Firebase RTDB is still used for authentication tokens (FCM) and some legacy data
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/admin/analytics/placement/overview` | None* | Placement overview stats |
-| GET | `/admin/analytics/placement/year-comparison` | None* | Year-over-year comparison |
-| GET | `/admin/analytics/placement/departments` | None* | Department breakdown |
-| GET | `/admin/analytics/placement/packages` | None* | Salary/package analysis |
-| GET | `/admin/analytics/placement/companies` | None* | Company statistics |
-| GET | `/admin/analytics/placement/funnel` | None* | Application funnel |
-| GET | `/admin/analytics/placement/intelligence` | None* | AI-powered insights |
+| GET | `/admin/analytics/placement/overview` | Admin | Placement overview stats |
+| GET | `/admin/analytics/placement/year-comparison` | Admin | Year-over-year comparison |
+| GET | `/admin/analytics/placement/departments` | Admin | Department breakdown |
+| GET | `/admin/analytics/placement/packages` | Admin | Salary/package analysis |
+| GET | `/admin/analytics/placement/companies` | Admin | Company statistics |
+| GET | `/admin/analytics/placement/funnel` | Admin | Application funnel |
+| GET | `/admin/analytics/placement/intelligence` | Admin | AI-powered insights |
 
-*Note: Analytics routes do not have explicit auth middleware in the route file. Likely accessed from admin-authenticated context.
+### Student Settings Endpoints
 
-### ML Service Endpoints (❌ Removed)
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/student/settings` | Student | Get all settings |
+| PUT | `/student/settings/profile-preferences` | Student | Update profile & placement preferences |
+| PUT | `/student/settings/privacy` | Student | Update privacy settings |
+| PUT | `/student/settings/calendar` | Student | Update calendar preferences |
+| PUT | `/student/settings/regional` | Student | Update regional/language settings |
+| PUT | `/student/settings/notifications` | Student | Update notification preferences |
+| GET | `/student/settings/devices` | Student | List connected devices |
+| DELETE | `/student/settings/devices/:id` | Student | Remove a connected device |
+| POST | `/student/settings/support` | Student | Submit support request |
+| POST | `/student/settings/deactivation-request` | Student | Request account deactivation |
+| POST | `/student/settings/data-export` | Student | Request data export |
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/health` | Health check |
-| GET | `/model-info` | Loaded model versions |
-| POST | `/api/ai/students/:id/success-prediction` | Predict student placement success |
-| GET | `/api/ai/analytics/forecast?forecastYear=2026` | Forecast placement metrics |
-| POST | `/api/ai/embeddings` | Generate text embeddings |
-| POST | `/api/ai/resume/parse` | Parse resume file (mock) |
+### Health Endpoints
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| GET | `/health` | None | API liveness check (Express process only) |
+| GET | `/health/ready` | None | Readiness probe (Redis PING with 2s timeout) |
 
 ### Public Endpoints
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | GET | `/public/stats` | None | Public placement statistics |
-| GET | `/health` | None | API health check |
 
 ---
 
@@ -919,6 +1027,9 @@ Selection rounds → Offer letters → Drive completed
 | `DIRECT_URL` | PostgreSQL direct connection (Supabase) | Yes |
 | `VITE_SUPABASE_URL` | Supabase project URL | Yes |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service credential | Report storage |
+| `SUPABASE_STORAGE_BUCKET` | Student documents bucket name | No (default: `student-documents`) |
+| `SUPABASE_REPORTS_BUCKET` | Generated reports bucket name | No (default: `generated-reports`) |
 | `VITE_FIREBASE_API_KEY` | Firebase API key | Yes |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Firebase auth domain | Yes |
 | `VITE_FIREBASE_DATABASE_URL` | Firebase RTDB URL | Yes |
@@ -927,11 +1038,28 @@ Selection rounds → Offer letters → Drive completed
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender ID | Yes |
 | `VITE_FIREBASE_APP_ID` | Firebase app ID | Yes |
 | `VITE_FIREBASE_MEASUREMENT_ID` | Firebase analytics measurement ID | No |
+| `FIREBASE_WEB_API_KEY` | Server-side Firebase Web API Key for password verification | Production |
+| `FIREBASE_DATABASE_URL` | Server-side Firebase RTDB URL | Production |
 | `JWT_SECRET` | Secret for JWT signing | Yes |
+| `PASSWORD_RESET_SECRET` | Independent HMAC key for password-reset OTPs and grants (≥32 chars) | Yes |
 | `JWT_ACCESS_EXPIRES_IN` | Access-token lifetime | No (default: `15m`) |
+| `JWT_ISSUER` | JWT issuer metadata | No (default: `placementx-api`) |
+| `JWT_AUDIENCE` | JWT audience metadata | No (default: `placementx-clients`) |
 | `REDIS_URL` | Redis connection for BullMQ queues and workers | Production queues only |
-| `SUPABASE_URL` | Server-side Supabase project URL | Report storage |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server-only Supabase service credential | Report storage |
+| `REDIS_REQUIRED` | Whether Redis is mandatory for startup | No (default: `false`) |
+| `SMTP_HOST` | SMTP server hostname (e.g., Brevo) | Password reset emails |
+| `SMTP_PORT` | SMTP port | No (default: `587`) |
+| `SMTP_USER` | SMTP username/login | Password reset emails |
+| `SMTP_PASSWORD` | SMTP password/API key | Password reset emails |
+| `EMAIL_FROM` | From address for outgoing emails | No (default: `no-reply@placementx.com`) |
+| `EMAIL_FROM_NAME` | From display name | No (default: `PlacementX`) |
+| `DEMO_EMAIL_ALLOWLIST` | Comma-separated demo accounts allowed to sign in without Firebase email verification | Development only |
+| `OFFICIAL_STUDENT_EMAIL_DOMAINS` | Comma-separated domains accepted by student importer | Production |
+| `CORS_ORIGINS` | Comma-separated allowed CORS origins | No (default: localhost) |
+| `TRUST_PROXY` | Enable trust proxy for rate limiting behind reverse proxy | No (default: `false`) |
+| `AUTH_RATE_LIMIT_WINDOW_MS` | Auth rate limit window in ms | No (default: `900000`) |
+| `AUTH_RATE_LIMIT_MAX` | Max auth attempts per window | No (default: `10`) |
+| `FRONTEND_URL` | Frontend base URL for CORS and email links | No (default: `http://localhost:5173`) |
 | `VITE_APP_NAME` | Application display name | No (default: PlacementX) |
 | `VITE_APP_ENV` | Environment (development/production) | No |
 | `PORT` | API server port | No (default: 5000) |
@@ -1039,7 +1167,18 @@ npm start                                    # Expo dev server
 
 ### Current State
 
-**Not deployed to production.** The repository is a verified production candidate for a single-college pilot. Live infrastructure, secrets, storage, migrations, monitoring, backups, and end-to-end flows still require deployment validation.
+**Deployed to production (single-college pilot).** The web app is deployed to Vercel with SPA routing. The API is deployed to Render (Singapore region) alongside a Render Key Value (Valkey 8) Redis instance.
+
+### Production Infrastructure
+
+| Service | Platform | Details |
+|---------|----------|---------|
+| **Frontend (Web)** | Vercel | SPA routing via `vercel.json`; auto-deploys from `main` |
+| **Backend API** | Render (Singapore) | Express.js on Render free tier; auto-deploys from `main` |
+| **Redis** | Render Key Value | Valkey 8 (Redis-compatible); private network only |
+| **Database** | Supabase | PostgreSQL with Prisma ORM |
+| **Firebase** | Google Cloud | Auth, Storage, FCM, RTDB |
+| **Email** | Brevo (SMTP) | Password reset OTP delivery via Nodemailer |
 
 ### Docker Setup (Local)
 
@@ -1049,22 +1188,22 @@ services:
   db: PostgreSQL + pgvector (port 5432)
 ```
 
-### Deployment Architecture (Target)
+### Health Monitoring
 
-- **Frontend:** Could be deployed to Vercel, Netlify, or Firebase Hosting
-- **Backend API:** Could be deployed to Railway, Render, or GCP Cloud Run
-- **Database:** Supabase (already configured)
-- **Firebase:** Already configured for Auth, Storage, FCM
-
-> Production deployment details: **Not documented in repository.**
+- **Liveness:** `GET /health` → `200 {"status":"ok"}` (Express process only)
+- **Readiness:** `GET /health/ready` → `200 {"status":"ready"}` or `503 {"status":"not_ready"}` (Redis PING with 2s timeout)
+- Neither endpoint exposes credentials, internal addresses, or stack traces.
+- The live API uses Render Free compute. Render spins it down after 15 minutes without inbound traffic and the next request incurs a cold start.
+- No external service is currently probing either endpoint. An external monitor can reduce idle cold starts but cannot guarantee continuous uptime; paid Render compute is required to remove intentional idle spin-down.
+- See `docs/RENDER_FREE_TIER_KEEPALIVE.md` for the operational limitations and monitoring options.
 
 ### Required Deployment Steps
 
 1. Provision PostgreSQL/Supabase, Redis, Firebase Auth/FCM, and the API/web runtimes.
 2. Create a private Supabase Storage bucket named `generated-reports`; keep report downloads behind authenticated API endpoints.
-3. Configure production secrets, including a strong `JWT_SECRET`, Firebase Admin credentials, Redis, and Supabase service credentials.
+3. Configure production secrets: `JWT_SECRET`, `PASSWORD_RESET_SECRET`, Firebase Admin credentials, Redis, Supabase, and SMTP credentials.
 4. For a new database, run `npm run db:migrate:deploy`. For an existing database previously managed with `prisma db push`, back it up, verify that its schema matches the baseline, and mark `20260919000000_baseline` as applied with `prisma migrate resolve`; never execute the baseline SQL against a populated database.
-5. Validate `/health/live` for process liveness and `/health` for PostgreSQL/Redis readiness. The readiness endpoint returns HTTP 503 when a required dependency is unavailable.
+5. Validate `/health` for process liveness and `/health/ready` for Redis readiness. The readiness endpoint returns HTTP 503 when Redis is unavailable.
 6. Run API and web production builds, automated tests, and live end-to-end checks before admitting users.
 
 ---
@@ -1087,10 +1226,15 @@ services:
 | Issue | Severity | Area | Status | Description |
 |-------|----------|------|--------|-------------|
 | Multi-tenant isolation absent | Critical for SaaS | Architecture | Open | The schema and services are scoped for one college. Add tenant IDs and enforce tenant boundaries in database queries, unique constraints, storage paths, queues, Socket.io rooms, and administration before offering the product to multiple colleges. |
-| Production deployment not validated | High | Operations | Open | Builds and tests pass locally, but managed database/Redis/storage, secrets, backups, monitoring, and end-to-end production flows have not been verified. |
+| Render Free API cold starts | High for production | Operations | Open | `placementx-api` is on Free compute and sleeps after 15 idle minutes. Health routes are passive and no external monitor is active. Upgrade to paid compute for an always-running instance. |
+| Working-tree release drift | High | Release management | Open | Current drive-publication, deep-link, mobile password-reset, keyboard, icon, and UI changes are not committed/deployed. Run validation, commit/push, deploy the Prisma migration/API/web, and rebuild the APK before claiming production completion. |
+| Native verified links incomplete | Medium | Mobile/deployment | Open | Android `assetlinks.json` needs the release signing SHA-256; iOS association needs the Apple Team ID. Until configured, shared drive links use the web fallback or custom scheme. |
+| Drive email delivery webhooks absent | Medium | Notifications | Open | Brevo provider acceptance is tracked, but delivery/bounce webhooks are not configured; `DELIVERED` status is reserved for future provider events. |
+| Render free-tier cold starts | Medium | Operations | Open | Render free tier spins down after 15 minutes of inactivity. First request after spin-down takes 30-60 seconds. Use UptimeRobot or similar keepalive pinging. |
 | Large web Excel chunk | Medium | Performance | Open | The web build succeeds but ExcelJS contributes an approximately 949 KB chunk. Load spreadsheet features on demand or move parsing/export to the API. |
-| Limited automated coverage | Medium | Quality | Open | Eligibility and controller regression tests exist, but critical authentication, authorization, imports, reports, and end-to-end user journeys need broader coverage. |
+| Limited automated coverage | Medium | Quality | Open | 8 test files exist (eligibility, password reset, batch2027 policy, health routes, placement rules, redis config, security middleware) but critical end-to-end user journeys need broader coverage. |
 | Dual Firebase/PostgreSQL responsibilities | Medium | Architecture | Open | Firebase remains required for Auth/FCM while PostgreSQL holds authorization and application data. Keep ownership boundaries documented and reconciliation observable. |
+| SMTP delivery dependency | Low | Operations | Open | Password reset OTP delivery depends on external SMTP (Brevo). If SMTP is unavailable, OTPs are logged to console in development but users cannot reset passwords in production. |
 
 ---
 
@@ -1137,6 +1281,8 @@ services:
 - Web app scaffolding with feature-based architecture
 - Backend API with Express + Prisma + PostgreSQL
 - Firebase-to-API JWT authentication with database-backed role revalidation and 15-minute default access tokens
+- Demo account email verification bypass via `DEMO_EMAIL_ALLOWLIST`
+- OTP-based password reset flow with SMTP delivery (Brevo), HMAC hashing, cooldown, rate limiting, and timing-safe verification
 - Role-based authorization with SUPER_ADMIN institution access and department-scoped COORDINATOR access
 - Student profile management (comprehensive multi-step form)
 - Profile verification workflow (admin approves/rejects)
@@ -1155,71 +1301,80 @@ services:
 - Bulk student data import (Excel/CSV)
 - Student account provisioning from imported data
 - Database seed script
-- Docker Compose for local PostgreSQL + ML service
-- ML service scaffolding with FastAPI
-- ML models trained (success prediction, placement forecasting)
-- ML model integration with production backend (resume parsing, success prediction, forecasting, embeddings)
+- Docker Compose for local PostgreSQL
 - Mobile app scaffolding with Expo + React Navigation
 - Reports generation and export
 - Shared packages (`packages/`) formalization
-- AI Admin Analytics module
-- CI/CD pipeline
+- CI/CD pipeline with Prisma client generation
 - BullMQ notification queue infrastructure (Redis fallback)
 - Standardized error response format across controllers
 - Serializable application submission with capacity, duplicate, eligibility, application-limit, and offer-limit checks
 - Private generated-report storage with authenticated downloads and retrying BullMQ workers
-- Dependency-aware health/readiness endpoints and graceful shutdown of HTTP, queues, workers, Redis, and Prisma
-- Prisma migration baseline and deployment/status scripts
-- CI production builds and API regression tests (2 suites, 7 tests at last verification)
+- Liveness (`/health`) and readiness (`/health/ready`) endpoints with Redis probe and 2s timeout
+- Graceful shutdown of HTTP, queues, workers, Redis, and Prisma
+- Prisma migration baseline and deployment/status scripts (3 migrations)
+- Vercel SPA deployment for web app
+- Render deployment for API + Redis (Singapore region)
+- Comprehensive student settings module (13 settings panels)
+- Email service with Nodemailer/SMTP (Brevo-compatible) and HTML templates
+- API regression tests: 8 test files (password reset, batch2027 policy, eligibility, health routes, placement rules, redis config, security middleware)
+- Placement workflow policy with versioned policies, structured eligibility evaluations, and attendance reviews
 
 ### 🚧 In Progress
 
 - Broader automated integration and end-to-end coverage
-- Production deployment runbook and live environment validation
+- Production monitoring, backups, and alerting setup
 
 ### ⏳ Pending
 
 - Cloud Functions for server-side triggers
 - Full Firebase → PostgreSQL migration completion
 - Multi-tenant institution model and isolation for SaaS use
-- Production deployment
 - End-to-end testing in the deployed environment
 - Code splitting optimization
+- Decide Render availability strategy: paid compute for intentional always-on service, or external probes only as a best-effort cold-start reduction
+- Commit, push, migrate, and deploy the 2026-10-18 API/web working-tree changes
+- Rebuild the Android APK from the latest source and repeat login, theme, keyboard, password-reset, deep-link, and notification device tests
+- Publish Android/iOS verified-link association files when signing/team identifiers are available
 
 ### ❌ Blocked
 
-- Mobile production release is blocked by APK signing/toolchain availability, physical-device QA, and standalone push credentials.
+- App-store production release still requires final signing/store credentials and production push-notification credential validation; direct APK generation and physical installation are no longer blocked.
 
 ---
 
 # 23. Current Priorities
 
 ### P0 — Critical
-- [x] Enable Redis + BullMQ notification workers (currently commented out)
+- [x] Enable Redis + BullMQ notification workers
 - [x] Add explicit authentication to analytics routes
+- [x] Implement OTP-based password reset flow with SMTP delivery
+- [x] Deploy web (Vercel) and API (Render) to production
+- [x] Add health/readiness monitoring endpoints
 - [ ] Implement tenant isolation before onboarding multiple colleges
-- [ ] Deploy and validate production infrastructure, backups, monitoring, and rollback procedures
+- [ ] Configure production monitoring, backups, and alerting
 
 ### P1 — High
 - [x] Complete mobile app core screens (dashboard, profile, drives)
-- [x] Implement real resume parser in ML service (replace mock)
-- [ ] Add automated tests (unit + integration) for API controllers
 - [x] Fix TypeScript issues suppressed by `@ts-nocheck` and `@ts-ignore`
-- [ ] Upgrade the Expo/mobile dependency chain and clear high-severity audit findings
+- [x] Add password reset, health, and security regression tests
 - [ ] Add authentication, authorization, concurrency, import, report, and end-to-end regression coverage
+- [ ] Upgrade the Expo/mobile dependency chain and clear high-severity audit findings
+- [ ] Set up Render free-tier keepalive (UptimeRobot or similar)
 
 ### P2 — Medium
 - [x] Consolidate dual Firebase admin config files
 - [x] Formalize shared packages with proper exports
 - [x] Implement reports export (PDF/Excel)
+- [x] Implement comprehensive student settings module
 - [ ] Complete recruiter event portal pages
 - [x] Standardize error response format across all controllers
 
 ### P3 — Low
-- [x] Add CI/CD pipeline
+- [x] Add CI/CD pipeline (with Prisma client generation)
 - [ ] Code splitting optimization
-- [x] Remove unused dependencies (e.g., `react-simple-maps` if not used)
-- [x] Update `.env.example` Firebase label (remove misleading "Legacy" label)
+- [x] Remove unused dependencies
+- [x] Update `.env.example` with all production variables
 
 ---
 
@@ -1259,6 +1414,87 @@ services:
 ---
 
 # 25. Change Log
+
+### 2026-10-18 — Mobile APK, Production UX, and Drive Publication Delivery
+
+**Type:** Feature / Mobile / Notifications / Release Operations
+
+**Summary:**
+- Generated Android APK artifacts and confirmed installation and authentication on a physical device.
+- Added branded launcher assets, production API fallback, mobile OTP password reset, safer Firebase/auth initialization, account-scoped theme behavior, uppercase student greeting, corrected LPA labels and drive filters, and profile-verification web guidance.
+- Added a reusable keyboard-aware form container and connected shared inputs so login, password, profile, settings, notification, and drive forms keep the focused field visible.
+- Added authenticated drive deep linking across Vercel and the Expo client, including pending-link preservation during login.
+- Added durable drive-publication event/delivery models, BullMQ dispatch/recovery, per-channel idempotency, personalized Brevo/SMTP emails, admin delivery summaries, and automated tests.
+- Verified the live Render API plan and request logs: the API is on Free compute, no external health probes are active, and 15-minute idle spin-down is expected platform behavior.
+
+**Key Files:**
+- `apps/api/prisma/migrations/20261018140000_add_drive_publication_delivery/`
+- `apps/api/src/services/drive-publication.service.ts`
+- `apps/api/src/services/email/templates/drivePublication.template.ts`
+- `apps/api/src/services/notification-queue.service.ts`
+- `apps/api/tests/drivePublication.test.ts`
+- `apps/mobile/src/components/ui/KeyboardAwareScrollView.tsx`
+- `apps/mobile/src/screens/auth/PasswordResetScreen.tsx`
+- `apps/mobile/src/config/api.ts`
+- `apps/mobile/app.json`
+- `apps/web/src/features/student/pages/DriveLinkEntry.tsx`
+- `docs/DRIVE_PUBLICATION_NOTIFICATIONS.md`
+- `artifacts/PlacementX-demo-1.0.0.apk`
+- `artifacts/PlacementX-Demo-fixed.apk`
+
+**Release State:** Most entries above are present only in the local working tree as of this update. The migration, API/web deployment, native domain association, and fresh APK rebuild/device regression remain pending.
+
+**Status:** Implementation in progress; not fully released.
+
+---
+
+### 2026-10-17 — Authentication Overhaul, Production Deployment, and Health Monitoring
+
+**Type:** Feature / Security / Deployment / Infrastructure
+
+**Summary:**
+- Implemented complete OTP-based password reset flow: `passwordReset.controller.ts`, `passwordReset.service.ts`, and `email.service.ts` with HMAC-hashed OTPs, rate limiting, cooldown enforcement, and timing-safe comparisons.
+- Added `PasswordResetChallenge` Prisma model with migration `20261017190000_add_password_reset_challenges`.
+- Redesigned web login: unified `Login.tsx` with role detection, `ForgotPasswordModal` inline, dedicated `AdminLogin.tsx`/`StudentLogin.tsx` variants, and standalone `/forgot-password` route.
+- Legacy `/student/login` and `/admin/login` paths redirect to `/login`.
+- Configured Vercel SPA routing (`apps/web/vercel.json`) for production web deployment.
+- Fixed production Firebase login by allowing sign-in before email verification for demo accounts (`DEMO_EMAIL_ALLOWLIST`).
+- Added `/health` (liveness) and `/health/ready` (Redis readiness) endpoints.
+- Bounded BullMQ readiness checks to prevent startup timeouts.
+- Extended CI: generate Prisma client before API checks, downgraded legacy web lint errors to warnings.
+- Added Render free-tier keepalive documentation at `docs/RENDER_FREE_TIER_KEEPALIVE.md`.
+- Added comprehensive student settings module: 13 components with backend routes and controller.
+- Added `PASSWORD_RESET_SECRET`, `SMTP_*`, `EMAIL_FROM*`, `DEMO_EMAIL_ALLOWLIST`, and `OFFICIAL_STUDENT_EMAIL_DOMAINS` to `.env.example`.
+- Expanded API test suite to 8 files: password reset (controller + service), batch2027 policy, eligibility, health routes, placement rules, redis config, security middleware.
+
+**Files Affected:**
+- `apps/api/src/controllers/passwordReset.controller.ts` (new)
+- `apps/api/src/services/passwordReset.service.ts` (new)
+- `apps/api/src/services/email/email.service.ts` (new)
+- `apps/api/src/services/email/templates/*.template.ts` (new)
+- `apps/api/src/routes/auth.routes.ts` (password reset routes added)
+- `apps/api/src/routes/health.routes.ts` (new)
+- `apps/api/src/routes/student.settings.routes.ts` (new)
+- `apps/api/src/controllers/student.settings.controller.ts` (new)
+- `apps/api/prisma/migrations/20261017190000_add_password_reset_challenges/` (new)
+- `apps/web/src/features/auth/pages/Login.tsx` (redesigned)
+- `apps/web/src/features/auth/pages/ForgotPassword.tsx` (new)
+- `apps/web/src/features/auth/pages/AdminLogin.tsx` (new)
+- `apps/web/src/features/auth/pages/StudentLogin.tsx` (new)
+- `apps/web/src/features/auth/components/ForgotPasswordModal.tsx` (new)
+- `apps/web/src/features/student/settings/` (new module, 13 components + services)
+- `apps/web/src/lib/authService.ts` (password reset methods added)
+- `apps/web/src/routes/index.tsx` (new routes, legacy redirects)
+- `apps/web/vercel.json` (new)
+- `apps/api/tests/passwordReset.*.test.ts` (new)
+- `.env.example` (new variables)
+- `docs/RENDER_FREE_TIER_KEEPALIVE.md` (new)
+
+**Validation:** CI builds pass. API and web type-checks pass. API tests pass (8 test files).
+
+**Status:** Completed
+
+---
 
 ### 2026-10-13 — Placement Workflow Policy and Security Hardening
 
@@ -1437,13 +1673,14 @@ Verified against actual repository structure, source code, and existing document
 
 | Check | Status |
 |-------|--------|
-| Codebase analyzed | ✅ Yes |
-| Build verified | ✅ Yes (API and web production builds) |
-| Tests verified | ✅ Yes (API: 2 suites, 7 tests) |
-| Deployment verified | ❌ No (not deployed) |
-| Environment verified | ✅ Yes (examples and production-required services reviewed) |
-| Prisma verified | ✅ Yes (`prisma validate`; baseline migration added) |
-| Known release gaps | ⚠️ Multi-tenancy, deployed E2E validation, mobile APK/device validation, dependency remediation, and private report bucket provisioning |
+| Codebase analyzed | ✅ Yes, including current uncommitted API/web/mobile changes |
+| Build verified | ⚠️ Previously verified; not rerun for every 2026-10-18 working-tree change during this documentation update |
+| Tests verified | ⚠️ Existing suites and new contract/publication tests are present; full current working-tree suite not rerun during this documentation update |
+| Deployment verified | ⚠️ Vercel web and Render API/Redis are live; local 2026-10-18 changes are not yet confirmed deployed |
+| Environment verified | ✅ Yes (examples and production services reviewed) |
+| Prisma verified | ⚠️ New drive-publication migration is present; production application of the migration is pending |
+| Mobile release verified | ⚠️ APK installation/login confirmed; latest source changes require a new build and device regression pass |
+| Known release gaps | ⚠️ Multi-tenancy, deployed E2E validation, commit/deploy drift, Render Free cold starts, production monitoring/alerting, native verified-link association, Brevo delivery webhooks, and latest APK validation |
 
 ---
 

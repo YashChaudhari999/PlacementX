@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Appearance, ColorSchemeName } from 'react-native';
+import { useAuthStore } from '../stores/authStore';
 import { AppTheme, createTheme, ResolvedThemeMode, ThemeMode } from './theme';
 
-const STORAGE_KEY = 'placementx-theme-mode';
+const STORAGE_KEY_PREFIX = 'placementx-theme-mode:';
 
 interface ThemeContextValue {
   theme: AppTheme;
@@ -18,17 +19,30 @@ const resolveMode = (mode: ThemeMode, system: ColorSchemeName): ResolvedThemeMod
   mode === 'system' ? (system === 'dark' ? 'dark' : 'light') : mode;
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [mode, setModeState] = useState<ThemeMode>('system');
+  const { user, isAuthenticated, mustChangePassword, hasHydrated: hasAuthHydrated } = useAuthStore();
+  const accountId = isAuthenticated && !mustChangePassword ? user?.id ?? null : null;
+  const [mode, setModeState] = useState<ThemeMode>('light');
+  const [loadedAccountId, setLoadedAccountId] = useState<string | null>(null);
   const [systemMode, setSystemMode] = useState<ColorSchemeName>(Appearance.getColorScheme());
-  const [isHydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
+    let active = true;
+    setModeState('light');
+    setLoadedAccountId(null);
+
+    if (!accountId) return () => { active = false; };
+
+    AsyncStorage.getItem(`${STORAGE_KEY_PREFIX}${accountId}`)
       .then(value => {
-        if (value === 'light' || value === 'dark' || value === 'system') setModeState(value);
+        if (!active) return;
+        setModeState(value === 'light' || value === 'dark' || value === 'system' ? value : 'light');
       })
-      .finally(() => setHydrated(true));
-  }, []);
+      .finally(() => {
+        if (active) setLoadedAccountId(accountId);
+      });
+
+    return () => { active = false; };
+  }, [accountId]);
 
   useEffect(() => {
     const subscription = Appearance.addChangeListener(({ colorScheme }) => setSystemMode(colorScheme));
@@ -36,12 +50,16 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const setMode = useCallback(async (nextMode: ThemeMode) => {
+    if (!accountId) return;
     setModeState(nextMode);
-    await AsyncStorage.setItem(STORAGE_KEY, nextMode);
-  }, []);
+    setLoadedAccountId(accountId);
+    await AsyncStorage.setItem(`${STORAGE_KEY_PREFIX}${accountId}`, nextMode);
+  }, [accountId]);
 
-  const resolvedMode = resolveMode(mode, systemMode);
-  const value = useMemo<ThemeContextValue>(() => ({ theme: createTheme(resolvedMode), mode, resolvedMode, setMode, isHydrated }), [isHydrated, mode, resolvedMode, setMode]);
+  const activeMode = accountId && loadedAccountId === accountId ? mode : 'light';
+  const resolvedMode = resolveMode(activeMode, systemMode);
+  const isHydrated = hasAuthHydrated && (!accountId || loadedAccountId === accountId);
+  const value = useMemo<ThemeContextValue>(() => ({ theme: createTheme(resolvedMode), mode: activeMode, resolvedMode, setMode, isHydrated }), [activeMode, isHydrated, resolvedMode, setMode]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };

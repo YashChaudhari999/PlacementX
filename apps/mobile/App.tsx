@@ -33,36 +33,71 @@ const queryClient = new QueryClient({
 });
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: [Linking.createURL('/'), 'placementx://'],
+  prefixes: [Linking.createURL('/'), 'placementx://', 'https://placementx-v1.vercel.app'],
   config: {
     screens: {
       Auth: { screens: { Login: 'login' } },
       FirstLoginPassword: 'change-password',
       StudentApp: {
         screens: {
-          HomeStack: { screens: { Dashboard: 'student', DriveDetails: 'student/drives/:id' } },
+          HomeStack: { screens: { Dashboard: 'student', DriveDetails: 'drives/:id' } },
           Drives: 'student/drives',
           Applications: 'student/applications',
           Calendar: 'student/calendar',
           Notifications: 'student/notifications',
-          ProfileStack: { screens: { ProfileHome: 'student/profile', Documents: 'student/documents', Interviews: 'student/interviews', Settings: 'student/settings', NotificationPreferences: 'student/settings/notifications' } },
+          ProfileStack: {
+            screens: {
+              ProfileHome: 'student/profile',
+              Documents: 'student/documents',
+              Interviews: 'student/interviews',
+              Settings: 'student/settings',
+              NotificationPreferences: 'student/settings/notifications',
+            },
+          },
         },
       },
-      AdminApp: { screens: { Dashboard: 'admin', Students: 'admin/students', Calendar: 'admin/calendar', Reports: 'admin/reports', Notifications: 'admin/notifications', Settings: 'admin/settings' } },
+      AdminApp: {
+        screens: {
+          Dashboard: 'admin',
+          Students: 'admin/students',
+          Calendar: 'admin/calendar',
+          Reports: 'admin/reports',
+          Notifications: 'admin/notifications',
+          Settings: 'admin/settings',
+        },
+      },
     },
   },
 };
 
+const PendingDriveLinkCapture = () => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const setPendingDriveId = useAuthStore((state) => state.setPendingDriveId);
+
+  React.useEffect(() => {
+    const capture = (url: string | null) => {
+      if (!url || isAuthenticated) return;
+      const match = url.match(/\/drives\/([A-Za-z0-9-]{1,64})(?:[/?#]|$)/);
+      if (match) setPendingDriveId(match[1]);
+    };
+    void Linking.getInitialURL().then(capture);
+    const subscription = Linking.addEventListener('url', ({ url }) => capture(url));
+    return () => subscription.remove();
+  }, [isAuthenticated, setPendingDriveId]);
+
+  return null;
+};
+
 const AppContent = () => {
   const { theme, resolvedMode } = useAppTheme();
-  const logout = useAuthStore(state => state.logout);
+  const logout = useAuthStore((state) => state.logout);
 
   React.useEffect(() => {
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'background' || nextAppState === 'inactive') {
         // Enforce high-security: clear sensitive tokens when app is backgrounded
         // In a real production app, this might just lock the screen with biometrics instead
-        // logout(); 
+        // logout();
       }
     };
 
@@ -84,10 +119,23 @@ const AppContent = () => {
             linking={linking}
             theme={{
               dark: resolvedMode === 'dark',
-              colors: { primary: theme.colors.primary, background: theme.colors.background, card: theme.colors.surface, text: theme.colors.foreground, border: theme.colors.border, notification: theme.colors.destructive },
-              fonts: { regular: { fontFamily: 'System', fontWeight: '400' }, medium: { fontFamily: 'System', fontWeight: '500' }, bold: { fontFamily: 'System', fontWeight: '700' }, heavy: { fontFamily: 'System', fontWeight: '800' } },
+              colors: {
+                primary: theme.colors.primary,
+                background: theme.colors.background,
+                card: theme.colors.surface,
+                text: theme.colors.foreground,
+                border: theme.colors.border,
+                notification: theme.colors.destructive,
+              },
+              fonts: {
+                regular: { fontFamily: 'System', fontWeight: '400' },
+                medium: { fontFamily: 'System', fontWeight: '500' },
+                bold: { fontFamily: 'System', fontWeight: '700' },
+                heavy: { fontFamily: 'System', fontWeight: '800' },
+              },
             }}
           >
+            <PendingDriveLinkCapture />
             <NotificationProvider>
               <AppNavigator />
             </NotificationProvider>

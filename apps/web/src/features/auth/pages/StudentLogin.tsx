@@ -25,8 +25,8 @@ export default function StudentLogin() {
     setError('');
 
     const formData = new FormData(e.target as HTMLFormElement);
-    const email = (formData.get('email') as string) || emailInput;
-    const password = formData.get('password') as string;
+    const email = ((formData.get('email') as string) || emailInput).trim();
+    const password = (formData.get('password') as string).trim();
 
     try {
       await authService.login({ email, password, role: 'STUDENT' });
@@ -145,7 +145,7 @@ export default function StudentLogin() {
                     type="email"
                     autoComplete="email"
                     value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
+                    onChange={(e) => setEmailInput(e.target.value.trim())}
                     required
                     className="h-12 border-border text-foreground placeholder:text-muted-foreground focus-visible:ring-primary bg-muted/50 rounded-xl"
                   />

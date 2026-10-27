@@ -80,9 +80,13 @@ export default function AdminEventDetails() {
  );
  toast.success(`Drive ${action}d successfully`);
  fetchData();
- } catch (error) {
+ } catch (error: any) {
  console.error(error);
- toast.error(`Failed to ${action} drive`);
+ const details = error?.response?.data?.errors;
+ const message = Array.isArray(details) && details.length
+ ? `${error?.response?.data?.message || 'Drive is incomplete'}: ${details.join(', ')}`
+ : error?.response?.data?.message || `Failed to ${action} drive`;
+ toast.error(message);
  }
  };
 
@@ -128,7 +132,7 @@ export default function AdminEventDetails() {
  </div>
  </div>
 
- {drive.status === 'SUBMITTED' && (
+ {['SUBMITTED', 'ADMIN_REVIEW'].includes(drive.status) && (
  <Card className="p-6 bg-info/10 border-info/20">
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
  <div>
@@ -349,6 +353,29 @@ export default function AdminEventDetails() {
 
  {/* Applicants Table */}
  <div className="lg:col-span-2">
+ <Card className="p-6 mb-6">
+ <h3 className="font-bold text-foreground mb-4">Submitted Drive Information</h3>
+ <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+ <div className="md:col-span-2">
+ <p className="text-muted-foreground mb-1">Job Description</p>
+ <p className="text-foreground whitespace-pre-wrap">{drive.jobDescription || 'Not provided'}</p>
+ </div>
+ <div><span className="text-muted-foreground">Minimum CGPA: </span><span>{drive.minimumCgpa ?? 'Not specified'}</span></div>
+ <div><span className="text-muted-foreground">Passing Year: </span><span>{drive.passingYear ?? 'Not specified'}</span></div>
+ <div><span className="text-muted-foreground">Active Backlogs Allowed: </span><span>{drive.activeBacklogsAllowed ?? 'Not specified'}</span></div>
+ <div><span className="text-muted-foreground">Year Gap Allowed: </span><span>{drive.yearGapAllowed ?? 'Not specified'}</span></div>
+ <div><span className="text-muted-foreground">Maximum Applicants: </span><span>{drive.maximumApplicants ?? 'Unlimited'}</span></div>
+ <div><span className="text-muted-foreground">Employment Type: </span><span>{drive.employmentType || 'Not specified'}</span></div>
+ <div className="md:col-span-2"><span className="text-muted-foreground">Eligible Branches: </span><span>{(() => { try { return JSON.parse(drive.eligibleBranches || '[]').join(', ') || 'Not specified'; } catch { return drive.eligibleBranches || 'Not specified'; } })()}</span></div>
+ {drive.company?.description && <div className="md:col-span-2"><p className="text-muted-foreground mb-1">Company Description</p><p className="whitespace-pre-wrap">{drive.company.description}</p></div>}
+ </div>
+ {drive.selectionRounds?.length > 0 && (
+ <div className="mt-6 pt-4 border-t border-border">
+ <p className="font-semibold mb-3">Selection Rounds</p>
+ <div className="space-y-2">{drive.selectionRounds.map((round: any, index: number) => <div key={round.id} className="p-3 rounded-md bg-muted"><span className="font-medium">{index + 1}. {round.title}</span>{round.date && <span className="text-muted-foreground"> · {new Date(round.date).toLocaleDateString('en-GB')}</span>}{round.duration && <span className="text-muted-foreground"> · {round.duration}</span>}</div>)}</div>
+ </div>
+ )}
+ </Card>
  <Card className="overflow-hidden">
  <div className="p-4 border-b border-border bg-muted/50 flex justify-between items-center">
  <h3 className="font-bold text-foreground">Applicants ({applications.length})</h3>

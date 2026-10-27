@@ -1,6 +1,10 @@
 import nodemailer, { type Transporter } from 'nodemailer';
 import { renderPasswordResetTemplate } from './templates/passwordReset.template';
 import { renderPasswordResetOtpTemplate } from './templates/passwordResetOtp.template';
+import {
+  renderDrivePublicationEmail,
+  type DrivePublicationTemplateInput,
+} from './templates/drivePublication.template';
 
 export interface SendPasswordResetOptions {
   to: string;
@@ -12,6 +16,12 @@ export interface SendPasswordResetOtpOptions {
   to: string;
   otp: string;
   displayName?: string;
+}
+
+export interface EmailDeliveryResult {
+  accepted: boolean;
+  providerMessageId?: string;
+  error?: string;
 }
 
 export class EmailService {
@@ -58,7 +68,8 @@ export class EmailService {
     // Brevo requires EMAIL_FROM to be a verified sender in your Brevo account.
     // If EMAIL_FROM is no-reply@placementx.com and not verified, Brevo will reject it.
     // Fall back to SMTP_USER or process.env.EMAIL_FROM if set.
-    const fromAddress = (process.env.EMAIL_FROM && process.env.EMAIL_FROM.trim()) || 'yash.chaudhari171@nmims.in';
+    const fromAddress =
+      (process.env.EMAIL_FROM && process.env.EMAIL_FROM.trim()) || 'yash.chaudhari171@nmims.in';
     const fromHeader = `"${fromName}" <${fromAddress}>`;
 
     const html = renderPasswordResetTemplate({
@@ -75,23 +86,32 @@ export class EmailService {
           subject: 'Reset Your PlacementX Password',
           html,
         });
-        console.log(`[EmailService] Password reset email successfully sent to ${to}. MessageId: ${info.messageId}`);
+        console.log(
+          `[EmailService] Password reset email successfully sent to ${to}. MessageId: ${info.messageId}`
+        );
         return true;
       } catch (error: any) {
-        console.error('[EmailService] Failed to send email via SMTP transporter:', error.message || error);
+        console.error(
+          '[EmailService] Failed to send email via SMTP transporter:',
+          error.message || error
+        );
         console.log(`[EmailService Dev Fallback] Password Reset Link for ${to}:\n${resetLink}`);
         return false;
       }
     } else {
       console.warn(
         `[EmailService] SMTP credentials not configured (SMTP_HOST, SMTP_USER, SMTP_PASSWORD). ` +
-        `Password reset link for ${to}:\n${resetLink}`
+          `Password reset link for ${to}:\n${resetLink}`
       );
       return true;
     }
   }
 
-  public async sendPasswordResetOtp({ to, otp, displayName }: SendPasswordResetOtpOptions): Promise<boolean> {
+  public async sendPasswordResetOtp({
+    to,
+    otp,
+    displayName,
+  }: SendPasswordResetOtpOptions): Promise<boolean> {
     const brevoApiKey = process.env.BREVO_API_KEY?.trim();
     const fromName = process.env.EMAIL_FROM_NAME || 'PlacementX';
     const fromAddress = process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim();
@@ -128,7 +148,9 @@ export class EmailService {
 
     if (!this.isConfigured || !this.transporter) this.initTransporter();
     if (!this.isConfigured || !this.transporter) {
-      console.error('[EmailService] SMTP credentials are not configured for password reset OTP delivery');
+      console.error(
+        '[EmailService] SMTP credentials are not configured for password reset OTP delivery'
+      );
       return false;
     }
 
@@ -145,6 +167,62 @@ export class EmailService {
     } catch (error: any) {
       console.error('[EmailService] Password reset OTP delivery failed:', error.message || error);
       return false;
+    }
+  }
+
+  public async sendDrivePublicationEmail(
+    to: string,
+    input: DrivePublicationTemplateInput
+  ): Promise<EmailDeliveryResult> {
+    const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+    const fromName = process.env.EMAIL_FROM_NAME || 'PlacementX';
+    const fromAddress = process.env.EMAIL_FROM?.trim() || process.env.SMTP_USER?.trim();
+    const { html, text } = renderDrivePublicationEmail(input);
+    const subject = `New Placement Opportunity on PlacementX: ${input.driveTitle}`;
+
+    if (!fromAddress) return { accepted: false, error: 'EMAIL_FROM is not configured' };
+
+    if (brevoApiKey) {
+      try {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+          method: 'POST',
+          headers: { 'api-key': brevoApiKey, 'content-type': 'application/json' },
+          body: JSON.stringify({
+            sender: { name: fromName, email: fromAddress },
+            to: [{ email: to }],
+            subject,
+            htmlContent: html,
+            textContent: text,
+          }),
+          signal: AbortSignal.timeout(10_000),
+        });
+        const payload = (await response.json().catch(() => ({}))) as {
+          messageId?: string;
+          message?: string;
+        };
+        if (!response.ok)
+          return { accepted: false, error: payload.message || `Brevo returned ${response.status}` };
+        return { accepted: true, providerMessageId: payload.messageId };
+      } catch (error: any) {
+        return { accepted: false, error: error.message || 'Brevo request failed' };
+      }
+    }
+
+    if (!this.isConfigured || !this.transporter) this.initTransporter();
+    if (!this.isConfigured || !this.transporter)
+      return { accepted: false, error: 'Email delivery is not configured' };
+
+    try {
+      const info = await this.transporter.sendMail({
+        from: `"${fromName}" <${fromAddress}>`,
+        to,
+        subject,
+        html,
+        text,
+      });
+      return { accepted: true, providerMessageId: info.messageId };
+    } catch (error: any) {
+      return { accepted: false, error: error.message || 'SMTP delivery failed' };
     }
   }
 }

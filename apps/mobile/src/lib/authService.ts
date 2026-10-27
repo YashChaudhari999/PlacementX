@@ -2,7 +2,7 @@ import apiClient from './apiClient';
 import { API_ENDPOINTS } from '../config/api';
 import type { LoginCredentials, User } from '../types';
 import { auth } from './firebaseApp';
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export const authService = {
   login: async (credentials: LoginCredentials) => {
@@ -20,7 +20,17 @@ export const authService = {
     return response.data;
   },
 
-  requestPasswordReset: async (email: string) => sendPasswordResetEmail(auth, email),
+  requestPasswordReset: async (email: string) =>
+    (await apiClient.post(API_ENDPOINTS.PASSWORD_RESET_REQUEST, { email: email.trim() })).data,
+
+  resendPasswordReset: async (email: string) =>
+    (await apiClient.post(API_ENDPOINTS.PASSWORD_RESET_RESEND, { email: email.trim() })).data,
+
+  verifyPasswordResetOtp: async (email: string, otp: string) =>
+    (await apiClient.post<{ resetGrant: string; expiresInSeconds: number }>(API_ENDPOINTS.PASSWORD_RESET_VERIFY, { email: email.trim(), otp })).data,
+
+  confirmPasswordReset: async (resetGrant: string, newPassword: string) =>
+    (await apiClient.post(API_ENDPOINTS.PASSWORD_RESET_CONFIRM, { resetGrant, newPassword })).data,
 
   getMe: async () => {
     const response = await apiClient.get<User>(API_ENDPOINTS.ME);

@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Menu, ShieldCheck, LogOut, Moon, Sun } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 
-import { Button, ConfirmationDialog, Input, PageHeader, ScreenContainer, SurfaceCard, Toast } from '../../components/ui';
+import { Button, ConfirmationDialog, Input, KeyboardAwareScrollView, PageHeader, ScreenContainer, SurfaceCard, Toast } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import apiClient from '../../lib/apiClient';
@@ -20,8 +20,8 @@ export default function AdminSettingsScreen() {
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
   const updatePassword = async () => {
-    if (!passwords.currentPassword || passwords.newPassword.length < 8 || passwords.newPassword !== passwords.confirmPassword) {
-      Toast.error('Enter the current password and matching new passwords of at least 8 characters');
+    if (!passwords.currentPassword || passwords.newPassword.length < 12 || passwords.newPassword !== passwords.confirmPassword) {
+      Toast.error('Enter the current password and matching new passwords of at least 12 characters');
       return;
     }
     try {
@@ -39,7 +39,7 @@ export default function AdminSettingsScreen() {
   return (
     <ScreenContainer>
       <PageHeader title="Settings" subtitle={isSuperAdmin ? 'Administrator security and access' : 'Coordinator security'} right={<Pressable accessibilityRole="button" accessibilityLabel="Open menu" onPress={() => navigation.toggleDrawer()} style={styles.menu}><Menu size={22} color={theme.colors.foreground} /></Pressable>} />
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView contentContainerStyle={styles.content}>
         <SurfaceCard style={styles.identity}>
           <View style={[styles.avatar, { backgroundColor: theme.colors.primary }]}><Text style={[styles.initials, { color: theme.colors.primaryForeground }]}>{(user?.name || user?.firstName || 'A').slice(0, 2).toUpperCase()}</Text></View>
           <View style={styles.grow}><Text style={[styles.name, { color: theme.colors.foreground }]}>{user?.name || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Administrator'}</Text><Text style={[styles.meta, { color: theme.colors.foregroundMuted }]}>{user?.email} · {user?.role?.replaceAll('_', ' ')}</Text></View>
@@ -60,7 +60,7 @@ export default function AdminSettingsScreen() {
         </SurfaceCard>
 
         <Pressable accessibilityRole="button" onPress={() => setConfirmLogout(true)} style={[styles.logout, { borderColor: theme.colors.destructive }]}><LogOut size={20} color={theme.colors.destructive} /><Text style={{ color: theme.colors.destructive, fontWeight: '700' }}>Log out</Text></Pressable>
-      </ScrollView>
+      </KeyboardAwareScrollView>
       <ConfirmationDialog visible={confirmLogout} title="Log out?" message="You will need to sign in again to continue." confirmLabel="Log out" destructive onCancel={() => setConfirmLogout(false)} onConfirm={logout} />
     </ScreenContainer>
   );

@@ -50,10 +50,12 @@ interface AuthState {
   isAuthenticated: boolean;
   mustChangePassword?: boolean;
   hasHydrated: boolean;
+  pendingDriveId: string | null;
   setHasHydrated: (value: boolean) => void;
   setAuth: (user: User, token: string, mustChangePassword?: boolean) => void;
   logout: () => Promise<void>;
   updateUser: (user: Partial<User>) => void;
+  setPendingDriveId: (driveId: string | null) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -64,41 +66,43 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       mustChangePassword: false,
       hasHydrated: false,
+      pendingDriveId: null,
       setHasHydrated: (value) => set({ hasHydrated: value }),
-      
-      setAuth: (user, token, mustChangePassword = false) => 
+
+      setAuth: (user, token, mustChangePassword = false) =>
         set({ user, token, isAuthenticated: true, mustChangePassword }),
-        
+
       logout: async () => {
         try {
           const { useNotificationStore } = require('./notificationStore');
           const { removePushTokenFromBackend } = require('../services/pushNotification.service');
-          
+
           const pushToken = useNotificationStore.getState().pushToken;
           if (pushToken) {
             await removePushTokenFromBackend(pushToken);
             useNotificationStore.getState().setPushToken(null);
           }
-          
+
           const { auth } = require('../lib/firebaseApp');
           const { signOut } = require('firebase/auth');
           if (auth.currentUser) {
-             await signOut(auth);
+            await signOut(auth);
           }
         } catch (error) {
           console.error('Logout cleanup error:', error);
         }
         set({ user: null, token: null, isAuthenticated: false, mustChangePassword: false });
       },
-      
+
       updateUser: (updatedFields) =>
         set((state) => ({
           user: state.user ? { ...state.user, ...updatedFields } : null,
         })),
+      setPendingDriveId: (pendingDriveId) => set({ pendingDriveId }),
     }),
     {
       name: 'placementx-secure-auth', // new key to avoid conflicts with old AsyncStorage data
-      onRehydrateStorage: () => state => state?.setHasHydrated(true),
+      onRehydrateStorage: () => (state) => state?.setHasHydrated(true),
       storage: createJSONStorage(() => secureStorage),
     }
   )

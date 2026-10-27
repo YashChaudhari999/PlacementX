@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '@/lib/authService';
 import api from '@/lib/api';
 import { ForgotPasswordModal } from '../components/ForgotPasswordModal';
+import { getSafeReturnTo } from '../returnTo';
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,7 @@ export default function Login() {
   const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
   const [emailInput, setEmailInput] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [stats, setStats] = useState({
     companies: '500+',
@@ -49,7 +51,9 @@ export default function Login() {
       const user = await authService.login({ email, password });
       const actualRole = user.role;
       if (actualRole === 'STUDENT') {
-        navigate('/student/dashboard');
+        navigate(getSafeReturnTo(searchParams.get('returnTo')) || '/student/dashboard', {
+          replace: true,
+        });
       } else {
         navigate(actualRole === 'SUPER_ADMIN' ? '/admin/dashboard' : '/admin/students');
       }

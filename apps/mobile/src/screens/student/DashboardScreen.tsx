@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Dimensions, Linking, StatusBar } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Bell, User, Calendar, MapPin, Search, ChevronRight, CheckCircle2, AlertCircle } from 'lucide-react-native';
+import { Bell, User, Calendar, MapPin, Search, ChevronRight, CheckCircle2, AlertCircle, Lock } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
-import { Card, StatusBadge, DashboardSkeleton, ErrorState } from '../../components/ui';
+import { Card, StatusBadge, DashboardSkeleton, ErrorState, Toast } from '../../components/ui';
+import { PLACEMENTX_PROFILE_URL } from '../../config/api';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { usePublishedDrives, useStudentProfile } from '../../hooks/queries';
@@ -24,9 +25,21 @@ export default function DashboardScreen() {
   const { data: profile, isLoading: isLoadingProfile, isError: profileError, refetch: refetchProfile, isRefetching: isRefetchingProfile } = useStudentProfile();
   const insets = useSafeAreaInsets();
 
+  const openProfileWebsite = async () => {
+    try {
+      await Linking.openURL(PLACEMENTX_PROFILE_URL);
+    } catch {
+      Toast.error('Unable to open the PlacementX website');
+    }
+  };
+
   const isRefreshing = isRefetchingDrives || isRefetchingProfile;
   const profileStatus = user?.profileStatus || (user?.isProfileComplete ? 'PENDING_VERIFICATION' : 'NOT_COMPLETED');
   const profileVerified = profileStatus === 'VERIFIED';
+  const studentName = (user?.name?.trim()
+    || [user?.firstName, user?.lastName].filter(Boolean).join(' ')
+    || [profile?.firstName, profile?.lastName].filter(Boolean).join(' ')
+    || 'Student').toUpperCase();
   
   const handleRefresh = React.useCallback(() => {
     refetchDrives();
@@ -80,7 +93,7 @@ export default function DashboardScreen() {
         <View style={styles.salaryContainer}>
           <View>
             <Text style={styles.salaryLabel}>CTC Package</Text>
-            <Text style={styles.salaryAmount}>{drive.fixedSalary ? `₹${drive.fixedSalary.toLocaleString()}` : 'Not disclosed'}</Text>
+            <Text style={styles.salaryAmount}>{drive.fixedSalary ? `${drive.fixedSalary.toLocaleString()} LPA` : 'Not disclosed'}</Text>
           </View>
           <View style={styles.applyBtn}>
             <Text style={styles.applyBtnText}>Details</Text>
@@ -121,7 +134,7 @@ export default function DashboardScreen() {
         <View style={[styles.topBackground, { paddingTop: insets.top + theme.spacing[4] }]}>
           <View style={styles.headerContent}>
             <View>
-              <Text style={styles.greetingText}>Hello, {user?.name || 'Student'} 👋</Text>
+              <Text style={styles.greetingText}>Hello, {studentName} 👋</Text>
               <Text style={styles.subtitleText}>Ready for your next opportunity?</Text>
             </View>
             <View style={styles.headerRight}>
@@ -179,12 +192,38 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Featured Drives</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Drives')} style={styles.seeAllBtn}>
-              <Text style={styles.seeAllText}>View All</Text>
-            </TouchableOpacity>
+            {profileVerified && (
+              <TouchableOpacity onPress={() => navigation.navigate('Drives')} style={styles.seeAllBtn}>
+                <Text style={styles.seeAllText}>View All</Text>
+              </TouchableOpacity>
+            )}
           </View>
-          
-          {drives && drives.length > 0 ? (
+
+          {!profileVerified ? (
+            <TouchableOpacity
+              style={styles.lockedState}
+              onPress={openProfileWebsite}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Open the PlacementX website to complete and submit your profile for verification."
+            >
+              <View style={styles.lockedIconWrap}>
+                <Lock size={28} color={theme.colors.warning} />
+              </View>
+              <Text style={styles.lockedTitle}>Profile Verification Required</Text>
+              <Text style={styles.lockedBody}>
+                {profileStatus === 'NOT_COMPLETED'
+                  ? 'Go to the PlacementX website, fill in your profile information, and submit it to the placement cell for verification. Drives will appear after approval.'
+                  : 'Your profile is under review by the placement cell. Open the PlacementX website to check your profile and complete any requested changes.'}
+              </Text>
+              <View style={styles.lockedCta}>
+                <Text style={styles.lockedCtaText}>
+                  Open PlacementX Website
+                </Text>
+                <ChevronRight size={16} color={theme.colors.primary} />
+              </View>
+            </TouchableOpacity>
+          ) : drives && drives.length > 0 ? (
             drives.slice(0, 4).map(renderDriveCard)
           ) : (
             <View style={styles.emptyState}>
@@ -443,5 +482,51 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
   emptyText: {
     color: theme.colors.mutedForeground,
     fontSize: 15,
+  },
+  lockedState: {
+    backgroundColor: theme.colors.card,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: theme.colors.warning + '55',
+    borderStyle: 'dashed',
+    padding: theme.spacing[6],
+    alignItems: 'center',
+  },
+  lockedIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.colors.warning + '18',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: theme.spacing[3],
+  },
+  lockedTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: theme.colors.foreground,
+    marginBottom: theme.spacing[2],
+    textAlign: 'center',
+  },
+  lockedBody: {
+    fontSize: 13,
+    color: theme.colors.mutedForeground,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: theme.spacing[4],
+  },
+  lockedCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: theme.colors.primary + '10',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  lockedCtaText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: theme.colors.primary,
   },
 });

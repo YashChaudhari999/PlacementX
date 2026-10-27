@@ -259,7 +259,7 @@ export default function StudentDriveDetails() {
  <div className="flex justify-between">
  <span className="text-muted-foreground">Variable Pay</span>
  <span className="font-medium text-foreground">
- {drive.variablePay ? `${drive.variablePay} LPA` : '-'}
+ {drive.variableSalary ? `${drive.variableSalary} LPA` : '-'}
  </span>
  </div>
  <div className="flex justify-between">

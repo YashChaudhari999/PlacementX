@@ -10,22 +10,23 @@ datasource db {
 }
 
 model User {
-  id                      String                   @id @default(uuid())
-  firebaseUid             String?                  @unique
-  email                   String                   @unique
-  password                String
-  role                    String                   @default("STUDENT")
-  mustChangePassword      Boolean                  @default(true)
-  createdAt               DateTime                 @default(now())
-  updatedAt               DateTime                 @updatedAt
-  adminProfile            AdminProfile?
-  coordinatorProfile      CoordinatorProfile?
-  deviceTokens            DeviceToken[]
-  notifications           Notification[]
-  notificationPreferences NotificationPreference?
-  studentProfile          StudentProfile?
-  activationTokens        AccountActivationToken[]
-  passwordResetChallenges PasswordResetChallenge[]
+  id                         String                     @id @default(uuid())
+  firebaseUid                String?                    @unique
+  email                      String                     @unique
+  password                   String
+  role                       String                     @default("STUDENT")
+  mustChangePassword         Boolean                    @default(true)
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  adminProfile               AdminProfile?
+  coordinatorProfile         CoordinatorProfile?
+  deviceTokens               DeviceToken[]
+  notifications              Notification[]
+  notificationPreferences    NotificationPreference?
+  studentProfile             StudentProfile?
+  activationTokens           AccountActivationToken[]
+  passwordResetChallenges    PasswordResetChallenge[]
+  drivePublicationDeliveries DrivePublicationDelivery[]
 }
 
 model PasswordResetChallenge {
@@ -250,6 +251,47 @@ model PlacementDrive {
   company                Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
   selectionRounds        SelectionRound[]
   eligibilityEvaluations EligibilityEvaluation[]
+  publicationEvents      DrivePublicationEvent[]
+}
+
+model DrivePublicationEvent {
+  id             String                     @id @default(uuid())
+  driveId        String                     @unique
+  status         String                     @default("PENDING")
+  triggeredBy    String?
+  eligibleCount  Int                        @default(0)
+  processedCount Int                        @default(0)
+  startedAt      DateTime?
+  completedAt    DateTime?
+  lastError      String?
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+  drive          PlacementDrive             @relation(fields: [driveId], references: [id], onDelete: Cascade)
+  deliveries     DrivePublicationDelivery[]
+
+  @@index([status, updatedAt])
+}
+
+model DrivePublicationDelivery {
+  id                String                @id @default(uuid())
+  eventId           String
+  recipientId       String
+  channel           String
+  status            String                @default("PENDING")
+  attemptCount      Int                   @default(0)
+  providerMessageId String?
+  lastError         String?
+  lastAttemptAt     DateTime?
+  acceptedAt        DateTime?
+  deliveredAt       DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  event             DrivePublicationEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  recipient         User                  @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, recipientId, channel])
+  @@index([eventId, status])
+  @@index([recipientId, createdAt])
 }
 
 model SelectionRound {

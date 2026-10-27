@@ -101,7 +101,7 @@ export default function DriveDetailsScreen() {
                 </View>
                 <View>
                   <Text style={styles.quickInfoLabel}>Package</Text>
-                  <Text style={styles.quickInfoValue}>{drive.fixedSalary ? `₹${drive.fixedSalary.toLocaleString()}` : 'TBA'}</Text>
+                  <Text style={styles.quickInfoValue}>{drive.fixedSalary ? `${drive.fixedSalary.toLocaleString()} LPA` : 'TBA'}</Text>
                 </View>
               </View>
             </View>

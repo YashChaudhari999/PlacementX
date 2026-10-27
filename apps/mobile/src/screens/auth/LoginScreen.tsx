@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, StatusBar, TouchableOpacity } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mail, Lock, GraduationCap, ChevronRight } from 'lucide-react-native';
 
-import { Input, Button, Card, Toast } from '../../components/ui';
+import { Input, Button, Card, KeyboardAwareScrollView, Toast } from '../../components/ui';
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/authStore';
 import { authService } from '../../lib/authService';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { AuthStackParamList } from '../../navigation/types';
 
 const { width, height } = Dimensions.get('window');
 
@@ -19,6 +22,7 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -56,19 +60,6 @@ export default function LoginScreen() {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email.trim()) {
-      Toast.error('Enter your email address first');
-      return;
-    }
-    try {
-      await authService.requestPasswordReset(email.trim());
-      Toast.success('Password reset email sent');
-    } catch (error: any) {
-      Toast.error(error.message || 'Unable to send reset email');
-    }
-  };
-
   return (    <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={theme.colors.card} />
       
@@ -76,13 +67,8 @@ export default function LoginScreen() {
       <View style={styles.bgCircleTopRight} />
       <View style={styles.bgCircleBottomLeft} />
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView 
+      <KeyboardAwareScrollView
           contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 60 }]} 
-          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
@@ -122,7 +108,7 @@ export default function LoginScreen() {
                 />
                 
                 <View style={styles.forgotPasswordContainer}>
-                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={handleForgotPassword}>
+                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} onPress={() => navigation.navigate('PasswordReset')}>
                     <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                   </TouchableOpacity>
                 </View>
@@ -142,8 +128,7 @@ export default function LoginScreen() {
               Use of this app is governed by your institution's placement policies.
             </Text>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -172,9 +157,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     borderRadius: width * 0.45,
     backgroundColor: '#fecdd3', // slightly darker rose
     opacity: 0.6,
-  },
-  keyboardAvoid: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

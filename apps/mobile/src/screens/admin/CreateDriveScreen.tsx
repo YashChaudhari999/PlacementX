@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react-native';
@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
-import { Card, ScreenHeader, Input, Button, Toast, TabBar } from '../../components/ui';
+import { Card, ScreenHeader, Input, Button, KeyboardAwareScrollView, Toast, TabBar } from '../../components/ui';
 import { drivesService } from '../../services/drives.service';
 
 const STEPS = ['Basic Info', 'Details', 'Eligibility'];
@@ -221,11 +221,7 @@ export default function CreateDriveScreen() {
         ))}
       </View>
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+      <KeyboardAwareScrollView contentContainerStyle={styles.scrollContent}>
           <Card style={styles.card}>
             {renderStep()}
             
@@ -257,15 +253,13 @@ export default function CreateDriveScreen() {
               )}
             </View>
           </Card>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
 
 const createStyles = (theme: AppTheme) => StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: theme.colors.background },
-  keyboardAvoid: { flex: 1 },
   stepperHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: theme.spacing[4], backgroundColor: '#FFF', borderBottomWidth: 1, borderBottomColor: theme.colors.border },
   stepIndicator: { alignItems: 'center', width: 80 },
   stepCircle: { width: 28, height: 28, borderRadius: 14, backgroundColor: theme.colors.border, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },

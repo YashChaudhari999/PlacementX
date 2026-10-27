@@ -52,28 +52,39 @@ const baseDrive = {
 
 describe('placement eligibility', () => {
   it('accepts a student who satisfies every configured requirement', async () => {
-    await expect(checkEligibility(baseStudent, baseDrive)).resolves.toEqual(expect.objectContaining({
-      isEligible: true,
-      reasons: [],
-      reasonCodes: [],
-      requiresReview: false,
-    }));
+    await expect(checkEligibility(baseStudent, baseDrive)).resolves.toEqual(
+      expect.objectContaining({
+        isEligible: true,
+        reasons: [],
+        reasonCodes: [],
+        requiresReview: false,
+      })
+    );
   });
 
   it('enforces gap and required profile links', async () => {
     const result = await checkEligibility(
-      { ...baseStudent, yearGap: 2, resumeUrl: null, githubUrl: null, totalBacklogs: 2, currentSemester: 7 },
-      { ...baseDrive, maximumGapYears: 1, githubRequired: true },
+      {
+        ...baseStudent,
+        yearGap: 2,
+        resumeUrl: null,
+        githubUrl: null,
+        totalBacklogs: 2,
+        currentSemester: 7,
+      },
+      { ...baseDrive, maximumGapYears: 1, githubRequired: true }
     );
 
     expect(result.isEligible).toBe(false);
-    expect(result.reasons).toEqual(expect.arrayContaining([
-      'Education gap exceeds the allowed 1 year(s)',
-      'A resume is required',
-      'A GitHub profile is required',
-      'Backlog history exceeds the allowed 0',
-      'Current semester must be 8',
-    ]));
+    expect(result.reasons).toEqual(
+      expect.arrayContaining([
+        'Education gap exceeds the allowed 1 year(s)',
+        'A resume is required',
+        'A GitHub profile is required',
+        'Backlog history exceeds the allowed 0',
+        'Current semester must be 8',
+      ])
+    );
   });
 
   it('does not silently penalize missing attendance data', async () => {
@@ -87,5 +98,13 @@ describe('placement eligibility', () => {
     const result = await checkEligibility({ ...baseStudent, confirmedOfferCount: 1 }, baseDrive);
     expect(result.requiresReview).toBe(true);
     expect(result.reasonCodes).toContain('OFFER_POLICY_AMBIGUOUS');
+  });
+
+  it('treats the ALL branch marker case-insensitively', async () => {
+    const result = await checkEligibility(
+      { ...baseStudent, branch: 'Mechanical Engineering' },
+      { ...baseDrive, eligibleBranches: JSON.stringify(['ALL']) }
+    );
+    expect(result.isEligible).toBe(true);
   });
 });

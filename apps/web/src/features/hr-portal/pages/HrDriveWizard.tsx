@@ -119,7 +119,16 @@ export default function HrDriveWizard() {
  const handleSubmit = async () => {
  try {
  setLoading(true);
- await api.post('/hr/submit', { token });
+ await api.post('/hr/submit', {
+ token,
+ driveData: {
+ ...driveData,
+ company: undefined,
+ selectionRounds: undefined,
+ },
+ companyData,
+ selectionRounds,
+ });
  alert('Drive submitted successfully!');
  window.location.reload();
  } catch (err: any) {
@@ -368,6 +377,17 @@ export default function HrDriveWizard() {
  <option value="Internship">Internship</option>
  <option value="Internship + PPO">Internship + PPO</option>
  </select>
+ </div>
+ <div className="md:col-span-2 space-y-2">
+ <label className="block text-sm font-bold text-foreground uppercase tracking-wider">
+ Job Description
+ </label>
+ <textarea
+ className="w-full min-h-[160px] rounded-xl border border-border bg-muted p-4 focus:ring-2 focus:ring-ring focus:border-ring focus:bg-card transition-all outline-none text-lg resize-y text-foreground"
+ value={driveData.jobDescription === 'TBD' ? '' : driveData.jobDescription || ''}
+ onChange={(e) => setDriveData({ ...driveData, jobDescription: e.target.value })}
+ placeholder="Describe responsibilities, required skills, and role expectations..."
+ />
  </div>
  <div className="space-y-2">
  <label className="block text-sm font-bold text-foreground uppercase tracking-wider">

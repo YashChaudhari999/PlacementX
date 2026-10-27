@@ -10,4 +10,5 @@ export * from './TabBar';
 export * from './StatCard';
 export * from './Toast';
 export * from './Foundation';
+export * from './KeyboardAwareScrollView';
 export * from './FilterChip';

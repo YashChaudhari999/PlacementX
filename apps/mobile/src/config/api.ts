@@ -9,6 +9,10 @@ import Constants from 'expo-constants';
  * iOS simulator can use localhost directly.
  * For physical devices on Expo Go, we extract the LAN IP dynamically.
  */
+// Hardcoded fallback for release builds where .env may not be injected by Gradle/Metro
+const PRODUCTION_API_URL = 'https://placementx-api.onrender.com/api';
+export const PLACEMENTX_PROFILE_URL = 'https://placementx-v1.vercel.app/student/profile';
+
 const getBaseUrl = (): string => {
   const configuredUrl = process.env.EXPO_PUBLIC_API_URL?.trim();
   if (configuredUrl) return configuredUrl.replace(/\/$/, '');
@@ -26,7 +30,9 @@ const getBaseUrl = (): string => {
     }
     return 'http://localhost:5000/api';
   }
-  throw new Error('EXPO_PUBLIC_API_URL is required for non-development mobile builds');
+
+  // Fallback for release builds where env vars aren't injected
+  return PRODUCTION_API_URL;
 };
 
 export const API_BASE_URL = getBaseUrl();
@@ -37,6 +43,10 @@ export const API_ENDPOINTS = {
   FIREBASE_LOGIN: '/auth/firebase-login',
   ME: '/auth/me',
   CHANGE_PASSWORD: '/auth/password',
+  PASSWORD_RESET_REQUEST: '/auth/password-reset/request',
+  PASSWORD_RESET_VERIFY: '/auth/password-reset/verify',
+  PASSWORD_RESET_CONFIRM: '/auth/password-reset/confirm',
+  PASSWORD_RESET_RESEND: '/auth/password-reset/resend',
 
   // Public
   PUBLIC_STATS: '/public/stats',

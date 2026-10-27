@@ -10,14 +10,17 @@ const addReason = (target: EligibilityReason[], code: string, explanation: strin
   target.push({ code, explanation });
 };
 
-
 export const filterEligibleStudents = async (drive: PlacementDrive) => {
   const students = await prisma.studentProfile.findMany();
-  const results = await Promise.all(students.map(async (student) => ({
-    userId: student.userId,
-    result: await checkEligibility(student, drive),
-  })));
-  return results.filter(({ result }) => result.isEligible && !result.requiresReview).map(({ userId }) => userId);
+  const results = await Promise.all(
+    students.map(async (student) => ({
+      userId: student.userId,
+      result: await checkEligibility(student, drive),
+    }))
+  );
+  return results
+    .filter(({ result }) => result.isEligible && !result.requiresReview)
+    .map(({ userId }) => userId);
 };
 
 export const checkEligibility = async (student: any, drive: any) => {
@@ -39,17 +42,30 @@ export const checkEligibility = async (student: any, drive: any) => {
     addReason(details, 'ACADEMIC_RESTRICTION', 'An academic restriction prevents application');
   }
   if (student.disciplinaryRestriction) {
-    addReason(details, 'DISCIPLINARY_RESTRICTION', 'A disciplinary restriction prevents application');
+    addReason(
+      details,
+      'DISCIPLINARY_RESTRICTION',
+      'A disciplinary restriction prevents application'
+    );
   }
-  
+
   const requiredCgpa = drive.minimumCgpa !== null ? drive.minimumCgpa : minimumCGPA;
   if (requiredCgpa && (student.cgpa || 0) < requiredCgpa) {
     addReason(details, 'CGPA_BELOW_MINIMUM', `CGPA is less than required ${requiredCgpa}`);
   }
 
-  const allowedBacklogs = drive.activeBacklogsAllowed !== null ? drive.activeBacklogsAllowed : maxBacklogsAllowed;
-  if (allowedBacklogs !== null && allowedBacklogs !== undefined && (student.activeBacklogs || 0) > allowedBacklogs) {
-    addReason(details, 'ACTIVE_BACKLOGS_EXCEEDED', `Active backlogs exceed allowed ${allowedBacklogs}`);
+  const allowedBacklogs =
+    drive.activeBacklogsAllowed !== null ? drive.activeBacklogsAllowed : maxBacklogsAllowed;
+  if (
+    allowedBacklogs !== null &&
+    allowedBacklogs !== undefined &&
+    (student.activeBacklogs || 0) > allowedBacklogs
+  ) {
+    addReason(
+      details,
+      'ACTIVE_BACKLOGS_EXCEEDED',
+      `Active backlogs exceed allowed ${allowedBacklogs}`
+    );
   }
 
   if (drive.passingYear && student.passingYear !== drive.passingYear) {
@@ -61,15 +77,27 @@ export const checkEligibility = async (student: any, drive: any) => {
     drive.historyOfBacklogsAllowed !== undefined &&
     (student.totalBacklogs || 0) > drive.historyOfBacklogsAllowed
   ) {
-    addReason(details, 'BACKLOG_HISTORY_EXCEEDED', `Backlog history exceeds the allowed ${drive.historyOfBacklogsAllowed}`);
+    addReason(
+      details,
+      'BACKLOG_HISTORY_EXCEEDED',
+      `Backlog history exceeds the allowed ${drive.historyOfBacklogsAllowed}`
+    );
   }
   if (drive.semester && student.currentSemester !== drive.semester) {
     addReason(details, 'SEMESTER_MISMATCH', `Current semester must be ${drive.semester}`);
   }
 
   const allowedGapYears = drive.maximumGapYears ?? drive.yearGapAllowed;
-  if (allowedGapYears !== null && allowedGapYears !== undefined && (student.yearGap || 0) > allowedGapYears) {
-    addReason(details, 'EDUCATION_GAP_EXCEEDED', `Education gap exceeds the allowed ${allowedGapYears} year(s)`);
+  if (
+    allowedGapYears !== null &&
+    allowedGapYears !== undefined &&
+    (student.yearGap || 0) > allowedGapYears
+  ) {
+    addReason(
+      details,
+      'EDUCATION_GAP_EXCEEDED',
+      `Education gap exceeds the allowed ${allowedGapYears} year(s)`
+    );
   }
 
   if (drive.resumeMandatory && !student.resumeUrl) {
@@ -85,45 +113,80 @@ export const checkEligibility = async (student: any, drive: any) => {
     addReason(details, 'LINKEDIN_REQUIRED', 'A LinkedIn profile is required');
   }
 
-  if (drive.genderRestriction && drive.genderRestriction.toUpperCase() !== 'ANY' && student.gender !== drive.genderRestriction) {
+  if (
+    drive.genderRestriction &&
+    drive.genderRestriction.toUpperCase() !== 'ANY' &&
+    student.gender !== drive.genderRestriction
+  ) {
     addReason(details, 'GENDER_RESTRICTION', `Gender must be ${drive.genderRestriction}`);
   }
 
   if (drive.eligibleBranches) {
     try {
       const branches = JSON.parse(drive.eligibleBranches);
-      if (Array.isArray(branches) && branches.length > 0 && !branches.includes('All')) {
-        if (!branches.includes(student.branch)) {
+      const normalizedBranches = Array.isArray(branches)
+        ? branches.map((branch) => String(branch).trim().toUpperCase())
+        : [];
+      if (normalizedBranches.length > 0 && !normalizedBranches.includes('ALL')) {
+        if (
+          !normalizedBranches.includes(
+            String(student.branch || '')
+              .trim()
+              .toUpperCase()
+          )
+        ) {
           addReason(details, 'BRANCH_NOT_ELIGIBLE', `Branch ${student.branch} is not eligible`);
         }
       }
     } catch (e) {
-      addReason(details, 'DRIVE_CRITERIA_INVALID', 'Drive branch criteria require administrative review');
+      addReason(
+        details,
+        'DRIVE_CRITERIA_INVALID',
+        'Drive branch criteria require administrative review'
+      );
     }
   }
 
   let requiresReview = details.some(({ code }) => code === 'DRIVE_CRITERIA_INVALID');
   if (drive.passingYear === 2027) {
     if (!student.policyAcknowledgedAt) {
-      addReason(details, 'POLICY_NOT_ACKNOWLEDGED', 'Batch 2027 placement policy acknowledgement is required');
+      addReason(
+        details,
+        'POLICY_NOT_ACKNOWLEDGED',
+        'Batch 2027 placement policy acknowledgement is required'
+      );
     }
     if (student.trainingAttendance === null || student.trainingAttendance === undefined) {
       requiresReview = true;
-      addReason(details, 'TRAINING_ATTENDANCE_MISSING', 'Training attendance is missing and requires administrative review');
+      addReason(
+        details,
+        'TRAINING_ATTENDANCE_MISSING',
+        'Training attendance is missing and requires administrative review'
+      );
     } else if (student.trainingAttendance < BATCH_2027_POLICY.minimumTrainingAttendance) {
-      addReason(details, 'TRAINING_ATTENDANCE_BELOW_MINIMUM', `Training attendance is below ${BATCH_2027_POLICY.minimumTrainingAttendance}%`);
+      addReason(
+        details,
+        'TRAINING_ATTENDANCE_BELOW_MINIMUM',
+        `Training attendance is below ${BATCH_2027_POLICY.minimumTrainingAttendance}%`
+      );
     }
     const offerDecision = evaluateOfferEligibility(
       Number(student.confirmedOfferCount || 0),
-      BATCH_2027_POLICY.offerEligibilityDecision,
+      BATCH_2027_POLICY.offerEligibilityDecision
     );
     if (offerDecision.requiresReview) {
       requiresReview = true;
-      addReason(details, 'OFFER_POLICY_AMBIGUOUS', 'Future-drive eligibility after an offer requires an authorized policy decision');
+      addReason(
+        details,
+        'OFFER_POLICY_AMBIGUOUS',
+        'Future-drive eligibility after an offer requires an authorized policy decision'
+      );
     }
   }
 
-  const blockingDetails = details.filter(({ code }) => !['TRAINING_ATTENDANCE_MISSING', 'OFFER_POLICY_AMBIGUOUS'].includes(code));
+  const blockingDetails = details.filter(
+    ({ code }) => !['TRAINING_ATTENDANCE_MISSING', 'OFFER_POLICY_AMBIGUOUS'].includes(code)
+  );
 
   return {
     isEligible: blockingDetails.length === 0 && !requiresReview,

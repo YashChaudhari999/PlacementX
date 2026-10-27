@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, TextInput, Text, StyleSheet, TextInputProps, TouchableOpacity } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
+import { useKeyboardAwareInput } from './KeyboardAwareScrollView';
 
 export interface InputProps extends TextInputProps {
   label?: string;
@@ -14,6 +15,8 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
   const { theme } = useAppTheme();
   const styles = React.useMemo(() => createStyles(theme), [theme]);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const inputRef = useRef<TextInput>(null);
+  const revealInput = useKeyboardAwareInput();
   const isPassword = secureTextEntry !== undefined ? secureTextEntry : false;
 
   return (
@@ -28,6 +31,7 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
         {icon && <View style={styles.iconContainer}>{icon}</View>}
         
         <TextInput
+          ref={inputRef}
           style={[
             styles.input,
             icon ? styles.inputWithIcon : null,
@@ -39,6 +43,10 @@ export const Input = ({ label, error, icon, secureTextEntry, style, ...props }: 
           accessibilityLabel={props.accessibilityLabel || label || props.placeholder}
           accessibilityState={{ disabled: props.editable === false }}
           {...props}
+          onFocus={event => {
+            revealInput(inputRef.current);
+            props.onFocus?.(event);
+          }}
         />
         
         {isPassword && (

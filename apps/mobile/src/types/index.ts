@@ -91,7 +91,7 @@ export interface Drive {
   employmentType: string;
   workMode?: string;
   fixedSalary?: number | string;
-  variablePay?: number | string;
+  variableSalary?: number | string;
   internshipStipend?: number | string;
   ppoAvailable?: boolean;
   bondDetails?: string;

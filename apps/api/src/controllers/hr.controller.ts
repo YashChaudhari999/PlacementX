@@ -2,6 +2,7 @@ import prisma from '../utils/prisma';
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { createNotification as sendNotification } from '../services/notification.service';
+import { getSetting } from '../services/settings.service';
 import { z } from 'zod';
 import { isApplicationStatus } from '../domain/placement.rules';
 
@@ -31,7 +32,10 @@ const driveFields = new Set([
   'minimumAttendance', 'placementSeason', 'preferredSkills', 'remarks', 'requiredSkills',
   'semester', 'specialInstructions', 'technologyStack', 'trainingPeriod',
 ]);
-const companyFields = new Set(['name', 'industry', 'profile', 'hrName', 'hrEmail']);
+const companyFields = new Set([
+  'name', 'logoUrl', 'website', 'industry', 'profile', 'hrName', 'hrEmail', 'hrContact',
+  'description', 'linkedInUrl', 'location', 'workMode',
+]);
 const roundFields = new Set([
   'roundNumber', 'title', 'date', 'time', 'duration', 'venue', 'evaluationCriteria',
   'instructions', 'interviewer', 'order', 'platform', 'roundType', 'weightage',
@@ -61,6 +65,7 @@ const storedToken = (token: unknown) => {
 export const generateHrLink = async (req: Request, res: Response) => {
   try {
     const { companyName, hrEmail, hrName, companyEmail, driveTitle } = hrLinkSchema.parse(req.body);
+    const currentAcademicYear = await getSetting('academicYear');
 
     let company = await prisma.company.findFirst({
       where: { OR: [{ name: companyName }, { hrEmail: hrEmail }] }
@@ -76,6 +81,7 @@ export const generateHrLink = async (req: Request, res: Response) => {
       data: {
         companyId: company.id,
         driveTitle,
+        academicYear: currentAcademicYear,
         status: 'HR_SUBMISSION_PENDING',
         jobRole: 'TBD',
         jobDescription: 'TBD',
@@ -205,7 +211,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
 
 export const submitHrDrive = async (req: Request, res: Response) => {
   try {
-    const { token } = req.body;
+    const { token, driveData, companyData, selectionRounds } = req.body;
     
     const tokenHash = storedToken(token);
     const invite = await prisma.hrInvitationLink.findUnique({ where: { token: tokenHash } });
@@ -213,22 +219,60 @@ export const submitHrDrive = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
     }
 
-    await prisma.placementDrive.update({
-      where: { id: invite.driveId },
-      data: { status: 'ADMIN_REVIEW' }
-    });
+    if (selectionRounds !== undefined && !Array.isArray(selectionRounds)) {
+      return res.status(400).json({ success: false, message: 'Invalid selection rounds' });
+    }
+    if (selectionRounds?.length > 20) {
+      return res.status(400).json({ success: false, message: 'Too many selection rounds' });
+    }
 
-    await prisma.hrInvitationLink.update({
-      where: { token: tokenHash },
-      data: { isUsed: true, submittedAt: new Date(), lastUsedAt: new Date() }
-    });
+    // Persist the exact form snapshot together with the status transition. This
+    // avoids a submit/autosave race where the admin could receive stale values.
+    await prisma.$transaction(async (tx) => {
+      await tx.placementDrive.update({
+        where: { id: invite.driveId },
+        data: {
+          ...(driveData ? pickUntrustedFields(driveData, driveFields) : {}),
+          status: 'ADMIN_REVIEW',
+        },
+      });
 
-    await prisma.driveAuditLog.create({
-      data: {
-        driveId: invite.driveId,
-        action: 'SUBMITTED',
-        performedBy: 'HR',
+      if (companyData) {
+        const drive = await tx.placementDrive.findUnique({
+          where: { id: invite.driveId },
+          select: { companyId: true },
+        });
+        if (!drive) throw new Error('Placement drive not found');
+        await tx.company.update({
+          where: { id: drive.companyId },
+          data: pickUntrustedFields(companyData, companyFields),
+        });
       }
+
+      if (selectionRounds) {
+        await tx.selectionRound.deleteMany({ where: { driveId: invite.driveId } });
+        if (selectionRounds.length) {
+          await tx.selectionRound.createMany({
+            data: selectionRounds.map((round: unknown) => ({
+              ...pickUntrustedFields(round, roundFields),
+              driveId: invite.driveId,
+            })) as any,
+          });
+        }
+      }
+
+      await tx.hrInvitationLink.update({
+        where: { token: tokenHash },
+        data: { isUsed: true, submittedAt: new Date(), lastUsedAt: new Date() },
+      });
+
+      await tx.driveAuditLog.create({
+        data: {
+          driveId: invite.driveId,
+          action: 'SUBMITTED',
+          performedBy: 'HR',
+        },
+      });
     });
 
     res.status(200).json({ success: true, message: 'Drive submitted successfully for review.' });

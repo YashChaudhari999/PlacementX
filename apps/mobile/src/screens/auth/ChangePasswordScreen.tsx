@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, Dimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, StatusBar } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Lock, AlertCircle, CheckCircle } from 'lucide-react-native';
 
-import { Input, Button, Card, Toast } from '../../components/ui';
+import { Input, Button, Card, KeyboardAwareScrollView, Toast } from '../../components/ui';
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { useAuthStore } from '../../stores/authStore';
@@ -33,8 +33,8 @@ export default function ChangePasswordScreen() {
       return;
     }
 
-    if (newPassword.length < 8) {
-      Toast.error('Password must be at least 8 characters long');
+    if (newPassword.length < 12) {
+      Toast.error('Password must be at least 12 characters long');
       return;
     }
 
@@ -66,13 +66,8 @@ export default function ChangePasswordScreen() {
       <View style={styles.bgCircleTopRight} />
       <View style={styles.bgCircleBottomLeft} />
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoid} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <ScrollView 
+      <KeyboardAwareScrollView
           contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 60 }]} 
-          keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Header */}
@@ -122,16 +117,16 @@ export default function ChangePasswordScreen() {
                 {/* Password Requirements */}
                 <View style={styles.requirementsContainer}>
                   <View style={styles.reqItem}>
-                    {newPassword.length >= 8 ? (
+                    {newPassword.length >= 12 ? (
                       <CheckCircle size={14} color={theme.colors.success} />
                     ) : (
                       <AlertCircle size={14} color={theme.colors.mutedForeground} />
                     )}
                     <Text style={[
                       styles.reqText, 
-                      newPassword.length >= 8 && { color: theme.colors.success }
+                      newPassword.length >= 12 && { color: theme.colors.success }
                     ]}>
-                      At least 8 characters
+                      At least 12 characters
                     </Text>
                   </View>
                   <View style={styles.reqItem}>
@@ -158,8 +153,7 @@ export default function ChangePasswordScreen() {
               </View>
             </Card>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }
@@ -188,9 +182,6 @@ const createStyles = (theme: AppTheme) => StyleSheet.create({
     borderRadius: width * 0.45,
     backgroundColor: '#c7d2fe', // slightly darker indigo
     opacity: 0.6,
-  },
-  keyboardAvoid: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

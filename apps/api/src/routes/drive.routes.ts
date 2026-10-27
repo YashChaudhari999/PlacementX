@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { 
-  createDrive, 
-  getDrives, 
-  checkEligibilityStatus, 
+import {
+  createDrive,
+  getDrives,
+  checkEligibilityStatus,
   getDriveById,
   getDriveApplications,
   updateApplicationStatus,
@@ -11,7 +11,8 @@ import {
   requestChangesHrDrive,
   updateDrive,
   deleteDrive,
-  updateDriveStatus
+  updateDriveStatus,
+  getDrivePublicationStatus,
 } from '../controllers/drive.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
@@ -32,6 +33,7 @@ router.put('/:id', adminOnly, updateDrive);
 router.delete('/:id', adminOnly, deleteDrive);
 router.put('/:id/status', adminOnly, updateDriveStatus);
 router.get('/:id/applications', adminOnly, getDriveApplications);
+router.get('/:id/publication-status', adminOnly, getDrivePublicationStatus);
 router.put('/applications/:id/status', adminOnly, updateApplicationStatus);
 
 // HR Drive Review Routes

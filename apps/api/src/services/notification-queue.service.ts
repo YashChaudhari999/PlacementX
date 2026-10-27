@@ -8,7 +8,6 @@ import { getRedisClient, isRedisConnected } from '../config/redis';
 import { sendPushToUser, sendPushToUsers } from './push-notification.service';
 import { getIO } from '../socket';
 
-
 // ─── Queue Names ────────────────────────────────────────
 
 const QUEUE_NAMES = {
@@ -79,14 +78,25 @@ interface ScheduledBulkJob {
   campaignId?: string;
 }
 
-type NotificationJob = ImmediateNotificationJob | ScheduledNotificationJob | BulkNotificationJob | ScheduledBulkJob;
+interface DrivePublicationJob {
+  type: 'drive-publication';
+  eventId: string;
+}
+
+type NotificationJob =
+  | ImmediateNotificationJob
+  | ScheduledNotificationJob
+  | BulkNotificationJob
+  | ScheduledBulkJob
+  | DrivePublicationJob;
 
 // ─── Queue Instances ────────────────────────────────────
 
 let immediateQueue: Queue | null = null;
 let scheduledQueue: Queue | null = null;
-let bulkQueue: Queue | null = null;
+let bulkQueue: Queue<NotificationJob> | null = null;
 let notificationWorkers: Worker[] = [];
+let publicationRecoveryTimer: NodeJS.Timeout | null = null;
 
 // ─── Initialize Queues ──────────────────────────────────
 
@@ -94,7 +104,9 @@ export const initQueues = (): void => {
   if (immediateQueue) return;
   const redis = getRedisClient();
   if (!redis) {
-    console.warn('⚠️ Redis not available. Notification queues disabled — processing synchronously.');
+    console.warn(
+      '⚠️ Redis not available. Notification queues disabled — processing synchronously.'
+    );
     return;
   }
 
@@ -103,7 +115,7 @@ export const initQueues = (): void => {
     attempts: 3,
     backoff: { type: 'exponential' as const, delay: 1000 },
     removeOnComplete: { count: 1000 }, // Keep last 1000 completed jobs
-    removeOnFail: { count: 5000 },     // Keep last 5000 failed jobs for debugging
+    removeOnFail: { count: 5000 }, // Keep last 5000 failed jobs for debugging
   };
 
   immediateQueue = new Queue(QUEUE_NAMES.IMMEDIATE, {
@@ -135,25 +147,52 @@ export const initWorkers = (): void => {
   if (!redis) return;
 
   // Immediate notification worker
-  const immediateWorker = new Worker(QUEUE_NAMES.IMMEDIATE, async (job: Job<ImmediateNotificationJob>) => {
-    await processImmediateNotification(job.data);
-  }, { connection: redis, concurrency: 10 });
+  const immediateWorker = new Worker(
+    QUEUE_NAMES.IMMEDIATE,
+    async (job: Job<ImmediateNotificationJob>) => {
+      await processImmediateNotification(job.data);
+    },
+    { connection: redis, concurrency: 10 }
+  );
 
   // Scheduled notification worker
-  const scheduledWorker = new Worker(QUEUE_NAMES.SCHEDULED, async (job: Job<ScheduledNotificationJob | ScheduledBulkJob>) => {
-    if (job.data.type === 'scheduled') {
-      await processScheduledNotification(job.data as ScheduledNotificationJob);
-    } else if (job.data.type === 'scheduled-bulk') {
-      await processScheduledBulkNotification(job.data as ScheduledBulkJob);
-    }
-  }, { connection: redis, concurrency: 5 });
+  const scheduledWorker = new Worker(
+    QUEUE_NAMES.SCHEDULED,
+    async (job: Job<ScheduledNotificationJob | ScheduledBulkJob>) => {
+      if (job.data.type === 'scheduled') {
+        await processScheduledNotification(job.data as ScheduledNotificationJob);
+      } else if (job.data.type === 'scheduled-bulk') {
+        await processScheduledBulkNotification(job.data as ScheduledBulkJob);
+      }
+    },
+    { connection: redis, concurrency: 5 }
+  );
 
   // Bulk notification worker
-  const bulkWorker = new Worker(QUEUE_NAMES.BULK, async (job: Job<BulkNotificationJob>) => {
-    await processBulkNotification(job.data);
-  }, { connection: redis, concurrency: 3 });
+  const bulkWorker = new Worker(
+    QUEUE_NAMES.BULK,
+    async (job: Job<BulkNotificationJob | DrivePublicationJob>) => {
+      if (job.data.type === 'drive-publication') {
+        const { processDrivePublication } = await import('./drive-publication.service');
+        await processDrivePublication(job.data.eventId);
+        return;
+      }
+      await processBulkNotification(job.data as BulkNotificationJob);
+    },
+    { connection: redis, concurrency: 3 }
+  );
 
   notificationWorkers = [immediateWorker, scheduledWorker, bulkWorker];
+
+  const recover = async () => {
+    const { recoverDrivePublicationEvents } = await import('./drive-publication.service');
+    await recoverDrivePublicationEvents().catch((error) =>
+      console.error('Drive publication recovery failed:', error)
+    );
+  };
+  void recover();
+  publicationRecoveryTimer = setInterval(recover, 60_000);
+  publicationRecoveryTimer.unref?.();
 
   console.log('✅ Notification workers started.');
 };
@@ -181,7 +220,7 @@ const processImmediateNotification = async (job: ImmediateNotificationJob): Prom
     });
     if (notification) {
       io.to(`user:${job.userId}`).emit('notification:new', notification);
-      
+
       // Also send updated unread count
       const unreadCount = await prisma.notification.count({
         where: { receiverId: job.userId, isRead: false, isDeleted: false },
@@ -252,7 +291,7 @@ const processBulkNotification = async (job: BulkNotificationJob): Promise<void> 
   const { userIds, ...rest } = job;
 
   // Create notifications for all users
-  const notificationsData = userIds.map(userId => ({
+  const notificationsData = userIds.map((userId) => ({
     title: rest.title,
     message: rest.message,
     type: rest.notificationType,
@@ -281,13 +320,13 @@ const processBulkNotification = async (job: BulkNotificationJob): Promise<void> 
       deepLinkRoute: rest.deepLinkRoute,
       deepLinkParams: rest.deepLinkParams,
     },
-    rest.priority,
+    rest.priority
   );
 
   // Emit socket events
   try {
     const io = getIO();
-    userIds.forEach(userId => {
+    userIds.forEach((userId) => {
       io.to(`user:${userId}`).emit('notification:update');
     });
   } catch (e) {
@@ -345,7 +384,7 @@ export const queueImmediateNotification = async (job: ImmediateNotificationJob):
  */
 export const queueScheduledNotification = async (
   job: ScheduledNotificationJob,
-  delayMs: number,
+  delayMs: number
 ): Promise<string | null> => {
   if (scheduledQueue && isRedisConnected()) {
     const queuedJob = await scheduledQueue.add('scheduled-send', job, {
@@ -364,7 +403,7 @@ export const queueScheduledNotification = async (
  */
 export const queueScheduledBulkNotification = async (
   job: ScheduledBulkJob,
-  delayMs: number,
+  delayMs: number
 ): Promise<string | null> => {
   if (scheduledQueue && isRedisConnected()) {
     const queuedJob = await scheduledQueue.add('scheduled-bulk-send', job, {
@@ -387,6 +426,24 @@ export const queueBulkNotification = async (job: BulkNotificationJob): Promise<v
   } else {
     // Fallback: process synchronously
     await processBulkNotification(job);
+  }
+};
+
+export const queueDrivePublication = async (eventId: string): Promise<void> => {
+  const job: DrivePublicationJob = { type: 'drive-publication', eventId };
+  if (bulkQueue && isRedisConnected()) {
+    await bulkQueue.add('drive-publication', job, {
+      jobId: `drive-publication-${eventId}`,
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5_000 },
+    });
+  } else {
+    setImmediate(async () => {
+      const { processDrivePublication } = await import('./drive-publication.service');
+      await processDrivePublication(eventId).catch((error) =>
+        console.error('Drive publication processing failed:', error)
+      );
+    });
   }
 };
 
@@ -436,12 +493,10 @@ const getCategoryPrefKey = (category: string): string | null => {
  * Gracefully close all queues.
  */
 export const closeQueues = async (): Promise<void> => {
+  if (publicationRecoveryTimer) clearInterval(publicationRecoveryTimer);
+  publicationRecoveryTimer = null;
   await Promise.all(notificationWorkers.map((worker) => worker.close()));
-  await Promise.all([
-    immediateQueue?.close(),
-    scheduledQueue?.close(),
-    bulkQueue?.close(),
-  ]);
+  await Promise.all([immediateQueue?.close(), scheduledQueue?.close(), bulkQueue?.close()]);
   notificationWorkers = [];
   immediateQueue = null;
   scheduledQueue = null;

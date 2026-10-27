@@ -58,6 +58,7 @@ const AdminCalendar = lazy(() => import('@/features/admin/pages/AdminCalendar'))
 const AdminSettings = lazy(() => import('@/features/admin/pages/AdminSettings'));
 const StudentDashboard = lazy(() => import('@/features/student/pages/StudentDashboard'));
 const StudentDriveDetails = lazy(() => import('@/features/student/pages/StudentDriveDetails'));
+const DriveLinkEntry = lazy(() => import('@/features/student/pages/DriveLinkEntry'));
 const StudentProfile = lazy(() => import('@/features/student/pages/StudentProfile'));
 const StudentApplications = lazy(() => import('@/features/student/pages/StudentApplications'));
 const StudentInterviews = lazy(() => import('@/features/student/pages/StudentInterviews'));
@@ -151,6 +152,14 @@ export const router = createBrowserRouter([
     element: (
       <Suspense fallback={<Loading />}>
         <ForgotPassword />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/drives/:id',
+    element: (
+      <Suspense fallback={<Loading />}>
+        <DriveLinkEntry />
       </Suspense>
     ),
   },

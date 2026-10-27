@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, RefreshControl, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Phone, MapPin, GraduationCap, FileText, Briefcase, ChevronRight, Settings, CheckCircle, AlertCircle, Upload, Save, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,7 @@ import * as DocumentPicker from 'expo-document-picker';
 
 import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
-import { Card, ScreenHeader, DashboardSkeleton, Button, Input, Toast, TabBar, ErrorState } from '../../components/ui';
+import { Card, ScreenHeader, DashboardSkeleton, Button, Input, KeyboardAwareScrollView, Toast, TabBar, ErrorState } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
 import { useStudentProfile, useUpdateStudentProfile, useStudentProfileStatus, useRequestProfileUpdate } from '../../hooks/queries';
 import apiClient from '../../lib/apiClient';
@@ -219,8 +219,7 @@ export default function ProfileScreen() {
           onTabChange={setActiveTab}
         />
 
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{flex: 1}}>
-          <ScrollView 
+        <KeyboardAwareScrollView
             contentContainerStyle={styles.scrollContent}
             refreshControl={<RefreshControl refreshing={false} onRefresh={refetch} tintColor={theme.colors.primary} />}
             showsVerticalScrollIndicator={false}
@@ -311,8 +310,7 @@ export default function ProfileScreen() {
             </Card>
 
             <View style={{ height: theme.spacing[8] }} />
-          </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     </View>
   );

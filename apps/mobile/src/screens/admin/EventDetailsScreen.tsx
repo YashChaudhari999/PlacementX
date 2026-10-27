@@ -23,7 +23,7 @@ export default function EventDetailsScreen() {
     { icon: Building2, label: 'Role', value: drive.jobRole },
     { icon: MapPin, label: 'Location', value: drive.location || 'To be announced' },
     { icon: CalendarDays, label: 'Registration closes', value: drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleString() : 'To be announced' },
-    { icon: IndianRupee, label: 'Fixed salary', value: drive.fixedSalary ? `₹${Number(drive.fixedSalary).toLocaleString('en-IN')}` : 'Not disclosed' },
+    { icon: IndianRupee, label: 'CTC package', value: drive.fixedSalary ? `${Number(drive.fixedSalary).toLocaleString('en-IN')} LPA` : 'Not disclosed' },
     { icon: Users, label: 'Applications', value: `${drive.applications?.length ?? 0}` },
   ];
 

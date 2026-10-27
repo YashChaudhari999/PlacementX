@@ -40,10 +40,21 @@ test('admin navigation excludes the removed coordinator page', () => {
 test('demo APK configuration uses a distinct identity and existing notification asset', () => {
   const config = JSON.parse(source('app.json'));
   assert.equal(config.expo.android.package, 'com.placementx.app.demo');
+  assert.equal(config.expo.name, 'PlacementX');
+  assert.equal(config.expo.icon, './assets/nmims-placementx-launcher-icon.png');
+  assert.equal(config.expo.android.adaptiveIcon.foregroundImage, './assets/nmims-placementx-launcher-icon.png');
+  assert.equal(config.expo.android.adaptiveIcon.backgroundColor, '#F9F6EF');
+  assert.equal(config.expo.android.adaptiveIcon.backgroundImage, undefined);
   assert.equal(config.expo.userInterfaceStyle, 'automatic');
   assert.equal(config.expo.plugins[1][1].icon, './assets/android-icon-monochrome.png');
   const eas = JSON.parse(source('eas.json'));
   assert.equal(eas.build.preview.android.buildType, 'apk');
+});
+
+test('standalone APK has Firebase client configuration when build env is absent', () => {
+  const firebase = source('src/lib/firebaseApp.ts');
+  assert.match(firebase, /EXPO_PUBLIC_FIREBASE_API_KEY \|\| 'AIza/);
+  assert.match(firebase, /EXPO_PUBLIC_FIREBASE_PROJECT_ID \|\| 'placementx-a3f1d'/);
 });
 
 test('auth covers invalid credentials, restoration, expiration, password change, and confirmed logout', () => {
@@ -59,7 +70,9 @@ test('route contract includes every student destination and custom-scheme deep l
   for (const route of ['Dashboard', 'DriveDetails', 'Drives', 'Calendar', 'Notifications', 'ProfileHome', 'Documents', 'Interviews', 'NotificationPreferences', 'Settings']) assert.match(types, new RegExp(route));
   const app = source('App.tsx');
   assert.match(app, /placementx:\/\//);
-  assert.match(app, /student\/drives\/:id/);
+  assert.match(app, /https:\/\/placementx-v1\.vercel\.app/);
+  assert.match(app, /DriveDetails: 'drives\/:id'/);
+  assert.match(app, /setPendingDriveId/);
 });
 
 test('dashboard defines loading, error, empty, and refresh recovery states', () => {
@@ -77,6 +90,8 @@ test('drive list supports search, work-mode filtering, sorting, and empty/error 
   assert.match(drives, /sortBy/);
   assert.match(drives, /ErrorState/);
   assert.match(drives, /EmptyState/);
+  assert.match(drives, /filterScroll: \{ flexGrow: 0, flexShrink: 0 \}/);
+  assert.match(drives, /filterRow: \{ alignItems: 'center'/);
 });
 
 test('applications expose status cards and an empty application state', () => {
@@ -84,6 +99,9 @@ test('applications expose status cards and an empty application state', () => {
   assert.match(applications, /My Applications/);
   assert.match(applications, /StatusBadge/);
   assert.match(applications, /No Applications/);
+  assert.doesNotMatch(applications, /â‚¹/);
+  assert.match(applications, /LPA/);
+  assert.doesNotMatch(applications, /`₹\$\{drive\.fixedSalary/);
 });
 
 test('interviews expose loading, schedule details, empty, and error states', () => {
@@ -121,6 +139,16 @@ test('settings persist appearance mode and confirm logout', () => {
   assert.match(settings, /ConfirmationDialog/);
 });
 
+test('theme preferences are account-scoped and authentication stays light', () => {
+  const provider = source('src/theme/ThemeProvider.tsx');
+  assert.match(provider, /placementx-theme-mode:/);
+  assert.match(provider, /user\?\.id/);
+  assert.match(provider, /isAuthenticated && !mustChangePassword/);
+  assert.match(provider, /accountId && loadedAccountId === accountId \? mode : 'light'/);
+  assert.match(provider, /if \(!accountId\) return/);
+  assert.doesNotMatch(provider, /const STORAGE_KEY = 'placementx-theme-mode'/);
+});
+
 test('responsive foundation uses dimensions, breakpoints, safe area, and bounded content', () => {
   const responsive = source('src/hooks/useResponsiveLayout.ts');
   assert.match(responsive, /useWindowDimensions/);
@@ -130,8 +158,28 @@ test('responsive foundation uses dimensions, breakpoints, safe area, and bounded
   assert.match(foundation, /contentMaxWidth/);
   assert.match(foundation, /width: 44/);
 });
+
+test('forms keep focused inputs visible during keyboard transitions', () => {
+  const keyboardAware = source('src/components/ui/KeyboardAwareScrollView.tsx');
+  const input = source('src/components/ui/Input.tsx');
+  const config = JSON.parse(source('app.json'));
+  assert.match(keyboardAware, /scrollResponderScrollNativeHandleToKeyboard/);
+  assert.match(keyboardAware, /Keyboard\.scheduleLayoutAnimation/);
+  assert.match(keyboardAware, /keyboardDismissMode/);
+  assert.match(input, /revealInput\(inputRef\.current\)/);
+  assert.equal(config.expo.android.softwareKeyboardLayoutMode, 'resize');
+  for (const screen of [
+    'src/screens/auth/LoginScreen.tsx',
+    'src/screens/auth/ChangePasswordScreen.tsx',
+    'src/screens/student/ProfileScreen.tsx',
+    'src/screens/admin/CreateDriveScreen.tsx',
+    'src/screens/admin/AdminSettingsScreen.tsx',
+    'src/screens/admin/AdminNotificationsScreen.tsx',
+  ]) assert.match(source(screen), /KeyboardAwareScrollView/);
+});
 test('student primary navigation separates drives and applications while retaining notification routing', () => {
   const navigator = source('src/navigation/StudentTabNavigator.tsx');
+  assert.doesNotMatch(navigator, /\/>[ \t]+<Tab\.Screen/);
   assert.match(navigator, /name="Applications"/);
   assert.match(navigator, /name="Notifications"/);
   assert.match(navigator, /tabBarButton: \(\) => null/);
@@ -153,4 +201,36 @@ test('dashboard surfaces real unread and profile status', () => {
   assert.match(dashboard, /unreadCount > 0/);
   assert.match(dashboard, /Complete your profile/);
   assert.match(dashboard, /Profile verified/);
+  assert.match(dashboard, /\[user\?\.firstName, user\?\.lastName\]/);
+  assert.match(dashboard, /\[profile\?\.firstName, profile\?\.lastName\]/);
+  assert.match(dashboard, /\.toUpperCase\(\)/);
+  assert.match(dashboard, /Hello, \{studentName\}/);
+});
+
+test('unverified students are sent to the website profile verification flow', () => {
+  const api = source('src/config/api.ts');
+  assert.match(api, /https:\/\/placementx-v1\.vercel\.app\/student\/profile/);
+  for (const screen of [
+    'src/screens/student/DashboardScreen.tsx',
+    'src/screens/student/ApplicationsScreen.tsx',
+  ]) {
+    const content = source(screen);
+    assert.match(content, /Linking\.openURL\(PLACEMENTX_PROFILE_URL\)/);
+    assert.match(content, /submit it to the placement cell for verification/);
+    assert.match(content, /Open PlacementX Website/);
+  }
+});
+
+test('password recovery uses the backend OTP flow without persistent reset secrets', () => {
+  const service = source('src/lib/authService.ts');
+  const screen = source('src/screens/auth/PasswordResetScreen.tsx');
+  const routes = source('src/navigation/AuthStack.tsx');
+  assert.match(service, /PASSWORD_RESET_REQUEST/);
+  assert.match(service, /PASSWORD_RESET_VERIFY/);
+  assert.match(service, /PASSWORD_RESET_CONFIRM/);
+  assert.doesNotMatch(service, /sendPasswordResetEmail/);
+  assert.match(screen, /one-time-code/);
+  assert.match(screen, /newPassword\.length < 12/);
+  assert.doesNotMatch(screen, /AsyncStorage|SecureStore/);
+  assert.match(routes, /name="PasswordReset"/);
 });
