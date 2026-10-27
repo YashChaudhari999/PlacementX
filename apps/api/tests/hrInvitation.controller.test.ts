@@ -119,7 +119,13 @@ describe('generateHrLink', () => {
     await submitHrDrive({
       body: {
         token: 'a'.repeat(64),
-        driveData: { jobRole: 'Engineer', jobDescription: 'Build reliable products' },
+        driveData: {
+          jobRole: 'Engineer',
+          jobDescription: 'Build reliable products',
+          registrationStart: '2026-11-01',
+          registrationEnd: '2026-11-15',
+          fixedSalary: '12.5',
+        },
         companyData: { name: 'Example Company', description: 'Company description' },
         selectionRounds: [{ roundNumber: 1, title: 'Technical interview' }],
       },
@@ -130,6 +136,9 @@ describe('generateHrLink', () => {
       data: expect.objectContaining({
         jobRole: 'Engineer',
         jobDescription: 'Build reliable products',
+        registrationStart: new Date('2026-11-01'),
+        registrationEnd: new Date('2026-11-15'),
+        fixedSalary: 12.5,
         status: 'ADMIN_REVIEW',
       }),
     });
@@ -139,5 +148,31 @@ describe('generateHrLink', () => {
     });
     expect(tx.selectionRound.createMany).toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('returns a useful validation error instead of starting a transaction for an invalid date', async () => {
+    (prismaMock.hrInvitationLink as any).findUnique = jest.fn().mockResolvedValue({
+      driveId: 'drive-1',
+      isUsed: false,
+      revokedAt: null,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const res = response();
+
+    await submitHrDrive({
+      body: {
+        token: 'b'.repeat(64),
+        driveData: { registrationEnd: 'not-a-date' },
+        companyData: null,
+        selectionRounds: [],
+      },
+    } as any, res);
+
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      success: false,
+      message: 'registrationEnd must be a valid date',
+    });
   });
 });

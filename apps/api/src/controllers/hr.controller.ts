@@ -41,6 +41,20 @@ const roundFields = new Set([
   'instructions', 'interviewer', 'order', 'platform', 'roundType', 'weightage',
 ]);
 
+class HrPayloadError extends Error {}
+
+const driveDateFields = new Set([
+  'registrationStart', 'registrationEnd', 'applicationDeadline', 'expectedDriveDate',
+]);
+const driveNumberFields = new Set([
+  'fixedSalary', 'variableSalary', 'internshipStipend', 'vacancies', 'passingYear',
+  'minimumCgpa', 'activeBacklogsAllowed', 'yearGapAllowed', 'maximumLiveOffers',
+  'maximumApplicants', 'historyOfBacklogsAllowed', 'joiningBonus', 'maximumGapYears',
+  'minimumAttendance', 'semester',
+]);
+const roundDateFields = new Set(['date', 'publishedAt']);
+const roundNumberFields = new Set(['roundNumber', 'order', 'weightage']);
+
 const pickUntrustedFields = (value: unknown, allowed: Set<string>) => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error('Invalid object payload');
@@ -56,6 +70,46 @@ const pickUntrustedFields = (value: unknown, allowed: Set<string>) => {
   }
   return output;
 };
+
+const normalizePickedFields = (
+  fields: Record<string, unknown>,
+  dateFields: Set<string>,
+  numberFields: Set<string>
+) => {
+  const normalized: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(fields)) {
+    if (dateFields.has(key)) {
+      if (value === null || value === '') {
+        normalized[key] = null;
+        continue;
+      }
+      const date = value instanceof Date ? value : new Date(String(value));
+      if (Number.isNaN(date.getTime())) throw new HrPayloadError(`${key} must be a valid date`);
+      normalized[key] = date;
+      continue;
+    }
+
+    if (numberFields.has(key)) {
+      if (value === null || value === '') {
+        normalized[key] = null;
+        continue;
+      }
+      const number = typeof value === 'number' ? value : Number(value);
+      if (!Number.isFinite(number)) throw new HrPayloadError(`${key} must be a valid number`);
+      normalized[key] = number;
+      continue;
+    }
+
+    normalized[key] = value;
+  }
+  return normalized;
+};
+
+const normalizeDriveFields = (value: unknown) =>
+  normalizePickedFields(pickUntrustedFields(value, driveFields), driveDateFields, driveNumberFields);
+
+const normalizeRoundFields = (value: unknown) =>
+  normalizePickedFields(pickUntrustedFields(value, roundFields), roundDateFields, roundNumberFields);
 
 const storedToken = (token: unknown) => {
   if (typeof token !== 'string' || !/^[a-f0-9]{64}$/i.test(token)) throw new Error('Invalid token');
@@ -185,7 +239,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
     const drive = await prisma.placementDrive.update({
       where: { id: invite.driveId },
       data: {
-        ...pickUntrustedFields(driveData, driveFields),
+        ...normalizeDriveFields(driveData),
         status: 'DRAFT',
       }
     });
@@ -202,7 +256,7 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
         return res.status(400).json({ success: false, message: 'Too many selection rounds' });
       }
       const safeRounds = selectionRounds.map((round: unknown) => ({
-        ...pickUntrustedFields(round, roundFields),
+        ...normalizeRoundFields(round),
         driveId: drive.id,
       }));
       await prisma.selectionRound.deleteMany({ where: { driveId: drive.id } });
@@ -213,6 +267,10 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true, message: 'Draft saved' });
   } catch (error) {
+    if (error instanceof HrPayloadError) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    console.error('HR draft autosave error:', error);
     res.status(500).json({ success: false, message: 'Failed to save draft' });
   }
 };
@@ -234,18 +292,24 @@ export const submitHrDrive = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Too many selection rounds' });
     }
 
+    const safeDriveData = driveData ? normalizeDriveFields(driveData) : {};
+    const safeCompanyData = companyData ? pickUntrustedFields(companyData, companyFields) : null;
+    const safeSelectionRounds = selectionRounds
+      ? selectionRounds.map((round: unknown) => normalizeRoundFields(round))
+      : null;
+
     // Persist the exact form snapshot together with the status transition. This
     // avoids a submit/autosave race where the admin could receive stale values.
     await prisma.$transaction(async (tx) => {
       await tx.placementDrive.update({
         where: { id: invite.driveId },
         data: {
-          ...(driveData ? pickUntrustedFields(driveData, driveFields) : {}),
+          ...safeDriveData,
           status: 'ADMIN_REVIEW',
         },
       });
 
-      if (companyData) {
+      if (safeCompanyData) {
         const drive = await tx.placementDrive.findUnique({
           where: { id: invite.driveId },
           select: { companyId: true },
@@ -253,16 +317,16 @@ export const submitHrDrive = async (req: Request, res: Response) => {
         if (!drive) throw new Error('Placement drive not found');
         await tx.company.update({
           where: { id: drive.companyId },
-          data: pickUntrustedFields(companyData, companyFields),
+          data: safeCompanyData,
         });
       }
 
-      if (selectionRounds) {
+      if (safeSelectionRounds) {
         await tx.selectionRound.deleteMany({ where: { driveId: invite.driveId } });
-        if (selectionRounds.length) {
+        if (safeSelectionRounds.length) {
           await tx.selectionRound.createMany({
-            data: selectionRounds.map((round: unknown) => ({
-              ...pickUntrustedFields(round, roundFields),
+            data: safeSelectionRounds.map((round) => ({
+              ...round,
               driveId: invite.driveId,
             })) as any,
           });
@@ -285,6 +349,10 @@ export const submitHrDrive = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true, message: 'Drive submitted successfully for review.' });
   } catch (error) {
+    if (error instanceof HrPayloadError) {
+      return res.status(400).json({ success: false, message: error.message });
+    }
+    console.error('HR drive submission error:', error);
     res.status(500).json({ success: false, message: 'Failed to submit drive' });
   }
 };
