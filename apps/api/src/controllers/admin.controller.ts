@@ -79,25 +79,39 @@ export const getStudents = async (req: any, res: any) => {
       }),
     ]);
 
-    const formattedStudents = students.map((s: any) => ({
-      id: s.id,
-      studentId: s.studentId,
-      name: s.fullName,
-      email: s.email,
-      branch: s.department,
-      cgpa: s.cgpa ?? null,
-      status: s.placementStatus || 'Unplaced',
-      academicYear: s.academicYear,
-      gender: s.gender,
-      activeBacklogs: s.activeBacklogs ?? 0,
-      profileComplete: s.profileComplete,
-      skills: s.skills,
-      companyName: s.companyName,
-      fixedSalaryLpa: s.fixedSalaryLpa,
-      applicationStatus: s.applicationStatus,
-      studentStatus: s.studentStatus,
-      updatedAt: s.updatedAt,
-    }));
+    const profileRows = await prisma.studentProfile.findMany({
+      where: { user: { email: { in: students.map((student) => student.email).filter(Boolean) as string[] } } },
+      select: {
+        branch: true,
+        cgpa: true,
+        activeBacklogs: true,
+        user: { select: { email: true } },
+      },
+    });
+    const profilesByEmail = new Map(profileRows.map((profile) => [profile.user.email, profile]));
+
+    const formattedStudents = students.map((s: any) => {
+      const profile = s.email ? profilesByEmail.get(s.email) : undefined;
+      return {
+        id: s.id,
+        studentId: s.studentId,
+        name: s.fullName,
+        email: s.email,
+        branch: profile?.branch ?? s.department,
+        cgpa: profile?.cgpa ?? s.cgpa ?? null,
+        status: s.placementStatus || 'Unplaced',
+        academicYear: s.academicYear,
+        gender: s.gender,
+        activeBacklogs: profile?.activeBacklogs ?? s.activeBacklogs ?? 0,
+        profileComplete: s.profileComplete,
+        skills: s.skills,
+        companyName: s.companyName,
+        fixedSalaryLpa: s.fixedSalaryLpa,
+        applicationStatus: s.applicationStatus,
+        studentStatus: s.studentStatus,
+        updatedAt: s.updatedAt,
+      };
+    });
 
     return res.status(200).json({
       data: formattedStudents,
@@ -1625,7 +1639,12 @@ export const getStudentById = async (req: any, res: any) => {
     }
 
     return res.status(200).json({
-      importedData: importedStudent,
+      importedData: {
+        ...importedStudent,
+        department: userProfile?.branch ?? importedStudent.department,
+        cgpa: userProfile?.cgpa ?? importedStudent.cgpa,
+        activeBacklogs: userProfile?.activeBacklogs ?? importedStudent.activeBacklogs,
+      },
       profileData: userProfile
     });
 
