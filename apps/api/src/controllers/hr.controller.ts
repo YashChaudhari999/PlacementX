@@ -137,10 +137,6 @@ export const validateHrLink = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Link has been revoked.' });
     }
 
-    if (invite.isUsed) {
-      return res.status(403).json({ success: false, message: 'Link has already been used.' });
-    }
-
     if (invite.expiresAt < new Date()) {
       return res.status(403).json({ success: false, message: 'Link has expired.' });
     }
@@ -150,9 +146,13 @@ export const validateHrLink = async (req: Request, res: Response) => {
       include: { company: true, selectionRounds: true }
     });
 
+    if (!drive) {
+      return res.status(404).json({ success: false, message: 'Placement drive not found.' });
+    }
+
     res.status(200).json({
       success: true,
-      data: { drive, hrEmail: invite.hrEmail }
+      data: { drive, hrEmail: invite.hrEmail, isUsed: invite.isUsed }
     });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error' });

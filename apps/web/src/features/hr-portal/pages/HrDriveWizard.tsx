@@ -121,7 +121,7 @@ export default function HrDriveWizard() {
  setLoading(true);
  await api.post('/hr/submit', { token });
  alert('Drive submitted successfully!');
- // Navigate to a success page or show success state
+ window.location.reload();
  } catch (err: any) {
  alert(err.response?.data?.message || 'Failed to submit');
  } finally {
