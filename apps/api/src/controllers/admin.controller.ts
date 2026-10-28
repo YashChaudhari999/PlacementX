@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { firebaseAdmin } from '../config/firebase-admin';
 import prisma from '../utils/prisma';
 import { getAcademicDocumentForAdmin, signDocuments } from '../services/student-document.service';
+import { redispatchPublishedDriveNotifications } from '../services/drive-publication.service';
 
 // Coordinators may only operate on students in their assigned department.
 // A missing assignment deliberately scopes them to an impossible value.
@@ -1269,6 +1270,12 @@ export const verifyProfile = async (req: any, res: any) => {
       return updated;
     });
 
+    if (action === 'APPROVE') {
+      void redispatchPublishedDriveNotifications().catch((error) =>
+        console.error('Unable to refresh drive notifications after profile verification:', error)
+      );
+    }
+
     return res
       .status(200)
       .json({ message: `Profile ${action.toLowerCase()}d successfully`, profile: updatedProfile });
@@ -1405,6 +1412,12 @@ export const reviewUpdateRequest = async (req: any, res: any) => {
         priority: 'HIGH',
       },
     });
+
+    if (action === 'APPROVE') {
+      void redispatchPublishedDriveNotifications().catch((error) =>
+        console.error('Unable to refresh drive notifications after profile update:', error)
+      );
+    }
 
     return res
       .status(200)

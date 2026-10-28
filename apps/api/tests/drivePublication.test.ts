@@ -26,6 +26,17 @@ describe('drive publication links and email', () => {
     expect(() => buildDriveUrl('drive-123')).toThrow('HTTPS');
   });
 
+  it('accepts a configured production hostname without a protocol', () => {
+    process.env = {
+      ...originalEnv,
+      NODE_ENV: 'production',
+      FRONTEND_URL: 'placementx-v1.vercel.app',
+    };
+    expect(buildDriveUrl('drive-123')).toBe(
+      'https://placementx-v1.vercel.app/drives/drive-123'
+    );
+  });
+
   it('renders drive data in HTML and text while escaping untrusted fields', () => {
     const result = renderDrivePublicationEmail({
       studentName: '<Student>',

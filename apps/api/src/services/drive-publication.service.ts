@@ -15,7 +15,8 @@ const sanitizeError = (error: unknown) => {
 
 export const buildDriveUrl = (driveId: string): string => {
   const configured = process.env.FRONTEND_URL?.trim();
-  const base = configured || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5173');
+  const rawBase = configured || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5173');
+  const base = rawBase && !rawBase.includes('://') ? `https://${rawBase}` : rawBase;
   if (!base) throw new Error('FRONTEND_URL is required for placement drive links');
   const url = new URL(base);
   if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') {
@@ -41,6 +42,28 @@ export const recordDrivePublication = async (
 export const dispatchDrivePublication = async (eventId: string): Promise<void> => {
   const { queueDrivePublication } = await import('./notification-queue.service');
   await queueDrivePublication(eventId);
+};
+
+export const redispatchPublishedDriveNotifications = async (): Promise<void> => {
+  const events = await prisma.drivePublicationEvent.findMany({
+    where: { drive: { status: 'PUBLISHED' } },
+    select: { id: true },
+  });
+  if (!events.length) return;
+
+  const eventIds = events.map(({ id }) => id);
+  await prisma.drivePublicationEvent.updateMany({
+    where: { id: { in: eventIds } },
+    data: {
+      status: 'PENDING',
+      eligibleCount: 0,
+      processedCount: 0,
+      startedAt: null,
+      completedAt: null,
+      lastError: null,
+    },
+  });
+  await Promise.all(eventIds.map(dispatchDrivePublication));
 };
 
 const getOrCreateDelivery = async (eventId: string, recipientId: string, channel: string) => {

@@ -433,7 +433,6 @@ export const queueDrivePublication = async (eventId: string): Promise<void> => {
   const job: DrivePublicationJob = { type: 'drive-publication', eventId };
   if (bulkQueue && isRedisConnected()) {
     await bulkQueue.add('drive-publication', job, {
-      jobId: `drive-publication-${eventId}`,
       attempts: 5,
       backoff: { type: 'exponential', delay: 5_000 },
     });

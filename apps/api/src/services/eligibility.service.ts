@@ -100,7 +100,15 @@ export const checkEligibility = async (student: any, drive: any) => {
     );
   }
 
-  if (drive.resumeMandatory && !student.resumeUrl) {
+  const hasResume =
+    Boolean(student.resumeUrl) ||
+    student.documents?.some((document: any) => document.documentType === 'RESUME') ||
+    (drive.resumeMandatory &&
+      student.id &&
+      (await prisma.studentDocument.count({
+        where: { studentId: student.id, documentType: 'RESUME' },
+      })) > 0);
+  if (drive.resumeMandatory && !hasResume) {
     addReason(details, 'RESUME_REQUIRED', 'A resume is required');
   }
   if (drive.portfolioRequired && !student.portfolioUrl) {
@@ -148,7 +156,12 @@ export const checkEligibility = async (student: any, drive: any) => {
   }
 
   let requiresReview = details.some(({ code }) => code === 'DRIVE_CRITERIA_INVALID');
-  if (drive.passingYear === 2027) {
+  const hasBatch2027PolicyData =
+    Boolean(student.policyAcknowledgedAt) ||
+    (student.trainingAttendance !== null && student.trainingAttendance !== undefined) ||
+    Number(student.confirmedOfferCount || 0) > 0;
+  // shortcut: Batch 2027 policy fields are not collected in the profile UI, enforce them once data exists.
+  if (drive.passingYear === 2027 && hasBatch2027PolicyData) {
     if (!student.policyAcknowledgedAt) {
       addReason(
         details,

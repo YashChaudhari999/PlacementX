@@ -8,6 +8,10 @@ jest.mock('../src/services/settings.service', () => ({
     return values[key];
   }),
 }));
+jest.mock('../src/utils/prisma', () => ({
+  __esModule: true,
+  default: { studentDocument: { count: jest.fn(async () => 0) } },
+}));
 
 import { checkEligibility } from '../src/services/eligibility.service';
 
@@ -87,11 +91,22 @@ describe('placement eligibility', () => {
     );
   });
 
-  it('does not silently penalize missing attendance data', async () => {
-    const result = await checkEligibility({ ...baseStudent, trainingAttendance: null }, baseDrive);
-    expect(result.isEligible).toBe(false);
-    expect(result.requiresReview).toBe(true);
-    expect(result.reasonCodes).toContain('TRAINING_ATTENDANCE_MISSING');
+  it('accepts an uploaded resume document when the legacy resume URL is empty', async () => {
+    const result = await checkEligibility(
+      { ...baseStudent, resumeUrl: null, documents: [{ documentType: 'RESUME' }] },
+      baseDrive
+    );
+    expect(result.reasonCodes).not.toContain('RESUME_REQUIRED');
+  });
+
+  it('does not silently penalize policy fields that the profile UI does not collect', async () => {
+    const result = await checkEligibility(
+      { ...baseStudent, policyAcknowledgedAt: null, trainingAttendance: null },
+      baseDrive
+    );
+    expect(result.isEligible).toBe(true);
+    expect(result.requiresReview).toBe(false);
+    expect(result.reasonCodes).not.toContain('TRAINING_ATTENDANCE_MISSING');
   });
 
   it('requires review when Batch 2027 offer restrictions are ambiguous', async () => {
