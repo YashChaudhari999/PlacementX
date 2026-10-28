@@ -6,9 +6,12 @@ const prismaMock = {
   },
   placementDrive: {
     create: jest.fn(),
+    findUnique: jest.fn(),
   },
   hrInvitationLink: {
     create: jest.fn(),
+    findUnique: jest.fn(),
+    update: jest.fn(),
   },
   driveAuditLog: {
     create: jest.fn(),
@@ -22,7 +25,7 @@ jest.mock('../src/utils/prisma', () => ({ __esModule: true, default: prismaMock 
 jest.mock('../src/services/settings.service', () => ({ getSetting: getSettingMock }));
 jest.mock('../src/services/notification.service', () => ({ createNotification: jest.fn() }));
 
-import { generateHrLink, submitHrDrive } from '../src/controllers/hr.controller';
+import { generateHrLink, submitHrDrive, validateHrLink } from '../src/controllers/hr.controller';
 
 const response = () => {
   const res: any = {};
@@ -174,5 +177,52 @@ describe('generateHrLink', () => {
       success: false,
       message: 'registrationEnd must be a valid date',
     });
+  });
+});
+
+describe('validateHrLink', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('keeps an invitation valid past its legacy expiry while the drive remains open', async () => {
+    prismaMock.hrInvitationLink.findUnique.mockResolvedValue({
+      driveId: 'drive-1',
+      hrEmail: 'hr@example.com',
+      isUsed: false,
+      revokedAt: null,
+      expiresAt: new Date('2020-01-01'),
+    });
+    prismaMock.placementDrive.findUnique.mockResolvedValue({
+      id: 'drive-1',
+      status: 'PUBLISHED',
+      company: {},
+      selectionRounds: [],
+    });
+    const res = response();
+
+    await validateHrLink({ body: { token: 'c'.repeat(64) } } as any, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('rejects an invitation after the drive is completed', async () => {
+    prismaMock.hrInvitationLink.findUnique.mockResolvedValue({
+      driveId: 'drive-1',
+      hrEmail: 'hr@example.com',
+      isUsed: true,
+      revokedAt: null,
+      expiresAt: new Date('9999-12-31'),
+    });
+    prismaMock.placementDrive.findUnique.mockResolvedValue({
+      id: 'drive-1',
+      status: 'COMPLETED',
+      company: {},
+      selectionRounds: [],
+    });
+    const res = response();
+
+    await validateHrLink({ body: { token: 'd'.repeat(64) } } as any, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ success: false, message: 'This placement drive is closed.' });
   });
 });

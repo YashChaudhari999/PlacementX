@@ -68,6 +68,8 @@ export default function AdminEventDetails() {
  const [applications, setApplications] = useState<any[]>([]);
  const [loading, setLoading] = useState(true);
  const [isReviewOpen, setIsReviewOpen] = useState(false);
+ const [hrLink, setHrLink] = useState('');
+ const [generatingHrLink, setGeneratingHrLink] = useState(false);
 
  const fetchData = async () => {
  try {
@@ -149,6 +151,22 @@ export default function AdminEventDetails() {
  } catch (error) {
  console.error(error);
  toast.error('Failed to update drive status');
+ }
+ };
+
+ const handleGenerateHrLink = async () => {
+ try {
+ setGeneratingHrLink(true);
+ const response = await api.post(`/admin/drives/${id}/hr-link`);
+ const link = `${window.location.origin}/hr-drive/${response.data.data.secureToken}`;
+ setHrLink(link);
+ await navigator.clipboard.writeText(link);
+ toast.success('New secure HR link copied to clipboard');
+ } catch (error: any) {
+ console.error(error);
+ toast.error(error?.response?.data?.message || 'Failed to generate HR link');
+ } finally {
+ setGeneratingHrLink(false);
  }
  };
 
@@ -356,33 +374,34 @@ export default function AdminEventDetails() {
  </Card>
  )}
 
- {drive.hrInvitations && drive.hrInvitations.length > 0 && (
+ {drive.hrInvitations && drive.hrInvitations.length > 0 && !['COMPLETED', 'CANCELLED'].includes(drive.status) && (
  <Card className="p-6 bg-primary/5 border-primary/20">
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
  <div>
- <h3 className="text-lg font-bold text-primary">HR Portal Link Active</h3>
+ <h3 className="text-lg font-bold text-primary">HR Portal Link</h3>
  <p className="text-sm text-primary/80 mt-1">
- Share this link with the HR for them to manage the drive details.
+ Generate a secure link for HR. It remains valid until the drive is completed or cancelled.
  </p>
- <div className="mt-3 bg-card px-4 py-2 rounded-md border border-border flex items-center gap-3">
+ {hrLink && <div className="mt-3 bg-card px-4 py-2 rounded-md border border-border flex items-center gap-3">
  <span className="text-sm font-mono text-muted-foreground select-all">
- {`${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`}
+ {hrLink}
  </span>
  <Button
  size="sm"
  variant="ghost"
  className="h-8 hover:bg-muted text-primary"
  onClick={() => {
- navigator.clipboard.writeText(
- `${window.location.origin}/hr-drive/${drive.hrInvitations[0].token}`
- );
+ navigator.clipboard.writeText(hrLink);
  toast.success('Link copied to clipboard');
  }}
  >
  <Copy01Icon className="w-4 h-4"/>
  </Button>
+ </div>}
  </div>
- </div>
+ <Button onClick={handleGenerateHrLink} disabled={generatingHrLink}>
+ {generatingHrLink ? 'Generating...' : 'Generate New Link'}
+ </Button>
  </div>
  </Card>
  )}

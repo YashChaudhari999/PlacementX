@@ -14,6 +14,7 @@ import {
   updateDriveStatus,
   getDrivePublicationStatus,
 } from '../controllers/drive.controller';
+import { regenerateHrLink } from '../controllers/hr.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -34,6 +35,7 @@ router.delete('/:id', adminOnly, deleteDrive);
 router.put('/:id/status', adminOnly, updateDriveStatus);
 router.get('/:id/applications', adminOnly, getDriveApplications);
 router.get('/:id/publication-status', adminOnly, getDrivePublicationStatus);
+router.post('/:id/hr-link', adminOnly, regenerateHrLink);
 router.put('/applications/:id/status', adminOnly, updateApplicationStatus);
 
 // HR Drive Review Routes

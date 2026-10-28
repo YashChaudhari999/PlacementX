@@ -296,7 +296,16 @@ export const getDriveById = async (req: any, res: any) => {
         ...driveSelectFields,
         company: true,
         selectionRounds: true,
-        hrInvitations: true,
+        hrInvitations: {
+          select: {
+            id: true,
+            hrEmail: true,
+            isUsed: true,
+            createdAt: true,
+            submittedAt: true,
+            revokedAt: true,
+          },
+        },
       },
     });
 

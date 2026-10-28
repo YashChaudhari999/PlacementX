@@ -6,7 +6,8 @@ import { getSetting } from '../services/settings.service';
 import { z } from 'zod';
 import { isApplicationStatus } from '../domain/placement.rules';
 
-const HR_LINK_EXPIRY_DAYS = 7;
+const HR_LINK_NO_EXPIRY = new Date('9999-12-31T23:59:59.999Z');
+const isDriveClosed = (status?: string) => status === 'COMPLETED' || status === 'CANCELLED';
 const hashHrToken = (token: string) => crypto.createHash('sha256').update(token).digest('hex');
 
 const hrLinkSchema = z.object({
@@ -154,8 +155,7 @@ export const generateHrLink = async (req: Request, res: Response) => {
     });
 
     const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + HR_LINK_EXPIRY_DAYS);
+    const expiresAt = HR_LINK_NO_EXPIRY;
 
     const invitation = await prisma.hrInvitationLink.create({
       data: {
@@ -205,10 +205,6 @@ export const validateHrLink = async (req: Request, res: Response) => {
       return res.status(403).json({ success: false, message: 'Link has been revoked.' });
     }
 
-    if (invite.expiresAt < new Date()) {
-      return res.status(403).json({ success: false, message: 'Link has expired.' });
-    }
-
     const drive = await prisma.placementDrive.findUnique({
       where: { id: invite.driveId },
       include: { company: true, selectionRounds: true }
@@ -216,6 +212,10 @@ export const validateHrLink = async (req: Request, res: Response) => {
 
     if (!drive) {
       return res.status(404).json({ success: false, message: 'Placement drive not found.' });
+    }
+
+    if (isDriveClosed(drive.status)) {
+      return res.status(403).json({ success: false, message: 'This placement drive is closed.' });
     }
 
     res.status(200).json({
@@ -231,9 +231,12 @@ export const autoSaveDraft = async (req: Request, res: Response) => {
   try {
     const { token, driveData, companyData, selectionRounds } = req.body;
 
-    const invite = await prisma.hrInvitationLink.findUnique({ where: { token: storedToken(token) } });
-    if (!invite || invite.revokedAt || invite.isUsed || invite.expiresAt < new Date()) {
-      return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
+    const invite = await prisma.hrInvitationLink.findUnique({
+      where: { token: storedToken(token) },
+      include: { drive: { select: { status: true } } },
+    });
+    if (!invite || invite.revokedAt || invite.isUsed || isDriveClosed(invite.drive?.status)) {
+      return res.status(403).json({ success: false, message: 'Link is invalid, closed, or already used.' });
     }
 
     const drive = await prisma.placementDrive.update({
@@ -280,9 +283,12 @@ export const submitHrDrive = async (req: Request, res: Response) => {
     const { token, driveData, companyData, selectionRounds } = req.body;
     
     const tokenHash = storedToken(token);
-    const invite = await prisma.hrInvitationLink.findUnique({ where: { token: tokenHash } });
-    if (!invite || invite.revokedAt || invite.isUsed || invite.expiresAt < new Date()) {
-      return res.status(403).json({ success: false, message: 'Link is invalid, expired, or already used.' });
+    const invite = await prisma.hrInvitationLink.findUnique({
+      where: { token: tokenHash },
+      include: { drive: { select: { status: true } } },
+    });
+    if (!invite || invite.revokedAt || invite.isUsed || isDriveClosed(invite.drive?.status)) {
+      return res.status(403).json({ success: false, message: 'Link is invalid, closed, or already used.' });
     }
 
     if (selectionRounds !== undefined && !Array.isArray(selectionRounds)) {
@@ -366,14 +372,59 @@ const getWorkspaceDrive = async (token: string) => {
   });
 
   if (!hrLink || hrLink.revokedAt) throw new Error('Invalid or revoked token');
-  if (new Date() > hrLink.expiresAt) {
-    throw new Error('Token expired');
-  }
+  if (isDriveClosed(hrLink.drive.status)) throw new Error('Drive closed');
   
   if (!['ACTIVE', 'CLOSED', 'COMPLETED', 'PUBLISHED'].includes(hrLink.drive.status)) {
     throw new Error('Workspace is not available for this drive state');
   }
   return hrLink.drive;
+};
+
+export const regenerateHrLink = async (req: any, res: Response) => {
+  try {
+    const drive = await prisma.placementDrive.findUnique({
+      where: { id: req.params.id },
+      include: {
+        company: { select: { hrEmail: true } },
+        hrInvitations: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+    });
+
+    if (!drive) return res.status(404).json({ success: false, message: 'Placement drive not found.' });
+    if (isDriveClosed(drive.status)) {
+      return res.status(409).json({ success: false, message: 'A closed drive cannot receive a new HR link.' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const existing = drive.hrInvitations[0];
+    const hrEmail = existing?.hrEmail || drive.company.hrEmail;
+    if (!hrEmail) return res.status(400).json({ success: false, message: 'HR email is required.' });
+
+    if (existing) {
+      await prisma.hrInvitationLink.update({
+        where: { id: existing.id },
+        data: { token: hashHrToken(token), revokedAt: null, expiresAt: HR_LINK_NO_EXPIRY },
+      });
+    } else {
+      await prisma.hrInvitationLink.create({
+        data: { driveId: drive.id, token: hashHrToken(token), hrEmail, expiresAt: HR_LINK_NO_EXPIRY },
+      });
+    }
+
+    await prisma.driveAuditLog.create({
+      data: {
+        driveId: drive.id,
+        action: 'HR_LINK_REGENERATED',
+        performedBy: req.user?.email || 'Admin',
+        comments: `Link regenerated for ${hrEmail}`,
+      },
+    });
+
+    return res.status(200).json({ success: true, data: { secureToken: token } });
+  } catch (error) {
+    console.error('HR link regeneration error:', error);
+    return res.status(500).json({ success: false, message: 'Failed to generate HR link.' });
+  }
 };
 
 export const getWorkspaceDetails = async (req: Request, res: Response) => {
