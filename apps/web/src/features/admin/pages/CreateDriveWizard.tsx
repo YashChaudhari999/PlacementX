@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { Card, Input, Button, AvatarUpload } from '@/components/ui';
 import { storage } from '@/lib/firebase/config/firebaseApp';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { toDateTimeLocalValue } from '@/lib/dateTime';
 
 // Step definitions
 const STEPS = [
@@ -173,8 +174,8 @@ export default function CreateDriveWizard() {
  yearGap: d.yearGapAllowed ? String(d.yearGapAllowed) : '0',
  genderRestriction: d.genderRestriction || 'ANY',
  maxOffers: d.maximumLiveOffers ? String(d.maximumLiveOffers) : '1',
- registrationStart: d.registrationStart ? d.registrationStart.split('T')[0] : '',
- registrationEnd: d.registrationEnd ? d.registrationEnd.split('T')[0] : '',
+ registrationStart: toDateTimeLocalValue(d.registrationStart),
+ registrationEnd: toDateTimeLocalValue(d.registrationEnd),
  nominationLink: d.nominationLink || '',
  maximumApplicants: d.maximumApplicants ? String(d.maximumApplicants) : '',
  resumeMandatory: d.resumeMandatory !== false,
@@ -203,6 +204,12 @@ export default function CreateDriveWizard() {
  try {
  const payload = {
  ...data,
+ registrationStart: data.registrationStart
+ ? new Date(data.registrationStart).toISOString()
+ : null,
+ registrationEnd: data.registrationEnd
+ ? new Date(data.registrationEnd).toISOString()
+ : null,
  isDraft: false,
  branches: data.eligibleBranches,
  cgpa: data.minimumCgpa,
@@ -653,27 +660,30 @@ function Step4Registration() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
  <label className="text-sm font-medium text-foreground">
- Registration Start Date *
+ Registration Start Date & Time *
  </label>
  <div className="relative">
  <Calendar01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"/>
  <Input
- type="date"
+ type="datetime-local"
  className="pl-10"
  {...register('registrationStart', { required: true })}
  />
  </div>
  </div>
  <div className="space-y-2">
- <label className="text-sm font-medium text-foreground">Registration End Date *</label>
+ <label className="text-sm font-medium text-foreground">Registration End Date & Time *</label>
  <div className="relative">
  <Calendar01Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground"/>
  <Input
- type="date"
+ type="datetime-local"
  className="pl-10"
  {...register('registrationEnd', { required: true })}
  />
  </div>
+ <p className="text-xs text-muted-foreground">
+ Students can apply until this exact date and time.
+ </p>
  </div>
  </div>
  <div className="space-y-2 pt-4">

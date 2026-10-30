@@ -4,6 +4,13 @@ import jwt from 'jsonwebtoken';
 
 let io: Server;
 
+export interface DataChangedEvent {
+  method: string;
+  resource: string;
+  path: string;
+  occurredAt: string;
+}
+
 export const initSocket = (httpServer: HttpServer) => {
   const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:8081')
     .split(',')
@@ -68,4 +75,14 @@ export const getIO = (): Server => {
     throw new Error('Socket.io is not initialized!');
   }
   return io;
+};
+
+/**
+ * Tell every authenticated client that server-side data changed. The payload
+ * intentionally contains no record data; clients refetch through the normal,
+ * authorised API instead of trusting data pushed over the socket.
+ */
+export const emitDataChanged = (event: Omit<DataChangedEvent, 'occurredAt'>): void => {
+  if (!io) return;
+  io.emit('data:changed', { ...event, occurredAt: new Date().toISOString() } satisfies DataChangedEvent);
 };

@@ -15,6 +15,7 @@ import { useNotifications, useMarkNotificationRead } from '@/hooks/queries/useNo
 import { usePublishedDrives } from '@/hooks/queries/useDrives';
 import { DashboardSkeleton } from '@/components/common/Skeletons';
 import { motion } from 'framer-motion';
+import { formatRegistrationClose } from '@/lib/dateTime';
 
 import { useStudentProfile } from '@/hooks/queries/useStudent';
 
@@ -163,10 +164,7 @@ export default function StudentDashboard() {
  ) : (
  <div className="flex items-center gap-1.5 bg-warning-muted text-warning px-2.5 py-1 rounded">
  <Notification01Icon className="w-3.5 h-3.5"/>
- Deadline:{' '}
- {drive.registrationEnd
- ? new Date(drive.registrationEnd).toLocaleDateString()
- : 'TBD'}
+ Closes: {formatRegistrationClose(drive.registrationEnd)}
  </div>
  )}
  </div>

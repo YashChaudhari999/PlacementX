@@ -12,6 +12,8 @@ import {
   onNewNotification,
   onCountUpdate,
   onNotificationUpdate,
+  onDataChanged,
+  onSocketConnected,
 } from '../services/socket.service';
 
 /**
@@ -55,11 +57,25 @@ export const useSocket = () => {
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
     });
 
+    // Keep every mobile screen in sync with mutations from web, admin, HR,
+    // background jobs, or another signed-in device.
+    const unsubDataChanged = onDataChanged(() => {
+      queryClient.invalidateQueries();
+    });
+
+    // Reconcile after reconnecting because events may have been missed while
+    // the app was backgrounded or the device was offline.
+    const unsubConnected = onSocketConnected(() => {
+      queryClient.invalidateQueries();
+    });
+
     // Cleanup on unmount or auth change
     return () => {
       unsubNew();
       unsubCount();
       unsubUpdate();
+      unsubDataChanged();
+      unsubConnected();
       disconnectSocket();
     };
   }, [isAuthenticated, token]);

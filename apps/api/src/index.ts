@@ -20,6 +20,7 @@ import { hideDetailedErrors, validateUntrustedInput } from './middlewares/securi
 import { validateEnvironment } from './config/environment';
 import prisma from './utils/prisma';
 import healthRoutes from './routes/health.routes';
+import { emitRealtimeChanges } from './middlewares/realtime.middleware';
 
 dotenv.config();
 validateEnvironment();
@@ -66,6 +67,7 @@ app.use(apiRateLimit);
 app.use(express.json({ limit: '10mb' }));
 app.use(validateUntrustedInput);
 app.use(hideDetailedErrors);
+app.use(emitRealtimeChanges);
 
 // API Routes
 app.use('/api/auth', authRoutes);

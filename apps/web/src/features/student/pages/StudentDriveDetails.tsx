@@ -13,6 +13,7 @@ import {
  CancelCircleIcon,
 } from 'hugeicons-react';
 import { toast } from 'sonner';
+import { formatRegistrationClose } from '@/lib/dateTime';
 
 export default function StudentDriveDetails() {
  const { id } = useParams();
@@ -99,14 +100,8 @@ export default function StudentDriveDetails() {
  <Location01Icon className="w-4 h-4 text-muted-foreground"/> {drive.workMode}
  </div>
  <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg border border-border shadow-sm">
- <Calendar01Icon className="w-4 h-4 text-muted-foreground"/> Deadline:{' '}
- {drive.registrationEnd
- ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', {
- day: '2-digit',
- month: '2-digit',
- year: 'numeric',
- })
- : 'TBD'}
+ <Calendar01Icon className="w-4 h-4 text-muted-foreground"/>
+ Registration closes: {formatRegistrationClose(drive.registrationEnd)}
  </div>
  {drive.fixedSalary && (
  <div className="flex items-center gap-1.5 bg-success/10 text-success px-3 py-1.5 rounded-lg border border-success/20 shadow-sm font-bold">
@@ -133,7 +128,7 @@ export default function StudentDriveDetails() {
  </div>
  ) : isDeadlinePassed ? (
  <div className="flex items-center gap-2 text-warning bg-warning/10 px-4 py-2 rounded-full font-semibold border border-warning/20">
- <Alert02Icon className="w-5 h-5"/> Deadline Passed
+ <Alert02Icon className="w-5 h-5"/> Registration closed
  </div>
  ) : eligibility ? (
  eligibility.isEligible ? (

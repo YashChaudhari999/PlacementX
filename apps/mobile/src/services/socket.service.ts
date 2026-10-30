@@ -15,15 +15,20 @@ let isConnected = false;
 type NotificationCallback = (notification: any) => void;
 type CountUpdateCallback = (data: { count: number }) => void;
 type UpdateCallback = () => void;
+type DataChangedCallback = (event: { method: string; resource: string; path: string; occurredAt: string }) => void;
 
 const listeners: {
   onNewNotification: NotificationCallback[];
   onCountUpdate: CountUpdateCallback[];
   onUpdate: UpdateCallback[];
+  onDataChanged: DataChangedCallback[];
+  onConnected: UpdateCallback[];
 } = {
   onNewNotification: [],
   onCountUpdate: [],
   onUpdate: [],
+  onDataChanged: [],
+  onConnected: [],
 };
 
 // ─── Connection Management ──────────────────────────────
@@ -63,6 +68,7 @@ export const connectSocket = (): void => {
   socket.on('connect', () => {
     isConnected = true;
     console.log('Socket connected:', socket?.id);
+    listeners.onConnected.forEach(cb => cb());
   });
 
   socket.on('disconnect', (reason) => {
@@ -87,6 +93,10 @@ export const connectSocket = (): void => {
 
   socket.on('notification:update', () => {
     listeners.onUpdate.forEach(cb => cb());
+  });
+
+  socket.on('data:changed', (event) => {
+    listeners.onDataChanged.forEach(cb => cb(event));
   });
 };
 
@@ -135,6 +145,20 @@ export const onNotificationUpdate = (callback: UpdateCallback): (() => void) => 
   listeners.onUpdate.push(callback);
   return () => {
     listeners.onUpdate = listeners.onUpdate.filter(cb => cb !== callback);
+  };
+};
+
+export const onDataChanged = (callback: DataChangedCallback): (() => void) => {
+  listeners.onDataChanged.push(callback);
+  return () => {
+    listeners.onDataChanged = listeners.onDataChanged.filter(cb => cb !== callback);
+  };
+};
+
+export const onSocketConnected = (callback: UpdateCallback): (() => void) => {
+  listeners.onConnected.push(callback);
+  return () => {
+    listeners.onConnected = listeners.onConnected.filter(cb => cb !== callback);
   };
 };
 

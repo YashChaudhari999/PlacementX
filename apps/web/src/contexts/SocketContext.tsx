@@ -3,6 +3,7 @@ import type { Socket } from 'socket.io-client';
 import { io } from 'socket.io-client';
 import { useAuthStore } from '@/stores/authStore';
 import toast from 'react-hot-toast';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface SocketContextType {
  socket: Socket | null;
@@ -20,6 +21,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
  const { user, token } = useAuthStore();
  const [socket, setSocket] = useState<Socket | null>(null);
  const [isConnected, setIsConnected] = useState(false);
+ const queryClient = useQueryClient();
 
  // Use stable primitive values as deps to avoid reconnect loops on every render
  const userId = user?.id;
@@ -29,7 +31,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
  return;
  }
 
- const socketUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+ const socketUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || 'http://localhost:5000';
 
  const newSocket = io(socketUrl, {
  auth: { token },
@@ -41,6 +43,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
  newSocket.on('connect', () => {
  setIsConnected(true);
+ // A reconnect may have missed events, so always reconcile active queries.
+ queryClient.invalidateQueries();
  });
 
  newSocket.on('disconnect', () => {
@@ -49,6 +53,12 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
  newSocket.on('connect_error', (err) => {
  console.warn('Socket connection error:', err.message);
+ });
+
+ // Every successful API mutation emits this signal. Refetch through React
+ // Query so every screen stays consistent without duplicating domain logic.
+ newSocket.on('data:changed', () => {
+ queryClient.invalidateQueries();
  });
 
  // Global listener for new notifications to trigger toast
@@ -86,7 +96,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
  setIsConnected(false);
  };
  // Depend only on stable primitives, not the whole user object
- }, [token, userId]);
+ }, [token, userId, queryClient]);
 
  return (
  <SocketContext.Provider value={{ socket, isConnected }}>

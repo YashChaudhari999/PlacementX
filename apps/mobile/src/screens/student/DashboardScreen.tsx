@@ -12,6 +12,7 @@ import { PLACEMENTX_PROFILE_URL } from '../../config/api';
 import { useAuthStore } from '../../stores/authStore';
 import { useNotificationStore } from '../../stores/notificationStore';
 import { usePublishedDrives, useStudentProfile } from '../../hooks/queries';
+import { formatRegistrationClose } from '../../lib/dateTime';
 
 const { height } = Dimensions.get('window');
 
@@ -85,7 +86,7 @@ export default function DashboardScreen() {
               <Calendar size={14} color={theme.colors.primary} />
             </View>
             <Text style={styles.detailText}>
-              {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'TBA'}
+              Closes: {formatRegistrationClose(drive.registrationEnd)}
             </Text>
           </View>
         </View>

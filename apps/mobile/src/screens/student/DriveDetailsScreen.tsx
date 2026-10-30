@@ -8,6 +8,7 @@ import type { AppTheme } from '../../theme/theme';
 import { useAppTheme } from '../../theme/ThemeProvider';
 import { Card, ScreenHeader, StatusBadge, Button, Toast, ErrorState } from '../../components/ui';
 import { useDriveDetails, useCheckEligibility, useApplyForDrive } from '../../hooks/queries';
+import { formatRegistrationClose } from '../../lib/dateTime';
 
 const { width } = Dimensions.get('window');
 
@@ -184,9 +185,9 @@ export default function DriveDetailsScreen() {
                   <Calendar size={18} color={theme.colors.primary} />
                 </View>
                 <View style={styles.timelineTextContainer}>
-                  <Text style={styles.timelineLabel}>Registration Deadline</Text>
+                  <Text style={styles.timelineLabel}>Registration End Date</Text>
                   <Text style={styles.timelineValue}>
-                    {drive.registrationEnd ? new Date(drive.registrationEnd).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }) : 'TBA'}
+                    Registration closes on {formatRegistrationClose(drive.registrationEnd)}
                   </Text>
                 </View>
               </View>
