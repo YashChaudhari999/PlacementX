@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
@@ -14,6 +14,49 @@ import {
 } from 'hugeicons-react';
 import { toast } from 'sonner';
 import { formatRegistrationClose } from '@/lib/dateTime';
+
+const displayValue = (value: unknown, fallback = 'Not specified') =>
+ value === null || value === undefined || value === '' ? fallback : String(value);
+
+const parseList = (value: unknown): string[] => {
+ if (Array.isArray(value)) return value.map(String).filter(Boolean);
+ if (typeof value !== 'string' || !value.trim()) return [];
+ try {
+ const parsed = JSON.parse(value);
+ if (Array.isArray(parsed)) return parsed.map(String).filter(Boolean);
+ } catch {
+ // Older records store comma-separated values.
+ }
+ return value.split(',').map((item) => item.trim()).filter(Boolean);
+};
+
+const formatDateTime = (value?: string | null) =>
+ value
+ ? new Date(value).toLocaleString('en-IN', {
+ day: '2-digit', month: 'short', year: 'numeric',
+ hour: 'numeric', minute: '2-digit', hour12: true,
+ })
+ : 'Not scheduled';
+
+const safeExternalUrl = (value?: string | null): string | null => {
+ if (!value?.trim()) return null;
+ const candidate = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+ try {
+ const url = new URL(candidate);
+ return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null;
+ } catch {
+ return null;
+ }
+};
+
+function DetailRow({ label, value }: { label: string; value: ReactNode }) {
+ return (
+ <div className="flex items-start justify-between gap-4 py-2 border-b border-border/60 last:border-0">
+ <span className="text-muted-foreground">{label}</span>
+ <span className="font-medium text-foreground text-right">{value}</span>
+ </div>
+ );
+}
 
 export default function StudentDriveDetails() {
  const { id } = useParams();
@@ -73,12 +116,23 @@ export default function StudentDriveDetails() {
  if (loading || !drive)
  return <div className="p-8 text-center text-muted-foreground">Loading...</div>;
 
- const isDeadlinePassed = drive.registrationEnd
- ? new Date(drive.registrationEnd) < new Date()
+ const registrationDeadline = drive.applicationDeadline || drive.registrationEnd;
+ const isDeadlinePassed = registrationDeadline
+ ? new Date(registrationDeadline) < new Date()
  : false;
  const isRegistrationNotStarted = drive.registrationStart
  ? new Date(drive.registrationStart) > new Date()
  : false;
+ const eligibleBranches = parseList(drive.eligibleBranches);
+ const attachments = parseList(drive.attachments);
+ const companyWebsite = safeExternalUrl(drive.company?.website);
+ const nominationUrl = safeExternalUrl(drive.nominationLink);
+ const requiredDocuments = [
+ drive.resumeMandatory && 'Resume / CV',
+ drive.portfolioRequired && 'Portfolio',
+ drive.githubRequired && 'GitHub profile',
+ drive.linkedinRequired && 'LinkedIn profile',
+ ].filter(Boolean) as string[];
 
  return (
  <div className="max-w-5xl mx-auto space-y-6">
@@ -101,7 +155,7 @@ export default function StudentDriveDetails() {
  </div>
  <div className="flex items-center gap-1.5 bg-muted px-3 py-1.5 rounded-lg border border-border shadow-sm">
  <Calendar01Icon className="w-4 h-4 text-muted-foreground"/>
- Registration closes: {formatRegistrationClose(drive.registrationEnd)}
+ Registration closes: {formatRegistrationClose(registrationDeadline)}
  </div>
  {drive.fixedSalary && (
  <div className="flex items-center gap-1.5 bg-success/10 text-success px-3 py-1.5 rounded-lg border border-success/20 shadow-sm font-bold">
@@ -175,6 +229,22 @@ export default function StudentDriveDetails() {
  {/* Left Col */}
  <div className="md:col-span-2 space-y-6">
  <Card className="p-6 border-border shadow-sm">
+ <h2 className="text-xl font-bold text-foreground mb-4">Drive Overview</h2>
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 text-sm">
+ <DetailRow label="Drive title" value={displayValue(drive.driveTitle || drive.jobRole)} />
+ <DetailRow label="Drive type" value={displayValue(drive.driveType)} />
+ <DetailRow label="Employment type" value={displayValue(drive.employmentType)} />
+ <DetailRow label="Work mode" value={displayValue(drive.workMode)} />
+ <DetailRow label="Location" value={displayValue(drive.location || drive.company?.location)} />
+ <DetailRow label="Vacancies" value={displayValue(drive.vacancies)} />
+ <DetailRow label="Department" value={displayValue(drive.department)} />
+ <DetailRow label="Campus" value={displayValue(drive.campus)} />
+ <DetailRow label="Academic year" value={displayValue(drive.academicYear)} />
+ <DetailRow label="Placement season" value={displayValue(drive.placementSeason)} />
+ </div>
+ </Card>
+
+ <Card className="p-6 border-border shadow-sm">
  <h2 className="text-xl font-bold text-foreground mb-4">Job Description</h2>
  <div className="prose prose-slate max-w-none">
  <p className="whitespace-pre-wrap text-muted-foreground">{drive.jobDescription}</p>
@@ -188,6 +258,29 @@ export default function StudentDriveDetails() {
  <p className="whitespace-pre-wrap text-muted-foreground">{drive.company.profile}</p>
  </div>
  )}
+ </Card>
+
+ {(drive.requiredSkills || drive.preferredSkills || drive.technologyStack || drive.benefits || drive.trainingPeriod) && (
+ <Card className="p-6 border-border shadow-sm">
+ <h2 className="text-xl font-bold text-foreground mb-4">Skills & Opportunity Details</h2>
+ <div className="space-y-4 text-sm">
+ {drive.requiredSkills && <div><h3 className="font-semibold mb-1">Required skills</h3><p className="text-muted-foreground whitespace-pre-wrap">{drive.requiredSkills}</p></div>}
+ {drive.preferredSkills && <div><h3 className="font-semibold mb-1">Preferred skills</h3><p className="text-muted-foreground whitespace-pre-wrap">{drive.preferredSkills}</p></div>}
+ {drive.technologyStack && <div><h3 className="font-semibold mb-1">Technology stack</h3><p className="text-muted-foreground whitespace-pre-wrap">{drive.technologyStack}</p></div>}
+ {drive.trainingPeriod && <DetailRow label="Training period" value={drive.trainingPeriod} />}
+ {drive.benefits && <div><h3 className="font-semibold mb-1">Benefits</h3><p className="text-muted-foreground whitespace-pre-wrap">{drive.benefits}</p></div>}
+ </div>
+ </Card>
+ )}
+
+ <Card className="p-6 border-border shadow-sm">
+ <h2 className="text-xl font-bold text-foreground mb-4">Registration Timeline</h2>
+ <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 text-sm">
+ <DetailRow label="Registration opens" value={formatDateTime(drive.registrationStart)} />
+ <DetailRow label="Registration closes" value={formatRegistrationClose(drive.applicationDeadline || drive.registrationEnd)} />
+ <DetailRow label="Expected drive date" value={formatDateTime(drive.expectedDriveDate)} />
+ <DetailRow label="Maximum applicants" value={displayValue(drive.maximumApplicants, 'No limit specified')} />
+ </div>
  </Card>
 
  {drive.selectionRounds && drive.selectionRounds.length > 0 && (
@@ -216,7 +309,11 @@ export default function StudentDriveDetails() {
  )}
  {round.duration && <span>Duration: {round.duration}</span>}
  {round.venue && <span>Venue: {round.venue}</span>}
+ {round.time && <span>Time: {round.time}</span>}
+ {round.mode && <span>Mode: {round.mode}</span>}
+ {round.platform && <span>Platform: {round.platform}</span>}
  </div>
+ {round.instructions && <p className="text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{round.instructions}</p>}
  </div>
  </div>
  ))}
@@ -239,6 +336,31 @@ export default function StudentDriveDetails() {
  </ul>
  </Card>
  )}
+
+ <Card className="p-6 border-border shadow-sm">
+ <h3 className="font-bold text-foreground mb-4 border-b border-border pb-2">Eligibility Criteria</h3>
+ <div className="text-sm">
+ <DetailRow label="Eligible branches" value={eligibleBranches.length ? eligibleBranches.join(', ') : 'All / not specified'} />
+ <DetailRow label="Passing year" value={displayValue(drive.passingYear)} />
+ <DetailRow label="Minimum CGPA" value={displayValue(drive.minimumCgpa)} />
+ <DetailRow label="Minimum attendance" value={drive.minimumAttendance != null ? `${drive.minimumAttendance}%` : 'Not specified'} />
+ <DetailRow label="Active backlogs allowed" value={displayValue(drive.activeBacklogsAllowed)} />
+ <DetailRow label="History of backlogs allowed" value={displayValue(drive.historyOfBacklogsAllowed)} />
+ <DetailRow label="Gap years allowed" value={displayValue(drive.maximumGapYears ?? drive.yearGapAllowed)} />
+ <DetailRow label="Maximum live offers" value={displayValue(drive.maximumLiveOffers)} />
+ <DetailRow label="Gender restriction" value={displayValue(drive.genderRestriction, 'None')} />
+ {drive.semester != null && <DetailRow label="Semester" value={drive.semester} />}
+ </div>
+ </Card>
+
+ <Card className="p-6 border-border shadow-sm">
+ <h3 className="font-bold text-foreground mb-4 border-b border-border pb-2">Required Documents</h3>
+ {requiredDocuments.length ? (
+ <ul className="list-disc list-inside text-sm text-foreground space-y-1">
+ {requiredDocuments.map((document) => <li key={document}>{document}</li>)}
+ </ul>
+ ) : <p className="text-sm text-muted-foreground">No specific documents listed.</p>}
+ </Card>
 
  <Card className="p-6 border-border shadow-sm">
  <h3 className="font-bold text-foreground mb-4 border-b border-border pb-2">
@@ -275,8 +397,40 @@ export default function StudentDriveDetails() {
  <span className="font-medium text-foreground">{drive.bondDetails}</span>
  </div>
  )}
+ <DetailRow label="Joining bonus" value={drive.joiningBonus ? `₹${drive.joiningBonus}` : 'Not specified'} />
  </div>
  </Card>
+
+ <Card className="p-6 border-border shadow-sm">
+ <h3 className="font-bold text-foreground mb-4 border-b border-border pb-2">Company Information</h3>
+ <div className="text-sm">
+ <DetailRow label="Industry" value={displayValue(drive.company?.industry)} />
+ <DetailRow label="Website" value={companyWebsite ? <a className="text-primary hover:underline" href={companyWebsite} target="_blank" rel="noreferrer">Open website</a> : 'Not specified'} />
+ <DetailRow label="HR contact" value={displayValue(drive.company?.hrName)} />
+ <DetailRow label="HR email" value={drive.company?.hrEmail ? <a className="text-primary hover:underline" href={`mailto:${drive.company.hrEmail}`}>{drive.company.hrEmail}</a> : 'Not specified'} />
+ </div>
+ </Card>
+
+ {(nominationUrl || attachments.some((attachment) => safeExternalUrl(attachment))) && (
+ <Card className="p-6 border-border shadow-sm">
+ <h3 className="font-bold text-foreground mb-4 border-b border-border pb-2">Links & Attachments</h3>
+ <div className="space-y-2 text-sm">
+ {nominationUrl && <a className="block text-primary hover:underline" href={nominationUrl} target="_blank" rel="noreferrer">Open nomination / registration link</a>}
+ {attachments.map((attachment, index) => {
+ const url = safeExternalUrl(attachment);
+ return url ? <a key={`${attachment}-${index}`} className="block text-primary hover:underline" href={url} target="_blank" rel="noreferrer">Attachment {index + 1}</a> : null;
+ })}
+ </div>
+ </Card>
+ )}
+
+ {(drive.specialInstructions || drive.remarks) && (
+ <Card className="p-6 border-warning/30 bg-warning/5 shadow-sm">
+ <h3 className="font-bold text-foreground mb-3">Important Instructions</h3>
+ {drive.specialInstructions && <p className="text-sm text-foreground whitespace-pre-wrap">{drive.specialInstructions}</p>}
+ {drive.remarks && <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{drive.remarks}</p>}
+ </Card>
+ )}
  </div>
  </div>
  </div>
