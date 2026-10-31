@@ -228,7 +228,10 @@ export const getDrives = async (req: any, res: any) => {
         drives.map(async (drive) => ({ drive, result: await checkEligibility(student, drive) }))
       );
       drives = evaluated
-        .filter(({ result }) => result.isEligible && !result.requiresReview)
+        .filter(({ drive, result }) =>
+          (result.isEligible && !result.requiresReview) ||
+          drive.applications.some((application) => application.studentId === student.id)
+        )
         .map(({ drive }) => drive);
     }
 
