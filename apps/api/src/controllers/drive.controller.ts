@@ -323,8 +323,13 @@ export const getDriveById = async (req: any, res: any) => {
       const student = await prisma.studentProfile.findUnique({ where: { userId: req.user.id } });
       if (!student) return res.status(404).json({ message: 'Student profile not found' });
       const { checkEligibility } = await import('../services/eligibility.service');
-      const eligibility = await checkEligibility(student, drive);
-      if (!eligibility.isEligible || eligibility.requiresReview) {
+      const [eligibility, existingApplication] = await Promise.all([
+        checkEligibility(student, drive),
+        prisma.driveApplication.findUnique({
+          where: { driveId_studentId: { driveId: drive.id, studentId: student.id } },
+        }),
+      ]);
+      if ((!eligibility.isEligible || eligibility.requiresReview) && !existingApplication) {
         return res
           .status(403)
           .json({ message: 'You do not currently have access to this placement drive' });
